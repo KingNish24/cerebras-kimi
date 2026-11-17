@@ -82,20 +82,22 @@ Model/provider config is shared with vtx: keys in `~/.vtx/dynamic_auth.json`, mo
 
 ## Development
 
-```bash
-# Backend agent (spawned automatically by Next.js)
-cd backend && .venv/bin/python -m app.acp_stdio   # speaks ndJSON JSON-RPC on stdio
-
-# Frontend
-cd web && npm run dev    # http://localhost:3000
-```
-
-The Python side needs no server — the Next.js dev server spawns `python -m app.acp_stdio` as a child process. Direct stdio testing:
+The frontend and the Python backend are **separate processes**. The backend is
+a FastAPI/Uvicorn server on `127.0.0.1:8001` (REST under `/api/*`, turn traffic
+over `ws://127.0.0.1:8001/ws`). `npm run dev` starts **only Next.js** — if the
+backend is not running, chat fails after ~12 s with
+*"Couldn't reach the server. Please check your connection and retry."*
 
 ```bash
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
-  | backend/.venv/bin/python -m app.acp_stdio
+# Terminal 1 — backend (required)
+cd backend && .venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+
+# Terminal 2 — frontend (http://localhost:3000)
+cd web && npm run dev
 ```
+
+Alternatively, `cd web && npm start` builds and starts both processes together.
+Check the backend with `curl http://127.0.0.1:8001/health` → `{"status":"ok"}`.
 
 ## Notes
 

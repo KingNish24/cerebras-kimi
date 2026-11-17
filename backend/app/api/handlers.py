@@ -215,8 +215,8 @@ def _summary(session: dict[str, Any]) -> dict[str, Any]:
         "session_id": session["id"],
         "content_workspace_id": (session.get("preferences") or {}).get("workspace_id"),
         "title": session.get("title") or "Untitled",
-        "created_at": session.get("created_at", 0),
-        "updated_at": session.get("updated_at", 0),
+        "created_at": _epoch_seconds(session.get("created_at")),
+        "updated_at": _epoch_seconds(session.get("updated_at")),
         "message_count": len(messages),
         "last_message": str(last.get("content", ""))[:200],
         "status": "running" if active else (session.get("status") or "idle"),
@@ -225,16 +225,53 @@ def _summary(session: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _epoch_seconds(value: Any) -> float:
+    """Normalize session timestamps to epoch seconds — the wire contract.
+
+    Stored sessions use numeric epochs; native vtx sessions carry ISO strings.
+    The sidebar feeds these straight into ``new Date(seconds * 1000)``, so a
+    string (or NaN/Infinity) there throws ``RangeError: Invalid time value``.
+    """
+    import math as _math
+    if isinstance(value, bool):
+        return 0.0
+    if isinstance(value, (int, float)):
+        result = float(value)
+        return result if _math.isfinite(result) else 0.0
+    if isinstance(value, str):
+        import datetime as _dt
+        try:
+            return _dt.datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            return 0.0
+    return 0.0
+
+
+def _session_updated_key(session: dict[str, Any]) -> float:
+    """Sort key shared by stored (epoch number) and native (ISO) sessions."""
+    return _epoch_seconds(session.get("updated_at"))
+
+
 @router.get("/sessions")
 def list_sessions(
     request: Request,
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:
-    sessions = _store(request).list(limit=limit, offset=offset)
-    bound = {s.get("vtx_session_file") for s in sessions}
-    natives = [r for r in _vtx_native_sessions() if r.get("vtx_file") not in bound]
-    return {"sessions": [_summary(s) for s in sessions] + natives[:limit]}
+    # Paginate the *combined* index. Appending native sessions to every page
+    # (regardless of offset) made a full page appear at every offset, so the
+    # frontend's load-all loop never terminated and pinned the server.
+    stored = _store(request).all()
+    bound_files = {s.get("vtx_session_file") for s in stored}
+    seen_ids = {s["id"] for s in stored}
+    merged = list(stored)
+    for row in _vtx_native_sessions():
+        if row.get("vtx_file") in bound_files or row.get("id") in seen_ids:
+            continue
+        merged.append(row)
+        seen_ids.add(row.get("id"))
+    merged.sort(key=_session_updated_key, reverse=True)
+    return {"sessions": [_summary(s) for s in merged[offset : offset + limit]]}
 
 
 @router.get("/sessions/search")

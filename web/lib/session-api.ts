@@ -273,16 +273,22 @@ export async function listAllSessions(options?: {
   const pageSize = 200;
   const sessions: SessionSummary[] = [];
   const seen = new Set<string>();
-  for (let offset = 0; ; offset += pageSize) {
+  // A backend that ignores `offset` returns a full page of duplicates forever.
+  // Bound the walk and stop as soon as a page adds nothing new — otherwise the
+  // loop pins the server and chat requests start timing out.
+  const maxPages = 5000;
+  for (let offset = 0, pages = 0; pages < maxPages; offset += pageSize, pages += 1) {
     const page = await listSessions(pageSize, offset, options);
     // Updates can move a row between offset pages while the index is loading.
     // Scope is part of identity: migration/imports can reuse a session id.
+    const before = sessions.length;
     for (const session of page) {
       const key = `${sessionWorkspaceId(session)}:${session.session_id}`;
       if (!seen.has(key)) { seen.add(key); sessions.push(session); }
     }
-    if (page.length < pageSize) return sessions;
+    if (page.length < pageSize || sessions.length === before) return sessions;
   }
+  return sessions;
 }
 
 export async function searchSessions(
@@ -311,23 +317,30 @@ export async function searchAllSessions(
   const pageSize = 100;
   const sessions: SessionSearchResult[] = [];
   const seen = new Set<string>();
-  for (let offset = 0; ; offset += pageSize) {
+  const maxPages = 5000;
+  for (let offset = 0, pages = 0; pages < maxPages; offset += pageSize, pages += 1) {
     const page = await searchSessions(
       query,
       pageSize,
       offset,
       signal,
     );
+    const before = sessions.length;
     for (const session of page.sessions) {
       const key = `${sessionWorkspaceId(session)}:${session.session_id}`;
       if (seen.has(key)) continue;
       seen.add(key);
       sessions.push(session);
     }
-    if (sessions.length >= page.total || page.sessions.length < pageSize) {
+    if (
+      sessions.length >= page.total ||
+      page.sessions.length < pageSize ||
+      sessions.length === before
+    ) {
       return sessions;
     }
   }
+  return sessions;
 }
 
 export async function getSession(

@@ -82,6 +82,10 @@ class TurnHandle:
     subscribers: set[asyncio.Queue] = field(default_factory=set)
     events: list[dict[str, Any]] = field(default_factory=list)
     seq: int = 0
+    # Live session dict the turn is writing to. Events are recorded into it
+    # as they are emitted so a client that misses live frames (short turn,
+    # late pump subscription, reconnect) can replay them from the store.
+    session_ref: dict[str, Any] | None = None
 
     def next_seq(self) -> int:
         self.seq += 1
@@ -207,6 +211,11 @@ class AgentRuntime:
 
     async def _emit(self, turn: TurnHandle, event: dict[str, Any]) -> None:
         turn.events.append(event)
+        # Mirror into the session record so turn_events_after() can replay the
+        # suffix once the in-memory handle is dropped on completion. The dict
+        # is persisted once the turn finalizes (not on every token).
+        if turn.session_ref is not None:
+            self._store.record_turn_event(turn.session_ref, turn.turn_id, event)
         dead: list[asyncio.Queue] = []
         for queue in turn.subscribers:
             try:
@@ -243,7 +252,7 @@ class AgentRuntime:
 
         capability = (command.get("capability") or "chat").strip() or "chat"
         turn_id = _new_id("turn")
-        handle = TurnHandle(turn_id=turn_id, session_id=session["id"])
+        handle = TurnHandle(turn_id=turn_id, session_id=session["id"], session_ref=session)
         self._turns[turn_id] = handle
 
         # Persist the user row up front so a crash never loses the prompt.
@@ -396,7 +405,10 @@ class AgentRuntime:
                     source=capability, stage="responding"))
                 await self._emit(handle, self._stream_event(
                     handle, "done", source=capability, stage="responding",
-                    metadata={"status": "error"}))
+                    metadata={"status": "error",
+                              "user_message_id": user_message.get("id"),
+                              "assistant_message_id": None}))
+                self._finalize_turn(handle, session, "error")
                 return True
         else:
             runtime, agent = self._vtx_runtimes[cache_key]
@@ -465,9 +477,10 @@ class AgentRuntime:
                 stage="responding"))
 
         assistant_text = "".join(assistant_parts).strip()
+        assistant_message: dict[str, Any] | None = None
         if assistant_text:
             try:
-                self._store.append_assistant_message(
+                assistant_message = self._store.append_assistant_message(
                     session, assistant_text,
                     events=list(handle.events), turn_id=handle.turn_id,
                     capability=capability,
@@ -486,10 +499,38 @@ class AgentRuntime:
         await self._emit(handle, self._stream_event(
             handle, "stage_end", source=capability, stage="responding",
             metadata={"status": status}))
+        # The client reconciles its optimistic rows and clears failed-
+        # submission records from these ids. Without them every completed
+        # turn was treated as an unsent draft despite being persisted.
+        done_meta: dict[str, Any] = {
+            "status": status,
+            "user_message_id": user_message.get("id"),
+            "assistant_message_id": (
+                assistant_message.get("id") if assistant_message else None
+            ),
+        }
         await self._emit(handle, self._stream_event(
             handle, "done", source=capability, stage="responding",
-            metadata={"status": status}))
+            metadata=done_meta))
+        # Persist the recorded turn (incl. done) before the done callback drops
+        # the in-memory handle — replay must find these frames in the store.
+        self._finalize_turn(handle, session, status)
         return True
+
+    def _finalize_turn(
+        self, handle: TurnHandle, session: dict[str, Any], status: str
+    ) -> None:
+        """Seal the recorded turn and flush it to disk."""
+        turn = session.get("turns", {}).get(handle.turn_id)
+        if turn is not None:
+            turn["status"] = status
+            turn["finished_at"] = time.time()
+            turn["last_seq"] = handle.seq
+        handle.status = status
+        try:
+            self._store.save(session)
+        except Exception:  # noqa: BLE001
+            pass
 
     async def _run(
         self,

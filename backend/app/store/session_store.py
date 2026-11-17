@@ -87,10 +87,19 @@ class SessionStore:
             return True
         return False
 
-    def list(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
+    def all(self) -> list[dict[str, Any]]:
+        """Every stored session, newest first.
+
+        Callers that merge other sources (native vtx sessions) into the index
+        need the unpaginated list so offset/limit can be applied once to the
+        combined result instead of per-source.
+        """
         sessions = [s for s in (self.get(p.stem) for p in self._settings.sessions_dir.glob("*.json")) if s]
         sessions.sort(key=lambda s: s.get("updated_at", 0), reverse=True)
-        return sessions[offset : offset + limit]
+        return sessions
+
+    def list(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
+        return self.all()[offset : offset + limit]
 
     def search(self, query: str, limit: int = 50, offset: int = 0) -> tuple[list[dict[str, Any]], int]:
         q = query.strip().lower()

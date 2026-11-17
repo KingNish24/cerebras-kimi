@@ -167,13 +167,17 @@ export function RecordHeader({
 /** Relative time at the right edge of a record row; the exact time on hover. */
 export function RecordTime({ seconds, className = '' }: { seconds: number; className?: string }) {
   const { i18n } = useTranslation()
+  // A malformed backend timestamp (string, NaN, Infinity) used to throw
+  // `RangeError: Invalid time value` and take down the whole sidebar.
+  const safeSeconds = Number.isFinite(seconds) ? seconds : Date.now() / 1000
+  const date = new Date(safeSeconds * 1000)
   return (
     <time
       className={`dt-record-time ${className}`}
-      dateTime={new Date(seconds * 1000).toISOString()}
-      title={new Date(seconds * 1000).toLocaleString(i18n.language)}
+      dateTime={date.toISOString()}
+      title={date.toLocaleString(i18n.language)}
     >
-      {formatRelativeTime(seconds, i18n.language)}
+      {formatRelativeTime(safeSeconds, i18n.language)}
     </time>
   )
 }

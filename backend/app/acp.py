@@ -426,6 +426,13 @@ class AcpAgent:
         queue = asyncio.Queue(maxsize=1000)
         handle.subscribers.add(queue)
         try:
+            # A fast (often cached) turn can emit its whole sequence before
+            # this coroutine gets its first slice of the event loop and
+            # subscribes. Replay what already happened; the client de-dupes
+            # by seq, so overlap with live frames is harmless. Without this
+            # the UI sees only the session frame and hangs on "generating".
+            for event in list(handle.events):
+                await self._notify("turn.event", event)
             while True:
                 event = await queue.get()
                 await self._notify("turn.event", event)
