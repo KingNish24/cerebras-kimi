@@ -219,6 +219,16 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "write_file": ws_tools[1],
         "list_files": ws_tools[2],
     }
+    # DeepTutor semantics: only the user-toggleable tools are gated by the
+    # frontend's `tools` list; every other built-in (workspace files, exec,
+    # web_fetch, github, notes, memory, rag/kb, calculate…) is locked-on and
+    # must always reach the model's schema.
+    toggleable = {
+        "brainstorm", "web_search", "paper_search", "zotero_search",
+        "reason", "geogebra_analysis", "imagegen", "videogen",
+    }
+    locked_on = set(registry) - toggleable
     if enabled:
-        return [registry[name] for name in enabled if name in registry]
+        keep = locked_on | ({n for n in enabled if n in toggleable} & set(registry))
+        return [registry[name] for name in registry if name in keep]
     return list(registry.values())

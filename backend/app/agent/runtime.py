@@ -184,6 +184,24 @@ class AgentRuntime:
         elif profile:
             log.warning("llm profile %r is not a vtx built-in provider; ignoring", profile)
 
+        # Persist an explicit per-turn selection into vtx's config the same
+        # way the TUI /model picker does — last_selected + recent_models in
+        # ~/.vtx/config.yml. This is what survives a page refresh: the next
+        # llm-options `active` reads it back. Only fires when the client
+        # actually sent a selection (not the default fallback).
+        if llm.get("profile_id") and llm.get("model_id"):
+            try:
+                from vtx.core.config import add_recent_model, set_last_selected
+
+                set_last_selected(
+                    model_id=llm["model_id"],
+                    provider=llm["profile_id"],
+                    thinking_level=llm.get("reasoning_effort"),
+                )
+                add_recent_model(llm["profile_id"], llm["model_id"])
+            except Exception:  # noqa: BLE001 - persistence is best-effort
+                pass
+
         tools_filter = command.get("tools")
         tools = builtin_tools(self._settings, tools_filter or None)
 
@@ -483,6 +501,33 @@ class AgentRuntime:
                         )
 
                 result = stream.result
+                # vtx buffers reasoning internally (ThinkingDeltaEvent is not
+                # yielded on run_streamed); it lands on the result items as
+                # ThinkingContent. Emit it as a `thinking` event so the UI
+                # can show the model's reasoning after the fact.
+                try:
+                    from vtx.protocol.types import ThinkingContent
+
+                    thoughts: list[str] = []
+                    for item in getattr(result, "new_items", []) or []:
+                        content = getattr(item, "content", None)
+                        parts = content if isinstance(content, list) else [content]
+                        for part in parts:
+                            if isinstance(part, ThinkingContent) and part.thinking:
+                                thoughts.append(part.thinking)
+                    if thoughts:
+                        await self._emit(
+                            handle,
+                            self._stream_event(
+                                handle,
+                                "thinking",
+                                content="\n\n".join(thoughts),
+                                source=capability,
+                                stage="responding",
+                            ),
+                        )
+                except Exception:  # noqa: BLE001 - thinking is best-effort
+                    pass
                 final_text = result.final_output
                 if not isinstance(final_text, str):
                     final_text = str(final_text)

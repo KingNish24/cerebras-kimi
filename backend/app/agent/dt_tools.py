@@ -46,20 +46,27 @@ async def web_search(query: str, max_results: int = 5) -> str:
             )
             resp.raise_for_status()
         html = resp.text
+        import html as _html
+
+        # DDG lite markup: result anchors carry direct http(s) hrefs and each
+        # result row has a <td class="result-snippet"> cell. Pair them in order.
+        links = []
+        for m in re.finditer(r'<a[^>]+href="(https?://[^"]+)"[^>]*>(.*?)</a>', html, re.S):
+            url, title = m.group(1), re.sub(r"<[^>]+>", "", m.group(2)).strip()
+            title = _html.unescape(title)
+            if title and "duckduckgo.com" not in url:
+                links.append((title, url))
+        snippets = [
+            _html.unescape(re.sub(r"<[^>]+>", "", sn)).strip()
+            for sn in re.findall(r'<td[^>]*class="[^"]*result-snippet[^"]*"[^>]*>(.*?)</td>', html, re.S)
+        ]
         results = []
-        # DDG lite: <a rel="nofollow" href="//duckduckgo.com/l/?uddg=...">title</a>
-        for m in re.finditer(
-            r'<a[^>]+href="([^"]*uddg=([^"&]+)[^"]*)"[^>]*>(.*?)</a>', html, re.S
-        ):
-            url = m.group(2)
-            title = re.sub(r"<[^>]+>", "", m.group(3)).strip()
-            if title and url.startswith("http"):
-                results.append((title, url))
-            if len(results) >= max_results:
-                break
+        for i, (title, url) in enumerate(links[:max_results]):
+            snippet = snippets[i] if i < len(snippets) else ""
+            results.append(f"{title}\n{url}" + (f"\n{snippet}" if snippet else ""))
         if not results:
             return "No results found."
-        return "\n\n".join(f"{t}\n{u}" for t, u in results)
+        return "\n\n".join(results)
     except Exception as exc:  # noqa: BLE001
         return f"Error performing web search: {exc}"
 
