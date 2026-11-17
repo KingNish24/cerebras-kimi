@@ -182,6 +182,29 @@ class AgentRuntime:
         except Exception:  # noqa: BLE001
             return False
 
+    @staticmethod
+    def _stream_event(
+        turn: TurnHandle,
+        etype: str,
+        *,
+        content: str = "",
+        source: str = "",
+        stage: str = "",
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "type": etype,
+            "protocol_version": PROTOCOL_VERSION,
+            "seq": turn.next_seq(),
+            "session_id": turn.session_id,
+            "turn_id": turn.turn_id,
+            "timestamp": time.time(),
+            "source": source,
+            "stage": stage,
+            "content": content,
+            "metadata": metadata or {},
+        }
+
     async def _emit(self, turn: TurnHandle, event: dict[str, Any]) -> None:
         turn.events.append(event)
         dead: list[asyncio.Queue] = []
