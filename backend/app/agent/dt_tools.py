@@ -181,44 +181,6 @@ async def exec(code: str, language: str = "python", timeout: int = 30) -> str:
         return f"exec error: {exc}"
 
 
-# ---------------------------------------------------------------------------
-# zotero_search — Zotero Web API (needs ZOTERO_API_KEY + ZOTERO_USER_ID)
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=False, tool_icon="📚")
-async def zotero_search(query: str, max_results: int = 5) -> str:
-    """Search the user's Zotero library.
-
-    :param query: Search query.
-    :param max_results: Maximum items to return.
-    """
-    key = os.environ.get("ZOTERO_API_KEY", "").strip()
-    user = os.environ.get("ZOTERO_USER_ID", "").strip()
-    if not key or not user:
-        return "Zotero is not configured (set ZOTERO_API_KEY and ZOTERO_USER_ID)."
-    try:
-        async with httpx.AsyncClient(timeout=20.0, headers=_HEADERS) as client:
-            resp = await client.get(
-                f"https://api.zotero.org/users/{user}/items",
-                params={"q": query, "limit": max_results, "format": "json"},
-                headers={"Zotero-API-Key": key, **_HEADERS},
-            )
-            resp.raise_for_status()
-        items = resp.json()
-        out = []
-        for it in items:
-            data = it.get("data", {})
-            title = data.get("title", "(untitled)")
-            creators = data.get("creators", [])
-            names = []
-            for c in creators[:3]:
-                names.append(c.get("name") or f"{c.get('firstName','')} {c.get('lastName','')}".strip())
-            year = data.get("date", "")[:4]
-            out.append(f"{title} — {', '.join(n for n in names if n)} ({year})\n{data.get('url','')}")
-        return "\n\n".join(out) if out else "No Zotero items found."
-    except Exception as exc:  # noqa: BLE001
-        return f"Zotero search error: {exc}"
 
 
 # ---------------------------------------------------------------------------
@@ -1361,44 +1323,6 @@ async def exec(code: str, language: str = "python", timeout: int = 30) -> str:
         return f"exec error: {exc}"
 
 
-# ---------------------------------------------------------------------------
-# zotero_search — Zotero Web API (needs ZOTERO_API_KEY + ZOTERO_USER_ID)
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=False, tool_icon="📚")
-async def zotero_search(query: str, max_results: int = 5) -> str:
-    """Search the user's Zotero library.
-
-    :param query: Search query.
-    :param max_results: Maximum items to return.
-    """
-    key = os.environ.get("ZOTERO_API_KEY", "").strip()
-    user = os.environ.get("ZOTERO_USER_ID", "").strip()
-    if not key or not user:
-        return "Zotero is not configured (set ZOTERO_API_KEY and ZOTERO_USER_ID)."
-    try:
-        async with httpx.AsyncClient(timeout=20.0, headers=_HEADERS) as client:
-            resp = await client.get(
-                f"https://api.zotero.org/users/{user}/items",
-                params={"q": query, "limit": max_results, "format": "json"},
-                headers={"Zotero-API-Key": key, **_HEADERS},
-            )
-            resp.raise_for_status()
-        items = resp.json()
-        out = []
-        for it in items:
-            data = it.get("data", {})
-            title = data.get("title", "(untitled)")
-            creators = data.get("creators", [])
-            names = []
-            for c in creators[:3]:
-                names.append(c.get("name") or f"{c.get('firstName','')} {c.get('lastName','')}".strip())
-            year = data.get("date", "")[:4]
-            out.append(f"{title} — {', '.join(n for n in names if n)} ({year})\n{data.get('url','')}")
-        return "\n\n".join(out) if out else "No Zotero items found."
-    except Exception as exc:  # noqa: BLE001
-        return f"Zotero search error: {exc}"
 
 
 # ---------------------------------------------------------------------------

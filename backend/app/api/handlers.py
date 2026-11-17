@@ -1211,7 +1211,7 @@ def mastery_topics_index() -> dict[str, Any]:
 def tools_settings() -> dict[str, Any]:
     return {
         "enabled_optional_tools": [
-            "brainstorm", "web_search", "paper_search", "zotero_search",
+            "brainstorm", "web_search", "paper_search",
             "reason", "imagegen", "videogen",
         ]
     }

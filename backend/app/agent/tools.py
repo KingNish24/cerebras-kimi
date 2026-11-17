@@ -263,7 +263,6 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         # DeepTutor portable ports (dt_tools.py)
         "web": dt_tools.web,
         "paper_search": dt_tools.paper_search,
-        "zotero_search": dt_tools.zotero_search,
         "notes": dt_tools.notes,
         "question_bank": dt_tools.question_bank,
         "memory": dt_tools.memory,
@@ -285,7 +284,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     # web_fetch, github, notes, memory, rag/kb, calculate…) is locked-on and
     # must always reach the model's schema.
     toggleable = {
-        "web", "web_search", "paper_search", "zotero_search",
+        "web", "web_search", "paper_search",
         "geogebra_analysis", "videogen",
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
