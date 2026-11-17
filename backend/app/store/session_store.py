@@ -238,3 +238,29 @@ class VtxSessionAdapter:
     async def clear_session(self) -> None:
         self._session["vtx_items"] = []
         self._store.save(self._session)
+
+
+def vtx_jsonl_session(store: "SessionStore", session: dict[str, Any], cwd: str) -> Any:
+    """Return a vtx SDK session (JSONLSession) backed by ~/.vtx/sessions,
+    so DeepTutor chats are the same sessions the vtx CLI/TUI resumes.
+
+    The DeepTutor session record keeps ``vtx_session_file`` pointing at the
+    JSONL file; content/history lives there, not in ``vtx_items``.
+    """
+    from pathlib import Path
+
+    from vtx.agent.session import Session as VtxSession
+    from vtx.agent.sdk.sessions import JSONLSession
+
+    path = session.get("vtx_session_file")
+    if path and Path(path).exists():
+        js = JSONLSession()
+        js._session = VtxSession.load(path)
+        return js
+
+    v = VtxSession.create(cwd=cwd, persist=True)
+    session["vtx_session_file"] = str(v.session_file)
+    store.save(session)
+    js = JSONLSession()
+    js._session = v
+    return js

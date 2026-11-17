@@ -515,12 +515,64 @@ class AcpAgent:
 
         if method == "session/list":
             sessions = self.store.list(limit=int(p.get("limit") or 50))
-            return {"jsonrpc": "2.0", "id": req_id,
-                    "result": {"sessions": [_session_summary(s) for s in sessions]}}
+            rows = [_session_summary(s) for s in sessions]
+            # Merge vtx-native sessions (~/.vtx/sessions/*/*.jsonl) so chats
+            # created in the vtx CLI/TUI show up here too (vtx-vscode style).
+            try:
+                from vtx.agent.session import Session as VtxSession
+                from vtx.core.paths import get_config_dir
+
+                known_files = {
+                    s.get("vtx_session_file") for s in sessions if s.get("vtx_session_file")
+                }
+                vtx_rows = []
+                sdir = get_config_dir() / "sessions"
+                if sdir.is_dir():
+                    for path in sdir.glob("*/*.jsonl"):
+                        try:
+                            info = VtxSession.build_session_info(path)
+                        except Exception:  # noqa: BLE001
+                            continue
+                        if info is None or str(path) in known_files:
+                            continue
+                        vtx_rows.append({
+                            "sessionId": info.id,
+                            "title": info.name or info.first_message or "",
+                            "updatedAt": info.modified.isoformat() if info.modified else None,
+                            "vtx": True,
+                            "vtx_file": str(path),
+                        })
+                vtx_rows.sort(key=lambda r: r.get("updatedAt") or "", reverse=True)
+                rows.extend(vtx_rows)
+            except Exception:  # noqa: BLE001
+                pass
+            return {"jsonrpc": "2.0", "id": req_id, "result": {"sessions": rows}}
 
         if method == "session/load":
             session_id = str(p.get("sessionId") or p.get("session_id") or "")
             session = self.store.get(session_id)
+            if session is None:
+                # vtx-native session id: find its jsonl and bind a DeepTutor
+                # record to it so turns continue the same vtx conversation.
+                try:
+                    from vtx.agent.session import Session as VtxSession
+                    from vtx.core.paths import get_config_dir
+
+                    sdir = get_config_dir() / "sessions"
+                    for path in (sdir.glob("*/*.jsonl") if sdir.is_dir() else []):
+                        try:
+                            info = VtxSession.build_session_info(path)
+                        except Exception:  # noqa: BLE001
+                            continue
+                        if info is not None and info.id == session_id:
+                            session = self.store.create()
+                            session["vtx_session_file"] = str(path)
+                            session["title"] = info.name or info.first_message or ""
+                            self.store.save(session)
+                            session_id = session["id"]
+                            break
+                except Exception:  # noqa: BLE001
+                    pass
             if session is None:
                 return {"jsonrpc": "2.0", "id": req_id,
                         "error": {"code": JSON_RPC_INVALID_PARAMS,

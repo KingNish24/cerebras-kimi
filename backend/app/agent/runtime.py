@@ -37,7 +37,7 @@ from vtx.agent.sdk import Agent, RunConfig, Runner
 from vtx.agent.sdk.permissions import AutoApprove
 
 from ..config import Settings
-from ..store.session_store import SessionStore, VtxSessionAdapter
+from ..store.session_store import SessionStore, vtx_jsonl_session
 from .guardrails import block_sensitive_tool_args, limit_input_size
 from .tools import builtin_tools
 
@@ -395,7 +395,7 @@ class AgentRuntime:
 
         lock = self._lock_for(session["id"])
         async with lock:
-            vtx_session = VtxSessionAdapter(self._store, session)
+            vtx_session = vtx_jsonl_session(self._store, session, str(self._settings.workspace_dir))
             agent = self._build_agent(command)
             config = RunConfig(permission_policy=AutoApprove())
 
