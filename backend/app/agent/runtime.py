@@ -517,6 +517,24 @@ class AgentRuntime:
                 agent = await asyncio.to_thread(runtime.prepare_for_run)
                 if agent is None:
                     raise RuntimeError("agent initialization failed")
+
+                # MCP + hooks, mirroring coding_agent: failures warn, never
+                # fail the run.
+                try:
+                    await runtime.connect_mcp()
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    from pathlib import Path
+                    from vtx.agent.hooks.bridge import HookBridge
+                    hb = HookBridge(
+                        bus=loaded_extensions.bus,
+                        project_path=Path(cwd) / ".vtx" / "hooks.yml",
+                        global_path=Path.home() / ".vtx" / "hooks.yml",
+                    )
+                    await hb.load()
+                except Exception:  # noqa: BLE001
+                    pass
                 self._vtx_runtimes[cache_key] = (runtime, agent)
             except Exception as exc:  # noqa: BLE001
                 await self._emit(handle, self._stream_event(
