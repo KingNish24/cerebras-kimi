@@ -520,3 +520,455 @@ async def imagegen(prompt: str, width: int = 1024, height: int = 1024) -> str:
         return f"Generated image URL: {url}\n(Content type: {resp.headers.get('content-type')})"
     except Exception as exc:  # noqa: BLE001
         return f"imagegen error: {exc}"
+
+
+# ---------------------------------------------------------------------------
+# ask_user — pause the turn and ask the learner a question
+# ---------------------------------------------------------------------------
+
+
+@tool(mutating=False, tool_icon="❓")
+def ask_user(question: str, options: str = "", context: str = "") -> str:
+    """Ask the learner a question and wait for their reply.
+
+    Use when you need clarification, a decision, or confirmation before
+    continuing. The learner's next message is the answer.
+
+    :param question: The question to ask.
+    :param options: Optional comma-separated choices.
+    :param context: Optional background explaining why you're asking.
+    """
+    parts = [f"QUESTION: {question}"]
+    if options:
+        parts.append(f"OPTIONS: {options}")
+    if context:
+        parts.append(f"CONTEXT: {context}")
+    parts.append(
+        "INSTRUCTION: Present this question to the learner clearly and stop. "
+        "Their reply will arrive as the next user message — do not continue "
+        "the task until then."
+    )
+    return "\n".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# learning — single tool covering the whole learning-state surface
+# (upstream learning_status + learning_update + journal merged)
+# ---------------------------------------------------------------------------
+
+
+def _learning_path() -> Path:
+    root = Path(os.environ.get("DT_DATA_DIR", "./data")).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root / "learning.json"
+
+
+@tool(mutating=True, tool_icon="📚")
+def learning(action: str, topic: str = "", note: str = "", status: str = "",
+             minutes: int = 0) -> str:
+    """Track the learner's progress across topics — one tool for all learning state.
+
+    Actions:
+    - ``status``: show overall progress and per-topic state.
+    - ``update``: record progress on ``topic`` (status: learned|learning|weak,
+      optional ``note`` and ``minutes`` spent).
+    - ``journal``: append a free-form ``note`` to the learning journal.
+    - ``weak``: list topics marked weak for review.
+
+    :param action: One of status|update|journal|weak.
+    :param topic: Topic name (for update).
+    :param note: Free-text note (for update/journal).
+    :param status: learned|learning|weak (for update).
+    :param minutes: Minutes spent (for update).
+    """
+    path = _learning_path()
+    try:
+        data = json.loads(path.read_text())
+    except Exception:  # noqa: BLE001
+        data = {"topics": {}, "journal": []}
+    topics: dict[str, Any] = data.setdefault("topics", {})
+    journal: list[dict[str, Any]] = data.setdefault("journal", [])
+
+    action = (action or "status").lower()
+    if action == "update":
+        if not topic:
+            return "learning update needs a topic."
+        t = topics.setdefault(topic, {"status": "learning", "notes": [], "minutes": 0})
+        if status:
+            t["status"] = status
+        if note:
+            t["notes"].append({"at": time.time(), "note": note})
+        t["minutes"] = int(t.get("minutes", 0)) + max(0, minutes)
+        t["updated_at"] = time.time()
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return f"Recorded: {topic} → {t['status']}"
+    if action == "journal":
+        if not note:
+            return "journal needs a note."
+        journal.append({"at": time.time(), "note": note})
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return "Journal entry saved."
+    if action == "weak":
+        weak = {k: v for k, v in topics.items() if v.get("status") == "weak"}
+        if not weak:
+            return "No weak topics recorded."
+        return "Weak topics:\n" + "\n".join(
+            f"- {k} ({v.get('minutes', 0)}min)" for k, v in weak.items())
+    # status
+    if not topics:
+        return "No learning progress recorded yet."
+    lines = ["Learning status:"]
+    for k, v in sorted(topics.items()):
+        lines.append(f"- {k}: {v.get('status','?')} ({v.get('minutes',0)}min)")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# workspace — single tool that controls the whole workspace
+# (upstream workspace_read/list/present/export merged)
+# ---------------------------------------------------------------------------
+
+
+@tool(mutating=True, tool_icon="🗂️")
+def workspace(action: str, path: str = "", content: str = "",
+              query: str = "", max_chars: int = 12000) -> str:
+    """Full control over the workspace directory — one tool for all file ops.
+
+    Actions:
+    - ``list``: list files under ``path`` (default root, non-recursive unless
+      path ends with '/').
+    - ``read``: read a UTF-8 file at ``path``.
+    - ``write``: write ``content`` to ``path`` (creates parents).
+    - ``search``: substring-search file contents for ``query`` under ``path``.
+    - ``delete``: delete file at ``path``.
+    - ``mkdir``: create directory ``path``.
+    - ``info``: file size/mtime for ``path``.
+
+    Paths are workspace-relative; ``..`` escapes are rejected.
+
+    :param action: list|read|write|search|delete|mkdir|info.
+    :param path: Workspace-relative path.
+    :param content: File content for write.
+    :param query: Search substring for search.
+    :param max_chars: Read truncation limit.
+    """
+    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+
+    def _resolve(p: str) -> Path:
+        cand = (root / (p or ".").lstrip("/")).resolve()
+        if cand != root and root not in cand.parents:
+            raise ValueError(f"path escapes workspace: {p}")
+        return cand
+
+    action = (action or "list").lower()
+    try:
+        if action == "list":
+            base = _resolve(path or ".")
+            if not base.is_dir():
+                return f"Not a directory: {path}"
+            entries = sorted(base.iterdir(), key=lambda e: (e.is_file(), e.name))
+            lines = []
+            for e in entries[:200]:
+                rel = e.relative_to(root)
+                lines.append(f"{'📁' if e.is_dir() else '📄'} {rel}")
+            return "\n".join(lines) or "(empty)"
+        if action == "read":
+            f = _resolve(path)
+            if not f.is_file():
+                return f"Not a file: {path}"
+            return f.read_text(encoding="utf-8", errors="replace")[:max_chars]
+        if action == "write":
+            f = _resolve(path)
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(content, encoding="utf-8")
+            return f"Wrote {len(content)} chars to {path}"
+        if action == "search":
+            base = _resolve(path or ".")
+            hits = []
+            for f in base.rglob("*") if base.is_dir() else [base]:
+                if not f.is_file() or f.stat().st_size > 2_000_000:
+                    continue
+                try:
+                    text = f.read_text(encoding="utf-8", errors="replace")
+                except Exception:  # noqa: BLE001
+                    continue
+                if query.lower() in text.lower():
+                    hits.append(str(f.relative_to(root)))
+                    if len(hits) >= 20:
+                        break
+            return "\n".join(hits) or "No matches."
+        if action == "delete":
+            f = _resolve(path)
+            if f.is_file():
+                f.unlink()
+                return f"Deleted {path}"
+            if f.is_dir():
+                import shutil
+                shutil.rmtree(f)
+                return f"Deleted dir {path}"
+            return f"Not found: {path}"
+        if action == "mkdir":
+            _resolve(path).mkdir(parents=True, exist_ok=True)
+            return f"Created {path}"
+        if action == "info":
+            f = _resolve(path)
+            if not f.exists():
+                return f"Not found: {path}"
+            st = f.stat()
+            return f"{path}: {'dir' if f.is_dir() else 'file'}, {st.st_size} bytes, mtime {time.strftime('%Y-%m-%d %H:%M', time.localtime(st.st_mtime))}"
+        return f"Unknown workspace action: {action}"
+    except Exception as exc:  # noqa: BLE001
+        return f"workspace {action} error: {exc}"
+
+
+# ---------------------------------------------------------------------------
+# quiz — generate and grade quizzes in one tool
+# ---------------------------------------------------------------------------
+
+
+@tool(mutating=False, tool_icon="📝")
+async def quiz(action: str, topic: str = "", question: str = "",
+               answer: str = "", num_questions: int = 5) -> str:
+    """Generate or grade quiz questions — one tool for the whole quiz flow.
+
+    Actions:
+    - ``generate``: create ``num_questions`` questions on ``topic``.
+      Returns questions with answers for the tutor to ask the learner.
+    - ``grade``: grade the learner's ``answer`` to ``question``; returns
+      correct/incorrect + feedback.
+
+    :param action: generate|grade.
+    :param topic: Subject for generate.
+    :param question: Question text for grade.
+    :param answer: Learner's answer for grade.
+    :param num_questions: How many questions to generate.
+    """
+    action = (action or "generate").lower()
+    if action == "grade":
+        if not question or not answer:
+            return "quiz grade needs question and answer."
+        prompt = (
+            "Grade this quiz answer. Reply JSON: "
+            '{"correct":bool,"score":0-100,"feedback":"one sentence"}\n\n'
+            f"Question: {question}\nAnswer: {answer}"
+        )
+        try:
+            return await _grade_async(prompt)
+        except Exception as exc:  # noqa: BLE001
+            return f"quiz grade error: {exc}"
+    # generate — deterministic template quiz (no LLM dependency)
+    if not topic:
+        return "quiz generate needs a topic."
+    qs = [
+        f"1. Define {topic} in one sentence.",
+        f"2. What is the most important property of {topic}?",
+        f"3. Give a real-world example of {topic}.",
+        f"4. How does {topic} relate to a closely related concept?",
+        f"5. What would happen if {topic} didn't exist?",
+    ][: max(1, min(num_questions, 10))]
+    return "Quiz on " + topic + ":\n" + "\n".join(qs) + \
+        "\n\nINSTRUCTION: Ask these one at a time. After each answer, call quiz(action='grade')."
+
+
+async def _grade_async(prompt: str) -> str:
+    agent = _subagent(None, "You are a strict quiz grader. Output only JSON.", "quiz-grader")
+    stream = Runner.run_streamed(agent, prompt)
+    text = ""
+    async for ev in stream:
+        d = getattr(ev, "delta", None)
+        if d:
+            text += d
+    result = getattr(stream, "result", None)
+    final = getattr(result, "final_output", None) or text
+    return str(final)[:1000]
+
+
+# ---------------------------------------------------------------------------
+# mastery — single tool covering the whole Guided Learning surface
+# (upstream mastery_* family merged)
+# ---------------------------------------------------------------------------
+
+
+def _mastery_path() -> Path:
+    root = Path(os.environ.get("DT_DATA_DIR", "./data")).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root / "mastery.json"
+
+
+@tool(mutating=True, tool_icon="🎯")
+def mastery(action: str, topic: str = "", question: str = "",
+            answer: str = "", score: int = -1, note: str = "") -> str:
+    """Guided Learning mastery — one tool for the whole mastery loop.
+
+    Actions:
+    - ``topics``: list topics and their mastery state.
+    - ``start``: begin a mastery session on ``topic``.
+    - ``status``: current session state.
+    - ``quiz``: get the next review question for ``topic``.
+    - ``grade``: record learner's ``answer`` to ``question`` with ``score``
+      (0-100, -1 = ungraded); updates mastery level.
+    - ``note``: attach a free-form ``note`` to ``topic``.
+    - ``leave``: end the current session.
+
+    :param action: topics|start|status|quiz|grade|note|leave.
+    :param topic: Topic name.
+    :param question: Question being answered (grade).
+    :param answer: Learner's answer (grade).
+    :param score: 0-100 correctness (grade).
+    :param note: Free-text note.
+    """
+    path = _mastery_path()
+    try:
+        data = json.loads(path.read_text())
+    except Exception:  # noqa: BLE001
+        data = {"topics": {}, "session": None}
+    topics: dict[str, Any] = data.setdefault("topics", {})
+    session = data.get("session")
+
+    action = (action or "status").lower()
+    if action == "topics":
+        if not topics:
+            return "No mastery topics yet. Use mastery(action='start', topic='...')."
+        return "Mastery topics:\n" + "\n".join(
+            f"- {k}: level {v.get('level', 0)}/5, {v.get('reviews', 0)} reviews"
+            for k, v in topics.items())
+    if action == "start":
+        if not topic:
+            return "mastery start needs a topic."
+        topics.setdefault(topic, {"level": 0, "reviews": 0, "notes": []})
+        data["session"] = {"topic": topic, "started_at": time.time(), "turn": 0}
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return f"Started mastery session on {topic}. Ask a diagnostic question."
+    if action == "status":
+        return f"Session: {session} " if session else "No active session. " + \
+            f"Topics: {len(topics)}"
+    if action == "quiz":
+        t = session and topics.get(session.get("topic"))
+        if not t:
+            return "No active session — mastery(action='start', topic='...') first."
+        lvl = t.get("level", 0)
+        prompts = [
+            f"Explain {session['topic']} from scratch.",
+            f"Give a non-trivial example of {session['topic']}.",
+            f"What are the edge cases of {session['topic']}?",
+            f"Compare {session['topic']} with a related concept.",
+            f"Teach {session['topic']} to a beginner in 3 steps.",
+        ]
+        q = prompts[min(lvl, len(prompts) - 1)]
+        return f"QUIZ: {q}\n(INSTRUCTION: ask the learner, then call mastery(action='grade').)"
+    if action == "grade":
+        if not session or not question:
+            return "mastery grade needs an active session and question."
+        t = topics.setdefault(session["topic"], {"level": 0, "reviews": 0, "notes": []})
+        t["reviews"] = int(t.get("reviews", 0)) + 1
+        if score >= 0:
+            # level 0-5: correct answers raise, wrong lower (min 0)
+            delta = 1 if score >= 70 else (-1 if score < 40 else 0)
+            t["level"] = max(0, min(5, int(t.get("level", 0)) + delta))
+        if note:
+            t.setdefault("notes", []).append({"at": time.time(), "note": note})
+        t["updated_at"] = time.time()
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return (f"Recorded: level {t['level']}/5 after {t['reviews']} reviews "
+                f"on {session['topic']}.")
+    if action == "note":
+        tname = topic or (session or {}).get("topic")
+        t = topics.setdefault(tname or "general", {"level": 0, "reviews": 0, "notes": []})
+        t.setdefault("notes", []).append({"at": time.time(), "note": note})
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return "Note saved."
+    if action == "leave":
+        data["session"] = None
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        return "Mastery session ended."
+    return f"Unknown mastery action: {action}"
+
+
+# ---------------------------------------------------------------------------
+# video — render an HTML/Remotion composition into a real video file
+# ---------------------------------------------------------------------------
+
+
+@tool(mutating=True, tool_icon="🎬")
+def video(action: str, title: str = "", html: str = "",
+          script: str = "", composition: str = "") -> str:
+    """Create a video from an HTML/Remotion composition — one tool for the flow.
+
+    Actions:
+    - ``scaffold``: write a Remotion project skeleton into the workspace
+      ``videos/<slug>/`` and return its path.
+    - ``render``: render composition ``composition`` (default ``Main``) to
+      ``videos/<slug>/out.mp4`` using ``npx remotion render``. Requires the
+      scaffold to exist. Returns the output path or error.
+    - ``list``: list rendered videos in the workspace.
+
+    :param action: scaffold|render|list.
+    :param title: Video title (used for the slug).
+    :param html: Optional HTML/TSX body for the composition.
+    :param script: Optional narration script text.
+    :param composition: Remotion composition id for render.
+    """
+    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
+    vdir = root / "videos"
+    vdir.mkdir(parents=True, exist_ok=True)
+
+    def _slug() -> str:
+        s = re.sub(r"[^a-z0-9]+", "-", (title or "video").lower()).strip("-") or "video"
+        return f"{s}-{uuid.uuid4().hex[:6]}"
+
+    action = (action or "scaffold").lower()
+    if action == "list":
+        outs = sorted(vdir.glob("*/out.mp4")) + sorted(vdir.glob("*/*.mp4"))
+        return "\n".join(str(p.relative_to(root)) for p in outs) or "No videos yet."
+    if action == "scaffold":
+        slug = _slug()
+        proj = vdir / slug
+        (proj / "src").mkdir(parents=True, exist_ok=True)
+        body = html or (
+            "import {AbsoluteFill} from 'remotion';\n"
+            "export const Main = () => (\n"
+            f"  <AbsoluteFill style={{{{background:'#0b1020',color:'#fff',"
+            "display:'flex',alignItems:'center',justifyContent:'center',"
+            "fontSize:64}}}>\n"
+            f"    <div>{(title or 'Video').replace('<','&lt;')}</div>\n"
+            "  </AbsoluteFill>\n);\n"
+        )
+        (proj / "src" / "Composition.tsx").write_text(body)
+        (proj / "src" / "index.ts").write_text(
+            "import {registerRoot} from 'remotion';\n"
+            "import {Composition} from 'remotion';\n"
+            "import {Main} from './Composition';\n"
+            "registerRoot(() => <Composition id=\"Main\" component={Main} "
+            "durationInFrames={150} fps={30} width={1920} height={1080} />);\n"
+        )
+        (proj / "package.json").write_text(json.dumps({
+            "name": slug, "private": True,
+            "dependencies": {"react": "^18.2.0", "react-dom": "^18.2.0",
+                             "remotion": "^4.0.0"},
+            "scripts": {"render": "remotion render src/index.ts Main out.mp4"},
+        }, indent=2))
+        return f"Scaffolded Remotion project at videos/{slug}/ — run video(action='render', title='{slug}') to produce out.mp4"
+    if action == "render":
+        slug = title or ""
+        proj = vdir / slug
+        if not (proj / "package.json").exists():
+            # find most recent scaffold if title omitted
+            cands = sorted(vdir.glob("*/package.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if not cands:
+                return "No video project — run video(action='scaffold') first."
+            proj = cands[0].parent
+            slug = proj.name
+        comp = composition or "Main"
+        out = proj / "out.mp4"
+        cmd = ["npx", "--yes", "remotion", "render", "src/index.ts", comp, "out.mp4"]
+        try:
+            proc = subprocess.run(cmd, cwd=proj, capture_output=True, text=True, timeout=600)
+        except FileNotFoundError:
+            return "npx/remotion not available — scaffold exists at videos/%s but render needs Node toolchain." % slug
+        except subprocess.TimeoutExpired:
+            return "render timed out after 600s."
+        if proc.returncode != 0 or not out.exists():
+            return f"render failed: {proc.stderr[-500:] or proc.stdout[-500:]}"
+        return f"Video rendered: videos/{slug}/out.mp4 ({out.stat().st_size} bytes)"
+    return f"Unknown video action: {action}"

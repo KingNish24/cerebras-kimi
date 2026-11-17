@@ -218,6 +218,13 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "read_file": ws_tools[0],
         "write_file": ws_tools[1],
         "list_files": ws_tools[2],
+        # User-requested consolidated tools
+        "ask_user": dt_tools.ask_user,
+        "learning": dt_tools.learning,
+        "workspace": dt_tools.workspace,
+        "quiz": dt_tools.quiz,
+        "mastery": dt_tools.mastery,
+        "video": dt_tools.video,
     }
     # DeepTutor semantics: only the user-toggleable tools are gated by the
     # frontend's `tools` list; every other built-in (workspace files, exec,
