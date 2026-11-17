@@ -21,6 +21,17 @@ export interface JsonRpcMessage {
 
 type Subscriber = (msg: JsonRpcMessage) => void;
 
+/** Generic named-channel pub/sub for non-agent streams (book, quiz, progress). */
+const channelSubscribers = new Map<string, Set<(data: unknown) => void>>();
+export function subscribeChannel(channel: string, fn: (data: unknown) => void): () => void {
+  if (!channelSubscribers.has(channel)) channelSubscribers.set(channel, new Set());
+  channelSubscribers.get(channel)!.add(fn);
+  return () => channelSubscribers.get(channel)!.delete(fn);
+}
+export function publishChannel(channel: string, data: unknown): void {
+  channelSubscribers.get(channel)?.forEach((fn) => fn(data));
+}
+
 const BACKEND_DIR = process.env.DEEPTUTOR_BACKEND_DIR ?? path.join(process.cwd(), "..", "backend");
 const PYTHON = process.env.DEEPTUTOR_PYTHON ?? path.join(BACKEND_DIR, ".venv", "bin", "python");
 

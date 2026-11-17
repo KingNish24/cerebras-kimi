@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { subscribeNotifications, warmAgent } from "@/lib/acp-bridge";
+import { subscribeNotifications, subscribeChannel, warmAgent } from "@/lib/acp-bridge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
  *  (session/update, turn.event). Replaces the old /ws transport. */
 export async function GET(req: NextRequest) {
   warmAgent();
+  const channel = req.nextUrl.searchParams.get("channel");
   const encoder = new TextEncoder();
   let unsubscribe: (() => void) | null = null;
 
@@ -27,9 +28,16 @@ export async function GET(req: NextRequest) {
           /* closed */
         }
       };
-      unsubscribe = subscribeNotifications((msg) => {
-        send(JSON.stringify(msg));
-      });
+      const unsubs: Array<() => void> = [];
+      unsubscribe = () => unsubs.forEach((u) => u());
+      if (channel) {
+        // Named stream channel (book/quiz/progress producers publish here).
+        unsubs.push(subscribeChannel(channel, (data) => send(JSON.stringify(data))));
+      } else {
+        unsubs.push(subscribeNotifications((msg) => {
+          send(JSON.stringify(msg));
+        }));
+      }
       // Heartbeat keeps proxies from idling the stream out.
       const hb = setInterval(() => {
         try {
