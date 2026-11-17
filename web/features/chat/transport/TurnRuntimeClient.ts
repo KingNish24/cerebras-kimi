@@ -14,7 +14,7 @@ import { scopedUrl } from "@/lib/workspace-scope";
 import { NO_LLM_ACCESS } from "../model/protocol";
 
 import {
-  browserSocketFactory,
+  rpcSocketFactory,
   SOCKET_CONNECTING,
   SOCKET_OPEN,
   type TurnSocket,
@@ -141,8 +141,8 @@ export class TurnRuntimeClient {
 
   constructor(options: TurnRuntimeClientOptions) {
     this.options = {
-      url: scopedUrl("/ws"),
-      socketFactory: browserSocketFactory,
+      url: scopedUrl("/ws/rpc"),
+      socketFactory: rpcSocketFactory,
       scheduler: defaultScheduler,
       random: Math.random,
       maxBufferedGap: 32,

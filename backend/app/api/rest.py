@@ -1135,3 +1135,13 @@ def kb_list_alias(request: Request, resource_library: bool = False) -> list[dict
 )
 def settings_catchall(path: str) -> dict[str, Any]:
     return {}
+
+
+@router.get("/sessions/{session_id}/organization")
+def session_organization(session_id: str) -> dict[str, Any]:
+    return {"session_id": session_id, "folders": [], "tags": []}
+
+
+@router.get("/sessions/{session_id}/threads")
+def session_threads(session_id: str) -> dict[str, Any]:
+    return {"session_id": session_id, "threads": []}

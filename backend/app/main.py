@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .agent.runtime import AgentRuntime
-from .api import rest, ws
+from .api import rest, rpc, ws
 from .config import get_settings
 from .store.session_store import SessionStore
 from .store.kb_store import KnowledgeBaseStore
@@ -56,6 +56,7 @@ def create_app() -> FastAPI:
 
     app.include_router(rest.router)
     app.include_router(ws.router)
+    app.include_router(rpc.router)
     return app
 
 
