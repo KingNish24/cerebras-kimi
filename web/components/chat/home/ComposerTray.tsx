@@ -11,6 +11,7 @@ import { mcpRowStatus, type McpServerStatus, type McpStoreState } from "@/lib/mc
 import type { ComposerResourceCatalog } from "@/hooks/useComposerResources";
 import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
 import type { WorkspaceResourceOption } from "@/lib/workspaces-api";
+import type { AnswerModeProps, PartnerLinkProps } from "./AnswerModeMenu";
 import type { CapabilityDef } from "@/features/capabilities/presentation";
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";
 import {
