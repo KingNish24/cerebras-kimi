@@ -34,6 +34,8 @@ from dataclasses import dataclass, field
 from typing import Any, AsyncIterator
 
 from vtx.agent.sdk import Agent, RunConfig, Runner
+from vtx.agent.tools.base import BaseTool
+from vtx.protocol.types import ToolResult
 from vtx.agent.sdk.permissions import AutoApprove
 
 from ..config import Settings
@@ -91,6 +93,38 @@ class TurnHandle:
         return self.seq
 
 
+
+class _SdkToolAdapter(BaseTool):
+    """Adapt a vtx SDK ``@tool`` FunctionTool to the ``BaseTool`` interface
+    ConversationRuntime expects."""
+
+    def __init__(self, fn: Any) -> None:
+        self._fn = fn
+        self.name = getattr(fn, "name", "tool")
+        self.description = getattr(fn, "description", "") or ""
+        self.tool_icon = getattr(fn, "tool_icon", "🛠️")
+        params = getattr(fn, "params", None)
+        self.params = params if isinstance(params, type) else dict
+        self.mutating = bool(getattr(fn, "mutating", True))
+
+    def format_call(self, params: Any) -> str:
+        return self.name
+
+    def format_preview(self, params: Any) -> str | None:
+        return None
+
+    async def execute(self, params: Any, cancel_event: Any = None) -> ToolResult:
+        try:
+            res = await self._fn.execute(params)
+            text = getattr(res, "result", None)
+            if text is None:
+                text = str(res)
+            return ToolResult(success=True, result=str(text))
+        except Exception as exc:  # noqa: BLE001
+            return ToolResult(success=False, result=f"{self.name} error: {exc}")
+
+
+
 class AgentRuntime:
     """Owns sessions, turns, and the vtx agent loop for the WS endpoint."""
 
@@ -98,6 +132,7 @@ class AgentRuntime:
         self._settings = settings
         self._store = store
         self._turns: dict[str, TurnHandle] = {}
+        self._vtx_runtimes: dict[str, Any] = {}
         self._session_locks: dict[str, asyncio.Lock] = {}
 
     # -- turn registry ----------------------------------------------------
@@ -392,6 +427,137 @@ class AgentRuntime:
         task.add_done_callback(lambda _t: self._turns.pop(turn_id, None))
         return handle, session_event, None
 
+    async def _run_vtx(
+        self,
+        handle: TurnHandle,
+        session: dict[str, Any],
+        command: dict[str, Any],
+        user_message: dict[str, Any],
+    ) -> bool:
+        """Drive a turn through vtx's ConversationRuntime (coding_agent path).
+
+        Streams ThinkingDeltaEvent live — unlike the SDK Runner which buffers
+        reasoning. Returns True if the turn completed through this path.
+        """
+        try:
+            from vtx.agent.runtime import ConversationRuntime
+            from vtx.core.config import config as vtx_config, get_last_selected
+            from vtx.core.events import (
+                AgentEndEvent, ErrorEvent, TextDeltaEvent, ThinkingDeltaEvent,
+                ToolEndEvent, ToolResultEvent, ToolStartEvent,
+            )
+        except Exception:  # noqa: BLE001
+            return False
+
+        capability = (command.get("capability") or "chat").strip() or "chat"
+        content = str(command.get("content") or "")
+        attachments = command.get("attachments") or []
+        prompt = content
+        if attachments:
+            notes = [f"[Attachment: {a.get('filename') or a.get('id') or 'attachment'}]"
+                     + (f"\n{a['extracted_text']}" if a.get("extracted_text") else "")
+                     for a in attachments]
+            prompt = "\n\n".join(([content] if content else []) + notes)
+
+        # Per-session runtime cache — ConversationRuntime owns the vtx session.
+        cache_key = session["id"]
+        runtime = self._vtx_runtimes.get(cache_key)
+        if runtime is None:
+            try:
+                last = get_last_selected()
+                model = (command.get("model") or session.get("model")
+                         or last.model_id or vtx_config.llm.default_model)
+                provider = (command.get("model_provider") or last.provider
+                            or vtx_config.llm.default_provider)
+                from .tools import builtin_tools as _bt
+                fns = _bt(self._settings, command.get("tools"))
+                tools = [_SdkToolAdapter(t) for t in fns]
+                cwd = str(self._settings.workspace_dir)
+                runtime = ConversationRuntime(
+                    cwd=cwd, model=model, model_provider=provider,
+                    base_url=vtx_config.llm.default_base_url or None,
+                    thinking_level=(command.get("thinking_level")
+                                    or last.thinking_level
+                                    or vtx_config.llm.default_thinking_level),
+                    tools=tools,
+                )
+                init = await asyncio.to_thread(runtime.initialize)
+                if getattr(init, "provider_error", None):
+                    raise RuntimeError(str(init.provider_error))
+                agent = await asyncio.to_thread(runtime.prepare_for_run)
+                if agent is None:
+                    raise RuntimeError("agent initialization failed")
+                self._vtx_runtimes[cache_key] = (runtime, agent)
+            except Exception:  # noqa: BLE001
+                return False  # ConversationRuntime unavailable — SDK Runner fallback
+        else:
+            runtime, agent = self._vtx_runtimes[cache_key]
+
+        await self._emit(handle, self._stream_event(
+            handle, "stage_start", source=capability, stage="responding"))
+
+        status = "completed"
+        try:
+            async for event in agent.run(
+                prompt,
+                cancel_event=handle.cancel,
+            ):
+                if isinstance(event, ThinkingDeltaEvent):
+                    if event.delta:
+                        await self._emit(handle, self._stream_event(
+                            handle, "thinking", content=event.delta,
+                            source=capability, stage="responding"))
+                elif isinstance(event, TextDeltaEvent):
+                    if event.delta:
+                        await self._emit(handle, self._stream_event(
+                            handle, "content", content=event.delta,
+                            source=capability, stage="responding"))
+                elif isinstance(event, ToolStartEvent):
+                    await self._emit(handle, self._stream_event(
+                        handle, "progress",
+                        content=f"Calling {event.tool_name}",
+                        source=capability, stage="responding",
+                        metadata={"tool_name": event.tool_name,
+                                  "tool_call_id": event.tool_call_id}))
+                elif isinstance(event, ToolEndEvent):
+                    await self._emit(handle, self._stream_event(
+                        handle, "tool_call", content=event.tool_name,
+                        source=capability, stage="responding",
+                        metadata={"tool": event.tool_name,
+                                  "tool_name": event.tool_name,
+                                  "tool_call_id": event.tool_call_id,
+                                  "args": getattr(event, "arguments", None)}))
+                elif isinstance(event, ToolResultEvent):
+                    out = event.result
+                    text = getattr(out, "output", None) or (
+                        out if isinstance(out, str) else
+                        __import__("json").dumps(out, ensure_ascii=False, default=str))
+                    await self._emit(handle, self._stream_event(
+                        handle, "tool_result", content=str(text),
+                        source=capability, stage="responding",
+                        metadata={"tool_call_id": event.tool_call_id,
+                                  "tool_name": event.tool_name,
+                                  "is_error": bool(getattr(out, "is_error", False))}))
+                elif isinstance(event, ErrorEvent):
+                    status = "error"
+                elif isinstance(event, AgentEndEvent):
+                    pass
+        except asyncio.CancelledError:
+            status = "cancelled"
+        except Exception as exc:  # noqa: BLE001
+            status = "error"
+            await self._emit(handle, self._stream_event(
+                handle, "error", content=str(exc), source=capability,
+                stage="responding"))
+
+        await self._emit(handle, self._stream_event(
+            handle, "stage_end", source=capability, stage="responding",
+            metadata={"status": status}))
+        await self._emit(handle, self._stream_event(
+            handle, "done", source=capability, stage="responding",
+            metadata={"status": status}))
+        return True
+
     async def _run(
         self,
         handle: TurnHandle,
@@ -399,6 +565,8 @@ class AgentRuntime:
         command: dict[str, Any],
         user_message: dict[str, Any],
     ) -> None:
+        if await self._run_vtx(handle, session, command, user_message):
+            return
         capability = (command.get("capability") or "chat").strip() or "chat"
         turn_events: list[dict[str, Any]] = []
         assistant_text_parts: list[str] = []
