@@ -1,5 +1,6 @@
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
-import { apiFetch, apiUrl, wsUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/lib/api";
+import { RpcSocket } from "@/lib/rpc-ws";
 import {
   BookSocketOperationError,
   runBookSocketOperation,
@@ -39,7 +40,7 @@ function requestOverSocket<T extends BookWsEvent>(
   resultType: string,
   onEvent?: (event: BookWsEvent) => void,
 ): Promise<T> {
-  return runBookSocketOperation<T>(() => new WebSocket(wsUrl(BOOK_WS_PATH)), {
+  return runBookSocketOperation<T>(() => new RpcSocket(BOOK_WS_PATH), {
     message,
     resultType,
     onEvent,

@@ -1,4 +1,4 @@
-import { wsUrl } from "@/lib/api";
+import { RpcSocket } from "@/lib/rpc-ws";
 import {
   ReconnectingWebSocket,
   type ReconnectingWebSocketOptions,
@@ -105,7 +105,7 @@ export class MasteryTopicSocket {
   ) {
     this.cursor = Math.max(0, initialRevision);
     this.transport = new ReconnectingWebSocket(
-      wsUrl(MASTERY_WS_PATH),
+      MASTERY_WS_PATH,
       {
         onOpen: () => {
           this.handlers.onConnecting?.();
@@ -118,7 +118,10 @@ export class MasteryTopicSocket {
         onError: (error) =>
           this.handlers.onError?.(String(error || "Socket error")),
       },
-      options,
+      {
+        ...options,
+        createSocket: (url: string) => new RpcSocket(url) as unknown as WebSocket,
+      },
     );
   }
 

@@ -31,8 +31,15 @@ export async function GET(req: NextRequest) {
       const unsubs: Array<() => void> = [];
       unsubscribe = () => unsubs.forEach((u) => u());
       if (channel) {
-        // Named stream channel (book/quiz/progress producers publish here).
+        // Named stream channel: Next-side publishers + agent legacy.event
+        // notifications addressed to this channel.
         unsubs.push(subscribeChannel(channel, (data) => send(JSON.stringify(data))));
+        unsubs.push(subscribeNotifications((msg) => {
+          const m = msg as { method?: string; params?: { channel?: string; data?: string } };
+          if (m.method === "legacy.event" && m.params?.channel === channel) {
+            send(m.params.data ?? JSON.stringify(m.params));
+          }
+        }));
       } else {
         unsubs.push(subscribeNotifications((msg) => {
           send(JSON.stringify(msg));

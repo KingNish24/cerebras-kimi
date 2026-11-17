@@ -44,6 +44,7 @@ ACP_METHODS = {
     "quiz.judge",
     "book.stream",
     "progress.subscribe",
+    "legacy.send",
     # Turn-protocol aliases (DeepTutor frontend compat)
     "turn.start",
     "turn.subscribe",
@@ -666,6 +667,8 @@ class AcpAgent:
         if method == "http.request":
             return await self._http_request(req_id, p)
 
+        if method == "legacy.send":
+            return await self._legacy_send(req_id, p)
         if method == "quiz.judge":
             return await self._quiz_judge(req_id, p)
         if method == "book.stream":
@@ -680,6 +683,72 @@ class AcpAgent:
         return {"jsonrpc": "2.0", "id": req_id,
                 "error": {"code": JSON_RPC_METHOD_NOT_FOUND,
                           "message": f"Unknown method: {method}"}}
+
+    async def _legacy_send(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
+        """WS-compat bridge: legacy /ws/* JSON protocols over RPC+SSE.
+
+        params: {channel, message} where message is the raw JSON the old
+        WebSocket client sent. Replies go out as ``legacy.event``
+        notifications carrying {channel, data}.
+        """
+        channel = str(params.get("channel") or "")
+        raw = params.get("message")
+        try:
+            msg = json.loads(raw) if isinstance(raw, str) else (raw or {})
+        except Exception:  # noqa: BLE001
+            msg = {}
+
+        async def reply(payload: dict[str, Any]) -> None:
+            await self._notify("legacy.event",
+                               {"channel": channel, "data": json.dumps(payload)})
+
+        if "judge" in channel:
+            grade = await self._judge_payload(msg)
+            await reply({"type": "result", "data": grade})
+            await reply({"type": "done"})
+        elif "books" in channel:
+            await reply({"type": "ack", "status": "ok"})
+        elif "mastery" in channel or "progress" in channel:
+            await reply({"type": "subscribed", "revision": 0})
+        else:
+            await reply({"type": "ack"})
+        return {"jsonrpc": "2.0", "id": req_id, "result": {"accepted": True}}
+
+    async def _judge_payload(self, msg: dict[str, Any]) -> dict[str, Any]:
+        question = str(msg.get("question") or msg.get("prompt") or "")
+        answer = str(msg.get("answer") or msg.get("submission") or "")
+        reference = str(msg.get("reference") or msg.get("expected") or "")
+        prompt = (
+            "Grade this quiz answer. Reply with JSON: "
+            '{"score":0-100,"correct":bool,"feedback":"..."}\n\n'
+            f"Question: {question}\nAnswer: {answer}\n"
+            + (f"Reference: {reference}\n" if reference else "")
+        )
+        try:
+            from vtx.agent.sdk.runner import Runner
+            from vtx.agent.sdk.sessions import InMemorySession
+            from vtx.core.config import get_last_selected
+
+            sel = get_last_selected() or {}
+            from vtx.agent import Agent
+
+            agent = Agent(name="quiz-judge",
+                          model=sel.get("model_id") or "gpt-4o-mini",
+                          instructions="You are a strict quiz grader. Output only JSON.")
+            stream = Runner.run_streamed(agent, prompt, session=InMemorySession())
+            text = ""
+            async for ev in stream:
+                d = getattr(ev, "delta", None)
+                if d:
+                    text += d
+            result = getattr(stream, "result", None)
+            final = getattr(result, "final_output", None) or text
+            try:
+                return json.loads(str(final).strip().strip("`").removeprefix("json").strip())
+            except Exception:  # noqa: BLE001
+                return {"score": None, "feedback": str(final)[:500]}
+        except Exception as exc:  # noqa: BLE001
+            return {"error": f"judge failed: {exc}"}
 
     async def _quiz_judge(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
         """Grade a quiz answer with a real LLM call through the vtx runtime."""

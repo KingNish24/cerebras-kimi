@@ -1,4 +1,4 @@
-import { wsUrl } from "@/lib/api";
+import { RpcSocket } from "@/lib/rpc-ws";
 
 export interface QuizJudgeImage {
   /** Base64 of the freshly-picked image (no ``data:`` prefix). */
@@ -37,7 +37,7 @@ export function startQuizJudge(
   payload: QuizJudgeRequest,
   handlers: QuizJudgeHandlers,
 ): QuizJudgeHandle {
-  const ws = new WebSocket(wsUrl("/ws/questions/judge"));
+  const ws = new RpcSocket("/ws/questions/judge");
   let buffer = "";
   let finished = false;
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
