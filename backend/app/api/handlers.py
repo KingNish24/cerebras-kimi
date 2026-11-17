@@ -1227,14 +1227,18 @@ def subagents_settings_put() -> dict[str, Any]:
     return {}
 
 
+def _suggestions_payload() -> dict[str, Any]:
+    return {"suggestions": [], "stale": False, "status": "no-material"}
+
+
 @router.get("/dashboard/suggestions")
 def dashboard_suggestions() -> dict[str, Any]:
-    return {}
+    return _suggestions_payload()
 
 
 @router.post("/dashboard/suggestions/refresh")
 def dashboard_suggestions_refresh() -> dict[str, Any]:
-    return {}
+    return _suggestions_payload()
 
 
 @router.get("/knowledge-bases/list")
