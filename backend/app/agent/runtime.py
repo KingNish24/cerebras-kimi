@@ -38,7 +38,6 @@ from vtx.agent.sdk.permissions import AutoApprove
 
 from ..config import Settings
 from ..store.session_store import SessionStore, vtx_jsonl_session
-from .guardrails import block_sensitive_tool_args, limit_input_size
 from .tools import builtin_tools
 
 log = logging.getLogger("deeptutor.runtime")
@@ -220,7 +219,6 @@ class AgentRuntime:
             model=model,
             provider=provider,
             tools=tools,
-            input_guardrails=[limit_input_size],
             # Permissions: never pause for approval inside a streamed turn —
             # the web protocol has no resume path for RunState yet.
         )
