@@ -178,6 +178,31 @@ class WorkspaceFiles:
 
 
 
+
+def _expand_magic(code: str) -> str:
+    """Rewrite ``%bash <cmd>`` lines into subprocess calls."""
+    out_lines = []
+    used = False
+    for line in code.split("\n"):
+        stripped = line.lstrip()
+        indent = line[: len(line) - len(stripped)]
+        if stripped.startswith("%bash"):
+            cmd = stripped[len("%bash"):].strip()
+            if cmd.startswith(('"', "'")) and cmd.endswith(cmd[0]):
+                cmd = cmd[1:-1]
+            out_lines.append(
+                f'{indent}import subprocess as _sp\n'
+                f'{indent}_r = _sp.run({cmd!r}, shell=True, capture_output=True, text=True, timeout=120)\n'
+                f'{indent}print(_r.stdout); print(_r.stderr, file=__import__("sys").stderr) if _r.stderr else None'
+            )
+            used = True
+        else:
+            out_lines.append(line)
+    if used and "import subprocess" not in code:
+        out_lines.insert(0, "import subprocess")
+    return "\n".join(out_lines)
+
+
 def _codemode_tool(registry: dict[str, Any]) -> Any:
     """Build the codemode tool: model writes Python that calls other tools.
 
@@ -232,6 +257,9 @@ def _codemode_tool(registry: dict[str, Any]) -> Any:
         :param timeout_ms: Script timeout (default 60s).
         :param max_tool_calls: Max tool invocations per script.
         """
+        # IPython-style % magic: %bash <cmd> runs a shell command in the
+        # sandbox worker (full subprocess access) and prints its output.
+        code = _expand_magic(code)
         try:
             result = await sandbox.execute(
                 code,
