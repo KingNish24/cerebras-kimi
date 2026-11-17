@@ -464,15 +464,40 @@ class AgentRuntime:
         runtime = self._vtx_runtimes.get(cache_key)
         if runtime is None:
             try:
+                # Mirror coding_agent/acp.py _ensure_agent: agent registry,
+                # plugin extensions, then ConversationRuntime + prepare_for_run.
+                import os as _os
+                from vtx.agent.agents import AgentRegistry, load_all_agents
+                from vtx.plugins.extensions import load_for_runtime
+
                 last = get_last_selected()
-                model = (command.get("model") or session.get("model")
-                         or last.model_id or vtx_config.llm.default_model)
+                cwd = str(self._settings.workspace_dir)
                 provider = (command.get("model_provider") or last.provider
                             or vtx_config.llm.default_provider)
+                model = (command.get("model") or session.get("model")
+                         or last.model_id or vtx_config.llm.default_model)
+
+                agent_registry = AgentRegistry()
+                loaded_agents, agent_errors = load_all_agents(cwd=cwd)
+                agent_registry.agents = loaded_agents
+                agent_registry.errors = agent_errors
+                desired = (_os.environ.get("VTX_AGENT")
+                           or (last.agent or None)
+                           or (vtx_config.agents.default or None))
+                if desired:
+                    agent_registry.set_active(desired)
+
+                loaded_extensions = load_for_runtime(cwd=cwd)
+                ext_tools = list(loaded_extensions.list_extension_tools())
+                if agent_registry.active is not None:
+                    ext_tools.extend(agent_registry.active.local_tools.values())
+                    ext_tools.extend(
+                        loaded_extensions.local_tools_for(
+                            agent_registry.active.definition.name))
                 from .tools import builtin_tools as _bt
                 fns = _bt(self._settings, command.get("tools"))
-                tools = [_SdkToolAdapter(t) for t in fns]
-                cwd = str(self._settings.workspace_dir)
+                tools = [_SdkToolAdapter(t) for t in fns] + ext_tools
+
                 runtime = ConversationRuntime(
                     cwd=cwd, model=model, model_provider=provider,
                     base_url=vtx_config.llm.default_base_url or None,
@@ -480,7 +505,12 @@ class AgentRuntime:
                                     or last.thinking_level
                                     or vtx_config.llm.default_thinking_level),
                     tools=tools,
+                    extensions=loaded_extensions.bus,
+                    agent_registry=agent_registry,
+                    active_agent=agent_registry.active,
+                    agent_extensions=list(loaded_extensions.extensions),
                 )
+                runtime.set_loaded_extensions(loaded_extensions)
                 init = await asyncio.to_thread(runtime.initialize)
                 if getattr(init, "provider_error", None):
                     raise RuntimeError(str(init.provider_error))
