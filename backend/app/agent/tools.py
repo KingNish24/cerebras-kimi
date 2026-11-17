@@ -264,18 +264,12 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "web": dt_tools.web,
         "paper_search": dt_tools.paper_search,
         "github": dt_tools.github,
-        "exec": dt_tools.exec,
         "zotero_search": dt_tools.zotero_search,
-        "reason": dt_tools.reason,
-        "brainstorm": dt_tools.brainstorm,
         "notes": dt_tools.notes,
         "question_bank": dt_tools.question_bank,
         "memory": dt_tools.memory,
-        "imagegen": dt_tools.imagegen,
         "knowledge_base_search": _kb.knowledge_base_search,
         # Generic utilities
-        "calculate": calculate,
-        "current_time": current_time,
         "read_file": ws_tools[0],
         "apply_patch": dt_tools.apply_patch,
         "list_files": ws_tools[2],
@@ -292,8 +286,8 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     # web_fetch, github, notes, memory, rag/kb, calculate…) is locked-on and
     # must always reach the model's schema.
     toggleable = {
-        "brainstorm", "web", "web_search", "paper_search", "zotero_search",
-        "reason", "geogebra_analysis", "imagegen", "videogen",
+        "web", "web_search", "paper_search", "zotero_search",
+        "geogebra_analysis", "videogen",
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
