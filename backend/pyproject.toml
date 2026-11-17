@@ -1,0 +1,19 @@
+[project]
+name = "deeptutor-vtx-backend"
+version = "0.1.0"
+description = "DeepTutor web backend powered by the vtx agent SDK"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "httpx>=0.27",
+    "vtx-coding-agent>=1.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
