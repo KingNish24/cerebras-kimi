@@ -972,3 +972,164 @@ def video(action: str, title: str = "", html: str = "",
             return f"render failed: {proc.stderr[-500:] or proc.stdout[-500:]}"
         return f"Video rendered: videos/{slug}/out.mp4 ({out.stat().st_size} bytes)"
     return f"Unknown video action: {action}"
+
+
+# ---------------------------------------------------------------------------
+# apply_patch — ported from vtx coding_agent/tools/apply_patch.py
+# Atomic file edits: ops update/create/delete/move, validated fully before
+# any byte is written. Replaces the simple write_file tool.
+# ---------------------------------------------------------------------------
+
+_APPLY_PATCH_OPS = (
+    '{"op":"update","path":"a.py","old":"exact text","new":"replacement"} | '
+    '{"op":"update","path":"a.py","edits":[{"old":"..","new":"..","replace_all":false}]} | '
+    '{"op":"create","path":"b.txt","content":"..."} | '
+    '{"op":"delete","path":"c.txt"} | '
+    '{"op":"move","path":"a","new_path":"b"}'
+)
+
+
+def _patch_root() -> Path:
+    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _patch_resolve(root: Path, p: str) -> Path:
+    cand = (root / (p or "").lstrip("/")).resolve()
+    if cand != root and root not in cand.parents:
+        raise ValueError(f"path escapes workspace: {p}")
+    return cand
+
+
+@tool(mutating=True, tool_icon="🩹")
+def apply_patch(ops_json: str) -> str:
+    """Apply file edits atomically — the ONLY tool for file modifications.
+
+    Pass a JSON array of ops (see format below). Every op is validated
+    against an in-memory view first; if ANY op fails, NOTHING is written.
+
+    Ops:
+    - ``{"op":"update","path":P,"old":O,"new":N}`` — replace first exact
+      occurrence of O (must match whitespace) with N; add
+      ``"replace_all":true`` for all occurrences.
+    - ``{"op":"update","path":P,"edits":[{"old":O,"new":N,"replace_all":bool}]}``
+      — several edits to one file.
+    - ``{"op":"create","path":P,"content":C}`` — new file (fails if exists).
+    - ``{"op":"delete","path":P}`` — remove file.
+    - ``{"op":"move","path":P,"new_path":Q}`` — rename.
+
+    :param ops_json: JSON array of ops, e.g. [{"op":"update","path":"a.py",
+        "old":"x = 1","new":"x = 2"}]
+    """
+    try:
+        ops = json.loads(ops_json)
+    except Exception as exc:  # noqa: BLE001
+        return f"apply_patch: invalid JSON ops: {exc}"
+    if not isinstance(ops, list) or not ops:
+        return "apply_patch: ops must be a non-empty JSON array."
+
+    root = _patch_root()
+    _DELETED = object()
+    state: dict[Path, Any] = {}
+
+    def current(path: Path) -> str | None:
+        if path in state:
+            v = state[path]
+            return None if v is _DELETED else v
+        if not path.exists():
+            return None
+        try:
+            return path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            raise ValueError(f"cannot read {path}: {exc}") from exc
+
+    def exists(path: Path) -> bool:
+        if path in state:
+            return state[path] is not _DELETED
+        return path.exists()
+
+    def mark(path: Path, content: str | None) -> None:
+        state[path] = _DELETED if content is None else content
+
+    try:
+        for idx, raw in enumerate(ops):
+            if not isinstance(raw, dict):
+                raise ValueError(f"op {idx + 1}: not an object")
+            op = raw.get("op")
+            path = _patch_resolve(root, str(raw.get("path") or ""))
+            label = f"op {idx + 1} ({op} {raw.get('path')})"
+
+            if op == "update":
+                edits = raw.get("edits")
+                if edits is None:
+                    edits = [{"old": raw.get("old"), "new": raw.get("new"),
+                              "replace_all": raw.get("replace_all", False)}]
+                content = current(path)
+                if content is None:
+                    raise ValueError(f"{label}: file does not exist")
+                new_content = content
+                for j, e in enumerate(edits):
+                    old, new = e.get("old"), e.get("new")
+                    if old is None or new is None:
+                        raise ValueError(f"{label} edit {j + 1}: old/new required")
+                    if old == new:
+                        raise ValueError(f"{label} edit {j + 1}: old == new")
+                    count = new_content.count(old)
+                    if count == 0:
+                        raise ValueError(f"{label} edit {j + 1}: 'old' not found")
+                    if count > 1 and not e.get("replace_all"):
+                        raise ValueError(
+                            f"{label} edit {j + 1}: 'old' matches {count} times "
+                            "— set replace_all or make it unique")
+                    new_content = (new_content.replace(old, new)
+                                   if e.get("replace_all")
+                                   else new_content.replace(old, new, 1))
+                mark(path, new_content)
+            elif op == "create":
+                if exists(path):
+                    raise ValueError(f"{label}: file already exists")
+                content = raw.get("content")
+                if content is None:
+                    raise ValueError(f"{label}: 'content' required")
+                mark(path, str(content))
+            elif op == "delete":
+                if not exists(path):
+                    raise ValueError(f"{label}: file does not exist")
+                mark(path, None)
+            elif op == "move":
+                new_path = raw.get("new_path")
+                if not new_path:
+                    raise ValueError(f"{label}: 'new_path' required")
+                content = current(path)
+                if content is None:
+                    raise ValueError(f"{label}: file does not exist")
+                dest = _patch_resolve(root, str(new_path))
+                if dest.exists() and dest not in state:
+                    raise ValueError(f"{label}: destination exists")
+                state[dest] = state.get(path, content)
+                mark(path, None)
+            else:
+                raise ValueError(f"{label}: unknown op {op!r}")
+    except Exception as exc:  # noqa: BLE001
+        return f"apply_patch failed (no changes written): {exc}"
+
+    # All ops validated — apply atomically.
+    applied: list[str] = []
+    try:
+        for path, value in state.items():
+            if value is _DELETED:
+                if path.exists():
+                    if path.is_dir():
+                        import shutil
+                        shutil.rmtree(path)
+                    else:
+                        path.unlink()
+                applied.append(f"deleted {path.relative_to(root)}")
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(value, encoding="utf-8")
+                applied.append(f"wrote {path.relative_to(root)} ({len(value)} chars)")
+    except Exception as exc:  # noqa: BLE001
+        return f"apply_patch write failed mid-apply: {exc}"
+    return "apply_patch applied:\n" + "\n".join(applied)

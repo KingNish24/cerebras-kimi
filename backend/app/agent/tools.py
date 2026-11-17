@@ -216,7 +216,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "calculate": calculate,
         "current_time": current_time,
         "read_file": ws_tools[0],
-        "write_file": ws_tools[1],
+        "apply_patch": dt_tools.apply_patch,
         "list_files": ws_tools[2],
         # User-requested consolidated tools
         "ask_user": dt_tools.ask_user,
