@@ -32,6 +32,7 @@ export function browserSocketFactory(url: string): TurnSocket {
  */
 const LEGACY_TO_METHOD: Record<string, string> = {
   start_turn: "turn.start",
+  message: "turn.start",
   subscribe_turn: "turn.subscribe",
   subscribe_session: "turn.subscribe_session",
   resume_from: "turn.resume_from",
