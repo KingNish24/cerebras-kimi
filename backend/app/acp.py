@@ -41,6 +41,9 @@ ACP_METHODS = {
     "session/set_mode",
     "http.request",
     "system.list_methods",
+    "quiz.judge",
+    "book.stream",
+    "progress.subscribe",
     # Turn-protocol aliases (DeepTutor frontend compat)
     "turn.start",
     "turn.subscribe",
@@ -663,6 +666,13 @@ class AcpAgent:
         if method == "http.request":
             return await self._http_request(req_id, p)
 
+        if method == "quiz.judge":
+            return await self._quiz_judge(req_id, p)
+        if method == "book.stream":
+            return await self._book_stream(req_id, p)
+        if method == "progress.subscribe":
+            return {"jsonrpc": "2.0", "id": req_id, "result": {"subscribed": True}}
+
         if method == "system.list_methods":
             return {"jsonrpc": "2.0", "id": req_id,
                     "result": {"methods": sorted(ACP_METHODS)}}
@@ -670,6 +680,68 @@ class AcpAgent:
         return {"jsonrpc": "2.0", "id": req_id,
                 "error": {"code": JSON_RPC_METHOD_NOT_FOUND,
                           "message": f"Unknown method: {method}"}}
+
+    async def _quiz_judge(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
+        """Grade a quiz answer with a real LLM call through the vtx runtime."""
+        question = str(params.get("question") or "")
+        answer = str(params.get("answer") or params.get("submission") or "")
+        reference = str(params.get("reference") or params.get("expected") or "")
+        prompt = (
+            "Grade this quiz answer. Reply with JSON: "
+            '{"score":0-100,"correct":bool,"feedback":"..."}\n\n'
+            f"Question: {question}\nAnswer: {answer}\n"
+            + (f"Reference: {reference}\n" if reference else "")
+        )
+        result_text = ""
+        try:
+            from vtx.agent import Agent
+            from vtx.agent.sdk.runner import Runner
+            from vtx.agent.sdk.sessions import InMemorySession
+            from vtx.core.permissions import AutoApprove
+
+            agent = self._runtime_agent() if hasattr(self, "_runtime_agent") else None
+            if agent is None:
+                # Minimal grading agent on the configured default model.
+                from vtx.ai.models import get_model
+                from vtx.core.config import get_last_selected
+
+                sel = get_last_selected() or {}
+                agent = Agent(name="quiz-judge", model=sel.get("model_id") or "gpt-4o-mini",
+                              instructions="You are a strict quiz grader. Output only JSON.")
+            stream = Runner.run_streamed(agent, prompt, session=InMemorySession())
+            async for ev in stream:
+                d = getattr(ev, "delta", None)
+                if d:
+                    result_text += d
+            result = getattr(stream, "result", None)
+            final = getattr(result, "final_output", None) or result_text
+            try:
+                grade = json.loads(str(final).strip().strip("`").removeprefix("json").strip())
+            except Exception:  # noqa: BLE001
+                grade = {"score": None, "feedback": str(final)[:500]}
+            return {"jsonrpc": "2.0", "id": req_id, "result": grade}
+        except Exception as exc:  # noqa: BLE001
+            return {"jsonrpc": "2.0", "id": req_id,
+                    "error": {"code": JSON_RPC_INTERNAL_ERROR, "message": f"judge failed: {exc}"}}
+
+    async def _book_stream(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
+        """Stream book content as session/update-style notifications."""
+        book_id = str(params.get("book_id") or params.get("id") or "")
+        path = self.app.state.settings.data_dir / "books" / f"{book_id}.json"
+        try:
+            data = json.loads(path.read_text())
+        except Exception:  # noqa: BLE001
+            data = {"id": book_id, "title": book_id, "chunks": []}
+        chunks = data.get("chunks") or [data.get("content", "")]
+        session_id = str(params.get("sessionId") or "book")
+        for i, chunk in enumerate(chunks):
+            await self._update(session_id, {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {"type": "text", "text": str(chunk)},
+                "_meta": {"book_chunk": i, "book_id": book_id},
+            })
+        return {"jsonrpc": "2.0", "id": req_id,
+                "result": {"book_id": book_id, "chunks": len(chunks)}}
 
     async def _http_request(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
         """Dispatch an internal handler call — no HTTP layer involved."""
