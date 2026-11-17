@@ -13,6 +13,13 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
+      // Flush headers immediately — without a first byte some servers/proxies
+      // hold the response and EventSource stays CONNECTING forever.
+      try {
+        controller.enqueue(encoder.encode(`: connected\n\n`));
+      } catch {
+        /* closed */
+      }
       const send = (data: string) => {
         try {
           controller.enqueue(encoder.encode(`data: ${data}\n\n`));

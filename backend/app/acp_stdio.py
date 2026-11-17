@@ -56,9 +56,14 @@ async def _main() -> None:
 
     read_task = asyncio.create_task(reader())
     try:
+        tasks: set[asyncio.Task] = set()
         while True:
             line = await queue.get()
-            await agent.handle(line)
+            # Concurrent dispatch: a slow unary call (e.g. session/list
+            # scanning ~/.vtx/sessions) must not starve turn.start/prompt.
+            task = asyncio.create_task(agent.handle(line))
+            tasks.add(task)
+            task.add_done_callback(tasks.discard)
     finally:
         read_task.cancel()
         await agent.close()

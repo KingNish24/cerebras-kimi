@@ -87,9 +87,17 @@ def _settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
+_VTX_SESSIONS_CACHE: tuple[float, list[dict[str, Any]]] = (0.0, [])
+
+
 def _vtx_native_sessions() -> list[dict[str, Any]]:
     """Sessions persisted by vtx itself (~/.vtx/sessions/*/*.jsonl) that no
     DeepTutor record references yet — same listing vtx-vscode shows."""
+    global _VTX_SESSIONS_CACHE
+    import time as _time
+
+    if _time.time() - _VTX_SESSIONS_CACHE[0] < 30:
+        return list(_VTX_SESSIONS_CACHE[1])
     try:
         from vtx.agent.session import Session as VtxSession
         from vtx.core.paths import get_config_dir

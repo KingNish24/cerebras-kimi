@@ -30,10 +30,11 @@ export function isBackendPath(pathname: string): boolean {
   // /api/rpc* is served by Next route handlers bridging to the stdio ACP
   // agent — it must NOT be rewritten to the (removed) Python HTTP backend.
   if (pathname === "/api/rpc" || pathname.startsWith("/api/rpc/")) return false;
+  // /files/* is served by the Next route at app/files/ (agent outputs).
+  if (pathname.startsWith("/files/")) return false;
   return (
     pathname.startsWith("/api/") ||
-    isWebSocketPath(pathname) ||
-    pathname.startsWith("/files/")
+    isWebSocketPath(pathname)
   );
 }
 

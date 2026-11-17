@@ -70,8 +70,13 @@ export function rpcSocketFactory(_url: string): TurnSocket {
       messageListeners.forEach((fn) => fn(event));
     }
   };
-  const fire = (type: string) =>
+  let opened = false;
+  let closedFired = false;
+  const fire = (type: string) => {
+    if (type === "open") opened = true;
+    if (type === "close") closedFired = true;
     stateListeners.get(type)?.forEach((fn) => fn(new Event(type)));
+  };
   es.onopen = () => fire("open");
   es.onerror = () => { if (es.readyState === EventSource.CLOSED) fire("close"); };
 
@@ -110,9 +115,16 @@ export function rpcSocketFactory(_url: string): TurnSocket {
     addEventListener(type: string, listener: (e: never) => void) {
       if (type === "message") {
         messageListeners.add(listener as (e: SocketMessageEvent) => void);
-      } else {
-        if (!stateListeners.has(type)) stateListeners.set(type, new Set());
-        stateListeners.get(type)!.add(listener as (e: Event) => void);
+        return;
+      }
+      if (!stateListeners.has(type)) stateListeners.set(type, new Set());
+      stateListeners.get(type)!.add(listener as (e: Event) => void);
+      // Replay terminal/transient states for late subscribers (EventSource
+      // may have opened before the client attached its "open" listener).
+      if (type === "open" && opened) {
+        queueMicrotask(() => (listener as (e: Event) => void)(new Event("open")));
+      } else if (type === "close" && closedFired) {
+        queueMicrotask(() => (listener as (e: Event) => void)(new Event("close")));
       }
     },
   } as TurnSocket;

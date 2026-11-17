@@ -153,6 +153,24 @@ def _acp_update(event: dict[str, Any]) -> dict[str, Any] | None:
     return None
 
 
+def _command_ack(command: dict[str, Any], turn_id: str, accepted: bool,
+                 error_code: str | None = None, message: str | None = None) -> dict[str, Any]:
+    """command_ack event — the client awaits this before marking a send."""
+    event: dict[str, Any] = {
+        "type": "command_ack",
+        "protocol_version": "2.0",
+        "command_id": str(command.get("command_id") or ""),
+        "command_type": str(command.get("type") or ""),
+        "accepted": accepted,
+        "turn_id": turn_id,
+    }
+    if error_code:
+        event["error_code"] = error_code
+    if message:
+        event["message"] = message
+    return event
+
+
 class _Prompt:
     """One in-flight session/prompt: streams updates, resolves stopReason."""
 
@@ -268,36 +286,55 @@ class AcpAgent:
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
 
+    async def _ack(self, command: dict[str, Any], turn_id: str, accepted: bool,
+                   error_code: str | None = None, message: str | None = None) -> None:
+        await self._notify("turn.event",
+                           _command_ack(command, turn_id, accepted, error_code, message))
+
     async def _turn_start(self, command: dict[str, Any]) -> None:
         ctype = command.get("type")
         if ctype in ("start_turn", "message"):
             handle, session_event, error = await self.runtime.start_turn(command)
             if error or handle is None:
-                await self._error(
-                    None, JSON_RPC_INVALID_PARAMS, error or "failed to start turn"
-                )
+                await self._ack(command, "", False, "start_turn_rejected",
+                                error or "failed to start turn")
                 return
             if session_event is not None:
                 await self.runtime._emit(handle, session_event)
                 await self._notify("turn.event", session_event)
+            await self._ack(command, handle.turn_id, True)
             self._spawn(self._pump_raw(handle))
         elif ctype == "cancel_turn":
-            handle = self.runtime.get_turn(str(command.get("turn_id") or ""))
-            if handle is not None and handle.status == "running":
+            turn_id = str(command.get("turn_id") or "")
+            handle = self.runtime.get_turn(turn_id)
+            accepted = handle is not None and handle.status == "running"
+            if accepted:
                 handle.cancel.set()
+            await self._ack(command, turn_id, accepted,
+                            None if accepted else "turn_not_running",
+                            None if accepted else "No running turn with that id.")
         elif ctype == "regenerate":
             await self._turn_regenerate(command)
+            await self._ack(command, str(command.get("turn_id") or ""), True)
         elif ctype == "subscribe_turn" or ctype == "resume_from":
             await self._turn_subscribe(command)
+            await self._ack(command, str(command.get("turn_id") or ""), True)
         elif ctype == "subscribe_session":
             await self._turn_subscribe_session(command)
+            await self._ack(command, str(command.get("turn_id") or ""), True)
         elif ctype == "unsubscribe":
             self._turn_unsubscribe(command)
+            await self._ack(command, "", True)
         elif ctype == "check_active_turn":
             await self._turn_check_active(command)
+            await self._ack(command, "", True)
         elif ctype == "ping":
             await self._notify("turn.event",
                                {"type": "pong", "protocol_version": "2.0"})
+        elif ctype in ("submit_user_reply", "user_input"):
+            await self._ack(command, str(command.get("turn_id") or ""), False,
+                            "unsupported",
+                            "This backend does not support mid-turn user input yet.")
 
     async def _turn_regenerate(self, command: dict[str, Any]) -> None:
         session_id = str(command.get("session_id") or "")
