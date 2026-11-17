@@ -488,8 +488,14 @@ class AgentRuntime:
                 if agent is None:
                     raise RuntimeError("agent initialization failed")
                 self._vtx_runtimes[cache_key] = (runtime, agent)
-            except Exception:  # noqa: BLE001
-                return False  # ConversationRuntime unavailable — SDK Runner fallback
+            except Exception as exc:  # noqa: BLE001
+                await self._emit(handle, self._stream_event(
+                    handle, "error", content=f"agent init failed: {exc}",
+                    source=capability, stage="responding"))
+                await self._emit(handle, self._stream_event(
+                    handle, "done", source=capability, stage="responding",
+                    metadata={"status": "error"}))
+                return True
         else:
             runtime, agent = self._vtx_runtimes[cache_key]
 
@@ -565,8 +571,8 @@ class AgentRuntime:
         command: dict[str, Any],
         user_message: dict[str, Any],
     ) -> None:
-        if await self._run_vtx(handle, session, command, user_message):
-            return
+        await self._run_vtx(handle, session, command, user_message)
+        return
         capability = (command.get("capability") or "chat").strip() or "chat"
         turn_events: list[dict[str, Any]] = []
         assistant_text_parts: list[str] = []
