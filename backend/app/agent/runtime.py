@@ -511,7 +511,18 @@ class AgentRuntime:
                     agent_extensions=list(loaded_extensions.extensions),
                 )
                 runtime.set_loaded_extensions(loaded_extensions)
-                init = await asyncio.to_thread(runtime.initialize)
+                # Resume the vtx-native session so DeepTutor chats continue
+                # the same JSONL history the vtx CLI/TUI sees.
+                resume_id = None
+                vtx_file = session.get("vtx_session_file")
+                if vtx_file:
+                    try:
+                        from vtx.agent.session import Session as _VS
+                        resume_id = _VS.load(vtx_file).id
+                    except Exception:  # noqa: BLE001
+                        resume_id = None
+                init = await asyncio.to_thread(
+                    runtime.initialize, resume_session=resume_id)
                 if getattr(init, "provider_error", None):
                     raise RuntimeError(str(init.provider_error))
                 agent = await asyncio.to_thread(runtime.prepare_for_run)
