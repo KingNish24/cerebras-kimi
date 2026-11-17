@@ -281,6 +281,51 @@ def capabilities_registered() -> dict[str, Any]:
 # -- settings -------------------------------------------------------------------
 
 
+def _vtx_model_cache_entries(slug: str) -> dict[str, dict[str, Any]]:
+    """``~/.vtx/models/<slug>.json`` entries keyed by model id.
+
+    Both vtx fetchers write this file; entries carry context_window,
+    max_tokens, supports_thinking, thinking_level_map, supports_images —
+    exactly the capability data the settings UI needs.
+    """
+    try:
+        import json as _json
+        from pathlib import Path
+
+        cache = Path.home() / ".vtx" / "models" / f"{slug}.json"
+        if not cache.exists():
+            return {}
+        data = _json.loads(cache.read_text(encoding="utf-8"))
+        out: dict[str, dict[str, Any]] = {}
+        for m in data.get("models", []):
+            if isinstance(m, dict) and m.get("id"):
+                out[str(m["id"])] = m
+        return out
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def _vtx_model_capability_fields(entry: dict[str, Any] | None) -> dict[str, Any]:
+    """Map a vtx cache entry to LLMOption capability fields."""
+    if not entry:
+        return {}
+    fields: dict[str, Any] = {}
+    cw = entry.get("context_window") or entry.get("context_length")
+    if isinstance(cw, (int, float)) and cw:
+        fields["context_window"] = int(cw)
+    tlm = entry.get("thinking_level_map")
+    if isinstance(tlm, dict) and tlm:
+        levels = [k for k, v in tlm.items() if v is not None]
+        if levels:
+            fields["supported_reasoning_efforts"] = levels
+            fields["declared_reasoning"] = True
+    elif entry.get("supports_thinking"):
+        fields["declared_reasoning"] = True
+    if entry.get("supports_images"):
+        fields["supports_vision"] = True
+    return fields
+
+
 def _vtx_provider_model_ids(slug: str, provider: Any) -> list[str]:
     """All model ids vtx knows for a provider: static known_models plus the
     fetched caches under ``~/.vtx/models/<slug>.json`` (model_fetcher and
@@ -327,21 +372,25 @@ def _vtx_model_options() -> list[dict[str, Any]]:
             models = _vtx_provider_model_ids(p.slug, p)[:100]
             if not models:
                 continue
+            cache = _vtx_model_cache_entries(p.slug)
             for m in models:
-                options.append(
-                    {
-                        "profile_id": p.slug,
-                        "model_id": m,
-                        "profile_name": getattr(p, "display_name", p.slug),
-                        "model_name": m,
-                        "model": m,
-                        "provider": p.slug,
-                        "provider_label": getattr(p, "display_name", p.slug),
-                        "supports_vision": bool(getattr(p, "supports_vision", False)),
-                        "supports_thinking": bool(getattr(p, "supports_thinking", False)),
-                        "is_active_default": False,
-                    }
-                )
+                option = {
+                    "profile_id": p.slug,
+                    "model_id": m,
+                    "profile_name": getattr(p, "display_name", p.slug),
+                    "model_name": m,
+                    "model": m,
+                    "provider": p.slug,
+                    "provider_label": getattr(p, "display_name", p.slug),
+                    "supports_vision": bool(getattr(p, "supports_vision", False)),
+                    "supports_thinking": bool(getattr(p, "supports_thinking", False)),
+                    "is_active_default": False,
+                }
+                # Per-model capability data comes from vtx's own cache entry
+                # (context window, reasoning levels, vision) — same source
+                # the vtx TUI reads, not a frontend-side guess.
+                option.update(_vtx_model_capability_fields(cache.get(m)))
+                options.append(option)
     except Exception:  # noqa: BLE001
         pass
     return options
@@ -394,6 +443,18 @@ def llm_options(request: Request) -> dict[str, Any]:
             "reasoning_effort": None,
         }
         options[0]["is_active_default"] = True
+    # Mark models from vtx's recent_models list (~/.vtx/config.yml) so the
+    # composer dropdown can show just what the user actually picks — the
+    # same recency the vtx TUI /model picker uses.
+    try:
+        from vtx.core.config import get_recent_models
+
+        recent = {(p, m) for p, m in get_recent_models()}
+        for opt in options:
+            if (opt["profile_id"], opt["model_id"]) in recent:
+                opt["is_recent"] = True
+    except Exception:  # noqa: BLE001
+        pass
     return {"active": active, "options": options}
 
 

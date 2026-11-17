@@ -267,7 +267,10 @@ export default function ModelSelector({
                 )}
               </button>
             )}
-            {options.map((option) => {
+            {(options.some((o) => o.is_recent)
+              ? options.filter((o) => o.is_recent)
+              : options
+            ).map((option) => {
               const optionSelection = {
                 profile_id: option.profile_id,
                 model_id: option.model_id,

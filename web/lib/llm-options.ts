@@ -19,6 +19,8 @@ export interface LLMOption extends LLMSelection {
   declared_reasoning?: boolean;
   supports_vision?: boolean;
   is_active_default: boolean;
+  /** Present when the model is in vtx's recent_models list. */
+  is_recent?: boolean;
 }
 
 export interface LLMOptionsResponse {
