@@ -203,6 +203,42 @@ def _expand_magic(code: str) -> str:
     return "\n".join(out_lines)
 
 
+
+def adapted_registry_tools(registry: dict[str, Any]) -> list[Any]:
+    """Adapt SDK FunctionTools to vtx.codemode.CodemodeTool declarations."""
+    from vtx.codemode import CodemodeTool
+
+    out = []
+    for name, fn in registry.items():
+        if name == "codemode":
+            continue
+
+        async def invoke(args: dict, signal, _fn=fn, _name=name):  # noqa: ANN001
+            try:
+                params = _fn.params(**{k: v for k, v in args.items() if v is not None})
+                res = await _fn.execute(params)
+                return getattr(res, "result", None) or str(res)
+            except Exception as exc:  # noqa: BLE001
+                return f"tool {_name} error: {exc}"
+
+        schema_props = {}
+        try:
+            for fname, f in fn.params.model_fields.items():
+                schema_props[fname] = {
+                    "type": "string",
+                    "description": getattr(f, "description", "") or "",
+                }
+        except Exception:  # noqa: BLE001
+            pass
+        out.append(CodemodeTool(
+            name=name,
+            description=(fn.description or name)[:400],
+            execute=invoke,
+            input_schema={"type": "object", "properties": schema_props},
+        ))
+    return out
+
+
 def _codemode_tool(registry: dict[str, Any]) -> Any:
     """Build the codemode tool: model writes Python that calls other tools.
 
@@ -240,7 +276,7 @@ def _codemode_tool(registry: dict[str, Any]) -> Any:
             input_schema={"type": "object", "properties": schema_props},
         )
 
-    tools = [_adapt(n, fn) for n, fn in registry.items() if n != "codemode"]
+    tools = adapted_registry_tools(registry)
 
     @_sdk_tool(mutating=True, tool_icon="🧩")
     async def codemode(code: str, timeout_ms: int = 60000,
@@ -317,15 +353,31 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
-    # Builtin: let the model (and codemode scripts) discover the tool catalog.
-    catalog = {n: (getattr(f, "description", "") or "")[:160] for n, f in registry.items()}
+    # Builtin: vtx-style tool_search — ranked discovery over tool declarations.
+    from vtx.codemode import rank as _rank
 
-    @tool(mutating=False, tool_icon="🧰")
-    def list_tools() -> str:
-        """List all tools available to the agent (name + description)."""
-        return "\n".join(f"- {n}: {d}" for n, d in sorted(catalog.items())) or "(none)"
+    adapted = adapted_registry_tools(registry)
 
-    registry["list_tools"] = list_tools
+    @tool(mutating=False, tool_icon="🔎")
+    def tool_search(query: str) -> str:
+        """Search available tools by keyword — returns the most relevant
+        tool declarations (name, description, parameters) for ``query``.
+        Use before codemode or when unsure which tool fits."""
+        try:
+            matches = _rank(query, adapted, limit=5)
+        except Exception:  # noqa: BLE001
+            matches = []
+        if not matches:
+            return "No tools matched."
+        lines = []
+        for m in matches:
+            t = getattr(m, "tool", None) or m
+            name = getattr(t, "name", str(m))
+            desc = (getattr(t, "description", "") or "")[:200]
+            lines.append(f"- {name}: {desc}")
+        return "\n".join(lines)
+
+    registry["tool_search"] = tool_search
     registry["codemode"] = _codemode_tool(registry)
     locked_on = set(registry) - toggleable
     if enabled:
