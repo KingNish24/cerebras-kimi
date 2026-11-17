@@ -76,14 +76,18 @@ function ensureChild(): AgentProc {
       dispatch(msg);
     }
   });
-  proc.on("exit", () => {
+  const failAll = (reason: string) => {
     state.child = null;
     for (const [, p] of state.pending) {
       clearTimeout(p.timer);
-      p.resolve({ jsonrpc: "2.0", id: null, error: { code: -32603, message: "agent exited" } });
+      p.resolve({ jsonrpc: "2.0", id: null, error: { code: -32603, message: reason } });
     }
     state.pending.clear();
-  });
+  };
+  proc.on("exit", () => failAll("agent exited"));
+  proc.on("error", () => failAll("agent error"));
+  proc.stdin.on("close", () => failAll("agent stdin closed"));
+  proc.stdin.on("error", () => failAll("agent stdin error"));
   return proc;
 }
 
@@ -103,13 +107,17 @@ function dispatch(msg: JsonRpcMessage): void {
 }
 
 /** Send a JSON-RPC message; returns the response for requests (id set). */
-export function acpRequest(method: string, params: unknown, timeoutMs = 10 * 60 * 1000): Promise<JsonRpcMessage> {
+export function acpRequest(method: string, params: unknown, timeoutMs = 120_000): Promise<JsonRpcMessage> {
   const proc = ensureChild();
   const id = state.nextId++;
   const msg: JsonRpcMessage = { jsonrpc: "2.0", id, method, params };
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       state.pending.delete(id);
+      // A timed-out request means the agent is likely wedged — kill it so
+      // the next call respawns a fresh process instead of queueing forever.
+      try { state.child?.kill("SIGKILL"); } catch { /* already dead */ }
+      state.child = null;
       resolve({ jsonrpc: "2.0", id, error: { code: -32603, message: "request timed out" } });
     }, timeoutMs);
     state.pending.set(id, { resolve, timer });
