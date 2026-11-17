@@ -1426,8 +1426,17 @@ def qn_category_get(request: Request, cat_id: str) -> dict[str, Any]:
 
 
 @router.get("/question-notebook/entries")
-def qn_entries(request: Request) -> dict[str, Any]:
-    return {"entries": _list_dir(request, "question-notebook", "entries")}
+def qn_entries(request: Request, limit: int = 50, offset: int = 0, search: str = "",
+                sort: str = "recent", **_filters: Any) -> dict[str, Any]:
+    items = _list_dir(request, "question-notebook", "entries")
+    if search:
+        q = search.lower()
+        items = [e for e in items if q in str(e.get("question", "")).lower()
+                 or q in str(e.get("correct_answer", "")).lower()]
+    items.sort(key=lambda e: e.get("updated_at") or e.get("created_at") or 0,
+               reverse=(sort != "oldest"))
+    total = len(items)
+    return {"items": items[offset:offset + limit], "total": total}
 
 
 @router.post("/question-notebook/entries")
@@ -1446,12 +1455,45 @@ def qn_entry_delete(request: Request, entry_id: str) -> dict[str, Any]:
     return {"ok": _del_item(request, entry_id, "question-notebook", "entries", "entry")}
 
 
-@router.post("/question-notebook/entries/lookup/by-question")
-def qn_lookup(request: Request, body: dict[str, Any]) -> dict[str, Any]:
-    q = str(body.get("question") or "").lower()
-    hits = [e for e in _list_dir(request, "question-notebook", "entries")
-            if q and q in str(e.get("question") or "").lower()]
-    return {"entries": hits}
+@router.get("/question-notebook/entries/lookup/by-question")
+def qn_lookup(request: Request, question: str = "", question_id: str = "",
+              origin_type: str = "", origin_ref: str = "", turn_id: str = "",
+              missing_ok: bool = False, **_f: Any) -> Any:
+    entries = _list_dir(request, "question-notebook", "entries")
+    hit = None
+    for e in entries:
+        if question_id and str(e.get("question_id")) == question_id:
+            hit = e
+            break
+        if origin_type and str(e.get("origin_type") or "") == origin_type \
+                and str(e.get("origin_ref") or "") == origin_ref \
+                and str(e.get("question_id") or "") == question_id:
+            hit = e
+            break
+    if hit is None and question:
+        q = question.lower()
+        hit = next((e for e in entries
+                    if q and q in str(e.get("question") or "").lower()), None)
+    if hit is None:
+        if missing_ok:
+            from .shims import HTTPException
+            raise HTTPException(status_code=204, detail="not found")
+        from .shims import HTTPException
+        raise HTTPException(status_code=404, detail="not found")
+    return hit
+
+
+@router.post("/question-notebook/entries/upsert")
+def qn_upsert(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    entries = _list_dir(request, "question-notebook", "entries")
+    qid = body.get("question_id") or body.get("id")
+    existing = next((e for e in entries if str(e.get("question_id")) == str(qid)
+                     or str(e.get("id")) == str(qid)), None)
+    if existing is not None:
+        existing.update(body)
+        _put_item(request, existing, "question-notebook", "entries", "entry")
+        return existing
+    return qn_entry_create(request, body)
 
 
 @router.get("/question-notebook/entries/{entry_id}/categories")
@@ -1469,6 +1511,29 @@ def qn_materials(request: Request) -> dict[str, Any]:
 def qn_stats(request: Request) -> dict[str, Any]:
     entries = _list_dir(request, "question-notebook", "entries")
     return {"total": len(entries), "by_category": {}}
+
+
+@router.post("/question-notebook/entries/categories/bulk")
+def qn_categories_bulk(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    ids = body.get("entry_ids") or body.get("ids") or []
+    cat_ids = body.get("category_ids") or body.get("categories") or []
+    for eid in ids:
+        e = _get_item(request, "question-notebook", "entries", str(eid))
+        if e is not None:
+            e["categories"] = cat_ids
+            _put_item(request, e, "question-notebook", "entries", "entry")
+    return {"ok": True, "updated": len(ids)}
+
+
+@router.delete("/question-notebook/entries/{entry_id}/categories/{cat_id}")
+def qn_entry_remove_category(request: Request, entry_id: str, cat_id: str) -> dict[str, Any]:
+    e = _get_item(request, "question-notebook", "entries", entry_id)
+    if e is None:
+        from .shims import HTTPException
+        raise HTTPException(status_code=404, detail="entry not found")
+    e["categories"] = [c for c in (e.get("categories") or []) if str(c) != cat_id]
+    _put_item(request, e, "question-notebook", "entries", "entry")
+    return {"ok": True}
 
 
 # -- notebooks -----------------------------------------------------------------
@@ -1492,6 +1557,16 @@ def notebook_get(request: Request, nb_id: str) -> dict[str, Any]:
 @router.delete("/notebooks/{nb_id}")
 def notebook_delete(request: Request, nb_id: str) -> dict[str, Any]:
     return {"ok": _del_item(request, nb_id, "notebooks", "nb")}
+
+
+@router.get("/notebooks/records/{record_id}")
+def nb_record_by_id(request: Request, record_id: str) -> dict[str, Any]:
+    for nb in _list_dir(request, "notebooks"):
+        for r in nb.get("records") or []:
+            if str(r.get("id")) == record_id:
+                return r
+    from .shims import HTTPException
+    raise HTTPException(status_code=404, detail="record not found")
 
 
 @router.get("/notebooks/{nb_id}/export")
@@ -1570,8 +1645,8 @@ def mastery_progress_put(request: Request, topic_id: str, body: dict[str, Any]) 
 # -- partners -------------------------------------------------------------------
 
 @router.get("/partners")
-def partners_list(request: Request) -> dict[str, Any]:
-    return {"partners": _list_dir(request, "partners")}
+def partners_list(request: Request) -> list[dict[str, Any]]:
+    return _list_dir(request, "partners")
 
 
 @router.post("/partners")
@@ -1609,9 +1684,18 @@ def partner_draft_get(request: Request, draft_id: str) -> dict[str, Any]:
     return _get_item(request, "partners", "drafts", draft_id) or {"id": draft_id}
 
 
+@router.get("/partner-groups/discussion-modes")
+def partner_group_modes(request: Request) -> dict[str, Any]:
+    return {"modes": _list_dir(request, "partner-groups", "modes") or [
+        {"id": "free", "name": "Free discussion"},
+        {"id": "structured", "name": "Structured"},
+        {"id": "debate", "name": "Debate"},
+    ]}
+
+
 @router.get("/partner-groups")
-def partner_groups(request: Request) -> dict[str, Any]:
-    return {"groups": _list_dir(request, "partner-groups")}
+def partner_groups(request: Request) -> list[dict[str, Any]]:
+    return _list_dir(request, "partner-groups")
 
 
 @router.post("/partner-groups")
@@ -1658,6 +1742,18 @@ def skills_by_tag(request: Request, tag: str) -> dict[str, Any]:
 
 
 # -- documents / imports / personas / misc ---------------------------------------
+
+@router.get("/personas")
+def personas_list(request: Request) -> dict[str, Any]:
+    return {"personas": _list_dir(request, "personas")}
+
+
+@router.post("/creations/drafts/{draft_id}/approve")
+def creation_draft_approve(request: Request, draft_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    d = _get_item(request, "creations", "drafts", draft_id) or {"id": draft_id}
+    d["status"] = "approved"
+    _put_item(request, d, "creations", "drafts", draft_id)
+    return d
 
 @router.get("/documents")
 def documents_list(request: Request) -> dict[str, Any]:
