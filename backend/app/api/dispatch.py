@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import inspect
 import json
+import re
 from io import BytesIO
 from types import SimpleNamespace
 from typing import Any
 
-from fastapi import HTTPException, UploadFile
 from pydantic import BaseModel
-from starlette.datastructures import Headers
+
+from .shims import HTTPException, UploadFile
 
 from . import handlers
 
@@ -60,28 +61,21 @@ async def dispatch(
 ) -> tuple[int, Any]:
     """Returns ``(http_status, json_payload)``."""
     query = query or {}
-    scope = {
-        "type": "http",
-        "method": method.upper(),
-        "path": path,
-        "raw_path": path.encode(),
-        "query_string": "",
-        "headers": [],
-    }
-
-    match = None
     route = None
+    path_params: dict[str, str] = {}
     for r in handlers.router.routes:
-        m, child = r.matches(scope)
-        if m.name == "FULL":
-            match, route = m, r
-            scope.update(child or {})
+        if method.upper() not in r.methods:
+            continue
+        pattern = re.sub(r"\{(\w+)\}", r"(?P<\1>[^/]+)", r.path)
+        m = re.compile(f"^{pattern}$").match(path)
+        if m:
+            route = r
+            path_params = m.groupdict()
             break
     if route is None:
         return 404, {"detail": f"Not Found: {method} {path}"}
 
     endpoint = route.endpoint
-    path_params = scope.get("path_params", {})
     sig = inspect.signature(endpoint)
 
     # Multipart body -> UploadFile params.
@@ -95,7 +89,7 @@ async def dispatch(
             files_spec[str(f.get("name") or "file")] = UploadFile(
                 file=BytesIO(data),
                 filename=str(f.get("filename") or "file"),
-                headers=Headers({"content-type": str(f.get("content_type") or "application/octet-stream")}),
+                headers={"content-type": str(f.get("content_type") or "application/octet-stream")},
             )
         body = spec.get("fields") or {}
 

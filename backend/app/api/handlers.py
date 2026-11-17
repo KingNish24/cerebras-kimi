@@ -15,8 +15,58 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
+
+
+# -- local shims (no FastAPI) ---------------------------------------------------
+
+
+class HTTPException(Exception):
+    def __init__(self, status_code: int, detail: Any = None) -> None:
+        super().__init__(str(detail))
+        self.status_code = status_code
+        self.detail = detail
+
+
+def Query(default: Any = None, **_kw: Any) -> Any:
+    return default
+
+
+class Request:  # annotation-only marker
+    pass
+
+
+class UploadFile:  # annotation-only marker
+    pass
+
+
+class _Route:
+    def __init__(self, methods: list[str], path: str, endpoint: Any) -> None:
+        self.methods = methods
+        self.path = path
+        self.endpoint = endpoint
+
+
+class APIRouter:
+    """Minimal route-table collector — decorators only, never mounted."""
+
+    def __init__(self, prefix: str = "") -> None:
+        self.prefix = prefix
+        self.routes: list[_Route] = []
+
+    def _add(self, methods: list[str], path: str):
+        def deco(fn):
+            self.routes.append(_Route(methods, self.prefix + path, fn))
+            return fn
+        return deco
+
+    def get(self, path: str): return self._add(["GET"], path)
+    def post(self, path: str): return self._add(["POST"], path)
+    def put(self, path: str): return self._add(["PUT"], path)
+    def delete(self, path: str): return self._add(["DELETE"], path)
+    def patch(self, path: str): return self._add(["PATCH"], path)
+    def api_route(self, path: str, methods: list[str] | None = None):
+        return self._add(methods or ["GET"], path)
 
 from ..agent.runtime import AgentRuntime
 from ..config import Settings
