@@ -286,8 +286,9 @@ class AgentRuntime:
             from vtx.core.config import config as vtx_config, get_last_selected
             from vtx.core.events import (
                 AgentEndEvent, ErrorEvent, TextDeltaEvent, ThinkingDeltaEvent,
-                ToolEndEvent, ToolResultEvent, ToolStartEvent,
+                ToolApprovalEvent, ToolEndEvent, ToolResultEvent, ToolStartEvent,
             )
+            from vtx.core.permissions import ApprovalResponse
         except Exception:  # noqa: BLE001
             return False
 
@@ -404,6 +405,7 @@ class AgentRuntime:
             handle, "stage_start", source=capability, stage="responding"))
 
         status = "completed"
+        assistant_parts: list[str] = []
         try:
             async for event in agent.run(
                 prompt,
@@ -416,6 +418,7 @@ class AgentRuntime:
                             source=capability, stage="responding"))
                 elif isinstance(event, TextDeltaEvent):
                     if event.delta:
+                        assistant_parts.append(event.delta)
                         await self._emit(handle, self._stream_event(
                             handle, "content", content=event.delta,
                             source=capability, stage="responding"))
@@ -434,6 +437,10 @@ class AgentRuntime:
                                   "tool_name": event.tool_name,
                                   "tool_call_id": event.tool_call_id,
                                   "args": getattr(event, "arguments", None)}))
+                elif isinstance(event, ToolApprovalEvent):
+                    # DeepTutor has no permission UI — auto-approve tool calls.
+                    if event.future is not None and not event.future.done():
+                        event.future.set_result(ApprovalResponse.APPROVE)
                 elif isinstance(event, ToolResultEvent):
                     out = event.result
                     text = getattr(out, "output", None) or (
@@ -456,6 +463,25 @@ class AgentRuntime:
             await self._emit(handle, self._stream_event(
                 handle, "error", content=str(exc), source=capability,
                 stage="responding"))
+
+        assistant_text = "".join(assistant_parts).strip()
+        if assistant_text:
+            try:
+                self._store.append_assistant_message(
+                    session, assistant_text,
+                    events=list(handle.events), turn_id=handle.turn_id,
+                    capability=capability,
+                    metadata={"status": status},
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        session["status"] = "completed" if status == "completed" else status
+        session["last_output"] = assistant_text[:500]
+        try:
+            self._store.save(session)
+        except Exception:  # noqa: BLE001
+            pass
+        handle.status = status
 
         await self._emit(handle, self._stream_event(
             handle, "stage_end", source=capability, stage="responding",

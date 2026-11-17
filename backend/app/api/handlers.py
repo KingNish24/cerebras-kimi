@@ -36,6 +36,61 @@ def _settings(request: Request) -> Settings:
 
 
 _VTX_SESSIONS_CACHE: tuple[float, list[dict[str, Any]]] = (0.0, [])
+_VTX_SESSIONS_LOCK = __import__("threading").Lock()
+_VTX_SESSIONS_TTL = 300.0
+
+
+def _cheap_session_info(path) -> dict[str, Any] | None:
+    """Bounded parse: header + first user message only (first ~200 lines),
+    mtime for updated_at — avoids reading whole JSONL histories."""
+    import json as _json
+    import os as _os
+
+    sid = title = created = None
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for i, line in enumerate(f):
+                if i > 200:
+                    break
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = _json.loads(line)
+                except Exception:  # noqa: BLE001
+                    continue
+                if data.get("type") == "header":
+                    sid = data.get("id")
+                    created = data.get("timestamp")
+                elif data.get("type") == "message" and not title:
+                    msg = data.get("message") or {}
+                    if msg.get("role") == "user":
+                        c = msg.get("content")
+                        if isinstance(c, str):
+                            title = c[:100]
+                        elif isinstance(c, list) and c:
+                            title = str(c[0].get("text") or c[0])[:100]
+                if sid and title:
+                    break
+    except Exception:  # noqa: BLE001
+        return None
+    if not sid:
+        return None
+    try:
+        mtime = _os.path.getmtime(path)
+    except OSError:
+        mtime = 0.0
+    import datetime as _dt
+    return {
+        "id": sid,
+        "session_id": sid,
+        "title": title or "",
+        "created_at": created,
+        "updated_at": _dt.datetime.fromtimestamp(mtime, _dt.timezone.utc).isoformat(),
+        "message_count": 0,
+        "vtx_native": True,
+        "vtx_file": str(path),
+    }
 
 
 def _vtx_native_sessions() -> list[dict[str, Any]]:
@@ -44,37 +99,26 @@ def _vtx_native_sessions() -> list[dict[str, Any]]:
     global _VTX_SESSIONS_CACHE
     import time as _time
 
-    if _time.time() - _VTX_SESSIONS_CACHE[0] < 30:
+    if _time.time() - _VTX_SESSIONS_CACHE[0] < _VTX_SESSIONS_TTL:
         return list(_VTX_SESSIONS_CACHE[1])
-    try:
-        from vtx.agent.session import Session as VtxSession
-        from vtx.core.paths import get_config_dir
+    with _VTX_SESSIONS_LOCK:
+        if _time.time() - _VTX_SESSIONS_CACHE[0] < _VTX_SESSIONS_TTL:
+            return list(_VTX_SESSIONS_CACHE[1])
+        try:
+            from vtx.core.paths import get_config_dir
 
-        out: list[dict[str, Any]] = []
-        sdir = get_config_dir() / "sessions"
-        if not sdir.is_dir():
-            return out
-        for path in sdir.glob("*/*.jsonl"):
-            try:
-                info = VtxSession.build_session_info(path)
-            except Exception:  # noqa: BLE001
-                continue
-            if info is None:
-                continue
-            out.append({
-                "id": info.id,
-                "session_id": info.id,
-                "title": info.name or info.first_message or "",
-                "created_at": info.created.isoformat() if getattr(info, "created", None) else None,
-                "updated_at": info.modified.isoformat() if info.modified else None,
-                "message_count": 0,
-                "vtx_native": True,
-                "vtx_file": str(path),
-            })
-        out.sort(key=lambda r: r.get("updated_at") or "", reverse=True)
-        return out
-    except Exception:  # noqa: BLE001
-        return []
+            out: list[dict[str, Any]] = []
+            sdir = get_config_dir() / "sessions"
+            if sdir.is_dir():
+                for path in sdir.glob("*/*.jsonl"):
+                    info = _cheap_session_info(path)
+                    if info is not None:
+                        out.append(info)
+            out.sort(key=lambda r: r.get("updated_at") or "", reverse=True)
+            _VTX_SESSIONS_CACHE = (_time.time(), out)
+            return list(out)
+        except Exception:  # noqa: BLE001
+            return []
 
 
 def _resolve_vtx_session(request: Request, session_id: str) -> dict[str, Any] | None:
