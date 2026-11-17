@@ -1,4 +1,10 @@
-"""REST surface consumed by ``web/``.
+"""Internal handler registry — NOT mounted as HTTP routes.
+
+These functions back the ACP ``http.request`` dispatch (app/api/dispatch.py).
+The APIRouter below is never included in the app; it exists only as a route
+table (path templates + methods + endpoints) for the dispatcher to match.
+
+Implements the subset of DeepTutor's API the frontend needs to boot and hold a
 
 Implements the subset of DeepTutor's API the frontend needs to boot and hold a
 conversation: auth status, session index/detail/search, runtime status,

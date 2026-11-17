@@ -71,8 +71,6 @@ async def _acp_ws(websocket: WebSocket) -> None:
         app=websocket.app,
         send=send,
     )
-    # Enable legacy turn-protocol commands + turn.event notifications.
-    agent.attach_legacy(websocket)
     try:
         while True:
             raw = await websocket.receive()

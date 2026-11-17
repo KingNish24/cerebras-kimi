@@ -10,7 +10,6 @@ messages to :meth:`AcpAgent.handle` and drain :meth:`AcpAgent.send`.
 from __future__ import annotations
 
 import asyncio
-import base64
 import json
 import logging
 import time
@@ -219,7 +218,7 @@ class AcpAgent:
         # Legacy turn-protocol command envelope: {"type": "start_turn", ...}
         # — no jsonrpc/id/method fields, so check before validation.
         if isinstance(msg, dict) and msg.get("jsonrpc") is None and isinstance(msg.get("type"), str):
-            self._spawn_legacy(msg)
+            self._spawn(self._turn_start(msg))
             return
 
         if not isinstance(msg, dict) or msg.get("jsonrpc") != "2.0":
@@ -238,10 +237,10 @@ class AcpAgent:
             await self._error(req_id, JSON_RPC_INVALID_REQUEST, "Missing method")
             return
 
-        # turn.* JSON-RPC aliases -> legacy command handler
+        # turn.* JSON-RPC aliases -> native turn handlers
         ctype = TURN_METHODS.get(method)
         if ctype is not None:
-            self._spawn_legacy({"type": ctype, **params})
+            self._spawn(self._turn_start({"type": ctype, **params}))
             if req_id is not None:
                 await self._respond(req_id, {"accepted": True, "command": ctype})
             return
@@ -262,33 +261,14 @@ class AcpAgent:
             if req_id is not None:
                 await self._error(req_id, JSON_RPC_INTERNAL_ERROR, str(exc))
 
-    def _spawn_legacy(self, command: dict[str, Any]) -> None:
-        from .api.ws import Connection  # local import: ws imports runtime only
+    # -- turn.* commands (native; no ws.py dependency) -------------------------
 
-        if not hasattr(self, "_legacy"):
-            # The legacy Connection needs a websocket-like object; transports
-            # that support it inject one via attach_legacy(). Without it we
-            # fall back to driving the runtime directly for start_turn.
-            self._drive_legacy(command)
-            return
-        self._legacy.spawn(self._legacy.handle(command))
+    def _spawn(self, coro) -> None:
+        task = asyncio.create_task(coro)
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
 
-    def attach_legacy(self, websocket: Any) -> None:
-        """Bind a legacy turn-protocol Connection (WS transport only)."""
-        from .api.ws import Connection
-
-        self._legacy = Connection(websocket, self.runtime)
-
-        async def _wrapped_send(event: dict[str, Any]) -> None:
-            await self._notify("turn.event", event)
-
-        self._legacy.send = _wrapped_send  # type: ignore[method-assign]
-
-    async def _drive_legacy(self, command: dict[str, Any]) -> None:
-        """Handle a turn command without a websocket (HTTP-only transports).
-
-        Only start_turn is meaningful here; subscribe/cancel need WS.
-        """
+    async def _turn_start(self, command: dict[str, Any]) -> None:
         ctype = command.get("type")
         if ctype in ("start_turn", "message"):
             handle, session_event, error = await self.runtime.start_turn(command)
@@ -300,14 +280,109 @@ class AcpAgent:
             if session_event is not None:
                 await self.runtime._emit(handle, session_event)
                 await self._notify("turn.event", session_event)
-            await self._pump_raw(handle)
+            self._spawn(self._pump_raw(handle))
         elif ctype == "cancel_turn":
             handle = self.runtime.get_turn(str(command.get("turn_id") or ""))
             if handle is not None and handle.status == "running":
                 handle.cancel.set()
+        elif ctype == "regenerate":
+            await self._turn_regenerate(command)
+        elif ctype == "subscribe_turn" or ctype == "resume_from":
+            await self._turn_subscribe(command)
+        elif ctype == "subscribe_session":
+            await self._turn_subscribe_session(command)
+        elif ctype == "unsubscribe":
+            self._turn_unsubscribe(command)
+        elif ctype == "check_active_turn":
+            await self._turn_check_active(command)
+        elif ctype == "ping":
+            await self._notify("turn.event",
+                               {"type": "pong", "protocol_version": "2.0"})
+
+    async def _turn_regenerate(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        session = self.store.get(session_id)
+        if session is None:
+            await self._error(None, JSON_RPC_INVALID_PARAMS, "session not found")
+            return
+        last_input = session.get("last_input")
+        if not last_input:
+            await self._error(None, JSON_RPC_INVALID_PARAMS, "nothing to regenerate")
+            return
+        vtx_items = session.get("vtx_items", [])
+        while vtx_items and vtx_items[-1].get("role") != "user":
+            vtx_items.pop()
+        if vtx_items:
+            vtx_items.pop()
+        self.store.save(session)
+        await self._turn_start({
+            "type": "start_turn",
+            "protocol_version": "2.0",
+            "content": last_input,
+            "session_id": session_id,
+            "regenerate": True,
+        })
+
+    async def _turn_subscribe(self, command: dict[str, Any]) -> None:
+        turn_id = str(command.get("turn_id") or "")
+        after_seq = int(command.get("after_seq") or 0)
+        if not turn_id:
+            await self._error(None, JSON_RPC_INVALID_PARAMS, "turn_id required")
+            return
+        for event in self.runtime.turn_events_after(turn_id, after_seq):
+            await self._notify("turn.event", event)
+        handle = self.runtime.get_turn(turn_id)
+        if handle is not None and handle.status == "running":
+            self._spawn(self._follow_turn(handle))
+
+    async def _turn_subscribe_session(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        after_seq = int(command.get("after_seq") or 0)
+        if not session_id:
+            await self._error(None, JSON_RPC_INVALID_PARAMS, "session_id required")
+            return
+        handle = self.runtime.active_turn_for_session(session_id)
+        if handle is None:
+            await self._notify("turn.event", {
+                "type": "active_turn_info", "protocol_version": "2.0",
+                "status": "none"})
+            return
+        for event in self.runtime.turn_events_after(handle.turn_id, after_seq):
+            await self._notify("turn.event", event)
+        self._spawn(self._follow_turn(handle))
+
+    async def _follow_turn(self, handle: Any) -> None:
+        """Forward a running turn's events to this connection until done."""
+        queue = asyncio.Queue(maxsize=1000)
+        handle.subscribers.add(queue)
+        try:
+            while True:
+                event = await queue.get()
+                await self._notify("turn.event", event)
+                if event.get("type") == "done":
+                    return
+        finally:
+            handle.subscribers.discard(queue)
+
+    def _turn_unsubscribe(self, command: dict[str, Any]) -> None:
+        # Per-connection queues are transient pump tasks; cancelling them is
+        # handled by connection close. This is a no-op acknowledgement path.
+        pass
+
+    async def _turn_check_active(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        handle = self.runtime.active_turn_for_session(session_id)
+        if handle is None:
+            await self._notify("turn.event", {
+                "type": "active_turn_info", "protocol_version": "2.0",
+                "status": "none"})
+            return
+        await self._notify("turn.event", {
+            "type": "active_turn_info", "protocol_version": "2.0",
+            "turn_id": handle.turn_id, "status": "running"})
 
     async def _pump_raw(self, handle: Any) -> None:
-        """Stream a turn's events as turn.event notifications until done."""
+        """Stream a turn's events as turn.event + session/update until done."""
         queue = asyncio.Queue(maxsize=1000)
         handle.subscribers.add(queue)
         try:
@@ -508,59 +583,19 @@ class AcpAgent:
                           "message": f"Unknown method: {method}"}}
 
     async def _http_request(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
-        """Forward a REST-shaped call through the app's ASGI stack."""
-        import httpx
+        """Dispatch an internal handler call — no HTTP layer involved."""
+        from .api.dispatch import dispatch
 
         method = str(params.get("method") or "GET").upper()
         path = str(params.get("path") or "/api/health")
-        query = params.get("query") or {}
-        body = params.get("body")
-        headers = {"content-type": "application/json",
-                   **(params.get("headers") or {})}
-
-        kwargs: dict[str, Any] = {}
-        if isinstance(query, dict) and query:
-            kwargs["params"] = query
-        if body is not None:
-            if isinstance(body, dict) and "__multipart__" in body:
-                kwargs["files"] = _multipart_files(body["__multipart__"])
-                kwargs["data"] = _multipart_fields(body["__multipart__"])
-            else:
-                kwargs["content"] = json.dumps(body)
-
-        transport = httpx.ASGITransport(app=self.app)
-        async with httpx.AsyncClient(
-            transport=transport, base_url="http://rpc.internal"
-        ) as client:
-            try:
-                resp = await client.request(method, path, headers=headers, **kwargs)
-            except Exception as exc:  # noqa: BLE001
-                return {"jsonrpc": "2.0", "id": req_id,
-                        "error": {"code": JSON_RPC_INTERNAL_ERROR,
-                                  "message": f"Dispatch failed: {exc}"}}
-        try:
-            payload: Any = resp.json()
-        except Exception:  # noqa: BLE001
-            payload = resp.text
+        status, payload = await dispatch(
+            self.app, method, path, params.get("query") or {}, params.get("body")
+        )
         return {"jsonrpc": "2.0", "id": req_id,
-                "result": {"status": resp.status_code, "body": payload}}
+                "result": {"status": status, "body": payload}}
 
     async def close(self) -> None:
         for t in self._tasks:
             t.cancel()
-        if hasattr(self, "_legacy"):
-            self._legacy.unsubscribe()
 
 
-def _multipart_fields(spec: dict[str, Any]) -> dict[str, str]:
-    return {k: str(v) for k, v in (spec.get("fields") or {}).items()}
-
-
-def _multipart_files(spec: dict[str, Any]) -> dict[str, tuple[str, bytes, str]]:
-    files: dict[str, tuple[str, bytes, str]] = {}
-    for f in spec.get("files") or []:
-        name = str(f.get("name") or "file")
-        filename = str(f.get("filename") or name)
-        ctype = str(f.get("content_type") or "application/octet-stream")
-        files[name] = (filename, base64.b64decode(str(f.get("data_b64") or "")), ctype)
-    return files
