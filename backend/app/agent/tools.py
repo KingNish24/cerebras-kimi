@@ -291,6 +291,15 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
+    # Builtin: let the model (and codemode scripts) discover the tool catalog.
+    catalog = {n: (getattr(f, "description", "") or "")[:160] for n, f in registry.items()}
+
+    @tool(mutating=False, tool_icon="🧰")
+    def list_tools() -> str:
+        """List all tools available to the agent (name + description)."""
+        return "\n".join(f"- {n}: {d}" for n, d in sorted(catalog.items())) or "(none)"
+
+    registry["list_tools"] = list_tools
     registry["codemode"] = _codemode_tool(registry)
     locked_on = set(registry) - toggleable
     if enabled:
