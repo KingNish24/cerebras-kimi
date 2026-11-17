@@ -15,6 +15,8 @@ const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = process.env.PORT ?? "3000";
 const BASE = `http://localhost:${PORT}`;
 const NEXT_BIN = path.join(WEB_DIR, "node_modules", "next", "dist", "bin", "next");
+const BACKEND_DIR = path.join(WEB_DIR, "..", "backend");
+const PYTHON = path.join(BACKEND_DIR, ".venv", "bin", "python");
 
 function run(cmd, args) {
   return new Promise((resolve) => {
@@ -27,12 +29,11 @@ async function waitForServer(timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const res = await fetch(`${BASE}/api/rpc`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 0, method: "initialize", params: {} }),
-      });
-      if (res.ok) return true;
+      const res = await fetch("http://127.0.0.1:8001/health");
+      if (res.ok) {
+        const page = await fetch(`${BASE}/chat`).catch(() => null);
+        if (page && page.ok) return true;
+      }
     } catch {
       // not up yet
     }
@@ -47,15 +48,33 @@ if (buildCode !== 0) {
   process.exit(buildCode);
 }
 
+const backend = spawn(PYTHON, ["-m", "uvicorn", "app.main:app",
+  "--host", "127.0.0.1", "--port", "8001"], {
+  cwd: BACKEND_DIR,
+  stdio: "inherit",
+  env: { ...process.env, PYTHONPATH: BACKEND_DIR },
+});
+backend.on("exit", (code) => {
+  if (code && !shuttingDown) console.error(`[start-all] backend exited ${code}`);
+});
+
 const server = spawn(process.execPath, [NEXT_BIN, "start"], {
   cwd: WEB_DIR,
   stdio: "inherit",
   env: process.env,
 });
 
-server.on("exit", (code) => process.exit(code ?? 0));
-process.on("SIGINT", () => server.kill("SIGINT"));
-process.on("SIGTERM", () => server.kill("SIGTERM"));
+let shuttingDown = false;
+function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  backend.kill("SIGTERM");
+  server.kill("SIGTERM");
+}
+server.on("exit", (code) => { shutdown(); process.exit(code ?? 0); });
+backend.on("exit", () => {});
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 waitForServer()
   .then((ok) => {

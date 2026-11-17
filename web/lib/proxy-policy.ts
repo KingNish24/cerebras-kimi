@@ -27,9 +27,6 @@ export function isRetiredPagePath(pathname: string): boolean {
 // relative URLs (e.g. `:3782/api/...` or `.../ws`) and let the rewrite
 // bridge the origin gap.
 export function isBackendPath(pathname: string): boolean {
-  // /api/rpc* is served by Next route handlers bridging to the stdio ACP
-  // agent — it must NOT be rewritten to the (removed) Python HTTP backend.
-  if (pathname === "/api/rpc" || pathname.startsWith("/api/rpc/")) return false;
   // /files/* is served by the Next route at app/files/ (agent outputs).
   if (pathname.startsWith("/files/")) return false;
   return (

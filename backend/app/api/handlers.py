@@ -18,59 +18,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-# -- local shims (no FastAPI) ---------------------------------------------------
-
-
-class HTTPException(Exception):
-    def __init__(self, status_code: int, detail: Any = None) -> None:
-        super().__init__(str(detail))
-        self.status_code = status_code
-        self.detail = detail
-
-
-def Query(default: Any = None, **_kw: Any) -> Any:
-    return default
-
-
-class Request:  # annotation-only marker
-    pass
-
-
-class UploadFile:  # annotation-only marker
-    pass
-
-
-class _Route:
-    def __init__(self, methods: list[str], path: str, endpoint: Any) -> None:
-        self.methods = methods
-        self.path = path
-        self.endpoint = endpoint
-
-
-class APIRouter:
-    """Minimal route-table collector — decorators only, never mounted."""
-
-    def __init__(self, prefix: str = "") -> None:
-        self.prefix = prefix
-        self.routes: list[_Route] = []
-
-    def _add(self, methods: list[str], path: str):
-        def deco(fn):
-            self.routes.append(_Route(methods, self.prefix + path, fn))
-            return fn
-        return deco
-
-    def get(self, path: str): return self._add(["GET"], path)
-    def post(self, path: str): return self._add(["POST"], path)
-    def put(self, path: str): return self._add(["PUT"], path)
-    def delete(self, path: str): return self._add(["DELETE"], path)
-    def patch(self, path: str): return self._add(["PATCH"], path)
-    def api_route(self, path: str, methods: list[str] | None = None):
-        return self._add(methods or ["GET"], path)
-
-from ..agent.runtime import AgentRuntime
-from ..config import Settings
-from ..store.session_store import SessionStore
+from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 
 router = APIRouter(prefix="/api")
 
@@ -1480,9 +1428,9 @@ def qn_lookup(request: Request, question: str = "", question_id: str = "",
                     if q and q in str(e.get("question") or "").lower()), None)
     if hit is None:
         if missing_ok:
-            from .shims import HTTPException
+            from fastapi import HTTPException
             raise HTTPException(status_code=204, detail="not found")
-        from .shims import HTTPException
+        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="not found")
     return hit
 
@@ -1533,7 +1481,7 @@ def qn_categories_bulk(request: Request, body: dict[str, Any]) -> dict[str, Any]
 def qn_entry_remove_category(request: Request, entry_id: str, cat_id: str) -> dict[str, Any]:
     e = _get_item(request, "question-notebook", "entries", entry_id)
     if e is None:
-        from .shims import HTTPException
+        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="entry not found")
     e["categories"] = [c for c in (e.get("categories") or []) if str(c) != cat_id]
     _put_item(request, e, "question-notebook", "entries", "entry")
@@ -1569,7 +1517,7 @@ def nb_record_by_id(request: Request, record_id: str) -> dict[str, Any]:
         for r in nb.get("records") or []:
             if str(r.get("id")) == record_id:
                 return r
-    from .shims import HTTPException
+    from fastapi import HTTPException
     raise HTTPException(status_code=404, detail="record not found")
 
 

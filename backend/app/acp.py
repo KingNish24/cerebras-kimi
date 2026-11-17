@@ -39,7 +39,6 @@ ACP_METHODS = {
     "session/cancel",
     "session/set_model",
     "session/set_mode",
-    "http.request",
     "system.list_methods",
     "quiz.judge",
     "book.stream",
@@ -664,8 +663,6 @@ class AcpAgent:
         if method == "session/set_mode":
             return {"jsonrpc": "2.0", "id": req_id, "result": {}}
 
-        if method == "http.request":
-            return await self._http_request(req_id, p)
 
         if method == "legacy.send":
             return await self._legacy_send(req_id, p)
@@ -811,18 +808,6 @@ class AcpAgent:
             })
         return {"jsonrpc": "2.0", "id": req_id,
                 "result": {"book_id": book_id, "chunks": len(chunks)}}
-
-    async def _http_request(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
-        """Dispatch an internal handler call — no HTTP layer involved."""
-        from .api.dispatch import dispatch
-
-        method = str(params.get("method") or "GET").upper()
-        path = str(params.get("path") or "/api/health")
-        status, payload = await dispatch(
-            self.app, method, path, params.get("query") or {}, params.get("body")
-        )
-        return {"jsonrpc": "2.0", "id": req_id,
-                "result": {"status": status, "body": payload}}
 
     async def close(self) -> None:
         for t in self._tasks:

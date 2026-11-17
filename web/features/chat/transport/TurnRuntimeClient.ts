@@ -12,11 +12,12 @@ import {
 import { parseTurnEvent } from "@/contracts/parse/turn-event";
 import { scopedUrl } from "@/lib/workspace-scope";
 import { NO_LLM_ACCESS } from "../model/protocol";
+import { backendWsUrl } from "@/shared/api/client";
 
 import {
-  rpcSocketFactory,
   SOCKET_CONNECTING,
   SOCKET_OPEN,
+  browserSocketFactory,
   type TurnSocket,
   type TurnSocketFactory,
 } from "./socket";
@@ -141,8 +142,8 @@ export class TurnRuntimeClient {
 
   constructor(options: TurnRuntimeClientOptions) {
     this.options = {
-      url: scopedUrl("/ws/rpc"),
-      socketFactory: rpcSocketFactory,
+      url: backendWsUrl("/ws"),
+      socketFactory: browserSocketFactory,
       scheduler: defaultScheduler,
       random: Math.random,
       maxBufferedGap: 32,

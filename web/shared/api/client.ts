@@ -17,90 +17,20 @@ export function wsUrl(path: string): string {
   return scopedUrl(path);
 }
 
+/** Absolute ws(s):// URL to the Python backend (REST/WS server on :8001). */
+export function backendWsUrl(path: string): string {
+  const base = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_BASE)
+    || "http://127.0.0.1:8001";
+  const wsBase = base.replace(/^http/, "ws");
+  return `${wsBase}${path}`;
+}
+
 export function parseAuthEnabled(raw: string | undefined): boolean {
   return /^(1|true|yes|on)$/i.test((raw ?? "").trim());
 }
 
 export function setRuntimeAuthEnabled(enabled: boolean): void {
   runtimeAuthEnabled = enabled;
-}
-
-let rpcId = 0;
-
-/** JSON-RPC 2.0 call to POST /api/rpc (method: http.request). */
-async function rpcCall(
-  method: string,
-  path: string,
-  query: Record<string, string>,
-  body: unknown,
-  headers: Record<string, string>,
-): Promise<{ status: number; body: unknown }> {
-  const response = await fetch(scopedUrl("/api/rpc"), {
-    method: "POST",
-    credentials: "include",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: ++rpcId,
-      method: "http.request",
-      params: { method, path, query, body, headers },
-    }),
-  });
-  const payload = await response.json().catch(() => null);
-  const result = payload?.result;
-  if (result && typeof result === "object" && "status" in result) {
-    return result as { status: number; body: unknown };
-  }
-  // RPC-level failure: surface as a 502 with the error message.
-  return {
-    status: 502,
-    body: { detail: payload?.error?.message ?? "RPC call failed" },
-  };
-}
-
-function requestToRpcParts(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): { method: string; path: string; query: Record<string, string>; body: unknown; headers: Record<string, string> } | null {
-  let urlStr: string;
-  if (typeof input === "string") urlStr = input;
-  else if (input instanceof URL) urlStr = input.toString();
-  else if (input instanceof Request) urlStr = input.url;
-  else return null;
-  const url = new URL(scopedUrl(urlStr), typeof window !== "undefined" ? window.location.origin : "http://local");
-  const method = (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
-  const query: Record<string, string> = {};
-  url.searchParams.forEach((v, k) => { query[k] = v; });
-  const headers: Record<string, string> = {};
-  const rawHeaders = init?.headers ?? (input instanceof Request ? input.headers : undefined);
-  if (rawHeaders) {
-    new Headers(rawHeaders).forEach((v, k) => { headers[k] = v; });
-  }
-  let body: unknown = null;
-  const rawBody = init?.body ?? (input instanceof Request ? null : null);
-  if (rawBody != null) {
-    if (typeof rawBody === "string") {
-      try { body = JSON.parse(rawBody); } catch { body = rawBody; }
-    } else if (rawBody instanceof FormData) {
-      // Multipart -> __multipart__ spec (files base64) for the RPC layer.
-      const fields: Record<string, string> = {};
-      const files: Array<Record<string, string>> = [];
-      rawBody.forEach((value, key) => {
-        if (value instanceof File) {
-          // File -> base64 happens async; handled by caller via rpcCallForm.
-          files.push({ name: key, filename: value.name, content_type: value.type || "application/octet-stream", _file: "" });
-        } else {
-          fields[key] = String(value);
-        }
-      });
-      body = { __multipart__: { fields, files } };
-    } else if (rawBody instanceof Blob) {
-      body = { __blob__: { content_type: rawBody.type || "application/octet-stream" } };
-    } else if (rawBody instanceof ArrayBuffer) {
-      body = { __blob__: { content_type: "application/octet-stream" } };
-    }
-  }
-  return { method, path: url.pathname, query, body, headers };
 }
 
 export async function apiFetch(
@@ -112,62 +42,10 @@ export async function apiFetch(
   // JSON-RPC transport: every REST-shaped call becomes an http.request
   // method call against POST /api/rpc. Falls back to plain fetch for
   // inputs we can't serialize (e.g. streaming bodies).
-  const parts = requestToRpcParts(input, fetchInit);
-  let response: Response;
-  if (parts !== null && !(fetchInit.body instanceof ReadableStream)) {
-    // Async FormData file encoding (base64) — rare path (kb upload).
-    if (parts.body && typeof parts.body === "object" && "__multipart__" in (parts.body as object)) {
-      const spec = (parts.body as { __multipart__: { fields: Record<string, string>; files: Array<Record<string, string> & { _file?: File }> } }).__multipart__;
-      const rawForm = fetchInit.body;
-      if (rawForm instanceof FormData) {
-        const files: Array<Record<string, string>> = [];
-        let i = 0;
-        rawForm.forEach((value, key) => {
-          if (value instanceof File) {
-            const meta = spec.files[i++];
-            // encode below via File.arrayBuffer in rpcCallMultipart
-            files.push({ ...meta, _pending: key } as unknown as Record<string, string>);
-          }
-        });
-        // Simpler: encode whole FormData client-side into __multipart__.
-        const fields: Record<string, string> = {};
-        const fileSpecs: Array<Record<string, string>> = [];
-        const entries = Array.from(rawForm.entries());
-        for (const [key, value] of entries) {
-          if (value instanceof File) {
-            const buf = await value.arrayBuffer();
-            let bin = "";
-            const bytes = new Uint8Array(buf);
-            for (let j = 0; j < bytes.length; j += 0x8000) {
-              bin += String.fromCharCode(...bytes.subarray(j, j + 0x8000));
-            }
-            fileSpecs.push({
-              name: key, filename: value.name,
-              content_type: value.type || "application/octet-stream",
-              data_b64: btoa(bin),
-            });
-          } else {
-            fields[key] = String(value);
-          }
-        }
-        parts.body = { __multipart__: { fields, files: fileSpecs } };
-      }
-    }
-    const rpc = await rpcCall(parts.method, parts.path, parts.query, parts.body, parts.headers);
-    const isJson = rpc.body !== null && typeof rpc.body === "object";
-    response = new Response(
-      isJson ? JSON.stringify(rpc.body) : String(rpc.body ?? ""),
-      {
-        status: rpc.status,
-        headers: { "content-type": isJson ? "application/json" : "text/plain; charset=utf-8" },
-      },
-    );
-  } else {
-    const scopedInput = typeof input === "string" ? scopedUrl(input)
-      : input instanceof URL ? new URL(scopedUrl(input.toString()))
-      : new Request(scopedUrl(input.url), input);
-    response = await fetch(scopedInput, { credentials: "include", ...fetchInit });
-  }
+  const scopedInput = typeof input === "string" ? scopedUrl(input)
+    : input instanceof URL ? new URL(scopedUrl(input.toString()))
+    : new Request(scopedUrl(input.url), input);
+  const response = await fetch(scopedInput, { credentials: "include", ...fetchInit });
 
   if (
     response.status === 401 &&
