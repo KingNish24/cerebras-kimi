@@ -36,15 +36,44 @@ def _scoped_kbs(command_kbs: list[str] | None) -> list[str]:
 
 
 @tool(mutating=False, tool_icon="📚")
-def rag(query: str, knowledge_bases: str = "", top_k: int = 5) -> str:
-    """Retrieve relevant passages from the user's knowledge bases.
+def knowledge_base_search(action: str = "search", query: str = "",
+                          knowledge_bases: str = "", top_k: int = 5,
+                          kb_name: str = "", doc: str = "") -> str:
+    """Search the user's knowledge bases — one tool for the whole KB surface.
 
-    :param query: What to look up.
-    :param knowledge_bases: Comma-separated KB names; empty searches all.
-    :param top_k: Passages per KB.
+    Actions:
+    - ``search`` (default): retrieve relevant passages for ``query``.
+      ``knowledge_bases`` scopes (comma-separated; empty = all).
+    - ``files``: list documents in the knowledge bases.
+    - ``read``: read the full indexed text of one document — needs
+      ``kb_name`` and ``doc`` (filename from files action).
+
+    :param action: search|files|read.
+    :param query: Search query (search).
+    :param knowledge_bases: Comma-separated KB names (search/files).
+    :param top_k: Passages per KB (search).
+    :param kb_name: KB name (read).
+    :param doc: Document filename (read).
     """
     names = [n.strip() for n in knowledge_bases.split(",") if n.strip()] or None
     kbs = _scoped_kbs(names)
+    action = (action or "search").lower()
+
+    if action == "files":
+        if not kbs:
+            return "No knowledge bases configured."
+        out = []
+        for name in kbs:
+            docs = _kb().list_documents(name)
+            out.append(f"KB '{name}': " + (", ".join(d["name"] for d in docs) if docs else "(empty)"))
+        return "\n".join(out)
+
+    if action == "read":
+        text = _kb().read_source(kb_name, doc)
+        return text if text else f"No indexed content for {doc!r} in KB {kb_name!r}."
+
+    if not query:
+        return "knowledge_base_search needs a query (action='search')."
     if not kbs:
         return "No knowledge bases configured."
     out = []
@@ -53,31 +82,3 @@ def rag(query: str, knowledge_bases: str = "", top_k: int = 5) -> str:
         for h in hits:
             out.append(f"[KB: {name} | source: {h['doc']} | chunk: {h['id']}]\n{h['text']}")
     return "\n\n---\n\n".join(out) if out else "No relevant passages found."
-
-
-@tool(mutating=False, tool_icon="🗂️")
-def kb_files(knowledge_bases: str = "") -> str:
-    """List documents in the knowledge bases.
-
-    :param knowledge_bases: Comma-separated KB names; empty lists all.
-    """
-    names = [n.strip() for n in knowledge_bases.split(",") if n.strip()] or None
-    kbs = _scoped_kbs(names)
-    if not kbs:
-        return "No knowledge bases configured."
-    out = []
-    for name in kbs:
-        docs = _kb().list_documents(name)
-        out.append(f"KB '{name}': " + (", ".join(d["name"] for d in docs) if docs else "(empty)"))
-    return "\n".join(out)
-
-
-@tool(mutating=False, tool_icon="📖")
-def read_source(kb_name: str, doc: str) -> str:
-    """Read the full indexed text of one document in a knowledge base.
-
-    :param kb_name: Knowledge base name.
-    :param doc: Document filename (from kb_files).
-    """
-    text = _kb().read_source(kb_name, doc)
-    return text if text else f"No indexed content for {doc!r} in KB {kb_name!r}."

@@ -386,13 +386,33 @@ def _memory_path() -> Path:
     return root / "memory.json"
 
 
-@tool(mutating=False, tool_icon="🧠")
-def read_memory(query: str = "") -> str:
-    """Read stored memories about the learner.
 
-    :param query: Optional filter; empty returns everything.
+
+@tool(mutating=True, tool_icon="🧠")
+def memory(action: str, query: str = "", fact: str = "",
+           category: str = "general") -> str:
+    """Long-term memory about the learner — one tool for read + write.
+
+    Actions:
+    - ``read``: return stored memories (``query`` filters by substring).
+    - ``write``: store a durable fact (``fact`` one sentence, ``category``
+      optional e.g. preference|goal|background).
+
+    :param action: read|write.
+    :param query: Substring filter for read.
+    :param fact: Fact to store for write.
+    :param category: Category for write.
     """
     path = _memory_path()
+    action = (action or "read").lower()
+    if action == "write":
+        if not fact:
+            return "memory write needs a fact."
+        memories = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+        memories.append({"fact": fact, "category": category, "created": time.time()})
+        path.write_text(json.dumps(memories, ensure_ascii=False, indent=1))
+        return f"Remembered: {fact}"
+    # read
     if not path.exists():
         return "No memories stored yet."
     memories = json.loads(path.read_text(encoding="utf-8"))
@@ -400,20 +420,6 @@ def read_memory(query: str = "") -> str:
     if q:
         memories = [m for m in memories if q in json.dumps(m, ensure_ascii=False).lower()]
     return json.dumps(memories[-50:], ensure_ascii=False, indent=1) or "[]"
-
-
-@tool(mutating=True, tool_icon="💾")
-def write_memory(fact: str, category: str = "general") -> str:
-    """Store a durable fact about the learner for future sessions.
-
-    :param fact: The fact to remember (one sentence).
-    :param category: Optional category (e.g. 'preference', 'goal', 'background').
-    """
-    path = _memory_path()
-    memories = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
-    memories.append({"fact": fact, "category": category, "created": time.time()})
-    path.write_text(json.dumps(memories, ensure_ascii=False, indent=1))
-    return f"Remembered: {fact}"
 
 
 # ---------------------------------------------------------------------------
@@ -1547,34 +1553,6 @@ def _memory_path() -> Path:
     return root / "memory.json"
 
 
-@tool(mutating=False, tool_icon="🧠")
-def read_memory(query: str = "") -> str:
-    """Read stored memories about the learner.
-
-    :param query: Optional filter; empty returns everything.
-    """
-    path = _memory_path()
-    if not path.exists():
-        return "No memories stored yet."
-    memories = json.loads(path.read_text(encoding="utf-8"))
-    q = query.strip().lower()
-    if q:
-        memories = [m for m in memories if q in json.dumps(m, ensure_ascii=False).lower()]
-    return json.dumps(memories[-50:], ensure_ascii=False, indent=1) or "[]"
-
-
-@tool(mutating=True, tool_icon="💾")
-def write_memory(fact: str, category: str = "general") -> str:
-    """Store a durable fact about the learner for future sessions.
-
-    :param fact: The fact to remember (one sentence).
-    :param category: Optional category (e.g. 'preference', 'goal', 'background').
-    """
-    path = _memory_path()
-    memories = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
-    memories.append({"fact": fact, "category": category, "created": time.time()})
-    path.write_text(json.dumps(memories, ensure_ascii=False, indent=1))
-    return f"Remembered: {fact}"
 
 
 # ---------------------------------------------------------------------------

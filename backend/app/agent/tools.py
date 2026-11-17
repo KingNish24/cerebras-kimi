@@ -186,9 +186,6 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     """
     from . import dt_tools
     from . import kb_tools as _kb
-    dt_tools_rag = _kb.rag
-    dt_tools_kb_files = _kb.kb_files
-    dt_tools_read_source = _kb.read_source
 
     workspace = WorkspaceFiles(settings)
     ws_tools = workspace.tools()
@@ -205,12 +202,9 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "list_notebook": dt_tools.list_notebook,
         "search_notes": dt_tools.search_notes,
         "question_bank": dt_tools.question_bank,
-        "read_memory": dt_tools.read_memory,
-        "write_memory": dt_tools.write_memory,
+        "memory": dt_tools.memory,
         "imagegen": dt_tools.imagegen,
-        "rag": dt_tools_rag,
-        "kb_files": dt_tools_kb_files,
-        "read_source": dt_tools_read_source,
+        "knowledge_base_search": _kb.knowledge_base_search,
         # Generic utilities
         "calculate": calculate,
         "current_time": current_time,
