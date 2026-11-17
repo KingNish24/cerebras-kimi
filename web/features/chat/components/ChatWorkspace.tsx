@@ -677,6 +677,12 @@ export default function ChatWorkspace() {
     state.isStreaming,
     state.sessionId,
   ]);
+  // Chat-only UI: sessions restored with a non-chat capability fall back
+  // to the default agent/chat mode.
+  useEffect(() => {
+    if (state.activeCapability) setCapability(null);
+  }, [state.activeCapability, setCapability]);
+
   const isQuizMode = activeCap.value === "deep_question";
   const isVisualizeMode = activeCap.value === "visualize";
   const isResearchMode = activeCap.value === "deep_research";
@@ -1564,6 +1570,8 @@ export default function ChatWorkspace() {
 
   const handleSelectCapability = useCallback(
     (value: string) => {
+      // Chat-only UI: ignore any non-chat capability selection.
+      if (value) return;
       const cap =
         capabilities.find((capability) => capability.value === value) ??
         capabilities[0] ??
@@ -2993,6 +3001,7 @@ export default function ChatWorkspace() {
                 capabilityConfigConfirmed={capabilityConfigConfirmed}
                 onRequestConfigConfirm={ensureActivityPanelOpen}
                 capabilities={visibleCapabilities}
+                showCapabilityChip={false}
                 onSetCapMenuOpen={setCapMenuOpen}
                 onSetSpaceMenuOpen={setSpaceMenuOpen}
                 onToggleKB={handleToggleKB}
