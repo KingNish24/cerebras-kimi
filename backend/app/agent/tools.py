@@ -177,6 +177,76 @@ class WorkspaceFiles:
         return candidate
 
 
+
+def _codemode_tool(registry: dict[str, Any]) -> Any:
+    """Build the codemode tool: model writes Python that calls other tools.
+
+    Uses vtx.codemode.CodemodeSandbox — the script runs in a worker process
+    whose only capability is invoking the injected tools.
+    """
+    from vtx.agent.sdk import tool as _sdk_tool
+    from vtx.codemode import CodemodeSandbox, CodemodeTool
+
+    sandbox = CodemodeSandbox()
+
+    def _adapt(name: str, fn: Any) -> CodemodeTool:
+        async def invoke(args: dict, signal):  # noqa: ANN001
+            try:
+                params = fn.params(**{k: v for k, v in args.items() if v is not None})
+                res = await fn.execute(params)
+                return getattr(res, "result", None) or str(res)
+            except Exception as exc:  # noqa: BLE001
+                return f"tool {name} error: {exc}"
+
+        schema_props = {}
+        try:
+            model_fields = fn.params.model_fields
+            for fname, f in model_fields.items():
+                schema_props[fname] = {
+                    "type": "string",
+                    "description": getattr(f, "description", "") or "",
+                }
+        except Exception:  # noqa: BLE001
+            pass
+        return CodemodeTool(
+            name=name,
+            description=(fn.description or name)[:400],
+            execute=invoke,
+            input_schema={"type": "object", "properties": schema_props},
+        )
+
+    tools = [_adapt(n, fn) for n, fn in registry.items() if n != "codemode"]
+
+    @_sdk_tool(mutating=True, tool_icon="🧩")
+    async def codemode(code: str, timeout_ms: int = 60000,
+                       max_tool_calls: int = 20) -> str:
+        """Run Python code that can call your other tools — for multi-step
+        work (fetch → parse → store, search several KBs, transform data).
+
+        Available tool functions are injected into the script's namespace
+        by name (e.g. `web(...)`, `knowledge_base_search(...)`,
+        `apply_patch(...)`). Each is an async callable: `await web(...)`.
+        Print or return a value to get output back.
+
+        :param code: Python source. Use `await <tool>(**kwargs)` for calls.
+        :param timeout_ms: Script timeout (default 60s).
+        :param max_tool_calls: Max tool invocations per script.
+        """
+        try:
+            result = await sandbox.execute(
+                code,
+                timeout_ms=timeout_ms,
+                max_tool_calls=max_tool_calls,
+                tools=tools,
+            )
+        except Exception as exc:  # noqa: BLE001
+            return f"codemode error: {exc}"
+        out = getattr(result, "output", None) or getattr(result, "result", None) or str(result)
+        return str(out)[:50000]
+
+    return codemode
+
+
 def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[Any]:
     """All builtin tools, filtered by the turn's ``tools`` allowlist.
 
@@ -229,6 +299,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
+    registry["codemode"] = _codemode_tool(registry)
     locked_on = set(registry) - toggleable
     if enabled:
         keep = locked_on | ({n for n in enabled if n in toggleable} & set(registry))
