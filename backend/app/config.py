@@ -1,6 +1,6 @@
 """Runtime configuration for the vtx-powered DeepTutor backend.
 
-Everything is env-driven so the same code runs in dev (`uvicorn app.main:app`)
+Everything is env-driven so the same code runs in dev (`python -m app.acp_stdio`)
 and behind the Next.js proxy (`DEEPTUTOR_API_BASE_URL`).
 """
 
