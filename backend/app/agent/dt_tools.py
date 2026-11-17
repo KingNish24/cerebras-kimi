@@ -31,13 +31,7 @@ _HEADERS = {"User-Agent": "DeepTutor/0.1 (+https://deeptutor.info)"}
 # ---------------------------------------------------------------------------
 
 
-@tool(mutating=False, tool_icon="🔎")
-async def web_search(query: str, max_results: int = 5) -> str:
-    """Search the web and return titled results with URLs and snippets.
-
-    :param query: Search query.
-    :param max_results: Maximum results to return (default 5).
-    """
+async def _search_web(query: str, max_results: int = 5) -> str:
     try:
         async with httpx.AsyncClient(timeout=20.0, headers=_HEADERS) as client:
             resp = await client.post(
@@ -71,18 +65,22 @@ async def web_search(query: str, max_results: int = 5) -> str:
         return f"Error performing web search: {exc}"
 
 
+@tool(mutating=False, tool_icon="🔎")
+async def web_search(query: str, max_results: int = 5) -> str:
+    """Search the web and return titled results with URLs and snippets.
+
+    :param query: Search query.
+    :param max_results: Maximum results to return (default 5).
+    """
+    return await _search_web(query, max_results)
+
+
 # ---------------------------------------------------------------------------
 # web_fetch — readable text extraction
 # ---------------------------------------------------------------------------
 
 
-@tool(mutating=False, tool_icon="📥")
-async def web_fetch(url: str, max_chars: int = 20000) -> str:
-    """Fetch a URL and return readable text (HTML stripped, scripts removed).
-
-    :param url: HTTP(S) URL.
-    :param max_chars: Maximum characters of text to return.
-    """
+async def _fetch_page_text(url: str, max_chars: int = 20000) -> str:
     try:
         async with httpx.AsyncClient(
             timeout=30.0, follow_redirects=True, headers=_HEADERS
@@ -101,6 +99,16 @@ async def web_fetch(url: str, max_chars: int = 20000) -> str:
         return text[:max_chars] or "(empty page)"
     except Exception as exc:  # noqa: BLE001
         return f"Error fetching {url}: {exc}"
+
+
+@tool(mutating=False, tool_icon="📥")
+async def web_fetch(url: str, max_chars: int = 20000) -> str:
+    """Fetch a URL and return readable text (HTML stripped, scripts removed).
+
+    :param url: HTTP(S) URL.
+    :param max_chars: Maximum characters of text to return.
+    """
+    return await _fetch_page_text(url, max_chars)
 
 
 # ---------------------------------------------------------------------------
@@ -1133,3 +1141,29 @@ def apply_patch(ops_json: str) -> str:
     except Exception as exc:  # noqa: BLE001
         return f"apply_patch write failed mid-apply: {exc}"
     return "apply_patch applied:\n" + "\n".join(applied)
+
+
+# ---------------------------------------------------------------------------
+# web — single tool for search + fetch (vtx WebTool semantics: one tool,
+# mode='search' queries, mode='fetch' downloads a URL's text)
+# ---------------------------------------------------------------------------
+
+
+@tool(mutating=False, tool_icon="🌐")
+async def web(query: str, mode: str = "search", max_results: int = 5,
+              max_chars: int = 20000) -> str:
+    """Search the web or fetch a page — one tool for both.
+
+    ``mode='search'`` (default): query ``query`` and return titled results
+    with URLs and snippets. ``mode='fetch'``: download the text of the URL
+    in ``query``.
+
+    :param query: Search query, or a URL when mode='fetch'.
+    :param mode: 'search' (default) or 'fetch'.
+    :param max_results: Max results for search.
+    :param max_chars: Max characters for fetch.
+    """
+    mode = (mode or "search").lower()
+    if mode == "fetch":
+        return await _fetch_page_text(query, max_chars)
+    return await _search_web(query, max_results)

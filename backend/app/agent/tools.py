@@ -194,8 +194,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     ws_tools = workspace.tools()
     registry: dict[str, Any] = {
         # DeepTutor portable ports (dt_tools.py)
-        "web_search": dt_tools.web_search,
-        "web_fetch": dt_tools.web_fetch,
+        "web": dt_tools.web,
         "paper_search": dt_tools.paper_search,
         "github": dt_tools.github,
         "exec": dt_tools.exec,
@@ -231,9 +230,11 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     # web_fetch, github, notes, memory, rag/kb, calculate…) is locked-on and
     # must always reach the model's schema.
     toggleable = {
-        "brainstorm", "web_search", "paper_search", "zotero_search",
+        "brainstorm", "web", "web_search", "paper_search", "zotero_search",
         "reason", "geogebra_analysis", "imagegen", "videogen",
     }
+    # web_search is the frontend's toggle name for the merged `web` tool.
+    enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
     locked_on = set(registry) - toggleable
     if enabled:
         keep = locked_on | ({n for n in enabled if n in toggleable} & set(registry))
