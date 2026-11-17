@@ -79,7 +79,7 @@ export default function PageCustomizeDialog({
   const capabilityLabel = useCapabilityLabel()
   const { save, loading, error: loadError, reload } = usePageCustomization()
   const [draft, setDraft] = useState(() => structuredClone(initial))
-  const [tab, setTab] = useState<'modes' | 'controls' | 'starters'>('modes')
+  const [tab, setTab] = useState<'controls' | 'starters'>('controls')
   const [group, setGroup] = useState<StarterGroup>('explain')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(false)
@@ -176,7 +176,7 @@ export default function PageCustomizeDialog({
                 role="group"
                 aria-label={t('customize.sections')}
               >
-                {(['modes', 'controls', 'starters'] as const).map(item => (
+                {(['controls', 'starters'] as const).map(item => (
                   <button
                     key={item}
                     type="button"
@@ -188,40 +188,10 @@ export default function PageCustomizeDialog({
                   </button>
                 ))}
               </div>
-              {tab === 'modes' && (
-                <div className="space-y-2">
-                  <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                    {t('customize.modesHint')}
-                  </p>
-                  {capabilities
-                    .filter(cap => cap.value && !cap.legacy)
-                    .map(cap => (
-                      <ChoiceRow
-                        key={cap.value}
-                        label={capabilityLabel(cap)}
-                        description={t(cap.description)}
-                        checked={!draft.chat.hidden_modes.includes(cap.value)}
-                        onChange={() =>
-                          setDraft(previous => ({
-                            ...previous,
-                            chat: {
-                              ...previous.chat,
-                              hidden_modes: toggleHidden(previous.chat.hidden_modes, cap.value),
-                            },
-                          }))
-                        }
-                      />
-                    ))}
-                </div>
-              )}
               {tab === 'controls' && (
                 <div className="space-y-2">
                   {(
                     [
-                      'skills',
-                      'mcp',
-                      'partners',
-                      'preferences',
                       'voice',
                     ] as (keyof ComposerControls)[]
                   ).map(key => (

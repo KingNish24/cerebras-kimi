@@ -10,7 +10,6 @@ import { MessageCircle, Search, Columns3, PenLine } from 'lucide-react'
 import {
   HomeShelfIcon,
   LearningShelfIcon,
-  PartnersShelfIcon,
   PersonalizationShelfIcon,
   ResourcesShelfIcon,
 } from './ShelfIcons'
@@ -28,9 +27,6 @@ import type { LearningSessions } from './LearningNavigation'
 const LearningNavigation = dynamic(() =>
   import('./LearningNavigation').then(module => module.LearningNavigation)
 )
-const PartnerNavigation = dynamic(() =>
-  import('./PartnerNavigation').then(module => module.PartnerNavigation)
-)
 const ResourcesNavigation = dynamic(() =>
   import('./ResourcesNavigation').then(module => module.ResourcesNavigation)
 )
@@ -47,7 +43,6 @@ export const CATEGORIES = [
   { id: 'home', label: 'navigation.home', icon: HomeShelfIcon, href: '/chat', account: false },
   { id: 'learning', label: 'navigation.learning', icon: LearningShelfIcon, href: '/learning', account: false },
   { id: 'resources', label: 'navigation.resources', icon: ResourcesShelfIcon, href: '/space', account: false },
-  { id: 'partners', label: 'navigation.partners', icon: PartnersShelfIcon, href: '/partners', account: true },
   {
     id: 'personalization',
     label: 'navigation.personalization',
@@ -236,7 +231,6 @@ export function CategoryBody({
           <Section title={t('navigation.workspace')}>
             {[
               { href: '/calendar', label: 'Calendar', icon: CalendarDays },
-              { href: '/kanban', label: 'Task Board', icon: Columns3 },
               { href: '/co-writer', label: 'Co-Writer', icon: PenLine },
             ]
               .filter(item => navVisibleUnderPolicy(item.href, nav.allowedSurfaces))
@@ -255,11 +249,6 @@ export function CategoryBody({
       {(nav.category === 'learning' || nav.visited.includes('learning')) && (
         <div hidden={nav.category !== 'learning'} className="dt-category-panel">
           <LearningNavigation active={nav.category === 'learning'} sessions={learningSessions} />
-        </div>
-      )}
-      {(nav.category === 'partners' || nav.visited.includes('partners')) && (
-        <div hidden={nav.category !== 'partners'} className="dt-category-panel">
-          <PartnerNavigation active={nav.category === 'partners'} />
         </div>
       )}
       {(nav.category === 'resources' || nav.visited.includes('resources')) && (

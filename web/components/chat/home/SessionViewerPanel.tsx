@@ -2,7 +2,6 @@
 
 import { recoveryPrincipal, RECOVERY_PRINCIPAL_CHANGED } from "@/lib/recovery-principal";
 
-import TaskPanelSection from "@/components/tasks/TaskPanelSection";
 
 import { browserStorage } from "@/shared/storage";
 
@@ -1675,11 +1674,6 @@ function ActivityHome({
           <span>{t("Back to conversation")}</span>
         </button>
       </div>
-      <TaskPanelSection
-        sessionId={sessionId}
-        draftTaskIds={taskDraftIds}
-        onDraftChange={onTaskDraftChange}
-      />
       <ActivityBody
         activity={activity}
         open={open}

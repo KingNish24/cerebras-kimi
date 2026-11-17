@@ -66,13 +66,6 @@ export const PRIMARY_NAV: NavEntry[] = [
     href: '/calendar', label: 'Calendar', icon: CalendarDays, surfaces: ['chat'],
   },
   {
-    href: '/kanban',
-    label: 'Task Board',
-    icon: ListTodo,
-    tooltipKey: 'kanban.intro',
-    surfaces: ['chat'],
-  },
-  {
     href: '/co-writer',
     label: 'Co-Writer',
     icon: PenLine,

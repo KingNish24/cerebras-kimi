@@ -38,7 +38,6 @@ import {
   Sparkles,
   Square,
   UserRound,
-  Wand2,
   X,
 } from "lucide-react";
 import {
@@ -74,7 +73,6 @@ import type { ComposerResourceCatalog } from "@/hooks/useComposerResources";
 import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
 import { CREATE_KINDS, isCreationKind } from "@/lib/creations";
 
-import TaskLinkSelector from "@/components/tasks/TaskLinkSelector";
 import { useTaskBoard } from "@/lib/task-board-store";
 import { sessionTaskLinks } from "@/lib/task-board-api";
 
@@ -1153,37 +1151,13 @@ export default memo(function ChatComposer({
     ...modeToken,
     ...(resourceSelection && onResourceSelectionChange
       ? [
-          ...resourceSelection.skills.map((id): LeadToken => ({
-            key: `skill:${id}`,
-            icon: Wand2,
-            kind: t("Skills"),
-            label: resourceCatalog?.skills.find((option) => option.id === id)?.name || id,
-            onRemove: () =>
-              onResourceSelectionChange({
-                ...resourceSelection,
-                skills: resourceSelection.skills.filter((value) => value !== id),
-              }),
-          })),
-          ...resourceSelection.mcp.map((id): LeadToken => ({
-            key: `mcp:${id}`,
-            icon: Plug,
-            kind: t("composer.tray.connectors"),
-            label: resourceCatalog?.mcp.find((option) => option.id === id)?.name || id,
-            onRemove: () =>
-              onResourceSelectionChange({
-                ...resourceSelection,
-                mcp: resourceSelection.mcp.filter((value) => value !== id),
-              }),
-          })),
         ]
       : []),
   ];
   const answerMode: AnswerModeProps | undefined =
     onPersonaSelectionChange || onAnswerByChange
       ? {
-          persona: onPersonaSelectionChange
-            ? { value: personaSelection ?? "", onChange: onPersonaSelectionChange }
-            : undefined,
+
           answerers: onAnswerByChange
             ? {
                 value: answerBy,
@@ -1272,27 +1246,6 @@ export default memo(function ChatComposer({
   // The panel holds materials only; skills, connectors and how to answer live
   // in the tray under the box. Omitted catalogs stay hidden.
   const resourceItems: ComposerResourceItem[] = [];
-  if (taskSessionId || onDraftTaskIdsChange) {
-    resourceItems.push({
-      key: "tasks",
-      group: "Reference materials",
-      label: t("tasks.linked"),
-      icon: ClipboardList,
-      count: linkedTaskIds.length,
-      summary: linkedTaskIds.length ? `${linkedTaskIds.length} ${t("selected")}` : undefined,
-      node: (
-        <TaskLinkSelector
-          sessionId={taskSessionId}
-          workspaceId={workspaceId ?? ""}
-          draftTaskIds={draftTaskIds}
-          onDraftChange={onDraftTaskIdsChange}
-          onLinked={() => {
-            taskPanelPending.current = true;
-          }}
-        />
-      ),
-    });
-  }
   if (onToggleKB) {
     resourceItems.push({
       key: "knowledge",
@@ -1400,7 +1353,7 @@ export default memo(function ChatComposer({
             onSelectAgent={onSelectAgent}
             selectedCounts={spaceSelectionCounts}
             knowledgeAvailable={false}
-            personaAvailable={!onPersonaSelectionChange}
+            personaAvailable={false}
             onSelectAttach={handlePickFiles}
             agentsAvailable={agentsAvailable}
             onSelectNotebookPicker={onSelectNotebookPicker}
@@ -1409,13 +1362,9 @@ export default memo(function ChatComposer({
             onSelectHistoryPicker={onSelectHistoryPicker}
             onSelectAgentsPicker={onSelectAgentsPicker}
             onSelectQuestionBankPicker={onSelectQuestionBankPicker}
-            onSelectPersonaPicker={onSelectPersonaPicker}
+            onSelectPersonaPicker={() => {}}
             onSelectMemoryPicker={onSelectMemoryPicker}
-            onOpenPersonaSelector={
-              onPersonaSelectionChange && onPersonaSelectorOpenChange
-                ? () => onPersonaSelectorOpenChange(true)
-                : undefined
-            }
+            onOpenPersonaSelector={undefined}
             replyLanguageOverride={replyLanguageOverride}
             replyLanguageOptions={replyLanguageOptions}
             replyLanguageDefaultLabel={replyLanguageDefaultLabel}
@@ -1461,7 +1410,7 @@ export default memo(function ChatComposer({
                         query={query}
                         selectedCounts={spaceSelectionCounts}
                         knowledgeAvailable={false}
-                        personaAvailable={!onPersonaSelectionChange}
+                        personaAvailable={false}
                         agentsAvailable={agentsAvailable}
                         readingAvailable={Boolean(onSelectReadingPicker)}
                         onSelectItem={(key) => {

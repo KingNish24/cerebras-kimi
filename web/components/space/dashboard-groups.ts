@@ -19,13 +19,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { SPACE_MCP_SURFACE, loadMcpSurface } from "@/components/mcp/surface";
 import { getCliApps } from "@/lib/cli-apps-api";
 import { listSessions } from "@/lib/session-api";
 import { listNotebooks, listNotebookEntries } from "@/lib/notebook-api";
-import { listPersonas } from "@/lib/personas-api";
 import { listKnowledgeBases } from "@/features/knowledge/api/catalog";
-import { listSkills } from "@/lib/skills-api";
 import { listSubagentConnections } from "@/lib/subagents-api";
 
 export type Lang = { zh: string; en: string };
@@ -38,9 +35,6 @@ export type DashKey =
   | "notebooks"
   | "journal"
   | "question_bank"
-  | "personas"
-  | "skills"
-  | "mcp"
   | "cli_apps"
   | "whisper";
 
@@ -190,48 +184,6 @@ export const PERSONALIZATION_GROUPS: DashboardGroup[] = [
         unit: { zh: "个智能体", en: "agents" },
         tile: "bg-slate-500/10 text-slate-600 dark:text-slate-300",
         load: async () => (await listSubagentConnections()).length,
-      },
-      {
-        key: "personas",
-        href: "/space/personas",
-        icon: UserRound,
-        title: { zh: "Personas", en: "Personas" },
-        blurb: {
-          zh: "可在每轮对话中套用的行为预设。",
-          en: "Behavior presets you can apply per chat turn.",
-        },
-        unit: { zh: "个预设", en: "personas" },
-        tile: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-        load: async () => (await listPersonas()).length,
-      },
-      {
-        key: "skills",
-        href: "/space/skills",
-        icon: Wand2,
-        title: { zh: "技能", en: "Skills" },
-        blurb: {
-          zh: "模型按需读取的能力手册。",
-          en: "Capability playbooks the model reads on demand.",
-        },
-        unit: { zh: "个技能", en: "skills" },
-        tile: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-        load: async () => (await listSkills()).length,
-      },
-      {
-        key: "mcp",
-        href: "/space/mcp",
-        icon: Plug,
-        title: { zh: "MCP 服务", en: "MCP Services" },
-        blurb: {
-          zh: "连接托管 MCP 服务，把它们的工具带进对话。",
-          en: "Connect hosted MCP services and bring their tools into chat.",
-        },
-        unit: { zh: "个服务", en: "services" },
-        tile: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-        // The account's own servers only: the deployment's are shown on the page
-        // but are not this reader's to count.
-        load: async () =>
-          Object.keys((await loadMcpSurface(SPACE_MCP_SURFACE)).servers).length,
       },
       {
         key: "cli_apps",

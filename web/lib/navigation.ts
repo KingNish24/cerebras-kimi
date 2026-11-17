@@ -1,20 +1,16 @@
 /** Product grouping only. Existing URLs and persisted records remain authoritative. */
 import type { SessionSummary } from '@/lib/session-api'
 import { sessionRoute } from '@/lib/mastery-session'
-export type NavigationCategory = 'home' | 'learning' | 'resources' | 'partners' | 'personalization'
+export type NavigationCategory = 'home' | 'learning' | 'resources' | 'personalization'
 /** Account-level places: the same in every workspace. */
 export const PERSONALIZATION_ROOTS = [
   '/personalization',
   '/agents',
-  '/space/personas',
-  '/space/skills',
-  '/space/mcp',
   '/space/cli-apps',
   '/memory',
 ] as const
 const under = (pathname: string, root: string) => pathname === root || pathname.startsWith(`${root}/`)
 export function categoryForPath(pathname: string): NavigationCategory {
-  if (under(pathname, '/partners')) return 'partners'
   if (PERSONALIZATION_ROOTS.some(root => under(pathname, root))) return 'personalization'
   if (
     pathname === '/learning' ||

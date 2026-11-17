@@ -49,7 +49,7 @@ export const CREATE_KINDS: Record<CreationKind, CreationKindDef> = {
   },
 };
 
-export const CREATION_KIND_ORDER: CreationKind[] = ["skill", "persona"];
+export const CREATION_KIND_ORDER: CreationKind[] = [];
 
 export function isCreationKind(value: unknown): value is CreationKind {
   return value === "skill" || value === "persona";

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { SkillLibraryScope } from "./SkillLibraryScope";
 import { usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -45,18 +44,8 @@ export default function SpaceMain({
           <BackToHub pathname={pathname} />
         </div>
       )}
-      {['/space/skills', '/space/mcp'].includes(pathname) && (
-        <div className="mb-5 rounded-lg border border-[var(--border)] p-3 text-sm text-[var(--muted-foreground)]">
-          <ResourceLibraryNote />
-        </div>
-      )}
-      {pathname === "/space/skills" && <SkillLibraryScope />}
       {children}
     </FeaturePage>
   );
 }
 
-function ResourceLibraryNote() {
-  const { t } = useTranslation();
-  return <>{t("Account resource library. Manage resources here and assign them to workspaces in Settings.")} <Link className="underline" href="/settings#workspace">{t("Workspaces")}</Link></>;
-}

@@ -3,7 +3,6 @@ import { Columns3, LayoutGrid, MessageCircle, PenLine, Plus, type LucideIcon } f
 import {
   HomeShelfIcon,
   LearningShelfIcon,
-  PartnersShelfIcon,
   PersonalizationShelfIcon,
   ResourcesShelfIcon,
 } from './ShelfIcons'
@@ -26,7 +25,7 @@ export interface PageEntry {
 }
 
 export interface PageSection {
-  id: 'home' | 'learning' | 'resources' | 'partners' | 'personalization'
+  id: 'home' | 'learning' | 'resources' | 'personalization'
   label: string
   icon: LucideIcon
   /** Everything in it travels with the account rather than the workspace. */
@@ -67,7 +66,6 @@ export function pageSections({
       pages: [
         { href: '/chat', label: t('Chat'), icon: MessageCircle },
         { href: '/calendar', label: t('Calendar'), icon: CalendarDays, account: true },
-        { href: '/kanban', label: t('Task Board'), icon: Columns3 },
         { href: '/co-writer', label: t('Co-Writer'), icon: PenLine },
       ].filter(page => navVisibleUnderPolicy(page.href, allowedSurfaces)),
     },
@@ -90,13 +88,6 @@ export function pageSections({
       label: t('navigation.resources'),
       icon: ResourcesShelfIcon,
       pages: [{ href: '/space', label: t('navigation.allResources'), icon: ResourcesShelfIcon }, ...shelf(DASHBOARD_GROUPS)],
-    },
-    {
-      id: 'partners',
-      label: t('navigation.partners'),
-      icon: PartnersShelfIcon,
-      account: true,
-      pages: [{ href: '/partners', label: t('Partners'), icon: MessageCircle }],
     },
     {
       id: 'personalization',
@@ -160,7 +151,7 @@ const EVERY_PAGE = pageSections({ t: key => key, zh: false, allowedSurfaces: nul
  */
 export function switchDestination(pathname: string): string {
   // The account's own pages are the same on both sides of a switch.
-  if (['partners', 'personalization'].includes(categoryForPath(pathname))) return pathname
+  if (['personalization'].includes(categoryForPath(pathname))) return pathname
   if (EVERY_PAGE.some(section => section.pages.some(page => page.href === pathname))) return pathname
   const owner = ownerOf(pathname, EVERY_PAGE, true)
   if (owner) return owner.page.href
