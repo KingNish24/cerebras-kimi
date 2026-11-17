@@ -286,20 +286,6 @@ def _notes_dir(settings: Settings) -> Path:
     return path
 
 
-@tool(mutating=True, tool_icon="📝")
-def write_note(title: str, content: str, tags: str = "") -> str:
-    """Save a markdown note to the user's notebook.
-
-    :param title: Note title.
-    :param content: Markdown body.
-    :param tags: Comma-separated tags.
-    """
-    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "note"
-    note_id = f"{slug}-{uuid.uuid4().hex[:6]}"
-    path = _notes_dir_for_env() / f"{note_id}.md"
-    meta = f"---\ntitle: {title}\ntags: {tags}\ncreated: {time.strftime('%Y-%m-%dT%H:%M:%S')}\n---\n\n"
-    path.write_text(meta + content, encoding="utf-8")
-    return f"Saved note '{title}' as {note_id}"
 
 
 def _notes_dir_for_env() -> Path:
@@ -308,10 +294,55 @@ def _notes_dir_for_env() -> Path:
     return root
 
 
-@tool(mutating=False, tool_icon="📓")
-def list_notebook() -> str:
-    """List all saved notes (id, title, tags)."""
+
+
+
+
+@tool(mutating=True, tool_icon="📝")
+def notes(action: str, title: str = "", content: str = "", tags: str = "",
+          query: str = "") -> str:
+    """The user's notebook — one tool for write, list, and search.
+
+    Actions:
+    - ``write``: save a markdown note (``title``, ``content``, optional
+      comma-separated ``tags``).
+    - ``list``: list all notes (id | title | tags).
+    - ``search``: full-text search across notes (``query``).
+
+    :param action: write|list|search.
+    :param title: Note title (write).
+    :param content: Markdown body (write).
+    :param tags: Comma-separated tags (write).
+    :param query: Search terms (search).
+    """
     root = _notes_dir_for_env()
+    action = (action or "list").lower()
+
+    if action == "write":
+        if not title:
+            return "notes write needs a title."
+        slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "note"
+        note_id = f"{slug}-{uuid.uuid4().hex[:6]}"
+        path = root / f"{note_id}.md"
+        meta = (f"---\ntitle: {title}\ntags: {tags}\n"
+                f"created: {time.strftime('%Y-%m-%dT%H:%M:%S')}\n---\n\n")
+        path.write_text(meta + content, encoding="utf-8")
+        return f"Saved note '{title}' as {note_id}"
+
+    if action == "search":
+        q = query.strip().lower()
+        if not q:
+            return "notes search needs a query."
+        hits = []
+        for path in sorted(root.glob("*.md")):
+            text = path.read_text(encoding="utf-8", errors="replace")
+            if q in text.lower():
+                idx = text.lower().find(q)
+                snippet = text[max(0, idx - 80):idx + 200].replace("\n", " ")
+                hits.append(f"[{path.stem}] …{snippet}…")
+        return "\n\n".join(hits[:10]) if hits else "No matching notes."
+
+    # list
     out = []
     for path in sorted(root.glob("*.md")):
         head = path.read_text(encoding="utf-8", errors="replace")[:600]
@@ -325,24 +356,6 @@ def list_notebook() -> str:
             tags = m.group(1).strip()
         out.append(f"{path.stem} | {title} | tags: {tags}")
     return "\n".join(out) if out else "No notes saved yet."
-
-
-@tool(mutating=False, tool_icon="🔍")
-def search_notes(query: str) -> str:
-    """Full-text search across saved notes.
-
-    :param query: Search terms.
-    """
-    root = _notes_dir_for_env()
-    q = query.strip().lower()
-    hits = []
-    for path in sorted(root.glob("*.md")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        if q in text.lower():
-            idx = text.lower().find(q)
-            snippet = text[max(0, idx - 80) : idx + 200].replace("\n", " ")
-            hits.append(f"[{path.stem}] …{snippet}…")
-    return "\n\n".join(hits[:10]) if hits else "No matching notes."
 
 
 @tool(mutating=True, tool_icon="❓")
@@ -1453,20 +1466,6 @@ def _notes_dir(settings: Settings) -> Path:
     return path
 
 
-@tool(mutating=True, tool_icon="📝")
-def write_note(title: str, content: str, tags: str = "") -> str:
-    """Save a markdown note to the user's notebook.
-
-    :param title: Note title.
-    :param content: Markdown body.
-    :param tags: Comma-separated tags.
-    """
-    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "note"
-    note_id = f"{slug}-{uuid.uuid4().hex[:6]}"
-    path = _notes_dir_for_env() / f"{note_id}.md"
-    meta = f"---\ntitle: {title}\ntags: {tags}\ncreated: {time.strftime('%Y-%m-%dT%H:%M:%S')}\n---\n\n"
-    path.write_text(meta + content, encoding="utf-8")
-    return f"Saved note '{title}' as {note_id}"
 
 
 def _notes_dir_for_env() -> Path:
@@ -1475,41 +1474,8 @@ def _notes_dir_for_env() -> Path:
     return root
 
 
-@tool(mutating=False, tool_icon="📓")
-def list_notebook() -> str:
-    """List all saved notes (id, title, tags)."""
-    root = _notes_dir_for_env()
-    out = []
-    for path in sorted(root.glob("*.md")):
-        head = path.read_text(encoding="utf-8", errors="replace")[:600]
-        title = path.stem
-        m = re.search(r"^title:\s*(.+)$", head, re.M)
-        if m:
-            title = m.group(1).strip()
-        tags = ""
-        m = re.search(r"^tags:\s*(.+)$", head, re.M)
-        if m:
-            tags = m.group(1).strip()
-        out.append(f"{path.stem} | {title} | tags: {tags}")
-    return "\n".join(out) if out else "No notes saved yet."
 
 
-@tool(mutating=False, tool_icon="🔍")
-def search_notes(query: str) -> str:
-    """Full-text search across saved notes.
-
-    :param query: Search terms.
-    """
-    root = _notes_dir_for_env()
-    q = query.strip().lower()
-    hits = []
-    for path in sorted(root.glob("*.md")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        if q in text.lower():
-            idx = text.lower().find(q)
-            snippet = text[max(0, idx - 80) : idx + 200].replace("\n", " ")
-            hits.append(f"[{path.stem}] …{snippet}…")
-    return "\n\n".join(hits[:10]) if hits else "No matching notes."
 
 
 @tool(mutating=True, tool_icon="❓")
