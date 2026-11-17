@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from vtx.agent.sdk import tool
+from .toolkit import tool
 
 from ..config import Settings
 
@@ -245,7 +245,7 @@ def _codemode_tool(registry: dict[str, Any]) -> Any:
     Uses vtx.codemode.CodemodeSandbox — the script runs in a worker process
     whose only capability is invoking the injected tools.
     """
-    from vtx.agent.sdk import tool as _sdk_tool
+    from .toolkit import tool as _sdk_tool
     from vtx.codemode import CodemodeSandbox, CodemodeTool
 
     sandbox = CodemodeSandbox()

@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from vtx.agent.sdk import tool
+from .toolkit import tool
 
 from ..config import Settings
 from ..store.kb_store import KnowledgeBaseStore

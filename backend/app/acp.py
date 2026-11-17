@@ -722,17 +722,7 @@ class AcpAgent:
             + (f"Reference: {reference}\n" if reference else "")
         )
         try:
-            from vtx.agent.sdk.runner import Runner
-            from vtx.agent.sdk.sessions import InMemorySession
-            from vtx.core.config import get_last_selected
-
-            sel = get_last_selected() or {}
-            from vtx.agent import Agent
-
-            agent = Agent(name="quiz-judge",
-                          model=sel.get("model_id") or "gpt-4o-mini",
-                          instructions="You are a strict quiz grader. Output only JSON.")
-            stream = Runner.run_streamed(agent, prompt, session=InMemorySession())
+            text = ""
             text = ""
             async for ev in stream:
                 d = getattr(ev, "delta", None)
@@ -761,20 +751,7 @@ class AcpAgent:
         result_text = ""
         try:
             from vtx.agent import Agent
-            from vtx.agent.sdk.runner import Runner
-            from vtx.agent.sdk.sessions import InMemorySession
-            from vtx.core.permissions import AutoApprove
-
-            agent = self._runtime_agent() if hasattr(self, "_runtime_agent") else None
-            if agent is None:
-                # Minimal grading agent on the configured default model.
-                from vtx.ai.models import get_model
-                from vtx.core.config import get_last_selected
-
-                sel = get_last_selected() or {}
-                agent = Agent(name="quiz-judge", model=sel.get("model_id") or "gpt-4o-mini",
-                              instructions="You are a strict quiz grader. Output only JSON.")
-            stream = Runner.run_streamed(agent, prompt, session=InMemorySession())
+            text = ""
             async for ev in stream:
                 d = getattr(ev, "delta", None)
                 if d:

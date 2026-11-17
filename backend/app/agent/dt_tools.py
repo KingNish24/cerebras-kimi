@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from vtx.agent.sdk import Agent, Runner, tool
+from .toolkit import tool
 
 from ..config import Settings
 
@@ -186,10 +186,6 @@ async def exec(code: str, language: str = "python", timeout: int = 30) -> str:
 # ---------------------------------------------------------------------------
 # LLM-backed tools: reason / brainstorm — tool-less sub-agents
 # ---------------------------------------------------------------------------
-
-
-def _subagent(model: str | None, instructions: str, name: str) -> Agent:
-    return Agent(name=name, instructions=instructions, model=model, tools=[])
 
 
 @tool(mutating=False, tool_icon="🧠")
@@ -657,7 +653,7 @@ async def quiz(action: str, topic: str = "", question: str = "",
             f"Question: {question}\nAnswer: {answer}"
         )
         try:
-            return await _grade_async(prompt)
+            return _heuristic_grade(prompt)
         except Exception as exc:  # noqa: BLE001
             return f"quiz grade error: {exc}"
     # generate — deterministic template quiz (no LLM dependency)
@@ -672,19 +668,6 @@ async def quiz(action: str, topic: str = "", question: str = "",
     ][: max(1, min(num_questions, 10))]
     return "Quiz on " + topic + ":\n" + "\n".join(qs) + \
         "\n\nINSTRUCTION: Ask these one at a time. After each answer, call quiz(action='grade')."
-
-
-async def _grade_async(prompt: str) -> str:
-    agent = _subagent(None, "You are a strict quiz grader. Output only JSON.", "quiz-grader")
-    stream = Runner.run_streamed(agent, prompt)
-    text = ""
-    async for ev in stream:
-        d = getattr(ev, "delta", None)
-        if d:
-            text += d
-    result = getattr(stream, "result", None)
-    final = getattr(result, "final_output", None) or text
-    return str(final)[:1000]
 
 
 # ---------------------------------------------------------------------------
@@ -1330,10 +1313,6 @@ async def exec(code: str, language: str = "python", timeout: int = 30) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _subagent(model: str | None, instructions: str, name: str) -> Agent:
-    return Agent(name=name, instructions=instructions, model=model, tools=[])
-
-
 @tool(mutating=False, tool_icon="🧠")
 async def reason(question: str, context: str = "") -> str:
     """Run a dedicated deep-reasoning pass on a question.
@@ -1705,7 +1684,7 @@ async def quiz(action: str, topic: str = "", question: str = "",
             f"Question: {question}\nAnswer: {answer}"
         )
         try:
-            return await _grade_async(prompt)
+            return _heuristic_grade(prompt)
         except Exception as exc:  # noqa: BLE001
             return f"quiz grade error: {exc}"
     # generate — deterministic template quiz (no LLM dependency)
@@ -1720,19 +1699,6 @@ async def quiz(action: str, topic: str = "", question: str = "",
     ][: max(1, min(num_questions, 10))]
     return "Quiz on " + topic + ":\n" + "\n".join(qs) + \
         "\n\nINSTRUCTION: Ask these one at a time. After each answer, call quiz(action='grade')."
-
-
-async def _grade_async(prompt: str) -> str:
-    agent = _subagent(None, "You are a strict quiz grader. Output only JSON.", "quiz-grader")
-    stream = Runner.run_streamed(agent, prompt)
-    text = ""
-    async for ev in stream:
-        d = getattr(ev, "delta", None)
-        if d:
-            text += d
-    result = getattr(stream, "result", None)
-    final = getattr(result, "final_output", None) or text
-    return str(final)[:1000]
 
 
 # ---------------------------------------------------------------------------
