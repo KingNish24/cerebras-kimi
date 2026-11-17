@@ -120,6 +120,8 @@ async def dispatch(
                 return 422, {"detail": f"Invalid body for {name}: {exc}"}
         elif ann is UploadFile or name == "file":
             kwargs[name] = files_spec.get(name)
+        elif name in ("body", "payload") or _ann_name(ann) in ("dict", "Dict"):
+            kwargs[name] = body if body is not None else {}
         elif name in body_dict and default is inspect.Parameter.empty:
             kwargs[name] = body_dict[name]
         elif name in query:

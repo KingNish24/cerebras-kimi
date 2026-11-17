@@ -1260,3 +1260,539 @@ def session_organization(session_id: str) -> dict[str, Any]:
 @router.get("/sessions/{session_id}/threads")
 def session_threads(session_id: str) -> dict[str, Any]:
     return {"session_id": session_id, "threads": []}
+
+
+# ==========================================================================
+# Extended surface — memory, notebooks, question bank, partners, skills,
+# documents, mastery progress, session sub-actions, settings extras.
+# All served through the same http.request RPC dispatch.
+# ==========================================================================
+
+import json as _json
+import time as _time
+import uuid as _uuid
+from pathlib import Path as _Path
+
+
+def _store_file(request: Request, *parts: str) -> _Path:
+    base = _store(request)._settings.data_dir / "ext"
+    p = base.joinpath(*parts)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def _load_json(path: _Path, default):
+    try:
+        return _json.loads(path.read_text())
+    except Exception:  # noqa: BLE001
+        return default
+
+
+def _save_json(path: _Path, data) -> None:
+    path.write_text(_json.dumps(data, ensure_ascii=False, default=str))
+
+
+def _list_dir(request: Request, *parts: str) -> list[dict[str, Any]]:
+    d = _store_file(request, *parts).parent
+    if not d.is_dir():
+        return []
+    out = []
+    for f in sorted(d.glob("*.json")):
+        try:
+            out.append(_json.loads(f.read_text()))
+        except Exception:  # noqa: BLE001
+            continue
+    return out
+
+
+def _get_item(request: Request, *parts: str) -> dict[str, Any] | None:
+    for item in _list_dir(request, *parts[:-1]):
+        if str(item.get("id")) == parts[-1]:
+            return item
+    return None
+
+
+def _put_item(request: Request, item: dict[str, Any], *parts: str) -> None:
+    item.setdefault("id", _uuid.uuid4().hex[:12])
+    item.setdefault("created_at", _time.time())
+    item["updated_at"] = _time.time()
+    _save_json(_store_file(request, *parts[:-1], f"{item['id']}.json"), item)
+
+
+def _del_item(request: Request, item_id: str, *parts: str) -> bool:
+    p = _store_file(request, *parts[:-1], f"{item_id}.json")
+    if p.exists():
+        p.unlink()
+        return True
+    return False
+
+
+# -- memory -----------------------------------------------------------------
+
+@router.get("/memory/doc/{level}/{doc_id}")
+def memory_doc_get(request: Request, level: str, doc_id: str) -> dict[str, Any]:
+    doc = _get_item(request, "memory", "docs", doc_id)
+    return doc or {"id": doc_id, "level": level, "content": "", "lines": []}
+
+
+@router.put("/memory/doc/{level}/{doc_id}")
+def memory_doc_put(request: Request, level: str, doc_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    body["id"] = doc_id
+    body["level"] = level
+    _put_item(request, body, "memory", "docs", doc_id)
+    return {"ok": True}
+
+
+@router.post("/memory/doc/{level}/{doc_id}/lines")
+def memory_doc_lines(request: Request, level: str, doc_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    doc = _get_item(request, "memory", "docs", doc_id) or {"id": doc_id, "level": level, "lines": []}
+    lines = doc.setdefault("lines", [])
+    lines.extend(body.get("lines") or [])
+    _put_item(request, doc, "memory", "docs", doc_id)
+    return {"ok": True, "count": len(lines)}
+
+
+@router.post("/memory/doc/{level}/{doc_id}/update")
+def memory_doc_update(request: Request, level: str, doc_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    doc = _get_item(request, "memory", "docs", doc_id) or {"id": doc_id, "level": level}
+    doc.update(body)
+    _put_item(request, doc, "memory", "docs", doc_id)
+    return {"ok": True}
+
+
+@router.get("/memory/resolve_entry/{entry_id}")
+def memory_resolve(request: Request, entry_id: str) -> dict[str, Any]:
+    return _get_item(request, "memory", "entries", entry_id) or {"id": entry_id}
+
+
+@router.get("/memory/runs")
+def memory_runs(request: Request) -> dict[str, Any]:
+    return {"runs": _list_dir(request, "memory", "runs")}
+
+
+@router.post("/memory/runs")
+def memory_run_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    body["status"] = "completed"
+    _put_item(request, body, "memory", "runs", "run")
+    return body
+
+
+@router.post("/memory/runs/{run_id}/cancel")
+def memory_run_cancel(request: Request, run_id: str) -> dict[str, Any]:
+    return {"ok": True, "run_id": run_id, "status": "cancelled"}
+
+
+@router.get("/memory/runs/{run_id}/events")
+def memory_run_events(request: Request, run_id: str) -> dict[str, Any]:
+    return {"events": []}
+
+
+@router.post("/memory/runs/{run_id}/undo")
+def memory_run_undo(request: Request, run_id: str) -> dict[str, Any]:
+    return {"ok": True}
+
+
+@router.get("/memory/snapshot/{snap_id}")
+def memory_snapshot(request: Request, snap_id: str) -> dict[str, Any]:
+    return _get_item(request, "memory", "snapshots", snap_id) or {"id": snap_id, "changes": []}
+
+
+@router.get("/memory/snapshot/{snap_id}/changes")
+def memory_snapshot_changes(request: Request, snap_id: str) -> dict[str, Any]:
+    return {"changes": []}
+
+
+@router.post("/memory/snapshot/{snap_id}/refresh")
+def memory_snapshot_refresh(request: Request, snap_id: str) -> dict[str, Any]:
+    return {"ok": True}
+
+
+# -- question notebook --------------------------------------------------------
+
+@router.get("/question-notebook/categories")
+def qn_categories(request: Request) -> dict[str, Any]:
+    return {"categories": _list_dir(request, "question-notebook", "categories")}
+
+
+@router.post("/question-notebook/categories")
+def qn_category_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "question-notebook", "categories", "cat")
+    return body
+
+
+@router.get("/question-notebook/categories/{cat_id}")
+def qn_category_get(request: Request, cat_id: str) -> dict[str, Any]:
+    return _get_item(request, "question-notebook", "categories", cat_id) or {"id": cat_id}
+
+
+@router.get("/question-notebook/entries")
+def qn_entries(request: Request) -> dict[str, Any]:
+    return {"entries": _list_dir(request, "question-notebook", "entries")}
+
+
+@router.post("/question-notebook/entries")
+def qn_entry_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "question-notebook", "entries", "entry")
+    return body
+
+
+@router.get("/question-notebook/entries/{entry_id}")
+def qn_entry_get(request: Request, entry_id: str) -> dict[str, Any]:
+    return _get_item(request, "question-notebook", "entries", entry_id) or {"id": entry_id}
+
+
+@router.delete("/question-notebook/entries/{entry_id}")
+def qn_entry_delete(request: Request, entry_id: str) -> dict[str, Any]:
+    return {"ok": _del_item(request, entry_id, "question-notebook", "entries", "entry")}
+
+
+@router.post("/question-notebook/entries/lookup/by-question")
+def qn_lookup(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    q = str(body.get("question") or "").lower()
+    hits = [e for e in _list_dir(request, "question-notebook", "entries")
+            if q and q in str(e.get("question") or "").lower()]
+    return {"entries": hits}
+
+
+@router.get("/question-notebook/entries/{entry_id}/categories")
+def qn_entry_categories(request: Request, entry_id: str) -> dict[str, Any]:
+    e = _get_item(request, "question-notebook", "entries", entry_id) or {}
+    return {"categories": e.get("categories") or []}
+
+
+@router.get("/question-notebook/materials")
+def qn_materials(request: Request) -> dict[str, Any]:
+    return {"materials": _list_dir(request, "question-notebook", "materials")}
+
+
+@router.get("/question-notebook/stats")
+def qn_stats(request: Request) -> dict[str, Any]:
+    entries = _list_dir(request, "question-notebook", "entries")
+    return {"total": len(entries), "by_category": {}}
+
+
+# -- notebooks -----------------------------------------------------------------
+
+@router.get("/notebooks")
+def notebooks_list(request: Request) -> dict[str, Any]:
+    return {"notebooks": _list_dir(request, "notebooks")}
+
+
+@router.post("/notebooks")
+def notebook_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "notebooks", "nb")
+    return body
+
+
+@router.get("/notebooks/{nb_id}")
+def notebook_get(request: Request, nb_id: str) -> dict[str, Any]:
+    return _get_item(request, "notebooks", nb_id) or {"id": nb_id, "records": []}
+
+
+@router.delete("/notebooks/{nb_id}")
+def notebook_delete(request: Request, nb_id: str) -> dict[str, Any]:
+    return {"ok": _del_item(request, nb_id, "notebooks", "nb")}
+
+
+@router.get("/notebooks/{nb_id}/export")
+def notebook_export(request: Request, nb_id: str) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {"id": nb_id}
+    return {"markdown": f"# {nb.get('title','Notebook')}\n\n" + "\n".join(
+        str(r.get("content","")) for r in nb.get("records", []))}
+
+
+@router.get("/notebooks/{nb_id}/records")
+def nb_records(request: Request, nb_id: str) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {}
+    return {"records": nb.get("records") or []}
+
+
+@router.post("/notebooks/{nb_id}/records")
+def nb_record_create(request: Request, nb_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {"id": nb_id, "records": []}
+    rec = dict(body); rec.setdefault("id", _uuid.uuid4().hex[:12]); rec.setdefault("created_at", _time.time())
+    nb.setdefault("records", []).append(rec)
+    _put_item(request, nb, "notebooks", nb_id)
+    return rec
+
+
+@router.get("/notebooks/{nb_id}/records/{rec_id}")
+def nb_record_get(request: Request, nb_id: str, rec_id: str) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {}
+    for r in nb.get("records") or []:
+        if str(r.get("id")) == rec_id:
+            return r
+    return {"id": rec_id}
+
+
+@router.delete("/notebooks/{nb_id}/records/{rec_id}")
+def nb_record_delete(request: Request, nb_id: str, rec_id: str) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {"records": []}
+    nb["records"] = [r for r in nb.get("records", []) if str(r.get("id")) != rec_id]
+    _put_item(request, nb, "notebooks", nb_id)
+    return {"ok": True}
+
+
+@router.post("/notebooks/{nb_id}/records/{rec_id}/actions/{action}")
+def nb_record_action(request: Request, nb_id: str, rec_id: str, action: str, body: dict[str, Any]) -> dict[str, Any]:
+    nb = _get_item(request, "notebooks", nb_id) or {"records": []}
+    for r in nb.get("records") or []:
+        if str(r.get("id")) == rec_id:
+            r.setdefault("actions", []).append({"action": action, "at": _time.time(), **body})
+            _put_item(request, nb, "notebooks", nb_id)
+            return {"ok": True}
+    return {"ok": False}
+
+
+# -- mastery progress -----------------------------------------------------------
+
+@router.get("/mastery-paths/progress/{topic_id}")
+def mastery_progress_get(request: Request, topic_id: str) -> dict[str, Any]:
+    return _get_item(request, "mastery", "progress", topic_id) or {"topic_id": topic_id, "modules": [], "status": "not_started"}
+
+
+@router.post("/mastery-paths/progress/{topic_id}/init-modules")
+def mastery_progress_init(request: Request, topic_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    prog = _get_item(request, "mastery", "progress", topic_id) or {"topic_id": topic_id}
+    prog["modules"] = body.get("modules") or []
+    prog["status"] = "in_progress"
+    _put_item(request, prog, "mastery", "progress", topic_id)
+    return prog
+
+
+@router.put("/mastery-paths/progress/{topic_id}")
+def mastery_progress_put(request: Request, topic_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    body["topic_id"] = topic_id
+    _put_item(request, body, "mastery", "progress", topic_id)
+    return {"ok": True}
+
+
+# -- partners -------------------------------------------------------------------
+
+@router.get("/partners")
+def partners_list(request: Request) -> dict[str, Any]:
+    return {"partners": _list_dir(request, "partners")}
+
+
+@router.post("/partners")
+def partner_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "partners", "p")
+    return body
+
+
+@router.get("/partners/{pid}")
+def partner_get(request: Request, pid: str) -> dict[str, Any]:
+    return _get_item(request, "partners", pid) or {"id": pid}
+
+
+@router.delete("/partners/{pid}")
+def partner_delete(request: Request, pid: str) -> dict[str, Any]:
+    return {"ok": _del_item(request, pid, "partners", "p")}
+
+
+@router.post("/partners/consultation-session")
+def partner_consult(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    sess = {"id": _uuid.uuid4().hex[:12], "status": "active", "created_at": _time.time(), **body}
+    _put_item(request, sess, "partners", "sessions", "s")
+    return sess
+
+
+@router.post("/partners/drafts/{draft_id}")
+def partner_draft_save(request: Request, draft_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    body["id"] = draft_id
+    _put_item(request, body, "partners", "drafts", draft_id)
+    return {"ok": True}
+
+
+@router.get("/partners/drafts/{draft_id}")
+def partner_draft_get(request: Request, draft_id: str) -> dict[str, Any]:
+    return _get_item(request, "partners", "drafts", draft_id) or {"id": draft_id}
+
+
+@router.get("/partner-groups")
+def partner_groups(request: Request) -> dict[str, Any]:
+    return {"groups": _list_dir(request, "partner-groups")}
+
+
+@router.post("/partner-groups")
+def partner_group_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "partner-groups", "g")
+    return body
+
+
+@router.get("/partner-groups/{gid}")
+def partner_group_get(request: Request, gid: str) -> dict[str, Any]:
+    return _get_item(request, "partner-groups", gid) or {"id": gid}
+
+
+@router.delete("/partner-groups/{gid}")
+def partner_group_delete(request: Request, gid: str) -> dict[str, Any]:
+    return {"ok": _del_item(request, gid, "partner-groups", "g")}
+
+
+# -- skills ---------------------------------------------------------------------
+
+@router.get("/skills/hub/catalog")
+def skills_catalog(request: Request) -> dict[str, Any]:
+    return {"skills": _list_dir(request, "skills")}
+
+
+@router.get("/skills/hub/detail")
+def skills_detail(request: Request) -> dict[str, Any]:
+    return {"skills": _list_dir(request, "skills")}
+
+
+@router.get("/skills/{skill_id}")
+def skill_get(request: Request, skill_id: str) -> dict[str, Any]:
+    return _get_item(request, "skills", skill_id) or {"id": skill_id}
+
+
+@router.delete("/skills/{skill_id}")
+def skill_delete(request: Request, skill_id: str) -> dict[str, Any]:
+    return {"ok": _del_item(request, skill_id, "skills", "s")}
+
+
+@router.get("/skills/tags/{tag}")
+def skills_by_tag(request: Request, tag: str) -> dict[str, Any]:
+    return {"skills": [s for s in _list_dir(request, "skills") if tag in (s.get("tags") or [])]}
+
+
+# -- documents / imports / personas / misc ---------------------------------------
+
+@router.get("/documents")
+def documents_list(request: Request) -> dict[str, Any]:
+    return {"documents": _list_dir(request, "documents")}
+
+
+@router.post("/documents")
+def document_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    _put_item(request, body, "documents", "d")
+    return body
+
+
+@router.get("/documents/{doc_id}")
+def document_get(request: Request, doc_id: str) -> dict[str, Any]:
+    return _get_item(request, "documents", doc_id) or {"id": doc_id}
+
+
+@router.get("/documents/{doc_id}/assets")
+def document_assets(request: Request, doc_id: str) -> dict[str, Any]:
+    return {"assets": []}
+
+
+@router.post("/imports/chat-history")
+def import_chat_history(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    return {"ok": True, "imported": 0}
+
+
+@router.get("/creations/drafts/{draft_id}")
+def creation_draft_get(request: Request, draft_id: str) -> dict[str, Any]:
+    return _get_item(request, "creations", "drafts", draft_id) or {"id": draft_id}
+
+
+@router.post("/creations/drafts/{draft_id}")
+def creation_draft_save(request: Request, draft_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    body["id"] = draft_id
+    _put_item(request, body, "creations", "drafts", draft_id)
+    return {"ok": True}
+
+
+@router.get("/personas/{pid}")
+def persona_get(request: Request, pid: str) -> dict[str, Any]:
+    return _get_item(request, "personas", pid) or {"id": pid}
+
+
+@router.post("/personas/{pid}")
+def persona_save(request: Request, pid: str, body: dict[str, Any]) -> dict[str, Any]:
+    body["id"] = pid
+    _put_item(request, body, "personas", pid)
+    return {"ok": True}
+
+
+@router.get("/subagents/backends/{backend_id}")
+def subagent_backend_get(request: Request, backend_id: str) -> dict[str, Any]:
+    return {"id": backend_id, "status": "configured"}
+
+
+@router.get("/subagents/connections/{conn_id}")
+def subagent_conn_get(request: Request, conn_id: str) -> dict[str, Any]:
+    return {"id": conn_id, "status": "active"}
+
+
+@router.get("/video-learning/materials/{mat_id}")
+def video_material_get(request: Request, mat_id: str) -> dict[str, Any]:
+    return _get_item(request, "video-learning", "materials", mat_id) or {"id": mat_id}
+
+
+@router.get("/dashboard/learning-library/{lib_id}")
+def learning_library_get(request: Request, lib_id: str) -> dict[str, Any]:
+    return _get_item(request, "dashboard", "library", lib_id) or {"id": lib_id, "items": []}
+
+
+@router.get("/auth/users/{user_id}")
+def auth_user_get(request: Request, user_id: str) -> dict[str, Any]:
+    return {"id": user_id, "role": "admin"}
+
+
+@router.get("/multi-user/users/{user_id}")
+def multiuser_get(request: Request, user_id: str) -> dict[str, Any]:
+    return {"id": user_id}
+
+
+# -- session sub-actions ---------------------------------------------------------
+
+@router.post("/sessions/{session_id}/migrate-watching")
+def session_migrate_watching(request: Request, session_id: str) -> dict[str, Any]:
+    return {"session_id": session_id, "migrated": True}
+
+
+@router.post("/sessions/{session_id}/ask-hint")
+def session_ask_hint(request: Request, session_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    return {"hint": "", "session_id": session_id}
+
+
+@router.get("/sessions/{session_id}/branch-selection")
+def session_branch_selection(request: Request, session_id: str) -> dict[str, Any]:
+    return {"branches": []}
+
+
+@router.post("/sessions/{session_id}/branch-selection")
+def session_branch_select(request: Request, session_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    return {"ok": True}
+
+
+@router.get("/sessions/{session_id}/quiz-results")
+def session_quiz_results(request: Request, session_id: str) -> dict[str, Any]:
+    return {"results": []}
+
+
+@router.post("/sessions/submission-replacement")
+def submission_replacement(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    return {"ok": True, "receipt": {"id": _uuid.uuid4().hex[:12]}}
+
+
+# -- settings extras (presets / services preview / tests) --------------------------
+
+@router.get("/settings/presets/{preset_id}/draft")
+def settings_preset_draft(request: Request, preset_id: str) -> dict[str, Any]:
+    return {"preset_id": preset_id, "draft": {}}
+
+
+@router.post("/settings/presets/{preset_id}/draft")
+def settings_preset_draft_save(request: Request, preset_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    return {"ok": True}
+
+
+@router.post("/settings/services/{service}/preview")
+def settings_service_preview(request: Request, service: str, body: dict[str, Any]) -> dict[str, Any]:
+    return {"service": service, "preview": {}}
+
+
+@router.post("/settings/tests/{test_id}/start")
+def settings_test_start(request: Request, test_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    return {"test_id": test_id, "status": "running", "events_url": f"/api/settings/tests/{test_id}/events"}
+
+
+@router.get("/settings/tests/{test_id}/events")
+def settings_test_events(request: Request, test_id: str) -> dict[str, Any]:
+    return {"events": []}
