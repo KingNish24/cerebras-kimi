@@ -1,33 +1,27 @@
 #!/usr/bin/env node
 /**
- * `npm start` — bring up the whole app: frontend + the ACP backend agent.
+ * `npm start` — build, then serve production + warm the ACP backend agent.
  *
- * Auto-detects the mode: if `.next/BUILD_ID` exists (a production build is
- * present) it runs `next start`; otherwise it runs the dev server via
- * scripts/dev.mjs. The backend is a stdio child process spawned lazily by
- * lib/acp-bridge.ts on the first /api/rpc call, so we warm it with an
- * `initialize` request once the server is listening.
+ * Always runs a fresh `next build` first (no dev mode), then `next start`,
+ * then sends `initialize` to /api/rpc so the stdio backend child is spawned
+ * and ready before the first page load.
  */
 
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = process.env.PORT ?? "3000";
 const BASE = `http://localhost:${PORT}`;
-const IS_PROD = existsSync(path.join(WEB_DIR, ".next", "BUILD_ID"));
+const NEXT_BIN = path.join(WEB_DIR, "node_modules", "next", "dist", "bin", "next");
 
-const args = IS_PROD
-  ? [path.join(WEB_DIR, "node_modules", "next", "dist", "bin", "next"), "start"]
-  : ["./scripts/dev.mjs"];
-
-const app = spawn(process.execPath, args, {
-  cwd: WEB_DIR,
-  stdio: "inherit",
-  env: process.env,
-});
+function run(cmd, args) {
+  return new Promise((resolve) => {
+    const child = spawn(cmd, args, { cwd: WEB_DIR, stdio: "inherit", env: process.env });
+    child.on("exit", (code) => resolve(code ?? 1));
+  });
+}
 
 async function waitForServer(timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs;
@@ -36,12 +30,7 @@ async function waitForServer(timeoutMs = 120_000) {
       const res = await fetch(`${BASE}/api/rpc`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 0,
-          method: "initialize",
-          params: {},
-        }),
+        body: JSON.stringify({ jsonrpc: "2.0", id: 0, method: "initialize", params: {} }),
       });
       if (res.ok) return true;
     } catch {
@@ -52,18 +41,25 @@ async function waitForServer(timeoutMs = 120_000) {
   return false;
 }
 
-app.on("exit", (code) => process.exit(code ?? 0));
-process.on("SIGINT", () => app.kill("SIGINT"));
-process.on("SIGTERM", () => app.kill("SIGTERM"));
+const buildCode = await run(process.execPath, ["./scripts/build.mjs"]);
+if (buildCode !== 0) {
+  console.error("[start-all] build failed");
+  process.exit(buildCode);
+}
+
+const server = spawn(process.execPath, [NEXT_BIN, "start"], {
+  cwd: WEB_DIR,
+  stdio: "inherit",
+  env: process.env,
+});
+
+server.on("exit", (code) => process.exit(code ?? 0));
+process.on("SIGINT", () => server.kill("SIGINT"));
+process.on("SIGTERM", () => server.kill("SIGTERM"));
 
 waitForServer()
   .then((ok) => {
-    if (ok) {
-      console.log(
-        `[start-all] ${IS_PROD ? "production" : "dev"} frontend + backend agent ready`,
-      );
-    } else {
-      console.warn("[start-all] server did not come up in time");
-    }
+    if (ok) console.log("[start-all] production frontend + backend agent ready");
+    else console.warn("[start-all] server did not come up in time");
   })
   .catch(() => {});
