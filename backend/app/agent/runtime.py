@@ -44,6 +44,10 @@ log = logging.getLogger("deeptutor.runtime")
 
 PROTOCOL_VERSION = "2.0"
 
+# Temporarily disabled: the `deep_question` (Quiz) capability falls back to a
+# normal chat turn. Flip to True to restore MCQ generation.
+DEEP_QUESTION_ENABLED = False
+
 # underscore-prefixed and not exported, so we match on type name — the same
 # dispatch the SDK docs recommend.
 def _event_name(event: Any) -> str:

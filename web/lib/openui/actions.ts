@@ -1,5 +1,10 @@
-import { defineAction, type ActionEvent } from "@openuidev/react-lang";
+import {
+  BuiltinActionType,
+  defineAction,
+  type ActionEvent,
+} from "@openuidev/react-lang";
 import { z } from "zod/v4";
+import { webUrl } from "./components/style";
 
 export const CopyToClipboard = defineAction({
   name: "CopyToClipboard",
@@ -37,4 +42,29 @@ export function runLibraryAction(event: ActionEvent): Promise<boolean> | null {
     return typeof text === "string" ? copy(text) : Promise.resolve(false);
   }
   return null;
+}
+
+/**
+ * Handle every action a generated OpenUI program can emit. Library-defined
+ * steps stay local; the two built-ins belong to the host chat:
+ * `continue_conversation` becomes a normal user turn (with form values) and
+ * `open_url` opens an http(s) link in a new tab.
+ */
+export function handleOpenUIAction(
+  event: ActionEvent,
+  onSendFollowUp?: (text: string) => void | Promise<void>,
+): void {
+  if (runLibraryAction(event)) return;
+
+  if (event.type === BuiltinActionType.ContinueConversation) {
+    const lines = [event.humanFriendlyMessage || "Continue"];
+    if (event.formState) lines.push(`Form values: ${JSON.stringify(event.formState)}`);
+    void onSendFollowUp?.(lines.join("\n"));
+    return;
+  }
+
+  if (event.type === BuiltinActionType.OpenUrl) {
+    const safe = webUrl(event.params?.url);
+    if (safe) window.open(safe, "_blank", "noopener,noreferrer");
+  }
 }

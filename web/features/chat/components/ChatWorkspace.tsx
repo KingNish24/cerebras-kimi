@@ -2383,6 +2383,15 @@ export default function ChatWorkspace() {
     resendLastMessage();
   }, [resendLastMessage]);
 
+  // OpenUI widgets report form/button follow-ups as `continue_conversation`.
+  // They are ordinary user turns — same path as typing in the composer.
+  const handleOpenUIFollowUp = useCallback(
+    (text: string) => {
+      void sendMessage(text);
+    },
+    [sendMessage],
+  );
+
   const handleToggleKB = useCallback(
     (name: string) => {
       const current = state.knowledgeBases;
@@ -2850,6 +2859,7 @@ export default function ChatWorkspace() {
                         onEditMessage={editMessage}
                         onSwitchBranch={switchBranch}
                         onSubmitUserReply={submitUserReply}
+                        onSendFollowUp={handleOpenUIFollowUp}
                         onAnswerMasteryQuestion={answerMasteryQuestion}
                         onSkipMasteryQuestion={skipMasteryQuestion}
                         onChallengeMasteryQuestion={(questionId) => handleSend(t('Please review assessment {{questionId}} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.', { questionId }))}

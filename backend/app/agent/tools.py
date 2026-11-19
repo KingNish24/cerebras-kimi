@@ -263,7 +263,8 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         # still handles artifacts the app itself creates (notes, media).
         "learning": dt_tools.learning,
         "workspace": dt_tools.workspace,
-        "quiz": dt_tools.quiz,
+        # `quiz` and `ask_user` are intentionally not registered for now.
+        # The implementations stay in dt_tools.py so they can be re-enabled.
         "mastery": dt_tools.mastery,
         "video": dt_tools.video,
     }

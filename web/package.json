@@ -38,7 +38,7 @@
   "dependencies": {
     "@blocknote/core": "0.56.0",
     "@blocknote/react": "0.56.0",
-    "@openuidev/intelligent-ui-library": "^0.0.1",
+    "@openuidev/intelligent-ui-library": "^0.0.2",
     "@openuidev/lang-core": "^1.1.1",
     "@openuidev/react-lang": "^1.1.1",
     "@openuidev/react-ui": "^0.18.9",
@@ -81,7 +81,7 @@
     }
   },
   "devDependencies": {
-    "@openuidev/cli": "^0.4.1",
+    "@openuidev/cli": "^0.6.3",
     "@playwright/test": "^1.53.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",

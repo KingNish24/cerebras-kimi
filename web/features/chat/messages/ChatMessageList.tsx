@@ -741,6 +741,7 @@ export const AssistantMessage = memo(function AssistantMessage({
   onAnswerMasteryQuestion,
   onSkipMasteryQuestion,
   onChallengeMasteryQuestion,
+  onSendFollowUp,
   researchRequestSnapshot,
   onTraceToggle,
   masteryGrades,
@@ -812,6 +813,8 @@ export const AssistantMessage = memo(function AssistantMessage({
     questionId: string,
   ) => void | boolean | Promise<void | boolean>;
   onChallengeMasteryQuestion?: (questionId: string) => void | boolean | Promise<void | boolean>;
+  /** OpenUI `continue_conversation` actions become a normal user turn. */
+  onSendFollowUp?: (text: string) => void | Promise<void>;
 }) {
   const { t } = useTranslation();
   const events = useMemo(() => msg.events ?? [], [msg.events]);
@@ -1265,7 +1268,11 @@ export const AssistantMessage = memo(function AssistantMessage({
         // The main chat now answers with OpenUI Lang programs; render them as
         // live components instead of Markdown so dashboards/quizzes/flashcards
         // work here as they did on the removed /openui page.
-        <OpenUIMessage content={msg.content} isStreaming={isStreaming} />
+        <OpenUIMessage
+          content={msg.content}
+          isStreaming={isStreaming}
+          onSendFollowUp={onSendFollowUp}
+        />
       ) : useSegmentLayout ? (
         // Default chat surface. The working-out (prose interleaved with the
         // steps it introduced) is one layer, folded once the turn settles; the
@@ -1980,6 +1987,7 @@ export const ChatMessageList = memo(function ChatMessageList({
   onAnswerMasteryQuestion,
   onSkipMasteryQuestion,
   onChallengeMasteryQuestion,
+  onSendFollowUp,
   showModeBadge = true,
   onLoadMessageTrace,
   onReleaseMessageTrace,
@@ -2048,6 +2056,8 @@ export const ChatMessageList = memo(function ChatMessageList({
     questionId: string,
   ) => void | boolean | Promise<void | boolean>;
   onChallengeMasteryQuestion?: (questionId: string) => void | boolean | Promise<void | boolean>;
+  /** OpenUI `continue_conversation` actions become a normal user turn. */
+  onSendFollowUp?: (text: string) => void | Promise<void>;
   /** Names of KBs confirmed to exist. Omitted when the KB list is unavailable. */
   availableKbNames?: Set<string>;
   /** Qualified KB ref -> display name, from the same catalog the composer
@@ -2436,6 +2446,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 onAnswerMasteryQuestion={onAnswerMasteryQuestion}
                 onSkipMasteryQuestion={onSkipMasteryQuestion}
                 onChallengeMasteryQuestion={onChallengeMasteryQuestion}
+                onSendFollowUp={onSendFollowUp}
                 researchRequestSnapshot={
                   pairedUserMessage?.requestSnapshot ?? null
                 }
