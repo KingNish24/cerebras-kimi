@@ -2383,15 +2383,6 @@ export default function ChatWorkspace() {
     resendLastMessage();
   }, [resendLastMessage]);
 
-  // Generative-UI widgets' `sendPrompt` sandbox bridge: the widget asks the
-  // chat to send a follow-up exactly as if the learner typed it.
-  const handleWidgetPrompt = useCallback(
-    (text: string) => {
-      void sendMessage(text);
-    },
-    [sendMessage],
-  );
-
   const handleToggleKB = useCallback(
     (name: string) => {
       const current = state.knowledgeBases;
@@ -2882,7 +2873,6 @@ export default function ChatWorkspace() {
                         onOpenThread={openMessageThread}
                         onDeleteThread={deleteMessageThread}
                         onDetachThread={detachMessageThread}
-                        onWidgetPrompt={handleWidgetPrompt}
                       />
                       <div
                         ref={messagesEndRef}

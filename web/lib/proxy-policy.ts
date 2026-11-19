@@ -28,10 +28,8 @@ export function isRetiredPagePath(pathname: string): boolean {
 export function isBackendPath(pathname: string): boolean {
   // /files/* is served by the Next route at app/files/ (agent outputs).
   if (pathname.startsWith("/files/")) return false;
-  // Next route handlers under app/api/openui/ (wiki, image search, street routing)
-  // and app/api/genui/ (generative-UI asset proxy).
+  // Next route handlers under app/api/openui/ (wiki, image search, street routing).
   if (pathname.startsWith("/api/openui/")) return false;
-  if (pathname.startsWith("/api/genui/")) return false;
   return pathname.startsWith("/api/");
 }
 

@@ -117,8 +117,8 @@ import {
   TraceFlow,
 } from "@/features/chat/trace/TracePresentation";
 import { hasSettledFinalRound } from "@/features/chat/trace/selectors";
-import GenerativeUIMessage from "@/features/chat/messages/GenerativeUIMessage";
-import { hasGenerativeUi } from "@/lib/generative-ui/parse-ogui";
+import OpenUIMessage from "@/features/chat/messages/OpenUIMessage";
+import { hasOpenUILang } from "@/lib/openui/lang";
 import type { MessageTraceMetadata } from "@/features/chat/trace/memory";
 import { supportsSubmissionReplacement, type OrphanedFailedTurn } from "@/lib/session-api";
 import { agentGlyph } from "@/components/agents/agent-icons";
@@ -741,7 +741,6 @@ export const AssistantMessage = memo(function AssistantMessage({
   onAnswerMasteryQuestion,
   onSkipMasteryQuestion,
   onChallengeMasteryQuestion,
-  onWidgetPrompt,
   researchRequestSnapshot,
   onTraceToggle,
   masteryGrades,
@@ -813,8 +812,6 @@ export const AssistantMessage = memo(function AssistantMessage({
     questionId: string,
   ) => void | boolean | Promise<void | boolean>;
   onChallengeMasteryQuestion?: (questionId: string) => void | boolean | Promise<void | boolean>;
-  /** Generative-UI widgets' `sendPrompt` bridge — see ``ChatMessageList``. */
-  onWidgetPrompt?: (text: string) => void | Promise<void>;
 }) {
   const { t } = useTranslation();
   const events = useMemo(() => msg.events ?? [], [msg.events]);
@@ -1264,18 +1261,11 @@ export const AssistantMessage = memo(function AssistantMessage({
             language={language}
           />
         </>
-      ) : hasGenerativeUi(msg.content) ? (
-        // The main chat answers with Markdown prose plus ```ogui-* fenced
-        // generative-UI widgets; render both live in the message bubble.
-        <GenerativeUIMessage
-          content={msg.content}
-          isStreaming={isStreaming}
-          language={turnLanguage}
-          readingMaterialId={readingMaterialId}
-          readingMaterialRevision={readingMaterialRevision}
-          events={events}
-          onWidgetPrompt={onWidgetPrompt}
-        />
+      ) : hasOpenUILang(msg.content) ? (
+        // The main chat now answers with OpenUI Lang programs; render them as
+        // live components instead of Markdown so dashboards/quizzes/flashcards
+        // work here as they did on the removed /openui page.
+        <OpenUIMessage content={msg.content} isStreaming={isStreaming} />
       ) : useSegmentLayout ? (
         // Default chat surface. The working-out (prose interleaved with the
         // steps it introduced) is one layer, folded once the turn settles; the
@@ -1999,7 +1989,6 @@ export const ChatMessageList = memo(function ChatMessageList({
   onOpenThread,
   onDeleteThread,
   onDetachThread,
-  onWidgetPrompt,
 }: {
   messages: ChatMessageItem[];
   isStreaming: boolean;
@@ -2084,9 +2073,6 @@ export const ChatMessageList = memo(function ChatMessageList({
   onDeleteThread?: (thread: SessionSummary) => Promise<void>;
   /** Detach a thread from this message without deleting its conversation. */
   onDetachThread?: (thread: SessionSummary) => Promise<void>;
-  /** Generative-UI widgets can ask the chat to send a follow-up message
-   *  (their `sendPrompt` sandbox bridge). */
-  onWidgetPrompt?: (text: string) => void | Promise<void>;
 }) {
   const { t } = useTranslation();
   // One lookup for both bubbles; the map is memoized by the chat page, so a
@@ -2457,7 +2443,6 @@ export const ChatMessageList = memo(function ChatMessageList({
                 masteryGrades={masteryGrades}
                 masterySkips={masterySkips}
                 masteryAnswerRejections={masteryAnswerRejections}
-                onWidgetPrompt={onWidgetPrompt}
               />
             </InlineFileCardProvider>
             <GeneratedFileCards

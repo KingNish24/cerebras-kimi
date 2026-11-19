@@ -31,12 +31,17 @@
     "test:e2e:critical": "playwright test --project=critical-turns",
     "test:e2e:multi-worker": "playwright test --project=multi-worker-turns-desktop --project=multi-worker-turns-mobile",
     "build:brand-icons": "tsx ./scripts/build-brand-icons.mts",
-    "sync:logo": "node ./scripts/sync-logo-assets.mjs"
+    "sync:logo": "node ./scripts/sync-logo-assets.mjs",
+    "openui:generate": "openui generate lib/openui/library.ts --spec --out lib/openui/generated/spec.json",
+    "openui:prompt": "openui generate lib/openui/library.ts --out lib/openui/generated/system-prompt.txt --prompt-options promptOptions && openui generate lib/openui/library.ts --out lib/openui/generated/dashboard-system-prompt.txt --prompt-options dashboardPromptOptions && rm -f lib/openui/generated/*system-prompt.spec.json"
   },
   "dependencies": {
     "@blocknote/core": "0.56.0",
     "@blocknote/react": "0.56.0",
-    "@jetbrains/websandbox": "^1.4.3",
+    "@openuidev/intelligent-ui-library": "^0.0.1",
+    "@openuidev/lang-core": "^1.1.1",
+    "@openuidev/react-lang": "^1.1.1",
+    "@openuidev/react-ui": "^0.18.9",
     "@recogito/text-annotator": "4.2.5",
     "chart.js": "^4.5.1",
     "chess.js": "^1.4.0",
@@ -76,6 +81,7 @@
     }
   },
   "devDependencies": {
+    "@openuidev/cli": "^0.4.1",
     "@playwright/test": "^1.53.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
