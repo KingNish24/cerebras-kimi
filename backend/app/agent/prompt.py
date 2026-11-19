@@ -13,13 +13,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-# The generated OpenUI Lang spec lives next to this module. It teaches the
-# model to answer with declarative UI programs instead of Markdown.
-_OPENUI_SPEC_PATH = Path(__file__).with_name("openui_prompt.txt")
+# The generative-UI contract lives next to this module. It teaches the model
+# to embed sandboxed widgets (quizzes, calculators, diagrams) as ```ogui-*
+# fenced blocks inside an otherwise Markdown answer.
+_GENERATIVE_UI_SPEC_PATH = Path(__file__).with_name("generative_ui_prompt.txt")
 try:
-    OPENUI_SPEC = _OPENUI_SPEC_PATH.read_text(encoding="utf-8").strip()
+    GENERATIVE_UI_SPEC = _GENERATIVE_UI_SPEC_PATH.read_text(encoding="utf-8").strip()
 except OSError:  # pragma: no cover - the file ships with the app
-    OPENUI_SPEC = ""
+    GENERATIVE_UI_SPEC = ""
 
 DEEPTUTOR_BASE = """You are DeepTutor, an AI learning companion. You help a learner
 understand topics, work through problems, and retain what they learn.
@@ -69,16 +70,18 @@ def build_deeptutor_prompt(
     from vtx.agent.prompts.builder import build_system_prompt
     clean_context = Context(cwd=runtime.cwd)
     base = DEEPTUTOR_BASE
-    if OPENUI_SPEC:
-        # The main chat now renders assistant answers with the OpenUI Lang
-        # Renderer, so the model must emit UI programs rather than Markdown.
+    if GENERATIVE_UI_SPEC:
+        # The main chat renders Markdown prose plus sandboxed ```ogui-*
+        # generative-UI widgets, so the model writes fenced widget blocks
+        # inside an ordinary Markdown answer.
         base = (
             base
             + "\n\n# Response format\n\n"
-            + "Answer the learner with an OpenUI Lang program. Use the component "
-            + "library to lay out explanations, quizzes, tables and interactive "
-            + "widgets. Do not reply with plain Markdown prose.\n\n"
-            + OPENUI_SPEC
+            + "Answer in Markdown prose. When a quiz, flashcards, calculator, "
+            + "diagram or other interactive widget would help, embed it as "
+            + "```ogui-* fenced blocks following the Generative UI contract "
+            + "below.\n\n"
+            + GENERATIVE_UI_SPEC
         )
     return build_system_prompt(
         runtime.cwd,

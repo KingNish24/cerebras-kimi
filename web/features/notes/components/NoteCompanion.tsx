@@ -428,6 +428,7 @@ function ThreadPanel({
             onEditMessage={editMessage}
             onSwitchBranch={switchBranch}
             onSubmitUserReply={submitUserReply}
+            onWidgetPrompt={onSend}
             onConfirmOutline={confirmResearchOutline}
             onPreviewAttachment={(attachment: MessageAttachment) => {
               setViewerOpen(true)

@@ -70,7 +70,7 @@ import {
   repairChineseEmphasis,
 } from "@/lib/markdown-display";
 import { normalizeMessageContent } from "@/lib/message-content";
-import { hasOpenUILang } from "@/lib/openui/lang";
+import { hasGenerativeUi } from "@/lib/generative-ui/parse-ogui";
 import {
   buildVisiblePath,
   persistedBranchSelections,
@@ -1198,9 +1198,10 @@ function reduce(state: ProviderState, action: Action): ProviderState {
       if (shouldAppendEventContent(action.event)) {
         const delta = action.event.content;
         rawContent += delta;
-        // OpenUI Lang is source code: Markdown emphasis repair would corrupt
-        // identifiers, operators and string literals. Keep it byte-for-byte.
-        content = hasOpenUILang(rawContent)
+        // Generative-UI fences are source code: Markdown emphasis repair
+        // would corrupt identifiers, operators and string literals inside
+        // them. Keep the raw stream byte-for-byte once a widget appears.
+        content = hasGenerativeUi(rawContent)
           ? rawContent
           : appendWithEmphasisRepair(content, delta, rawContent, language);
       }
@@ -1306,7 +1307,7 @@ function reduce(state: ProviderState, action: Action): ProviderState {
         const last = messages[messages.length - 1];
         if (last?.role !== "assistant") return messages;
         const raw = last.rawContent ?? last.content ?? "";
-        const repaired = hasOpenUILang(raw)
+        const repaired = hasGenerativeUi(raw)
           ? raw
           : repairChineseEmphasis(raw, ending.language);
         const trace =
@@ -2259,7 +2260,7 @@ export function ChatStateAdapterProvider({
             id: message.id,
             role: message.role,
             content:
-              message.role === "assistant" && !hasOpenUILang(raw)
+              message.role === "assistant" && !hasGenerativeUi(raw)
                 ? normalizeMarkdownForDisplay(raw)
                 : raw,
             capability: message.capability || "",

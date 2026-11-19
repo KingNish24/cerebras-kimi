@@ -847,6 +847,9 @@ export function MasteryStudy({
                       selectedBranches={state.selectedBranches}
                       onEditMessage={editMessage}
                       onSwitchBranch={switchBranch}
+                      onWidgetPrompt={(text) => {
+                        submit(text);
+                      }}
                       onSubmitUserReply={submitUserReply}
                       onAnswerMasteryQuestion={answerMasteryQuestion}
                       onSkipMasteryQuestion={skipMasteryQuestion}
