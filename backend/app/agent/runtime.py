@@ -84,6 +84,8 @@ class TurnHandle:
     subscribers: set[asyncio.Queue] = field(default_factory=set)
     events: list[dict[str, Any]] = field(default_factory=list)
     seq: int = 0
+    # Stable id used by the frontend to group one model call's trace rows.
+    call_id: str = ""
     # Live session dict the turn is writing to. Events are recorded into it
     # as they are emitted so a client that misses live frames (short turn,
     # late pump subscription, reconnect) can replay them from the store.
@@ -310,7 +312,12 @@ class AgentRuntime:
 
         capability = (command.get("capability") or "chat").strip() or "chat"
         turn_id = _new_id("turn")
-        handle = TurnHandle(turn_id=turn_id, session_id=session["id"], session_ref=session)
+        handle = TurnHandle(
+            turn_id=turn_id,
+            session_id=session["id"],
+            session_ref=session,
+            call_id=f"call_{uuid.uuid4().hex[:12]}",
+        )
         self._turns[turn_id] = handle
 
         # Persist the user row up front so a crash never loses the prompt.
@@ -374,7 +381,7 @@ class AgentRuntime:
         runtime = self._vtx_runtimes.get(cache_key)
         if runtime is None:
             try:
-                # Mirror coding_agent/acp.py _ensure_agent: agent registry,
+                # Mirror the vtx coding agent's _ensure_agent: agent registry,
                 # plugin extensions, then ConversationRuntime + prepare_for_run.
                 import os as _os
                 from vtx.agent.agents import AgentRegistry, load_all_agents
@@ -435,6 +442,15 @@ class AgentRuntime:
                     runtime.initialize, resume_session=resume_id)
                 if getattr(init, "provider_error", None):
                     raise RuntimeError(str(init.provider_error))
+                # Bind the vtx-native session to this DeepTutor record. Without
+                # this, /api/sessions merges the unbound JSONL as a second
+                # conversation with the same title, and clicking it creates a
+                # third record via _resolve_vtx_session.
+                vtx_session = getattr(runtime, "session", None)
+                session_file = getattr(vtx_session, "_session_file", None)
+                if session_file is not None and not session.get("vtx_session_file"):
+                    session["vtx_session_file"] = str(session_file)
+                    self._store.save(session)
                 agent = await asyncio.to_thread(runtime.prepare_for_run)
                 if agent is None:
                     raise RuntimeError("agent initialization failed")
@@ -515,9 +531,21 @@ class AgentRuntime:
                     continue
                 if isinstance(event, ThinkingDeltaEvent):
                     if event.delta:
+                        # The frontend groups trace rows by metadata.call_id.
+                        # Without it, reasoning deltas are dropped by
+                        # groupTraceEvents() and never render at all. A single
+                        # id per turn groups one model call's reasoning into
+                        # one expandable row, and llm_reasoning keeps the
+                        # activity header open while it is streaming.
                         await self._emit(handle, self._stream_event(
                             handle, "thinking", content=event.delta,
-                            source=capability, stage="responding"))
+                            source=capability, stage="responding",
+                            metadata={
+                                "call_id": handle.call_id,
+                                "call_kind": "llm_reasoning",
+                                "trace_kind": "llm_reasoning",
+                                "call_role": "assistant",
+                            }))
                 elif isinstance(event, TextDeltaEvent):
                     if event.delta:
                         assistant_parts.append(event.delta)

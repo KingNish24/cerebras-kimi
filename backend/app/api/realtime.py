@@ -1,14 +1,16 @@
-"""REST + SSE transport for the turn and legacy-channel protocols.
+"""REST + SSE transport for turns and legacy feature channels.
 
-The old ``/ws`` and ``/ws/{channel}`` WebSockets are gone. Each client owns a
-small in-process session: commands arrive over ``POST /api/realtime/commands``
-and the backend's outbound JSON-RPC notifications are delivered as named SSE
-events on ``GET /api/realtime/events``.
+There is no ACP / JSON-RPC layer: command bodies are the frontend's native
+protocol objects, and outbound frames are the raw event objects the frontend's
+`parseTurnEvent` expects. The two endpoints are:
 
-The wire payloads are deliberately identical to what the WebSocket transport
-emitted (``turn.event`` is unwrapped to its params, ``session/update`` is
-mapped to ``{"type": "session_update", ...}``, ``legacy.event`` is unwrapped to
-its inner payload), so the frontend's event parsers do not change.
+* ``POST /api/realtime/commands`` — one turn command, or a legacy channel
+  message when ``?channel=<name>`` is present.
+* ``GET /api/realtime/events?client_id=<id>`` — ``text/event-stream`` carrying
+  the client's outbound frames as named SSE events.
+
+Each client gets its own controller and event queue, so events are scoped to
+the client that issued the command.
 """
 
 from __future__ import annotations
@@ -22,8 +24,6 @@ from typing import Any, AsyncIterator
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
-from ..acp import AcpAgent
-
 router = APIRouter(prefix="/api/realtime")
 
 HEARTBEAT_SECONDS = 15
@@ -32,47 +32,81 @@ SWEEP_SECONDS = 60
 MAX_QUEUE = 2000
 
 
-# -- outbound translation --------------------------------------------------
+# -- outbound protocol helpers ---------------------------------------------
 
 
-def _to_sse(msg: dict[str, Any]) -> str | None:
-    """One outbound JSON-RPC message -> one SSE frame (or None to skip)."""
-    method = msg.get("method")
-    if method == "turn.event":
-        payload = msg.get("params") or {}
-        event = "turn_event"
-        event_id = None
-        if isinstance(payload, dict):
-            seq = payload.get("seq")
-            if isinstance(seq, int):
-                event_id = f"{payload.get('turn_id', '')}:{seq}"
-    elif method == "session/update":
-        params = msg.get("params") or {}
-        payload = {
-            "type": "session_update",
-            "session_id": params.get("sessionId"),
-            "update": params.get("update"),
+def _command_ack(command: dict[str, Any], turn_id: str, accepted: bool,
+                 error_code: str | None = None, message: str | None = None) -> dict[str, Any]:
+    event: dict[str, Any] = {
+        "type": "command_ack",
+        "protocol_version": "2.0",
+        "command_id": str(command.get("command_id") or ""),
+        "command_type": str(command.get("type") or ""),
+        "accepted": accepted,
+        "turn_id": turn_id,
+    }
+    if error_code:
+        event["error_code"] = error_code
+    if message:
+        event["message"] = message
+    return event
+
+
+def _event_to_update(event: dict[str, Any]) -> dict[str, Any] | None:
+    """Turn event -> the `session_update` mirror frame used by the UI."""
+    etype = event.get("type")
+    if etype == "content":
+        return {
+            "sessionUpdate": "agent_message_chunk",
+            "content": {"type": "text", "text": str(event.get("content") or "")},
         }
+    if etype == "thinking":
+        return {
+            "sessionUpdate": "agent_thought_chunk",
+            "content": {"type": "text", "text": str(event.get("content") or "")},
+        }
+    if etype == "tool_call":
+        meta = event.get("metadata") or {}
+        return {
+            "sessionUpdate": "tool_call",
+            "toolCallId": str(meta.get("tool_call_id") or event.get("turn_id") or ""),
+            "title": str(meta.get("tool_name") or "tool"),
+            "kind": "other",
+            "status": "pending",
+            "rawInput": meta.get("arguments"),
+        }
+    if etype == "tool_result":
+        meta = event.get("metadata") or {}
+        return {
+            "sessionUpdate": "tool_call_update",
+            "toolCallId": str(meta.get("tool_call_id") or ""),
+            "status": "failed" if meta.get("is_error") else "completed",
+            "rawOutput": {"output": str(event.get("content") or "")[:4000]},
+        }
+    if etype == "result":
+        usage = (event.get("metadata") or {}).get("usage") or {}
+        if usage:
+            return {
+                "sessionUpdate": "usage_update",
+                "used": usage.get("total_tokens") or usage.get("input_tokens"),
+                "size": usage.get("context_window"),
+            }
+    return None
+
+
+def _to_sse(frame: dict[str, Any]) -> str:
+    """One outbound protocol frame -> one SSE frame."""
+    payload = frame
+    event = "turn_event"
+    event_id = None
+    if frame.get("type") == "session_update":
         event = "session_update"
-        event_id = None
-    elif method == "legacy.event":
-        params = msg.get("params") or {}
-        raw = params.get("data")
-        try:
-            payload = json.loads(raw) if isinstance(raw, str) else raw
-        except Exception:  # noqa: BLE001
-            payload = raw
-        if not isinstance(payload, dict):
-            payload = {"data": payload}
+    elif frame.get("type") == "legacy_event":
         event = "legacy_event"
-        event_id = None
-    elif method is not None:
-        payload = msg
-        event = "message"
-        event_id = None
     else:
-        # Plain JSON-RPC response: returned by the POST instead of the stream.
-        return None
+        seq = frame.get("seq")
+        if isinstance(seq, int):
+            event_id = f"{frame.get('turn_id', '')}:{seq}"
 
     lines = [f"event: {event}"]
     if event_id:
@@ -88,38 +122,22 @@ def _frame(event: str, payload: dict[str, Any]) -> str:
     )
 
 
-# -- per-client session -----------------------------------------------------
+# -- per-client controller ---------------------------------------------------
 
 
 class _ClientSession:
-    """One browser client: an AcpAgent plus its outbound event queue."""
+    """One browser client: command dispatcher plus its outbound event queue."""
 
     def __init__(self, hub: "RealtimeHub", client_id: str) -> None:
         self.id = client_id
+        self.hub = hub
         self.queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=MAX_QUEUE)
-        self.responses: dict[str, asyncio.Queue] = {}
         self.last_seen = time.monotonic()
-        self.agent = AcpAgent(
-            store=hub.store,
-            runtime=hub.runtime,
-            app=hub.app_state,
-            send=self.send,
-        )
+        self._tasks: set[asyncio.Task] = set()
 
-    async def send(self, msg: dict[str, Any]) -> None:
-        """AcpAgent send callback: capture responses, stream notifications."""
-        msg_id = msg.get("id")
-        if "method" not in msg:
-            if msg_id is not None:
-                waiter = self.responses.get(str(msg_id))
-                if waiter is not None:
-                    try:
-                        waiter.put_nowait(msg)
-                    except asyncio.QueueFull:
-                        pass
-            return
+    async def emit(self, frame: dict[str, Any]) -> None:
         try:
-            self.queue.put_nowait(msg)
+            self.queue.put_nowait(frame)
         except asyncio.QueueFull:
             # Never wedge a turn on a slow/stale SSE reader: drop the oldest
             # frame. The client's seq-based replay closes any resulting gap.
@@ -128,58 +146,217 @@ class _ClientSession:
             except asyncio.QueueEmpty:
                 pass
             try:
-                self.queue.put_nowait(msg)
+                self.queue.put_nowait(frame)
             except asyncio.QueueFull:
                 pass
 
-    async def submit(self, message: Any) -> dict[str, Any]:
-        """Handle one inbound command; await a JSON-RPC response when it has an id."""
-        if isinstance(message, str):
-            try:
-                message = json.loads(message)
-            except Exception:  # noqa: BLE001
-                raise HTTPException(status_code=400, detail="Invalid JSON")
+    async def ack(self, command: dict[str, Any], turn_id: str, accepted: bool,
+                  error_code: str | None = None, message: str | None = None) -> None:
+        await self.emit(_command_ack(command, turn_id, accepted, error_code, message))
 
-        waiter: asyncio.Queue | None = None
-        internal_id: str | None = None
-        if (
-            isinstance(message, dict)
-            and message.get("jsonrpc") == "2.0"
-            and message.get("id") is not None
-        ):
-            internal_id = uuid.uuid4().hex
-            message = dict(message)
-            message["id"] = internal_id
-            waiter = asyncio.Queue(maxsize=1)
-            self.responses[internal_id] = waiter
+    def _spawn(self, coro) -> None:
+        task = asyncio.create_task(coro)
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
 
+    # -- command dispatch ----------------------------------------------------
+
+    async def handle(self, command: dict[str, Any], channel: str = "") -> dict[str, bool]:
+        if channel:
+            return await self._handle_channel(channel, command)
+
+        ctype = command.get("type")
+        if ctype in ("start_turn", "message"):
+            await self._start_turn(command)
+        elif ctype == "cancel_turn":
+            await self._cancel_turn(command)
+        elif ctype == "regenerate":
+            await self._regenerate(command)
+        elif ctype in ("subscribe_turn", "resume_from"):
+            await self._subscribe_turn(command)
+        elif ctype == "subscribe_session":
+            await self._subscribe_session(command)
+        elif ctype == "unsubscribe":
+            await self.ack(command, "", True)
+        elif ctype == "check_active_turn":
+            await self._check_active(command)
+            await self.ack(command, "", True)
+        elif ctype == "ping":
+            await self.emit({"type": "pong", "protocol_version": "2.0"})
+        elif ctype in ("submit_user_reply", "user_input"):
+            await self._submit_reply(command)
+        return {"accepted": True}
+
+    async def _start_turn(self, command: dict[str, Any]) -> None:
+        handle, session_event, error = await self.hub.runtime.start_turn(command)
+        if error or handle is None:
+            await self.ack(command, "", False, "start_turn_rejected",
+                           error or "failed to start turn")
+            return
+        if session_event is not None:
+            await self.hub.runtime._emit(handle, session_event)
+            await self.emit(session_event)
+        await self.ack(command, handle.turn_id, True)
+        self._spawn(self._pump_raw(handle))
+
+    async def _cancel_turn(self, command: dict[str, Any]) -> None:
+        turn_id = str(command.get("turn_id") or "")
+        handle = self.hub.runtime.get_turn(turn_id)
+        accepted = handle is not None and handle.status == "running"
+        if accepted:
+            handle.cancel.set()
+        await self.ack(command, turn_id, accepted,
+                       None if accepted else "turn_not_running",
+                       None if accepted else "No running turn with that id.")
+
+    async def _regenerate(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        session = self.hub.store.get(session_id)
+        if session is None:
+            await self.emit({"type": "protocol_error", "protocol_version": "2.0",
+                             "error_code": "session_not_found", "message": "session not found",
+                             "retryable": False})
+            return
+        last_input = session.get("last_input")
+        if not last_input:
+            await self.emit({"type": "protocol_error", "protocol_version": "2.0",
+                             "error_code": "nothing_to_regenerate", "message": "nothing to regenerate",
+                             "retryable": False})
+            return
+        vtx_items = session.get("vtx_items", [])
+        while vtx_items and vtx_items[-1].get("role") != "user":
+            vtx_items.pop()
+        if vtx_items:
+            vtx_items.pop()
+        self.hub.store.save(session)
+        await self._start_turn({
+            "type": "start_turn",
+            "protocol_version": "2.0",
+            "content": last_input,
+            "session_id": session_id,
+            "regenerate": True,
+        })
+        await self.ack(command, session_id, True)
+
+    async def _subscribe_turn(self, command: dict[str, Any]) -> None:
+        turn_id = str(command.get("turn_id") or "")
+        after_seq = int(command.get("after_seq") or 0)
+        if not turn_id:
+            await self.emit({"type": "protocol_error", "protocol_version": "2.0",
+                             "error_code": "invalid_params", "message": "turn_id required",
+                             "retryable": False})
+            return
+        for event in self.hub.runtime.turn_events_after(turn_id, after_seq):
+            await self.emit(event)
+        handle = self.hub.runtime.get_turn(turn_id)
+        if handle is not None and handle.status == "running":
+            self._spawn(self._follow_turn(handle))
+        await self.ack(command, turn_id, True)
+
+    async def _subscribe_session(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        after_seq = int(command.get("after_seq") or 0)
+        if not session_id:
+            await self.emit({"type": "protocol_error", "protocol_version": "2.0",
+                             "error_code": "invalid_params", "message": "session_id required",
+                             "retryable": False})
+            return
+        handle = self.hub.runtime.active_turn_for_session(session_id)
+        if handle is None:
+            await self.emit({"type": "active_turn_info", "protocol_version": "2.0",
+                             "status": "none"})
+            await self.ack(command, "", True)
+            return
+        for event in self.hub.runtime.turn_events_after(handle.turn_id, after_seq):
+            await self.emit(event)
+        self._spawn(self._follow_turn(handle))
+        await self.ack(command, handle.turn_id, True)
+
+    async def _check_active(self, command: dict[str, Any]) -> None:
+        session_id = str(command.get("session_id") or "")
+        handle = self.hub.runtime.active_turn_for_session(session_id)
+        if handle is None:
+            await self.emit({"type": "active_turn_info", "protocol_version": "2.0",
+                             "status": "none"})
+        else:
+            await self.emit({"type": "active_turn_info", "protocol_version": "2.0",
+                             "turn_id": handle.turn_id, "status": "running"})
+
+    async def _submit_reply(self, command: dict[str, Any]) -> None:
+        turn_id = str(command.get("turn_id") or "")
+        answers = [a for a in (command.get("answers") or []) if isinstance(a, dict)]
+        text = str(command.get("text") or "")
+        accepted = await self.hub.runtime.resolve_ask_user(turn_id, text, answers)
+        await self.ack(command, turn_id, accepted,
+                       None if accepted else "no_pending_question",
+                       None if accepted else "No question is waiting on this turn.")
+
+    # -- event pumps ---------------------------------------------------------
+
+    async def _pump_raw(self, handle: Any) -> None:
+        """Forward a turn's events (plus session/update mirrors) until done."""
+        queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
+        handle.subscribers.add(queue)
         try:
-            await self.agent.handle(message)
+            # A fast (often cached) turn can emit its whole sequence before
+            # this coroutine subscribes. Replay what already happened; the
+            # client de-dupes by seq, so overlap with live frames is harmless.
+            for event in list(handle.events):
+                await self.emit(event)
+            while True:
+                event = await queue.get()
+                await self.emit(event)
+                upd = _event_to_update(event)
+                if upd is not None:
+                    await self.emit({
+                        "type": "session_update",
+                        "session_id": handle.session_id,
+                        "update": upd,
+                    })
+                if event.get("type") == "done":
+                    return
         finally:
-            if internal_id is not None:
-                self.responses.pop(internal_id, None)
+            handle.subscribers.discard(queue)
 
-        if waiter is None:
-            # Native turn commands and legacy channel messages are fire-and-
-            # forget; their replies arrive as SSE notifications.
-            return {"accepted": True}
+    async def _follow_turn(self, handle: Any) -> None:
+        """Forward a running turn's raw events to a late subscriber."""
+        queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
+        handle.subscribers.add(queue)
         try:
-            response = await asyncio.wait_for(waiter.get(), timeout=120)
-        except asyncio.TimeoutError:
-            return {"accepted": True}
-        if "error" in response:
-            raise HTTPException(status_code=400, detail=response["error"])
-        result = response.get("result")
-        return result if isinstance(result, dict) else {"result": result}
+            while True:
+                event = await queue.get()
+                await self.emit(event)
+                if event.get("type") == "done":
+                    return
+        finally:
+            handle.subscribers.discard(queue)
+
+    # -- legacy feature channels ---------------------------------------------
+
+    async def _handle_channel(self, channel: str, message: dict[str, Any]) -> dict[str, bool]:
+        if "judge" in channel:
+            await self.emit({"type": "error",
+                             "content": "AI judge is not available in this build."})
+        elif "books" in channel:
+            await self.emit({"type": "ack", "status": "ok"})
+        elif "mastery" in channel or "progress" in channel:
+            await self.emit({"type": "subscribed", "revision": 0})
+        else:
+            await self.emit({"type": "ack"})
+        return {"accepted": True}
+
+    async def close(self) -> None:
+        for task in self._tasks:
+            task.cancel()
+        self._tasks.clear()
 
 
 class RealtimeHub:
     """Registry of live client sessions, shared by the REST routes."""
 
-    def __init__(self, store: Any, runtime: Any, app_state: Any) -> None:
+    def __init__(self, store: Any, runtime: Any) -> None:
         self.store = store
         self.runtime = runtime
-        self.app_state = app_state
         self._clients: dict[str, _ClientSession] = {}
         self._lock = asyncio.Lock()
         self._sweeper: asyncio.Task | None = None
@@ -208,7 +385,7 @@ class RealtimeHub:
         async with self._lock:
             client = self._clients.pop(client_id, None)
         if client is not None:
-            await client.agent.close()
+            await client.close()
 
     async def _sweep(self) -> None:
         while True:
@@ -227,7 +404,7 @@ class RealtimeHub:
 
 
 @router.post("/commands")
-async def submit_command(request: Request) -> dict[str, Any]:
+async def submit_command(request: Request) -> dict[str, bool]:
     """Accept one turn command or legacy channel message over HTTP."""
     client_id = request.query_params.get("client_id") or uuid.uuid4().hex
     channel = request.query_params.get("channel") or ""
@@ -235,21 +412,16 @@ async def submit_command(request: Request) -> dict[str, Any]:
         body = await request.json()
     except Exception:  # noqa: BLE001
         raise HTTPException(status_code=400, detail="Invalid JSON body")
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Command must be a JSON object")
 
     client = await client_for(request).get(client_id)
-    if channel:
-        body = {
-            "jsonrpc": "2.0",
-            "id": None,
-            "method": "legacy.send",
-            "params": {"channel": channel, "message": body},
-        }
-    return await client.submit(body)
+    return await client.handle(body, channel)
 
 
 @router.get("/events")
 async def stream_events(request: Request) -> StreamingResponse:
-    """Deliver the client's outbound messages as a named-event SSE stream."""
+    """Deliver the client's outbound frames as a named-event SSE stream."""
     client_id = request.query_params.get("client_id") or uuid.uuid4().hex
     client = await client_for(request).get(client_id)
 
@@ -261,7 +433,7 @@ async def stream_events(request: Request) -> StreamingResponse:
                 if await request.is_disconnected():
                     break
                 try:
-                    msg = await asyncio.wait_for(client.queue.get(), timeout=1.0)
+                    frame = await asyncio.wait_for(client.queue.get(), timeout=1.0)
                 except asyncio.TimeoutError:
                     now = time.monotonic()
                     if now - last_beat >= HEARTBEAT_SECONDS:
@@ -269,9 +441,7 @@ async def stream_events(request: Request) -> StreamingResponse:
                         last_beat = now
                     continue
                 client.last_seen = time.monotonic()
-                frame = _to_sse(msg)
-                if frame is not None:
-                    yield frame
+                yield _to_sse(frame)
         finally:
             # Keep the client registered: EventSource reconnects with the same
             # id, and an idle sweep reclaims clients that never come back.

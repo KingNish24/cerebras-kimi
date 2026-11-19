@@ -1,20 +1,17 @@
-"""FastAPI app — REST API + SSE transport (no WebSockets).
+"""FastAPI app — REST API + SSE transport (no WebSockets, no ACP).
 
-REST: the handler registry in ``app/api/handlers.py`` mounted at /api/*.
-SSE: ``/api/realtime/events`` delivers turn/channel notifications and
-``/api/realtime/commands`` accepts turn commands and legacy channel messages.
-Both bridge into the same ``AcpAgent`` engine that used to sit behind stdio ACP.
+REST handlers are mounted at /api/*. Turn commands and legacy feature-channel
+messages are handled by the plain REST controller in ``app/api/realtime.py``,
+which streams frames to the browser over ``GET /api/realtime/events``.
 """
 
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from types import SimpleNamespace
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .acp import AcpAgent  # noqa: F401 — kept importable for tooling/contracts
 from .agent.runtime import AgentRuntime
 from .api.handlers import router
 from .api.realtime import RealtimeHub, router as realtime_router
@@ -52,9 +49,7 @@ app.state.settings = settings
 app.state.store = store
 app.state.runtime = runtime
 app.state.kb = kb
-app.state.realtime = RealtimeHub(
-    store=store, runtime=runtime, app_state=SimpleNamespace(state=app.state)
-)
+app.state.realtime = RealtimeHub(store=store, runtime=runtime)
 app.include_router(router)
 app.include_router(realtime_router)
 

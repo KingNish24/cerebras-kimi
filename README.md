@@ -5,13 +5,13 @@ An agent-native AI learning companion — Next.js frontend + Python backend powe
 ## Architecture
 
 ```
-Browser ──POST /api/realtime/commands──▶ FastAPI (127.0.0.1:8001) ──▶ AcpAgent ──▶ AgentRuntime / vtx ConversationRuntime
+Browser ──POST /api/realtime/commands──▶ FastAPI (127.0.0.1:8001) ──▶ REST controller ──▶ AgentRuntime / vtx ConversationRuntime
 Browser ◀──SSE /api/realtime/events───── FastAPI event queues ◀────────┘
 
 Browser ──GET/POST /api/*──────────────▶ FastAPI handler registry (sessions, settings, KBs, notebooks, mastery, partners, …)
 ```
 
-- **`backend/`** — FastAPI/Uvicorn app (`app/main.py`). REST handlers live in `app/api/handlers.py`; the turn/channel transport lives in `app/api/realtime.py`. Both bridge into the transport-agnostic `AcpAgent` core in `app/acp.py`, which drives the vtx agent loop in `app/agent/runtime.py`.
+- **`backend/`** — FastAPI/Uvicorn app (`app/main.py`). REST handlers live in `app/api/handlers.py`; turn commands and feature-channel messages are dispatched directly by the REST+SSE controller in `app/api/realtime.py`, which drives the vtx agent loop in `app/agent/runtime.py`. There is no ACP or JSON-RPC layer.
 - **`web/`** — Next.js app. `features/chat/transport/` holds the SSE-backed `TurnSocket` and the turn protocol client; `lib/sse-socket.ts` is the shared REST+SSE shim used by the turn protocol, `lib/rpc-ws.ts`, and `lib/reconnecting-websocket.ts` for legacy feature channels. Commands are POSTed; frames arrive as named SSE events and are re-emitted with the same JSON payloads the old transport produced.
 - **Sessions are real vtx sessions** — conversations persist as JSONL under `~/.vtx/sessions/<cwd>/` via vtx's own `Session`/`JSONLSession`, shared with the vtx CLI/TUI (`session/list`, `session/load`, `session/new`, `session/prompt`, `session/cancel`, `session/set_model`…).
 
@@ -29,8 +29,7 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | Path | Purpose |
 |---|---|
 | `main.py` | FastAPI app: middleware, state, REST router, SSE realtime router, `/health`, Uvicorn entry point |
-| `acp.py` | Transport-agnostic agent core — session lifecycle, turn pump, event mapping, JSON-RPC dispatch |
-| `api/realtime.py` | REST + SSE transport: per-client agents, command POST, named-event stream, event translation, idle cleanup |
+| `api/realtime.py` | REST + SSE controller: per-client command dispatch (turns and feature channels), named-event stream, idle cleanup |
 | `api/handlers.py` | REST handler registry mounted at `/api/*` |
 | `agent/runtime.py` | `AgentRuntime` — builds vtx `ConversationRuntime`, owns turns/subscribers and event replay |
 | `agent/tools.py` | Tool registry — `builtin_tools()` with toggleable/locked-on gating |
