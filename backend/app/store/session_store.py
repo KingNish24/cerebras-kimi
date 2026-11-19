@@ -203,7 +203,12 @@ class SessionStore:
     # -- internals ----------------------------------------------------------
 
     def _write(self, session: dict[str, Any]) -> None:
+        # The data directory can be removed while the server is running (a
+        # reset, a container remount, a user cleanup). Never assume it is
+        # still there — recreate it before every write so a single missing
+        # directory cannot break every turn.
         path = self._path(session["id"])
+        path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(session, ensure_ascii=False), encoding="utf-8")
         tmp.replace(path)

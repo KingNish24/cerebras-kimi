@@ -573,6 +573,14 @@ class AgentRuntime:
                                   "is_error": bool(getattr(out, "is_error", False))}))
                 elif isinstance(event, ErrorEvent):
                     status = "error"
+                    # Surface the provider/agent failure to the UI. Without an
+                    # explicit frame the turn just ends with status=error and
+                    # the user sees an empty reply with no explanation.
+                    await self._emit(handle, self._stream_event(
+                        handle, "error",
+                        content=str(getattr(event, "error", "") or "Agent failed."),
+                        source=capability, stage="responding",
+                        metadata={"turn_terminal": True}))
                 elif isinstance(event, AgentEndEvent):
                     pass
         except asyncio.CancelledError:
