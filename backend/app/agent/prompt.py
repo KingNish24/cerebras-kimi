@@ -58,7 +58,6 @@ def build_deeptutor_prompt(
     """
     from vtx.agent.context import Context
     from vtx.agent.prompts.builder import build_system_prompt
-
     clean_context = Context(cwd=runtime.cwd)
     return build_system_prompt(
         runtime.cwd,

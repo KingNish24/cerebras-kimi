@@ -269,6 +269,54 @@ class AgentRuntime:
             "metadata": metadata or {},
         }
 
+    @staticmethod
+    def _context_budget(runtime: Any, session: dict[str, Any], usage: Any) -> dict[str, Any]:
+        """Build the context-budget payload for the composer's context bar."""
+        def tokens(value: Any) -> int:
+            if isinstance(value, list):
+                value = "".join(
+                    str(b.get("text") or "") if isinstance(b, dict) else str(b)
+                    for b in value
+                )
+            return max(0, len(str(value or "")) // 4)
+
+        segments: list[dict[str, Any]] = []
+        segments.append({
+            "key": "messages",
+            "tokens": sum(tokens(m.get("content")) for m in session.get("messages") or []),
+        })
+        prompt = str(getattr(getattr(runtime, "agent", None), "_system_prompt", "") or "")
+        segments.append({"key": "system_prompt", "tokens": tokens(prompt)})
+        segments.append({
+            "key": "system_tools",
+            "tokens": 120 * len(getattr(runtime, "tools", None) or []),
+        })
+        estimated_used = sum(seg["tokens"] for seg in segments)
+
+        window = 0
+        try:
+            from vtx.ai.provider_catalog import get_model
+
+            info = get_model(getattr(runtime, "model", ""), getattr(runtime, "model_provider", ""))
+            window = int(getattr(info, "context_window", 0) or 0)
+        except Exception:  # noqa: BLE001
+            pass
+        window_estimated = window <= 0
+        if window_estimated:
+            window = 200_000
+
+        input_tokens = int(getattr(usage, "input_tokens", 0) or 0) if usage is not None else 0
+        used = input_tokens if input_tokens > 0 else estimated_used
+        return {
+            "window": window,
+            "window_estimated": window_estimated,
+            "used_tokens": used,
+            "free_tokens": max(0, window - used),
+            "model": f"{getattr(runtime, 'model_provider', '')}/{getattr(runtime, 'model', '')}".strip("/"),
+            "counter": "provider_usage" if input_tokens > 0 else "heuristic",
+            "segments": segments,
+        }
+
     async def _emit(self, turn: TurnHandle, event: dict[str, Any]) -> None:
         turn.events.append(event)
         # Mirror into the session record so turn_events_after() can replay the
@@ -475,12 +523,12 @@ class AgentRuntime:
                 return True
         else:
             runtime, agent = self._vtx_runtimes[cache_key]
-
         await self._emit(handle, self._stream_event(
             handle, "stage_start", source=capability, stage="responding"))
 
         status = "completed"
         assistant_parts: list[str] = []
+        usage: Any = None
         try:
             async for event in agent.run(
                 prompt,
@@ -582,7 +630,7 @@ class AgentRuntime:
                         source=capability, stage="responding",
                         metadata={"turn_terminal": True}))
                 elif isinstance(event, AgentEndEvent):
-                    pass
+                    usage = getattr(event, "total_usage", None)
         except asyncio.CancelledError:
             status = "cancelled"
         except Exception as exc:  # noqa: BLE001
@@ -590,7 +638,13 @@ class AgentRuntime:
             await self._emit(handle, self._stream_event(
                 handle, "error", content=str(exc), source=capability,
                 stage="responding"))
-
+        # Emit the context-window readout the composer's context bar consumes.
+        # The UI reads metadata.metadata.context_budget from a `result` event;
+        # without it the bar never renders, even though vtx measures usage.
+        await self._emit(handle, self._stream_event(
+            handle, "result", source=capability, stage="responding",
+            metadata={"metadata": {"context_budget": self._context_budget(
+                runtime, session, usage)}}))
         assistant_text = "".join(assistant_parts).strip()
         assistant_message: dict[str, Any] | None = None
         if assistant_text:
