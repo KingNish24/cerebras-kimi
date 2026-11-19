@@ -83,6 +83,43 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(resolved["thinking_level"], "high")
         self.assertEqual(resolved["source"], "profile:my-profile")
 
+    def test_synced_profile_models_show_real_names_and_resolve_credentials(self) -> None:
+        """Settings-created model ids are opaque; show the real model and use
+        the connection linked from the model's provider_ref."""
+        settings = make_settings()
+        catalog = pc.load_catalog(settings)
+        catalog["connections"].append({
+            "id": "c1", "name": "Kilo Gateway", "provider": "kilo",
+            "api_key": "sk-kilo", "base_url": "https://api.kilo.ai/api/gateway",
+            "api_version": "",
+        })
+        catalog["services"]["llm"]["profiles"].append({
+            "id": "llm-profile-1", "name": "Kilo Gateway", "binding": "kilo",
+            "base_url": "", "api_key": "",
+            "models": [{
+                "id": "llm-model-1", "name": "kilo-auto/free", "model": "kilo-auto/free",
+                "provider_ref": {"connection_id": "c1", "binding": "kilo"},
+            }],
+        })
+        pc.save_catalog(settings, catalog)
+
+        option = next(
+            o for o in pc.model_options(settings)
+            if o["profile_id"] == "llm-profile-1"
+        )
+        self.assertEqual(option["model"], "kilo-auto/free")
+        self.assertEqual(option["model_name"], "kilo-auto/free")
+        self.assertEqual(option["provider"], "kilo")
+        self.assertEqual(option["provider_label"], "Kilo Gateway")
+
+        resolved = pc.resolve_runtime_model(settings, {"llm_selection": {
+            "profile_id": "llm-profile-1", "model_id": "llm-model-1",
+        }})
+        self.assertEqual(resolved["provider"], "kilo")
+        self.assertEqual(resolved["model"], "kilo-auto/free")
+        self.assertEqual(resolved["base_url"], "https://api.kilo.ai/api/gateway")
+        self.assertEqual(resolved["api_key"], "sk-kilo")
+
     def test_preset_fallback_uses_env_key(self) -> None:
         settings = make_settings()
         pc.set_selection(settings, {"profile_id": "anthropic", "model_id": "claude-3-7-sonnet-20250219"})

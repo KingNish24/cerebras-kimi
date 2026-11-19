@@ -293,12 +293,16 @@ def resolve_runtime_model(
     thinking = str((selection or {}).get("reasoning_effort") or "").strip() or None
 
     if profile_id and (profile := _find_profile(catalog, profile_id)):
-        conn = _find_connection(catalog, profile.get("connection_id"))
         model_entry: dict[str, Any] = {}
         for m in profile.get("models") or []:
             if str(m.get("id")) == model_id:
                 model_entry = m
                 break
+        # Connections can be linked at the profile level or from the model's
+        # provider_ref (the settings UI uses the latter for synced models).
+        conn = _find_connection(catalog, profile.get("connection_id")) or _find_connection(
+            catalog, (model_entry.get("provider_ref") or {}).get("connection_id")
+        )
         provider_raw = str(
             profile.get("binding") or profile.get("provider")
             or (conn or {}).get("provider") or "openai"
@@ -356,6 +360,8 @@ def _option(
     profile_name: str,
     provider_label: str,
     model_name: str | None = None,
+    model: str | None = None,
+    provider: str | None = None,
     supports_vision: bool = False,
     supports_thinking: bool = False,
     context_window: Any = None,
@@ -368,9 +374,9 @@ def _option(
         "profile_id": profile_id,
         "model_id": model_id,
         "profile_name": profile_name,
-        "model_name": model_name or model_id,
-        "model": model_id,
-        "provider": profile_id,
+        "model_name": model_name or model or model_id,
+        "model": model or model_id,
+        "provider": provider or profile_id,
         "provider_label": provider_label,
         "supports_vision": bool(supports_vision),
         "supports_thinking": bool(supports_thinking),
@@ -409,9 +415,18 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
         if not pid:
             continue
         conn = _find_connection(catalog, profile.get("connection_id"))
-        preset = builtin_preset(
-            str(profile.get("binding") or (conn or {}).get("provider") or "")
+        if conn is None:
+            for m in profile.get("models") or []:
+                conn = _find_connection(
+                    catalog, (m.get("provider_ref") or {}).get("connection_id")
+                )
+                if conn is not None:
+                    break
+        provider_slug = str(
+            profile.get("binding") or profile.get("provider")
+            or (conn or {}).get("provider") or ""
         )
+        preset = builtin_preset(provider_slug)
         label = str(
             profile.get("display_name") or profile.get("name")
             or (preset or {}).get("label") or pid
@@ -428,11 +443,14 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
             if not isinstance(caps, dict):
                 caps = {}
             efforts = m.get("supported_reasoning_efforts") or m.get("codex_supported_reasoning_levels")
+            wire_model = str(m.get("model") or m.get("name") or mid)
             options.append(_option(
                 pid, mid,
                 profile_name=label,
                 provider_label=label,
-                model_name=str(m.get("name") or mid),
+                model_name=str(m.get("name") or wire_model),
+                model=wire_model,
+                provider=provider_slug or pid,
                 supports_vision=bool(
                     caps.get("vision") or (preset or {}).get("supports_vision")
                 ),
