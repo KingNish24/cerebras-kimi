@@ -301,7 +301,7 @@ class AgentRuntime:
 
         window = 0
         try:
-            from vtx.ai.provider_catalog import get_model
+            from vtx.ai import get_model
 
             info = get_model(getattr(runtime, "model", ""), getattr(runtime, "model_provider", ""))
             window = int(getattr(info, "context_window", 0) or 0)

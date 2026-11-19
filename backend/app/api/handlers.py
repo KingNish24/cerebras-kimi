@@ -14,6 +14,12 @@ from pydantic import BaseModel
 
 from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 
+from pathlib import Path
+
+from ..agent.runtime import AgentRuntime
+from ..config import Settings
+from ..store.session_store import SessionStore
+
 router = APIRouter(prefix="/api")
 
 
@@ -823,9 +829,7 @@ async def kb_upload(request: Request, name: str, file: UploadFile) -> dict[str, 
 # -- boot-time stubs -----------------------------------------------------------
 
 
-def _settings_dir(request: Request) -> "Path":
-    from pathlib import Path
-
+def _settings_dir(request: Request) -> Path:
     d = request.app.state.settings.data_dir
     d.mkdir(parents=True, exist_ok=True)
     return d

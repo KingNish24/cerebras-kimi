@@ -17,7 +17,7 @@ import math
 import re
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 from ..config import Settings
 
@@ -44,7 +44,7 @@ def _extract_text(path: Path) -> str:
         try:
             import docx
 
-            d = docx.Document(path)
+            d = docx.Document(str(path))
             return "\n".join(p.text for p in d.paragraphs)
         except Exception:
             return ""
@@ -79,7 +79,7 @@ class KnowledgeBaseStore:
 
     # -- CRUD ---------------------------------------------------------------
 
-    def list(self) -> list[dict[str, Any]]:
+    def list(self) -> List[dict[str, Any]]:
         out = []
         for d in sorted(self._root.iterdir()):
             if not d.is_dir():
@@ -146,7 +146,7 @@ class KnowledgeBaseStore:
         self.reindex(name)
         return {"filename": safe_name, "size": len(data)}
 
-    def list_documents(self, name: str) -> list[dict[str, Any]]:
+    def list_documents(self, name: str) -> List[dict[str, Any]]:
         docs = self._kb_dir(name) / "docs"
         if not docs.exists():
             return []
@@ -191,7 +191,7 @@ class KnowledgeBaseStore:
         self._write_json(self._meta_path(name), meta)
         return len(chunks)
 
-    def search(self, name: str, query: str, top_k: int = 5) -> list[dict[str, Any]]:
+    def search(self, name: str, query: str, top_k: int = 5) -> List[dict[str, Any]]:
         index = self._read_json(self._index_path(name), {"chunks": []})
         chunks = index.get("chunks", [])
         if not chunks:

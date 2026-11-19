@@ -24,7 +24,9 @@ def _params_model(fn):
             fields[name] = (ann, ...)
         else:
             fields[name] = (ann, default)
-    return create_model(f"{fn.__name__}Params", **fields)
+    # Pydantic builds the model from a dynamic field dict; the overloads
+    # cannot express that shape.
+    return create_model(f"{fn.__name__}Params", **fields)  # ty: ignore[no-matching-overload]
 
 
 class FunctionTool(BaseTool):

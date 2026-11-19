@@ -123,6 +123,8 @@ async def _llm_text(prompt: str, cancel_event: Any = None) -> str:
         pair = (runtime, agent)
         _AGENTS[key] = pair
     _, agent = pair
+    if agent is None:
+        raise RuntimeError("Quiz agent is not available for this provider/model.")
     text = ""
     async for event in agent.run(prompt, cancel_event=cancel_event):
         if isinstance(event, TextDeltaEvent) and event.delta:

@@ -16,7 +16,7 @@ import json
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 from ..config import Settings
 
@@ -87,7 +87,7 @@ class SessionStore:
             return True
         return False
 
-    def all(self) -> list[dict[str, Any]]:
+    def all(self) -> List[dict[str, Any]]:
         """Every stored session, newest first.
 
         Callers that merge other sources (native vtx sessions) into the index
@@ -98,10 +98,10 @@ class SessionStore:
         sessions.sort(key=lambda s: s.get("updated_at", 0), reverse=True)
         return sessions
 
-    def list(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
+    def list(self, limit: int = 50, offset: int = 0) -> List[dict[str, Any]]:
         return self.all()[offset : offset + limit]
 
-    def search(self, query: str, limit: int = 50, offset: int = 0) -> tuple[list[dict[str, Any]], int]:
+    def search(self, query: str, limit: int = 50, offset: int = 0) -> tuple[List[dict[str, Any]], int]:
         q = query.strip().lower()
         if not q:
             return [], 0
@@ -134,7 +134,7 @@ class SessionStore:
         session: dict[str, Any],
         content: str,
         *,
-        attachments: list[dict[str, Any]] | None = None,
+        attachments: List[dict[str, Any]] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         message = {
@@ -160,7 +160,7 @@ class SessionStore:
         session: dict[str, Any],
         content: str,
         *,
-        events: list[dict[str, Any]],
+        events: List[dict[str, Any]],
         turn_id: str,
         capability: str | None = None,
         metadata: dict[str, Any] | None = None,

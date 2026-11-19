@@ -41,7 +41,9 @@ def _use_deeptutor_vtx_sessions() -> None:
         created._load_from_record()
         return created
 
-    Session.create = classmethod(create)
+    # Deliberate monkeypatch: our factory is intentionally broader than the
+    # SDK signature because it delegates to the original classmethod.
+    Session.create = classmethod(create)  # ty: ignore[invalid-assignment]
 
 
 _use_deeptutor_vtx_sessions()
@@ -53,7 +55,9 @@ def _use_deeptutor_prompt() -> None:
 
     from .agent.prompt import build_deeptutor_prompt
 
-    ConversationRuntime.resolve_system_prompt = build_deeptutor_prompt
+    # Deliberate monkeypatch: build_deeptutor_prompt takes the runtime as its
+    # first positional argument, so it is bound as an unbound method.
+    ConversationRuntime.resolve_system_prompt = build_deeptutor_prompt  # ty: ignore[invalid-assignment]
 
     # vtx rebuilds the agent's prompt directly (bypassing the resolver above)
     # whenever tools/MCP change. Patch that path too, or its coding-agent
@@ -62,7 +66,7 @@ def _use_deeptutor_prompt() -> None:
         if runtime.agent is not None:
             runtime.agent._system_prompt = build_deeptutor_prompt(runtime)
 
-    ConversationRuntime._rebuild_system_prompt = rebuild_deeptutor_prompt
+    ConversationRuntime._rebuild_system_prompt = rebuild_deeptutor_prompt  # ty: ignore[invalid-assignment]
 
 
 _use_deeptutor_prompt()
@@ -90,7 +94,7 @@ def _speed_up_model_lookup() -> None:
             limits = lower.get(model.lower())
         return limits if limits is not None else TokenLimits(context=0, output=0)
 
-    type(context_length_manager).get_limits = fast_get_limits
+    type(context_length_manager).get_limits = fast_get_limits  # ty: ignore[invalid-assignment]
 
     # get_fetched_models() still substring-matches every cached model against
     # every context-window key (~2M comparisons per lookup). Exact keys are
@@ -150,7 +154,7 @@ def _speed_up_model_lookup() -> None:
             )
         return models
 
-    fetcher.get_fetched_models = fast_get_fetched_models
+    fetcher.get_fetched_models = fast_get_fetched_models  # ty: ignore[invalid-assignment]
 
 
 _speed_up_model_lookup()
