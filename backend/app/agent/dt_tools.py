@@ -12,11 +12,12 @@ import asyncio
 import json
 import os
 import re
+import shutil
 import subprocess
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import httpx
 from .toolkit import tool
@@ -24,6 +25,58 @@ from .toolkit import tool
 from ..config import Settings
 
 _HEADERS = {"User-Agent": "DeepTutor/0.1 (+https://deeptutor.info)"}
+
+
+async def _run_text_subagent(instructions: str, prompt: str, label: str) -> str:
+    """Run a tool-less vtx sub-agent and return its final text."""
+    from vtx.agent.dispatcher import get_context
+    from vtx.agent.tools.task import SubagentSpec, resolve_subagent_runner
+
+    ctx = get_context()
+    if ctx is None:
+        return f"{label} unavailable: dispatcher context not initialized."
+    spec = SubagentSpec(
+        name=label.lower().replace(" ", "-"),
+        description=label,
+        instructions=instructions,
+        instructions_mode="replace",
+        tools_allow=["__none__"],
+        tools_deny=[],
+        max_turns=2,
+    )
+    try:
+        result = await resolve_subagent_runner()(
+            parent_ctx=ctx,
+            spec=spec,
+            prompt=prompt,
+            cancel_event=None,
+            model_override=None,
+            progress_callback=None,
+            tool_call_id=f"{label.lower().replace(' ', '_')}_{uuid.uuid4().hex[:12]}",
+            label=label,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return f"{label} error: {exc}"
+    return result.final_text or "(no output)"
+
+
+def _heuristic_grade(prompt: str) -> str:
+    """Offline fallback grader: token overlap between question and answer."""
+    try:
+        _, rest = prompt.split("Question: ", 1)
+        question, answer = rest.split("\nAnswer: ", 1)
+    except ValueError:
+        question, answer = "", ""
+    q_tokens = set(re.findall(r"[a-z0-9]+", question.lower()))
+    a_tokens = set(re.findall(r"[a-z0-9]+", answer.lower()))
+    overlap = len(q_tokens & a_tokens) / max(1, len(q_tokens))
+    correct = overlap >= 0.6
+    return json.dumps({
+        "correct": correct,
+        "score": int(round(overlap * 100)),
+        "feedback": "Answer overlaps the question's key terms." if correct
+                    else "Answer misses key terms from the question.",
+    })
 
 
 # paper_search — arXiv
@@ -47,13 +100,7 @@ async def paper_search(
         return "Empty query."
     max_results = max(1, min(int(max_results), 20))
     sort = "submittedDate" if sort_by == "date" else "relevance"
-    api = (
-        "https://export.arxiv.org/api/query?search_query="
-        + httpx.QueryParams({"search_query": f"all:{query}", "start": 0,
-                             "max_results": max_results, "sortBy": sort,
-                             "sortOrder": "descending"})
-    )
-    # httpx.QueryParams returns str-like; build manually to keep it simple
+    # Build the arXiv query with urlencode (QueryParams is not a str).
     from urllib.parse import urlencode
 
     api = "https://export.arxiv.org/api/query?" + urlencode(
@@ -80,7 +127,8 @@ async def paper_search(
                 if ln.get("title") == "pdf" or ln.get("rel") == "related":
                     link = ln.get("href", "")
                     break
-            link = link or (entry.find("a:id", ns).text if entry.find("a:id", ns) is not None else "")
+            id_node = entry.find("a:id", ns)
+            link = link or ((id_node.text or "") if id_node is not None else "")
             authors = [a.findtext("a:name", "", ns) for a in entry.findall("a:author", ns)]
             year = ""
             published = entry.findtext("a:published", "", ns) or ""
@@ -196,17 +244,12 @@ async def reason(question: str, context: str = "") -> str:
     :param context: Optional extra context to reason over.
     """
     prompt = question if not context else f"{question}\n\nContext:\n{context}"
-    agent = _subagent(
-        None,
+    return await _run_text_subagent(
         "You are a careful reasoning engine. Think step by step and give a "
-        "precise, well-structured answer. No tools, no preamble.",
+        "precise, well-structured answer. No preamble.",
+        prompt,
         "reasoner",
     )
-    try:
-        result = await Runner.run(agent, prompt, max_turns=5)
-        return str(result.final_output or "(no output)")
-    except Exception as exc:  # noqa: BLE001
-        return f"reason error: {exc}"
 
 
 @tool(mutating=False, tool_icon="💡")
@@ -219,17 +262,12 @@ async def brainstorm(topic: str, constraints: str = "") -> str:
     prompt = f"Brainstorm ideas about: {topic}"
     if constraints:
         prompt += f"\nConstraints: {constraints}"
-    agent = _subagent(
-        None,
+    return await _run_text_subagent(
         "You are a creative brainstorming partner. Generate a broad set of "
         "distinct ideas; for each give a one-line rationale. Organize by theme.",
+        prompt,
         "brainstormer",
     )
-    try:
-        result = await Runner.run(agent, prompt, max_turns=5)
-        return str(result.final_output or "(no output)")
-    except Exception as exc:  # noqa: BLE001
-        return f"brainstorm error: {exc}"
 
 
 # ---------------------------------------------------------------------------
@@ -485,8 +523,8 @@ def learning(action: str, topic: str = "", note: str = "", status: str = "",
         data = json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         data = {"topics": {}, "journal": []}
-    topics: dict[str, Any] = data.setdefault("topics", {})
-    journal: list[dict[str, Any]] = data.setdefault("journal", [])
+    topics = cast(dict[str, Any], data.setdefault("topics", {}))
+    journal = cast(list[dict[str, Any]], data.setdefault("journal", []))
 
     action = (action or "status").lower()
     if action == "update":
@@ -709,7 +747,7 @@ def mastery(action: str, topic: str = "", question: str = "",
         data = json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         data = {"topics": {}, "session": None}
-    topics: dict[str, Any] = data.setdefault("topics", {})
+    topics = cast(dict[str, Any], data.setdefault("topics", {}))
     session = data.get("session")
 
     action = (action or "status").lower()
@@ -772,92 +810,205 @@ def mastery(action: str, topic: str = "", question: str = "",
 
 
 # ---------------------------------------------------------------------------
-# video — render an HTML/Remotion composition into a real video file
+# video — natural-language query -> Remotion sub-agent -> rendered mp4
 # ---------------------------------------------------------------------------
 
+_JSON_BLOCK = re.compile(r"```json[ \t]*\n(.*?)\n```", re.S)
+_TSX_BLOCK = re.compile(r"```(?:tsx|typescript|ts|jsx)[ \t]*\n(.*?)\n```", re.S)
+_VIDEO_ARTIFACT_PREFIX = "VIDEO_ARTIFACT:"
 
-@tool(mutating=True, tool_icon="🎬")
-def video(action: str, title: str = "", html: str = "",
-          script: str = "", composition: str = "") -> str:
-    """Create a video from an HTML/Remotion composition — one tool for the flow.
 
-    Actions:
-    - ``scaffold``: write a Remotion project skeleton into the workspace
-      ``videos/<slug>/`` and return its path.
-    - ``render``: render composition ``composition`` (default ``Main``) to
-      ``videos/<slug>/out.mp4`` using ``npx remotion render``. Requires the
-      scaffold to exist. Returns the output path or error.
-    - ``list``: list rendered videos in the workspace.
+def _parse_lesson(reply: str) -> tuple[str, str]:
+    """Pull the longest TSX block and the JSON meta block from a sub-agent reply."""
+    blocks = _TSX_BLOCK.findall(reply)
+    code = max(blocks, key=len).strip() if blocks else ""
+    match = _JSON_BLOCK.search(reply)
+    meta = match.group(1).strip() if match else ""
+    return code, meta
 
-    :param action: scaffold|render|list.
-    :param title: Video title (used for the slug).
-    :param html: Optional HTML/TSX body for the composition.
-    :param script: Optional narration script text.
-    :param composition: Remotion composition id for render.
-    """
+
+_REMOTION_SPEC_CACHE: str | None = None
+
+
+def _remotion_spec() -> str:
+    """Load the Remotion contract and splice in the real kit source. This
+    prompt belongs only to the video sub-agent, never to the main agent."""
+    global _REMOTION_SPEC_CACHE
+    if _REMOTION_SPEC_CACHE is None:
+        try:
+            prompt = (Path(__file__).with_name("remotion_prompt.txt")
+                      .read_text(encoding="utf-8").strip())
+            kit = (Path(__file__).with_name("remotion_kit") / "kit.tsx")
+            _REMOTION_SPEC_CACHE = prompt.replace(
+                "{kit_source}", kit.read_text(encoding="utf-8").strip()
+            )
+        except OSError:
+            _REMOTION_SPEC_CACHE = ""
+    return _REMOTION_SPEC_CACHE
+
+
+def _subagent_instructions() -> str:
+    """The video sub-agent's system prompt: the Remotion contract plus the
+    shipped kit source. It contains no tool instructions — the sub-agent has
+    no tools and only returns JSON meta + Lesson.tsx code blocks."""
+    return _remotion_spec()
+
+
+def _video_workspace() -> Path:
     root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
     vdir = root / "videos"
     vdir.mkdir(parents=True, exist_ok=True)
+    return vdir
 
-    def _slug() -> str:
-        s = re.sub(r"[^a-z0-9]+", "-", (title or "video").lower()).strip("-") or "video"
-        return f"{s}-{uuid.uuid4().hex[:6]}"
 
-    action = (action or "scaffold").lower()
-    if action == "list":
-        outs = sorted(vdir.glob("*/out.mp4")) + sorted(vdir.glob("*/*.mp4"))
-        return "\n".join(str(p.relative_to(root)) for p in outs) or "No videos yet."
-    if action == "scaffold":
-        slug = _slug()
-        proj = vdir / slug
-        (proj / "src").mkdir(parents=True, exist_ok=True)
-        body = html or (
-            "import {AbsoluteFill} from 'remotion';\n"
-            "export const Main = () => (\n"
-            f"  <AbsoluteFill style={{{{background:'#0b1020',color:'#fff',"
-            "display:'flex',alignItems:'center',justifyContent:'center',"
-            "fontSize:64}}}>\n"
-            f"    <div>{(title or 'Video').replace('<','&lt;')}</div>\n"
-            "  </AbsoluteFill>\n);\n"
-        )
-        (proj / "src" / "Composition.tsx").write_text(body)
-        (proj / "src" / "index.ts").write_text(
-            "import {registerRoot} from 'remotion';\n"
-            "import {Composition} from 'remotion';\n"
-            "import {Main} from './Composition';\n"
-            "registerRoot(() => <Composition id=\"Main\" component={Main} "
-            "durationInFrames={150} fps={30} width={1920} height={1080} />);\n"
-        )
-        (proj / "package.json").write_text(json.dumps({
-            "name": slug, "private": True,
-            "dependencies": {"react": "^18.2.0", "react-dom": "^18.2.0",
-                             "remotion": "^4.0.0"},
-            "scripts": {"render": "remotion render src/index.ts Main out.mp4"},
-        }, indent=2))
-        return f"Scaffolded Remotion project at videos/{slug}/ — run video(action='render', title='{slug}') to produce out.mp4"
-    if action == "render":
-        slug = title or ""
-        proj = vdir / slug
-        if not (proj / "package.json").exists():
-            # find most recent scaffold if title omitted
-            cands = sorted(vdir.glob("*/package.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-            if not cands:
-                return "No video project — run video(action='scaffold') first."
-            proj = cands[0].parent
-            slug = proj.name
-        comp = composition or "Main"
-        out = proj / "out.mp4"
-        cmd = ["npx", "--yes", "remotion", "render", "src/index.ts", comp, "out.mp4"]
+def _files_root() -> Path:
+    """Directory served by the frontend's /files/<path> route."""
+    return Path(__file__).resolve().parents[2] / "data" / "files"
+
+
+def _slug_for(title: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", (title or "video").lower()).strip("-") or "video"
+    return f"{s}-{uuid.uuid4().hex[:6]}"
+
+
+def _scaffold_video(slug: str, code: str, meta: str) -> Path:
+    proj = _video_workspace() / slug
+    (proj / "src").mkdir(parents=True, exist_ok=True)
+    kit_dir = Path(__file__).with_name("remotion_kit")
+    for name in ("kit.tsx", "voice.ts", "china_outline.json"):
+        src = kit_dir / name
+        if src.exists():
+            shutil.copyfile(src, proj / "src" / name)
+    default_lesson = (
+        'import React from "react";\n'
+        'import {Scenes, Stage, Title, lessonLength, type Scene} from "./kit";\n'
+        'const S: React.FC = () => <Stage><Title>Your lesson title</Title></Stage>;\n'
+        'export const SCENES: Scene[] = [{voice: "s1", frames: 300, content: <S />}];\n'
+        'export const LESSON = {durationInFrames: lessonLength(SCENES), fps: 30, '
+        'width: 1920, height: 1080};\n'
+        'export const Lesson: React.FC = () => <Scenes scenes={SCENES} />;\n'
+    )
+    (proj / "src" / "Lesson.tsx").write_text(code or default_lesson)
+    if meta:
+        (proj / "src" / "script.json").write_text(meta)
+    (proj / "src" / "index.tsx").write_text(
+        "import React from 'react';\n"
+        "import {registerRoot, Composition} from 'remotion';\n"
+        "import * as mod from './Lesson';\n"
+        "const Lesson = mod.Lesson || mod.Main;\n"
+        "const L = mod.LESSON || {durationInFrames: 150, fps: 30, width: 1920, height: 1080};\n"
+        "registerRoot(() => <Composition id='Lesson' component={Lesson} "
+        "durationInFrames={L.durationInFrames} fps={L.fps} "
+        "width={L.width} height={L.height} />);\n"
+    )
+    (proj / "package.json").write_text(json.dumps({
+        "name": slug, "private": True,
+        "dependencies": {"react": "^18.2.0", "react-dom": "^18.2.0",
+                         "remotion": "^4.0.0"},
+        "devDependencies": {"@remotion/cli": "^4.0.0", "typescript": "^5.0.0"},
+        "scripts": {"render": "remotion render src/index.tsx Lesson out.mp4"},
+    }, indent=2))
+    return proj
+
+
+def _render_video(proj: Path) -> str | None:
+    """Install dependencies if needed, render, and return an error string or None."""
+    out = proj / "out.mp4"
+    if not (proj / "node_modules").exists():
         try:
-            proc = subprocess.run(cmd, cwd=proj, capture_output=True, text=True, timeout=600)
+            install = subprocess.run(
+                ["npm", "install", "--no-audit", "--no-fund"],
+                cwd=proj, capture_output=True, text=True, timeout=600,
+            )
         except FileNotFoundError:
-            return "npx/remotion not available — scaffold exists at videos/%s but render needs Node toolchain." % slug
+            return "npm is not available — cannot install Remotion dependencies."
         except subprocess.TimeoutExpired:
-            return "render timed out after 600s."
-        if proc.returncode != 0 or not out.exists():
-            return f"render failed: {proc.stderr[-500:] or proc.stdout[-500:]}"
-        return f"Video rendered: videos/{slug}/out.mp4 ({out.stat().st_size} bytes)"
-    return f"Unknown video action: {action}"
+            return "npm install timed out after 600s."
+        if install.returncode != 0:
+            return f"npm install failed: {(install.stderr or install.stdout)[-500:]}"
+    try:
+        proc = subprocess.run(
+            ["npx", "remotion", "render", "src/index.tsx", "Lesson", "out.mp4"],
+            cwd=proj, capture_output=True, text=True, timeout=600,
+        )
+    except FileNotFoundError:
+        return "npx is not available — cannot render the video."
+    except subprocess.TimeoutExpired:
+        return "render timed out after 600s."
+    if proc.returncode != 0 or not out.exists():
+        return f"render failed: {(proc.stderr or proc.stdout)[-800:]}"
+    return None
+
+
+@tool(mutating=True, tool_icon="🎬")
+async def video(query: str, title: str = "") -> str:
+    """Turn a natural-language request into a rendered video lesson.
+
+    The main agent only passes what the learner asked for. A dedicated
+    Remotion sub-agent writes the lesson code; this tool scaffolds the
+    project, renders the mp4 and returns a playable artifact for the chat.
+
+    :param query: The learner's request in plain language, e.g. "explain how
+      photosynthesis works in a one-minute animation".
+    :param title: Optional short title (used for the file slug).
+    """
+    from vtx.agent.dispatcher import get_context
+    from vtx.agent.tools.task import SubagentSpec, resolve_subagent_runner
+
+    ctx = get_context()
+    if ctx is None:
+        return "Video sub-agent unavailable: the dispatcher context is not initialized."
+
+    spec = SubagentSpec(
+        name="video-lesson-writer",
+        description="Writes a Remotion lesson for the learner's question",
+        instructions=_subagent_instructions(),
+        instructions_mode="replace",
+        # No tools: the sub-agent only writes JSON meta + Lesson.tsx. An
+        # allow-list naming no real tool filters out the inherited tool set.
+        tools_allow=["__none__"],
+        tools_deny=[],
+        max_turns=2,
+    )
+    label = (title or query or "Video lesson").strip()[:48]
+    try:
+        result = await resolve_subagent_runner()(
+            parent_ctx=ctx,
+            spec=spec,
+            prompt=(
+                "Write a Remotion video lesson for this learner request:\n\n"
+                + query.strip()
+                + "\n\nReturn only the JSON meta block and the complete Lesson.tsx block."
+            ),
+            cancel_event=None,
+            model_override=None,
+            progress_callback=ctx.progress_callback,
+            tool_call_id=f"video_{uuid.uuid4().hex[:12]}",
+            label=label,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return f"Video sub-agent failed: {exc}"
+
+    if result.error and not result.final_text:
+        return f"Video sub-agent failed: {result.error}"
+    code, meta = _parse_lesson(result.final_text or "")
+    if not code:
+        return "Video sub-agent did not return a Lesson.tsx code block."
+
+    slug = _slug_for(title or query)
+    proj = _scaffold_video(slug, code, meta)
+    error = _render_video(proj)
+    if error:
+        return error
+
+    served_dir = _files_root() / "videos" / slug
+    served_dir.mkdir(parents=True, exist_ok=True)
+    served = served_dir / "out.mp4"
+    shutil.copyfile(proj / "out.mp4", served)
+    rel = served.relative_to(_files_root()).as_posix()
+    # The runtime turns this marker into an artifact so the chat renders a
+    # <video> player. Everything after '|' is the plain-text tool result.
+    return f"{_VIDEO_ARTIFACT_PREFIX}{rel}|Video rendered: /files/{rel}"
 
 
 # ---------------------------------------------------------------------------
@@ -1172,13 +1323,7 @@ async def paper_search(
         return "Empty query."
     max_results = max(1, min(int(max_results), 20))
     sort = "submittedDate" if sort_by == "date" else "relevance"
-    api = (
-        "https://export.arxiv.org/api/query?search_query="
-        + httpx.QueryParams({"search_query": f"all:{query}", "start": 0,
-                             "max_results": max_results, "sortBy": sort,
-                             "sortOrder": "descending"})
-    )
-    # httpx.QueryParams returns str-like; build manually to keep it simple
+    # Build the arXiv query with urlencode (QueryParams is not a str).
     from urllib.parse import urlencode
 
     api = "https://export.arxiv.org/api/query?" + urlencode(
@@ -1205,7 +1350,8 @@ async def paper_search(
                 if ln.get("title") == "pdf" or ln.get("rel") == "related":
                     link = ln.get("href", "")
                     break
-            link = link or (entry.find("a:id", ns).text if entry.find("a:id", ns) is not None else "")
+            id_node = entry.find("a:id", ns)
+            link = link or ((id_node.text or "") if id_node is not None else "")
             authors = [a.findtext("a:name", "", ns) for a in entry.findall("a:author", ns)]
             year = ""
             published = entry.findtext("a:published", "", ns) or ""
@@ -1321,17 +1467,12 @@ async def reason(question: str, context: str = "") -> str:
     :param context: Optional extra context to reason over.
     """
     prompt = question if not context else f"{question}\n\nContext:\n{context}"
-    agent = _subagent(
-        None,
+    return await _run_text_subagent(
         "You are a careful reasoning engine. Think step by step and give a "
-        "precise, well-structured answer. No tools, no preamble.",
+        "precise, well-structured answer. No preamble.",
+        prompt,
         "reasoner",
     )
-    try:
-        result = await Runner.run(agent, prompt, max_turns=5)
-        return str(result.final_output or "(no output)")
-    except Exception as exc:  # noqa: BLE001
-        return f"reason error: {exc}"
 
 
 @tool(mutating=False, tool_icon="💡")
@@ -1344,17 +1485,12 @@ async def brainstorm(topic: str, constraints: str = "") -> str:
     prompt = f"Brainstorm ideas about: {topic}"
     if constraints:
         prompt += f"\nConstraints: {constraints}"
-    agent = _subagent(
-        None,
+    return await _run_text_subagent(
         "You are a creative brainstorming partner. Generate a broad set of "
         "distinct ideas; for each give a one-line rationale. Organize by theme.",
+        prompt,
         "brainstormer",
     )
-    try:
-        result = await Runner.run(agent, prompt, max_turns=5)
-        return str(result.final_output or "(no output)")
-    except Exception as exc:  # noqa: BLE001
-        return f"brainstorm error: {exc}"
 
 
 # ---------------------------------------------------------------------------
@@ -1516,8 +1652,8 @@ def learning(action: str, topic: str = "", note: str = "", status: str = "",
         data = json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         data = {"topics": {}, "journal": []}
-    topics: dict[str, Any] = data.setdefault("topics", {})
-    journal: list[dict[str, Any]] = data.setdefault("journal", [])
+    topics = cast(dict[str, Any], data.setdefault("topics", {}))
+    journal = cast(list[dict[str, Any]], data.setdefault("journal", []))
 
     action = (action or "status").lower()
     if action == "update":
@@ -1740,7 +1876,7 @@ def mastery(action: str, topic: str = "", question: str = "",
         data = json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         data = {"topics": {}, "session": None}
-    topics: dict[str, Any] = data.setdefault("topics", {})
+    topics = cast(dict[str, Any], data.setdefault("topics", {}))
     session = data.get("session")
 
     action = (action or "status").lower()
@@ -1800,95 +1936,6 @@ def mastery(action: str, topic: str = "", question: str = "",
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
         return "Mastery session ended."
     return f"Unknown mastery action: {action}"
-
-
-# ---------------------------------------------------------------------------
-# video — render an HTML/Remotion composition into a real video file
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=True, tool_icon="🎬")
-def video(action: str, title: str = "", html: str = "",
-          script: str = "", composition: str = "") -> str:
-    """Create a video from an HTML/Remotion composition — one tool for the flow.
-
-    Actions:
-    - ``scaffold``: write a Remotion project skeleton into the workspace
-      ``videos/<slug>/`` and return its path.
-    - ``render``: render composition ``composition`` (default ``Main``) to
-      ``videos/<slug>/out.mp4`` using ``npx remotion render``. Requires the
-      scaffold to exist. Returns the output path or error.
-    - ``list``: list rendered videos in the workspace.
-
-    :param action: scaffold|render|list.
-    :param title: Video title (used for the slug).
-    :param html: Optional HTML/TSX body for the composition.
-    :param script: Optional narration script text.
-    :param composition: Remotion composition id for render.
-    """
-    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
-    vdir = root / "videos"
-    vdir.mkdir(parents=True, exist_ok=True)
-
-    def _slug() -> str:
-        s = re.sub(r"[^a-z0-9]+", "-", (title or "video").lower()).strip("-") or "video"
-        return f"{s}-{uuid.uuid4().hex[:6]}"
-
-    action = (action or "scaffold").lower()
-    if action == "list":
-        outs = sorted(vdir.glob("*/out.mp4")) + sorted(vdir.glob("*/*.mp4"))
-        return "\n".join(str(p.relative_to(root)) for p in outs) or "No videos yet."
-    if action == "scaffold":
-        slug = _slug()
-        proj = vdir / slug
-        (proj / "src").mkdir(parents=True, exist_ok=True)
-        body = html or (
-            "import {AbsoluteFill} from 'remotion';\n"
-            "export const Main = () => (\n"
-            f"  <AbsoluteFill style={{{{background:'#0b1020',color:'#fff',"
-            "display:'flex',alignItems:'center',justifyContent:'center',"
-            "fontSize:64}}}>\n"
-            f"    <div>{(title or 'Video').replace('<','&lt;')}</div>\n"
-            "  </AbsoluteFill>\n);\n"
-        )
-        (proj / "src" / "Composition.tsx").write_text(body)
-        (proj / "src" / "index.ts").write_text(
-            "import {registerRoot} from 'remotion';\n"
-            "import {Composition} from 'remotion';\n"
-            "import {Main} from './Composition';\n"
-            "registerRoot(() => <Composition id=\"Main\" component={Main} "
-            "durationInFrames={150} fps={30} width={1920} height={1080} />);\n"
-        )
-        (proj / "package.json").write_text(json.dumps({
-            "name": slug, "private": True,
-            "dependencies": {"react": "^18.2.0", "react-dom": "^18.2.0",
-                             "remotion": "^4.0.0"},
-            "scripts": {"render": "remotion render src/index.ts Main out.mp4"},
-        }, indent=2))
-        return f"Scaffolded Remotion project at videos/{slug}/ — run video(action='render', title='{slug}') to produce out.mp4"
-    if action == "render":
-        slug = title or ""
-        proj = vdir / slug
-        if not (proj / "package.json").exists():
-            # find most recent scaffold if title omitted
-            cands = sorted(vdir.glob("*/package.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-            if not cands:
-                return "No video project — run video(action='scaffold') first."
-            proj = cands[0].parent
-            slug = proj.name
-        comp = composition or "Main"
-        out = proj / "out.mp4"
-        cmd = ["npx", "--yes", "remotion", "render", "src/index.ts", comp, "out.mp4"]
-        try:
-            proc = subprocess.run(cmd, cwd=proj, capture_output=True, text=True, timeout=600)
-        except FileNotFoundError:
-            return "npx/remotion not available — scaffold exists at videos/%s but render needs Node toolchain." % slug
-        except subprocess.TimeoutExpired:
-            return "render timed out after 600s."
-        if proc.returncode != 0 or not out.exists():
-            return f"render failed: {proc.stderr[-500:] or proc.stdout[-500:]}"
-        return f"Video rendered: videos/{slug}/out.mp4 ({out.stat().st_size} bytes)"
-    return f"Unknown video action: {action}"
 
 
 # ---------------------------------------------------------------------------

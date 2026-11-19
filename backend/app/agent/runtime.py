@@ -68,7 +68,9 @@ You are DeepTutor, a patient and rigorous personal tutor.
   - `workspace`/`apply_patch`/`read_file`/`list_files` — files and artifacts
   - `quiz` — generate or grade quiz questions
   - `paper_search` — arXiv papers for research questions
-  - `video` — render Remotion videos when asked for one
+  - `video` — for videos/animations: call it with a plain-language `query`
+    (e.g. "explain photosynthesis in 90 seconds"); a video sub-agent writes
+    and renders the film. Never write Remotion code yourself.
   - `codemode` — multi-step work: write Python that calls other tools;
     `%bash <cmd>` runs shell commands inside the script
   - `tool_search` — discover which tool fits when unsure
@@ -617,12 +619,33 @@ class AgentRuntime:
                     text = getattr(out, "output", None) or (
                         out if isinstance(out, str) else
                         __import__("json").dumps(out, ensure_ascii=False, default=str))
+                    text = str(text)
+                    tool_meta: dict[str, Any] = {}
+                    # The video tool writes an mp4 into the /files tree and markers
+                    # its result with a machine-readable prefix. Turn that into an
+                    # artifact so the chat renders an inline <video> player.
+                    if (
+                        event.tool_name == "video"
+                        and text.startswith("VIDEO_ARTIFACT:")
+                        and not getattr(out, "is_error", False)
+                    ):
+                        marker, _, readable = text.partition("|")
+                        rel = marker.split(":", 1)[1].strip()
+                        if rel and ".." not in rel and not rel.startswith("/"):
+                            tool_meta["artifacts"] = [{
+                                "filename": rel.rsplit("/", 1)[-1],
+                                "url": f"/files/{rel}",
+                                "mime_type": "video/mp4",
+                                "generated": True,
+                            }]
+                            text = readable or "Video ready."
                     await self._emit(handle, self._stream_event(
-                        handle, "tool_result", content=str(text),
+                        handle, "tool_result", content=text,
                         source=capability, stage="responding",
                         metadata={"tool_call_id": event.tool_call_id,
                                   "tool_name": event.tool_name,
-                                  "is_error": bool(getattr(out, "is_error", False))}))
+                                  "is_error": bool(getattr(out, "is_error", False)),
+                                  "tool_metadata": tool_meta}))
                 elif isinstance(event, ErrorEvent):
                     status = "error"
                     # Surface the provider/agent failure to the UI. Without an
