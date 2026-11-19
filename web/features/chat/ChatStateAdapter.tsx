@@ -70,6 +70,7 @@ import {
   repairChineseEmphasis,
 } from "@/lib/markdown-display";
 import { normalizeMessageContent } from "@/lib/message-content";
+import { hasOpenUILang } from "@/lib/openui/lang";
 import {
   buildVisiblePath,
   persistedBranchSelections,
@@ -1197,7 +1198,11 @@ function reduce(state: ProviderState, action: Action): ProviderState {
       if (shouldAppendEventContent(action.event)) {
         const delta = action.event.content;
         rawContent += delta;
-        content = appendWithEmphasisRepair(content, delta, rawContent, language);
+        // OpenUI Lang is source code: Markdown emphasis repair would corrupt
+        // identifiers, operators and string literals. Keep it byte-for-byte.
+        content = hasOpenUILang(rawContent)
+          ? rawContent
+          : appendWithEmphasisRepair(content, delta, rawContent, language);
       }
       // Any other event (progress, tool rows, stage markers) leaves the text
       // alone, so it reuses the display string as-is. Re-deriving it here was
@@ -1301,7 +1306,9 @@ function reduce(state: ProviderState, action: Action): ProviderState {
         const last = messages[messages.length - 1];
         if (last?.role !== "assistant") return messages;
         const raw = last.rawContent ?? last.content ?? "";
-        const repaired = repairChineseEmphasis(raw, ending.language);
+        const repaired = hasOpenUILang(raw)
+          ? raw
+          : repairChineseEmphasis(raw, ending.language);
         const trace =
           ending.isStreaming && last.trace?.started_at != null
             ? { ...last.trace, ended_at: Date.now() / 1000 }
@@ -2252,7 +2259,7 @@ export function ChatStateAdapterProvider({
             id: message.id,
             role: message.role,
             content:
-              message.role === "assistant"
+              message.role === "assistant" && !hasOpenUILang(raw)
                 ? normalizeMarkdownForDisplay(raw)
                 : raw,
             capability: message.capability || "",

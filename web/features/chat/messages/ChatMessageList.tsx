@@ -117,6 +117,8 @@ import {
   TraceFlow,
 } from "@/features/chat/trace/TracePresentation";
 import { hasSettledFinalRound } from "@/features/chat/trace/selectors";
+import OpenUIMessage from "@/features/chat/messages/OpenUIMessage";
+import { hasOpenUILang } from "@/lib/openui/lang";
 import type { MessageTraceMetadata } from "@/features/chat/trace/memory";
 import { supportsSubmissionReplacement, type OrphanedFailedTurn } from "@/lib/session-api";
 import { agentGlyph } from "@/components/agents/agent-icons";
@@ -1259,6 +1261,11 @@ export const AssistantMessage = memo(function AssistantMessage({
             language={language}
           />
         </>
+      ) : hasOpenUILang(msg.content) ? (
+        // The main chat now answers with OpenUI Lang programs; render them as
+        // live components instead of Markdown so dashboards/quizzes/flashcards
+        // work here as they did on the removed /openui page.
+        <OpenUIMessage content={msg.content} isStreaming={isStreaming} />
       ) : useSegmentLayout ? (
         // Default chat surface. The working-out (prose interleaved with the
         // steps it introduced) is one layer, folded once the turn settles; the
