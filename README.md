@@ -104,4 +104,5 @@ Check the backend with `curl http://127.0.0.1:8001/health` → `{"status":"ok"}`
 ## Notes
 
 - `reff/` contains the upstream DeepTutor source used as reference (gitignored).
+- `deep_question` (Quiz) is implemented: `agent/quiz.py` plans questions, generates them with the configured model, and emits `quiz_question_emitted` + `result` events for the interactive `QuizViewer`. AI Judge runs over the REST+SSE channel instead of a WebSocket.
 - Remaining feature gaps vs upstream: deep capability pipelines (`deep_research`, `mastery_path` stages), obsidian/ima/marginnote connectors — transports and tool surfaces exist, domain logic is incremental.

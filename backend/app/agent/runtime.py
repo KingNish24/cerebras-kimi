@@ -686,6 +686,101 @@ class AgentRuntime:
         self._finalize_turn(handle, session, status)
         return True
 
+    async def _run_deep_question(
+        self,
+        handle: TurnHandle,
+        session: dict[str, Any],
+        command: dict[str, Any],
+        user_message: dict[str, Any],
+    ) -> None:
+        """Generate MCQs and emit the events the QuizViewer consumes."""
+        from . import quiz as quiz_mod
+
+        capability = "deep_question"
+        config = command.get("config") or {}
+        if not isinstance(config, dict):
+            config = {}
+        content = str(user_message.get("content") or command.get("content") or "")
+        topic = str(config.get("topic") or quiz_mod.derive_topic(content)).strip()
+        templates = quiz_mod.build_templates(config, topic, content)
+        preface = f"Here is a {len(templates)}-question quiz on {topic or 'your topic'}."
+
+        await self._emit(handle, self._stream_event(
+            handle, "stage_start", source=capability, stage="quizzing"))
+        qa_pairs: list[dict[str, Any]] = []
+        status = "completed"
+        try:
+            for index, template in enumerate(templates):
+                qa = await quiz_mod.generate_qa(template, handle.cancel)
+                qa_pairs.append(qa)
+                await self._emit(handle, self._stream_event(
+                    handle, "content", content=quiz_mod.question_markdown(qa, index),
+                    source=capability, stage="quizzing",
+                    metadata={
+                        "call_kind": "quiz_question_emitted",
+                        "trace_role": "quiz_question",
+                        "trace_group": "quiz",
+                        "trace_id": qa["question_id"],
+                        "call_id": f"quiz-question-{index + 1}",
+                        "question_index": index,
+                        "total_questions": len(templates),
+                        "qa_pair": qa,
+                    }))
+        except asyncio.CancelledError:
+            status = "cancelled"
+        except Exception as exc:  # noqa: BLE001
+            status = "error"
+            await self._emit(handle, self._stream_event(
+                handle, "error", content=f"quiz generation failed: {exc}",
+                source=capability, stage="quizzing",
+                metadata={"turn_terminal": True}))
+
+        result_payload = quiz_mod.build_result_payload(qa_pairs, templates, preface)
+        await self._emit(handle, self._stream_event(
+            handle, "result", source=capability, stage="quizzing",
+            metadata={
+                **result_payload,
+                "metadata": {"context_budget": {
+                    "window": 200_000,
+                    "window_estimated": True,
+                    "used_tokens": max(1, len(preface) // 4),
+                    "free_tokens": 200_000,
+                    "counter": "heuristic",
+                    "segments": [{"key": "messages", "tokens": max(1, len(content) // 4)}],
+                }},
+            }))
+
+        assistant_message: dict[str, Any] | None = None
+        if preface:
+            try:
+                assistant_message = self._store.append_assistant_message(
+                    session, preface, events=list(handle.events),
+                    turn_id=handle.turn_id, capability=capability,
+                    metadata={"status": status},
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        session["status"] = "completed" if status == "completed" else status
+        session["last_output"] = preface
+        try:
+            self._store.save(session)
+        except Exception:  # noqa: BLE001
+            pass
+        handle.status = status
+        await self._emit(handle, self._stream_event(
+            handle, "stage_end", source=capability, stage="quizzing",
+            metadata={"status": status}))
+        await self._emit(handle, self._stream_event(
+            handle, "done", source=capability, stage="quizzing",
+            metadata={
+                "status": status,
+                "user_message_id": user_message.get("id"),
+                "assistant_message_id": (
+                    assistant_message.get("id") if assistant_message else None
+                ),
+            }))
+        self._finalize_turn(handle, session, status)
+
     def _finalize_turn(
         self, handle: TurnHandle, session: dict[str, Any], status: str
     ) -> None:
@@ -708,6 +803,10 @@ class AgentRuntime:
         command: dict[str, Any],
         user_message: dict[str, Any],
     ) -> None:
+        capability = str(command.get("capability") or "chat").strip() or "chat"
+        if capability == "deep_question":
+            await self._run_deep_question(handle, session, command, user_message)
+            return
         await self._run_vtx(handle, session, command, user_message)
         return
     def turn_events_after(self, turn_id: str, after_seq: int) -> list[dict[str, Any]]:

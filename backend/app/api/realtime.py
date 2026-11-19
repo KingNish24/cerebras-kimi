@@ -335,8 +335,17 @@ class _ClientSession:
 
     async def _handle_channel(self, channel: str, message: dict[str, Any]) -> dict[str, bool]:
         if "judge" in channel:
-            await self.emit({"type": "error",
-                             "content": "AI judge is not available in this build."})
+            await self.emit({"type": "started"})
+            try:
+                from ..agent.quiz import judge_answer
+
+                text = await judge_answer(message)
+                # Stream in small chunks like the old WS judge did.
+                for start in range(0, len(text), 120):
+                    await self.emit({"type": "text", "content": text[start : start + 120]})
+                await self.emit({"type": "done"})
+            except Exception as exc:  # noqa: BLE001
+                await self.emit({"type": "error", "content": f"AI judge failed: {exc}"})
         elif "books" in channel:
             await self.emit({"type": "ack", "status": "ok"})
         elif "mastery" in channel or "progress" in channel:
