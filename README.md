@@ -40,22 +40,26 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | `store/kb_store.py` | Knowledge-base store (chunked docs, BM25 search) |
 | `config.py` | `Settings` — `data_dir`, `workspace_dir` via `DT_DATA_DIR`/`DT_WORKSPACE_DIR` |
 
-## Agent tools (17 + codemode)
+## Agent tools
 
-Consolidated single-purpose tools (vtx `WebTool`-style merges):
+DeepTutor is a tutor, not a coding agent. vtx's default coding prompt, ponytail
+mode, AGENTS.md/skills and git context are replaced by the tutor prompt in
+`agent/prompt.py`. The exposed tool set is limited to:
 
 - **`web`** — Exa MCP search + Jina Reader fetch (`mode=search|fetch`)
+- **`paper_search`** — arXiv paper search
 - **`knowledge_base_search`** — `search|files|read` over uploaded KBs (BM25 + citations)
 - **`memory`** — `read|write` durable learner facts (`data/memory.json`)
 - **`notes`** — `write|list|search` markdown notebook (`data/notes/`)
 - **`learning`** — `status|update|journal|weak` progress tracking
 - **`mastery`** — Guided Learning loop `topics|start|status|quiz|grade|note|leave`
-- **`workspace`** — `list|read|write|search|delete|mkdir|info` jailed file ops
-- **`quiz`** — `generate|grade` (LLM grading via vtx runtime)
+- **`quiz`** — `generate|grade`
 - **`video`** — Remotion pipeline `scaffold|render|list` → `workspace/videos/*.mp4`
-- **`codemode`** — model-written Python in `vtx.codemode.CodemodeSandbox` calling other tools; `%bash <cmd>` magic runs shell commands
-- **`apply_patch`** — vtx-style atomic file edits (`update|create|delete|move`, validate-then-write)
-- **`ask_user`**, **`question_bank`**, **`paper_search`** (arXiv), **`read_file`/`list_files`**, **`list_tools`**
+- **`workspace`** — jailed ops for artifacts DeepTutor itself creates
+- **`question_bank`** — stored question entries
+
+Coding-agent tools (`apply_patch`, `read_file`, `list_files`, `codemode`,
+`tool_search`, `ask_user`) are intentionally not registered.
 
 Model/provider config is shared with vtx: keys in `~/.vtx/dynamic_auth.json`, model caches in `~/.vtx/models/`, selection in `~/.vtx/config.yml` (`last_selected`/`recent_models`).
 

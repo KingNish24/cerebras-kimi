@@ -17,8 +17,6 @@ from typing import Any
 
 import httpx
 from .toolkit import tool
-from vtx.agent.tools.ask_user import AskUserTool
-
 from ..config import Settings
 
 
@@ -240,78 +238,6 @@ def adapted_registry_tools(registry: dict[str, Any]) -> list[Any]:
     return out
 
 
-def _codemode_tool(registry: dict[str, Any]) -> Any:
-    """Build the codemode tool: model writes Python that calls other tools.
-
-    Uses vtx.codemode.CodemodeSandbox — the script runs in a worker process
-    whose only capability is invoking the injected tools.
-    """
-    from .toolkit import tool as _sdk_tool
-    from vtx.codemode import CodemodeSandbox, CodemodeTool
-
-    sandbox = CodemodeSandbox()
-
-    def _adapt(name: str, fn: Any) -> CodemodeTool:
-        async def invoke(args: dict, signal):  # noqa: ANN001
-            try:
-                params = fn.params(**{k: v for k, v in args.items() if v is not None})
-                res = await fn.execute(params)
-                return getattr(res, "result", None) or str(res)
-            except Exception as exc:  # noqa: BLE001
-                return f"tool {name} error: {exc}"
-
-        schema_props = {}
-        try:
-            model_fields = fn.params.model_fields
-            for fname, f in model_fields.items():
-                schema_props[fname] = {
-                    "type": "string",
-                    "description": getattr(f, "description", "") or "",
-                }
-        except Exception:  # noqa: BLE001
-            pass
-        return CodemodeTool(
-            name=name,
-            description=(fn.description or name)[:400],
-            execute=invoke,
-            input_schema={"type": "object", "properties": schema_props},
-        )
-
-    tools = adapted_registry_tools(registry)
-
-    @_sdk_tool(mutating=True, tool_icon="🧩")
-    async def codemode(code: str, timeout_ms: int = 60000,
-                       max_tool_calls: int = 20) -> str:
-        """Run Python code that can call your other tools — for multi-step
-        work (fetch → parse → store, search several KBs, transform data).
-
-        Available tool functions are injected into the script's namespace
-        by name (e.g. `web(...)`, `knowledge_base_search(...)`,
-        `apply_patch(...)`). Each is an async callable: `await web(...)`.
-        Print or return a value to get output back.
-
-        :param code: Python source. Use `await <tool>(**kwargs)` for calls.
-        :param timeout_ms: Script timeout (default 60s).
-        :param max_tool_calls: Max tool invocations per script.
-        """
-        # IPython-style % magic: %bash <cmd> runs a shell command in the
-        # sandbox worker (full subprocess access) and prints its output.
-        code = _expand_magic(code)
-        try:
-            result = await sandbox.execute(
-                code,
-                timeout_ms=timeout_ms,
-                max_tool_calls=max_tool_calls,
-                tools=tools,
-            )
-        except Exception as exc:  # noqa: BLE001
-            return f"codemode error: {exc}"
-        out = getattr(result, "output", None) or getattr(result, "result", None) or str(result)
-        return str(out)[:50000]
-
-    return codemode
-
-
 def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[Any]:
     """All builtin tools, filtered by the turn's ``tools`` allowlist.
 
@@ -332,16 +258,9 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "question_bank": dt_tools.question_bank,
         "memory": dt_tools.memory,
         "knowledge_base_search": _kb.knowledge_base_search,
-        # Generic utilities
-        "read_file": ws_tools[0],
-        "apply_patch": dt_tools.apply_patch,
-        "list_files": ws_tools[2],
-        # Interactive questionnaire. Use the SDK's AskUserTool (not the
-        # plain dt_tools.ask_user): the turn runner intercepts a tool named
-        # "ask_user" and calls params.normalized_questions(), which only the
-        # SDK's params model implements. A plain function tool crashed the
-        # turn with AttributeError instead of showing the question.
-        "ask_user": AskUserTool(),
+        # File-inspection/editing tools are intentionally NOT exposed: DeepTutor
+        # is a tutor, not a coding agent. The learner-facing `workspace` tool
+        # still handles artifacts the app itself creates (notes, media).
         "learning": dt_tools.learning,
         "workspace": dt_tools.workspace,
         "quiz": dt_tools.quiz,
@@ -358,32 +277,6 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     }
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
-    # Builtin: vtx-style tool_search — ranked discovery over tool declarations.
-    from vtx.codemode import rank as _rank
-
-    adapted = adapted_registry_tools(registry)
-
-    @tool(mutating=False, tool_icon="🔎")
-    def tool_search(query: str) -> str:
-        """Search available tools by keyword — returns the most relevant
-        tool declarations (name, description, parameters) for ``query``.
-        Use before codemode or when unsure which tool fits."""
-        try:
-            matches = _rank(query, adapted, limit=5)
-        except Exception:  # noqa: BLE001
-            matches = []
-        if not matches:
-            return "No tools matched."
-        lines = []
-        for m in matches:
-            t = getattr(m, "tool", None) or m
-            name = getattr(t, "name", str(m))
-            desc = (getattr(t, "description", "") or "")[:200]
-            lines.append(f"- {name}: {desc}")
-        return "\n".join(lines)
-
-    registry["tool_search"] = tool_search
-    registry["codemode"] = _codemode_tool(registry)
     locked_on = set(registry) - toggleable
     if enabled:
         keep = locked_on | ({n for n in enabled if n in toggleable} & set(registry))

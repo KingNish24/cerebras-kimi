@@ -46,6 +46,27 @@ def _use_deeptutor_vtx_sessions() -> None:
 
 _use_deeptutor_vtx_sessions()
 
+
+def _use_deeptutor_prompt() -> None:
+    """Make vtx's runtime resolve DeepTutor's tutor prompt, not its own."""
+    from vtx.agent.runtime import ConversationRuntime
+
+    from .agent.prompt import build_deeptutor_prompt
+
+    ConversationRuntime.resolve_system_prompt = build_deeptutor_prompt
+
+    # vtx rebuilds the agent's prompt directly (bypassing the resolver above)
+    # whenever tools/MCP change. Patch that path too, or its coding-agent
+    # default, ponytail mode, AGENTS.md and git context leak back in.
+    def rebuild_deeptutor_prompt(runtime) -> None:  # type: ignore[no-untyped-def]
+        if runtime.agent is not None:
+            runtime.agent._system_prompt = build_deeptutor_prompt(runtime)
+
+    ConversationRuntime._rebuild_system_prompt = rebuild_deeptutor_prompt
+
+
+_use_deeptutor_prompt()
+
 settings = get_settings()
 settings.data_dir.mkdir(parents=True, exist_ok=True)
 settings.workspace_dir.mkdir(parents=True, exist_ok=True)
