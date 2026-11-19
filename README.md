@@ -61,7 +61,14 @@ mode, AGENTS.md/skills and git context are replaced by the tutor prompt in
 Coding-agent tools (`apply_patch`, `read_file`, `list_files`, `codemode`,
 `tool_search`, `ask_user`) are intentionally not registered.
 
-Model/provider config is shared with vtx: keys in `~/.vtx/dynamic_auth.json`, model caches in `~/.vtx/models/`, selection in `~/.vtx/config.yml` (`last_selected`/`recent_models`).
+### Provider / model configuration
+
+DeepTutor owns its provider and model catalogue. Nothing is loaded from or featured out of `~/.vtx`: no `provider_catalog`, no `~/.vtx/models/` caches, no `~/.vtx/config.yml` (`last_selected`/`recent_models`) and no `~/.vtx/dynamic_auth.json`. The vtx SDK is used **only as an execution engine** — the backend passes the selected provider, model, base URL and API key into `ConversationRuntime` explicitly. (The engine still uses vtx's own built-in model-metadata tables internally for context windows; that metadata is not used to build the settings catalogue or choose a model.)
+
+- **Built-in presets** for common providers (OpenAI, Anthropic, OpenRouter, DeepSeek, Gemini, Groq, Mistral, Ollama, xAI, Zhipu) are a static list in `backend/app/provider_config.py`. They supply connection prefills and fallback model options.
+- **User configuration** — connections (including API keys), profiles, models, the active `llm_selection` and `recent_models` — lives in `data/settings-catalog.json`. `data/settings.json` mirrors the active selection for older clients.
+- **Model discovery** (`/api/settings/test-provider`, `/api/settings/fetch-models`) is a direct `GET {base_url}/models` against the configured endpoint; results are stored in DeepTutor's catalog.
+- A preset key can also come from its conventional env var (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`) when no connection is configured.
 
 ## Frontend layout (`web/`)
 
@@ -84,7 +91,7 @@ Model/provider config is shared with vtx: keys in `~/.vtx/dynamic_auth.json`, mo
 | Extended feature stores | `data/ext/` |
 | Settings catalog/draft | `data/settings-catalog.json`, `data/settings-draft.json` |
 | Workspace files | `data/workspace/` (`DT_WORKSPACE_DIR`) |
-| Model/provider config | `~/.vtx/` (shared with vtx) |
+| Model/provider config | `data/settings-catalog.json` (+ `data/settings.json` mirror); preset keys from env vars |
 
 ## Development
 

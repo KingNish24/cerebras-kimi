@@ -12,6 +12,7 @@ Two layers live in one JSON document per session (`data/sessions/<id>.json`):
 
 from __future__ import annotations
 
+import copy
 import json
 import time
 import uuid
@@ -19,6 +20,12 @@ from pathlib import Path
 from typing import Any, List
 
 from ..config import Settings
+
+
+# Sentinel for ``append_user_message``: the wire may omit ``parent_message_id``
+# entirely, which means "continue from the latest persisted row" rather than
+# the explicit root edit signalled by ``null``.
+AUTO_PARENT_MESSAGE = object()
 
 
 def _now() -> float:
@@ -60,7 +67,7 @@ class SessionStore:
     # -- CRUD -------------------------------------------------------------
 
     def create(self, preferences: dict[str, Any] | None = None) -> dict[str, Any]:
-        session = dict(EMPTY_SESSION)
+        session = copy.deepcopy(EMPTY_SESSION)
         session["id"] = _new_id("sess")
         session["created_at"] = session["updated_at"] = _now()
         session["preferences"] = dict(preferences or {})
@@ -72,9 +79,126 @@ class SessionStore:
         if not path.exists():
             return None
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            session = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return None
+        self._repair_legacy_message_tree(session)
+        return session
+
+    @staticmethod
+    def _resolve_parent_message_id(
+        session: dict[str, Any], parent_message_id: Any
+    ) -> int | None:
+        messages = session.get("messages") or []
+        latest_id = messages[-1].get("id") if messages else None
+        if parent_message_id is AUTO_PARENT_MESSAGE:
+            return latest_id
+        if parent_message_id is None:
+            return None
+        if (
+            isinstance(parent_message_id, int)
+            and not isinstance(parent_message_id, bool)
+            and parent_message_id > 0
+            and any(m.get("id") == parent_message_id for m in messages)
+        ):
+            return parent_message_id
+        return latest_id
+
+    def _repair_legacy_message_tree(self, session: dict[str, Any]) -> bool:
+        """Rebuild parent links for sessions written before branching existed.
+
+        Legacy rows all carry ``parent_message_id: null``, which the web client
+        interprets as competing root branches and collapses to a single visible
+        message. A leading run of null-parent rows is therefore a flat
+        transcript: chain it in storage order. Later null rows are left alone —
+        they can be legitimate root siblings created by editing the first
+        message.
+        """
+        messages = session.get("messages")
+        if not isinstance(messages, list) or len(messages) < 2:
+            return False
+        if not all(isinstance(message, dict) for message in messages):
+            return False
+
+        changed = False
+        old_ids = [message.get("id") for message in messages]
+        id_values = [value for value in old_ids if isinstance(value, int) and not isinstance(value, bool)]
+        needs_reid = (
+            len(id_values) != len(old_ids)
+            or len(set(id_values)) != len(id_values)
+            or any(value <= 0 for value in id_values)
+        )
+        if needs_reid:
+            old_to_latest: dict[Any, int] = {}
+            for index, old_id in enumerate(old_ids):
+                if old_id is not None:
+                    old_to_latest[old_id] = index + 1
+            for index, message in enumerate(messages):
+                message["id"] = index + 1
+            for index, message in enumerate(messages):
+                parent = message.get("parent_message_id")
+                if parent is None:
+                    continue
+                new_parent = None
+                for candidate in range(index - 1, -1, -1):
+                    if old_ids[candidate] == parent:
+                        new_parent = candidate + 1
+                        break
+                message["parent_message_id"] = new_parent
+            preferences = session.get("preferences")
+            selections = preferences.get("selected_branches") if isinstance(preferences, dict) else None
+            if isinstance(selections, dict):
+                remapped: dict[str, int] = {}
+                for parent_key, child_id in selections.items():
+                    if parent_key == "null":
+                        new_parent_key = "null"
+                    else:
+                        try:
+                            new_parent_key = str(old_to_latest.get(int(parent_key), parent_key))
+                        except (TypeError, ValueError):
+                            continue
+                    new_child = old_to_latest.get(child_id)
+                    if new_child is not None:
+                        remapped[new_parent_key] = new_child
+                preferences["selected_branches"] = remapped
+            session["next_message_id"] = len(messages) + 1
+            changed = True
+        else:
+            max_id = max(id_values)
+            if int(session.get("next_message_id") or 0) <= max_id:
+                session["next_message_id"] = max_id + 1
+                changed = True
+
+        first_linked = next(
+            (
+                index
+                for index, message in enumerate(messages)
+                if message.get("parent_message_id") is not None
+            ),
+            len(messages),
+        )
+        legacy_run = first_linked if first_linked < len(messages) else len(messages)
+        if legacy_run < 2:
+            return changed
+
+        # Assistant rows always continue a user turn, so a null-parent
+        # assistant is unambiguous legacy-flat evidence. A prefix containing
+        # only user rows may instead be deliberate root-edit siblings; only
+        # collapse it when the entire session is flat.
+        has_flat_assistant = any(
+            messages[index].get("role") == "assistant"
+            and messages[index].get("parent_message_id") is None
+            for index in range(legacy_run)
+        )
+        if not has_flat_assistant and first_linked != len(messages):
+            return changed
+
+        for index in range(1, legacy_run):
+            expected_parent = messages[index - 1].get("id")
+            if messages[index].get("parent_message_id") != expected_parent:
+                messages[index]["parent_message_id"] = expected_parent
+                changed = True
+        return changed
 
     def save(self, session: dict[str, Any]) -> None:
         session["updated_at"] = _now()
@@ -136,6 +260,7 @@ class SessionStore:
         *,
         attachments: List[dict[str, Any]] | None = None,
         metadata: dict[str, Any] | None = None,
+        parent_message_id: Any = AUTO_PARENT_MESSAGE,
     ) -> dict[str, Any]:
         message = {
             "id": session["next_message_id"],
@@ -147,7 +272,9 @@ class SessionStore:
             "attachments": list(attachments or []),
             "metadata": dict(metadata or {}),
             "created_at": _now(),
-            "parent_message_id": None,
+            "parent_message_id": self._resolve_parent_message_id(
+                session, parent_message_id
+            ),
         }
         session["next_message_id"] += 1
         session["messages"].append(message)
@@ -164,6 +291,7 @@ class SessionStore:
         turn_id: str,
         capability: str | None = None,
         metadata: dict[str, Any] | None = None,
+        parent_message_id: Any = AUTO_PARENT_MESSAGE,
     ) -> dict[str, Any]:
         message = {
             "id": session["next_message_id"],
@@ -175,7 +303,9 @@ class SessionStore:
             "attachments": [],
             "metadata": {"turn_id": turn_id, **(metadata or {})},
             "created_at": _now(),
-            "parent_message_id": None,
+            "parent_message_id": self._resolve_parent_message_id(
+                session, parent_message_id
+            ),
         }
         session["next_message_id"] += 1
         session["messages"].append(message)

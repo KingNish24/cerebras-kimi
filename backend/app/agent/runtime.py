@@ -24,6 +24,7 @@ Known SDK gaps we design around:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import time
@@ -36,13 +37,32 @@ from vtx.core.events import AskUserEvent
 from vtx.core.permissions import AskUserAnswer, AskUserResponse
 from vtx.protocol.types import ToolResult
 
+from .. import provider_config
 from ..config import Settings
-from ..store.session_store import SessionStore
+from ..store.session_store import AUTO_PARENT_MESSAGE, SessionStore
 from .tools import builtin_tools
 
 log = logging.getLogger("deeptutor.runtime")
 
 PROTOCOL_VERSION = "2.0"
+
+@contextlib.contextmanager
+def _suppress_vtx_selection_writes():
+    """vtx's initialize() persists last_selected/recent_models into its own
+    config file. DeepTutor owns selection now, so make those writes no-ops
+    for the duration of initialization."""
+    import vtx.agent.runtime as _vr
+
+    saved: dict[str, Any] = {}
+    for name in ("set_last_selected", "add_recent_model"):
+        saved[name] = getattr(_vr, name)
+        setattr(_vr, name, lambda *a, **k: None)
+    try:
+        yield
+    finally:
+        for name, fn in saved.items():
+            setattr(_vr, name, fn)
+
 
 # underscore-prefixed and not exported, so we match on type name — the same
 # dispatch the SDK docs recommend.
@@ -212,42 +232,6 @@ class AgentRuntime:
     # -- agent construction -------------------------------------------------
 
     @staticmethod
-    def _vtx_llm_defaults() -> tuple[str | None, str | None]:
-        """(provider_slug, model_id) from the user's ``~/.vtx/config.yml``."""
-        try:
-            from vtx.core.config import get_config
-
-            cfg = get_config()
-            return cfg.llm.default_provider, cfg.llm.default_model
-        except Exception:  # noqa: BLE001 - config is best-effort
-            return None, None
-
-    @staticmethod
-    def _saved_selection() -> tuple[str | None, str | None]:
-        """Provider/model chosen in the web settings panel, if any."""
-        try:
-            import json
-
-            from ..config import get_settings
-
-            path = get_settings().data_dir / "settings.json"
-            data = json.loads(path.read_text(encoding="utf-8"))
-            sel = data.get("llm_selection") or {}
-            return sel.get("profile_id"), sel.get("model_id")
-        except Exception:
-            return None, None
-
-    @staticmethod
-    def _is_builtin_provider(name: str) -> bool:
-        try:
-            from vtx.ai.dynamic_models import DYNAMIC_PROVIDERS
-            from vtx.ai.provider_catalog import list_providers
-
-            return name in {p.slug for p in list_providers()} or name in DYNAMIC_PROVIDERS
-        except Exception:  # noqa: BLE001
-            return False
-
-    @staticmethod
     def _stream_event(
         turn: TurnHandle,
         etype: str,
@@ -296,10 +280,12 @@ class AgentRuntime:
 
         window = 0
         try:
-            from vtx.ai import get_model
+            from ..config import get_settings
 
-            info = get_model(getattr(runtime, "model", ""), getattr(runtime, "model_provider", ""))
-            window = int(getattr(info, "context_window", 0) or 0)
+            selection = provider_config.get_selection(get_settings())
+            profile_id = (selection or {}).get("profile_id") or ""
+            model_id = (selection or {}).get("model_id") or ""
+            window = provider_config.context_window_for(profile_id, model_id)
         except Exception:  # noqa: BLE001
             pass
         window_estimated = window <= 0
@@ -375,6 +361,9 @@ class AgentRuntime:
             content,
             attachments=attachments,
             metadata={"capability": capability, "turn_id": turn_id},
+            parent_message_id=command.get(
+                "parent_message_id", AUTO_PARENT_MESSAGE
+            ),
         )
         session["status"] = "running"
         session["last_input"] = content
@@ -406,7 +395,7 @@ class AgentRuntime:
         """
         try:
             from vtx.agent.runtime import ConversationRuntime
-            from vtx.core.config import config as vtx_config, get_last_selected
+            from vtx.core.config import config as vtx_config
             from vtx.core.events import (
                 AgentEndEvent, ErrorEvent, TextDeltaEvent, ThinkingDeltaEvent,
                 ToolApprovalEvent, ToolEndEvent, ToolResultEvent, ToolStartEvent,
@@ -436,19 +425,23 @@ class AgentRuntime:
                 from vtx.agent.agents import AgentRegistry, load_all_agents
                 from vtx.plugins.extensions import load_for_runtime
 
-                last = get_last_selected()
                 cwd = str(self._settings.workspace_dir)
-                provider = (command.get("model_provider") or last.provider
-                            or vtx_config.llm.default_provider)
-                model = (command.get("model") or session.get("model")
-                         or last.model_id or vtx_config.llm.default_model)
+                # Model/provider/base_url/key all come from DeepTutor's own
+                # catalog — nothing is read from ~/.vtx for selection.
+                resolved = provider_config.resolve_runtime_model(self._settings, command)
+                provider = resolved["provider"]
+                model = resolved["model"] or str(session.get("model") or "")
+                if not model:
+                    raise RuntimeError("no model configured — pick one in Settings → LLM")
+                base_url = resolved["base_url"]
+                api_key = resolved["api_key"]
+                thinking_level = command.get("thinking_level") or resolved["thinking_level"]
 
                 agent_registry = AgentRegistry()
                 loaded_agents, agent_errors = load_all_agents(cwd=cwd)
                 agent_registry.agents = loaded_agents
                 agent_registry.errors = agent_errors
                 desired = (_os.environ.get("VTX_AGENT")
-                           or (last.agent or None)
                            or (vtx_config.agents.default or None))
                 if desired:
                     agent_registry.set_active(desired)
@@ -466,10 +459,8 @@ class AgentRuntime:
 
                 runtime = ConversationRuntime(
                     cwd=cwd, model=model, model_provider=provider,
-                    base_url=vtx_config.llm.default_base_url or None,
-                    thinking_level=(command.get("thinking_level")
-                                    or last.thinking_level
-                                    or vtx_config.llm.default_thinking_level),
+                    api_key=api_key, base_url=base_url,
+                    thinking_level=thinking_level,
                     tools=tools,
                     extensions=loaded_extensions.bus,
                     agent_registry=agent_registry,
@@ -484,7 +475,8 @@ class AgentRuntime:
 
                 dt_token = bind_dt_session(self._store, session)
                 try:
-                    init = await asyncio.to_thread(runtime.initialize)
+                    with _suppress_vtx_selection_writes():
+                        init = await asyncio.to_thread(runtime.initialize)
                 finally:
                     unbind_dt_session(dt_token)
                 if getattr(init, "provider_error", None):
@@ -676,6 +668,7 @@ class AgentRuntime:
                     events=list(handle.events), turn_id=handle.turn_id,
                     capability=capability,
                     metadata={"status": status},
+                    parent_message_id=user_message.get("id"),
                 )
             except Exception:  # noqa: BLE001
                 pass

@@ -101,24 +101,37 @@ def _extract_json(text: str) -> Any:
 
 
 async def _llm_text(prompt: str, cancel_event: Any = None) -> str:
-    """One completion through vtx's configured model, cached per process."""
+    """One completion through DeepTutor's selected model, cached per process."""
     from vtx.agent.runtime import ConversationRuntime
-    from vtx.core.config import config as vtx_config, get_last_selected
     from vtx.core.events import TextDeltaEvent
 
-    last = get_last_selected()
-    provider = last.provider or vtx_config.llm.default_provider or ""
-    model = last.model_id or vtx_config.llm.default_model or ""
-    key = (provider, model)
+    from .. import provider_config
+    from ..config import get_settings
+
+    resolved = provider_config.resolve_runtime_model(get_settings())
+    provider = str(resolved["provider"] or "")
+    model = str(resolved["model"] or "")
+    if not model:
+        raise RuntimeError("no model configured — pick one in Settings → LLM")
+    key = (
+        resolved["profile_id"], resolved["model_id"],
+        provider, model, resolved["base_url"], resolved["api_key"],
+    )
     pair = _AGENTS.get(key)
     if pair is None:
         runtime = ConversationRuntime(
-            cwd=str(vtx_config.data_dir) if hasattr(vtx_config, "data_dir") else ".",
+            cwd=str(get_settings().workspace_dir),
             model=model,
             model_provider=provider,
+            api_key=resolved["api_key"],
+            base_url=resolved["base_url"],
+            thinking_level=resolved["thinking_level"],
             tools=[],
         )
-        await asyncio.to_thread(runtime.initialize)
+        from .runtime import _suppress_vtx_selection_writes
+
+        with _suppress_vtx_selection_writes():
+            await asyncio.to_thread(runtime.initialize)
         agent = await asyncio.to_thread(runtime.prepare_for_run)
         pair = (runtime, agent)
         _AGENTS[key] = pair

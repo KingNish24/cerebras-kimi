@@ -17,6 +17,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pathlib import Path
 
 from ..agent.runtime import AgentRuntime
+from .. import provider_config
 from ..config import Settings
 from ..store.session_store import SessionStore
 
@@ -315,161 +316,20 @@ def capabilities_registered() -> dict[str, Any]:
 # -- settings -------------------------------------------------------------------
 
 
-def _vtx_model_cache_entries(slug: str) -> dict[str, dict[str, Any]]:
-    """``~/.vtx/models/<slug>.json`` entries keyed by model id.
-
-    Both vtx fetchers write this file; entries carry context_window,
-    max_tokens, supports_thinking, thinking_level_map, supports_images —
-    exactly the capability data the settings UI needs.
-    """
-    try:
-        import json as _json
-        from pathlib import Path
-
-        cache = Path.home() / ".vtx" / "models" / f"{slug}.json"
-        if not cache.exists():
-            return {}
-        data = _json.loads(cache.read_text(encoding="utf-8"))
-        out: dict[str, dict[str, Any]] = {}
-        for m in data.get("models", []):
-            if isinstance(m, dict) and m.get("id"):
-                out[str(m["id"])] = m
-        return out
-    except Exception:  # noqa: BLE001
-        return {}
-
-
-def _vtx_model_capability_fields(entry: dict[str, Any] | None) -> dict[str, Any]:
-    """Map a vtx cache entry to LLMOption capability fields."""
-    if not entry:
-        return {}
-    fields: dict[str, Any] = {}
-    cw = entry.get("context_window") or entry.get("context_length")
-    if isinstance(cw, (int, float)) and cw:
-        fields["context_window"] = int(cw)
-    tlm = entry.get("thinking_level_map")
-    if isinstance(tlm, dict) and tlm:
-        levels = [k for k, v in tlm.items() if v is not None]
-        if levels:
-            fields["supported_reasoning_efforts"] = levels
-            fields["declared_reasoning"] = True
-    elif entry.get("supports_thinking"):
-        fields["declared_reasoning"] = True
-    if entry.get("supports_images"):
-        fields["supports_vision"] = True
-    return fields
-
-
-def _vtx_provider_model_ids(slug: str, provider: Any) -> list[str]:
-    """All model ids vtx knows for a provider: static known_models plus the
-    fetched caches under ``~/.vtx/models/<slug>.json`` (model_fetcher and
-    dynamic_models both write there — same files the vtx TUI reads)."""
-    ids: list[str] = []
-    seen: set[str] = set()
-
-    def _add(mid: Any) -> None:
-        mid = str(mid or "").strip()
-        if mid and mid not in seen:
-            seen.add(mid)
-            ids.append(mid)
-
-    for m in getattr(provider, "known_models", None) or []:
-        _add(m)
-    # Read vtx's on-disk model caches directly: both model_fetcher and
-    # dynamic_models write ~/.vtx/models/<slug>.json as
-    # {fetched_at, models: [{id, name, ...}]}. Reading the file avoids
-    # vtx's fetch-on-stale path, which would block this request on network.
-    try:
-        import json as _json
-        from pathlib import Path
-
-        cache = Path.home() / ".vtx" / "models" / f"{slug}.json"
-        if cache.exists():
-            data = _json.loads(cache.read_text(encoding="utf-8"))
-            for m in data.get("models", []):
-                if isinstance(m, dict):
-                    _add(m.get("id") or m.get("model_id"))
-                else:
-                    _add(m)
-    except Exception:  # noqa: BLE001 - caches are best-effort
-        pass
-    return ids
-
-
-def _vtx_model_options() -> list[dict[str, Any]]:
-    """Enumerate the vtx provider catalog into LLMOption rows."""
-    options: list[dict[str, Any]] = []
-    try:
-        from vtx.ai.provider_catalog import list_providers
-
-        for p in list_providers():
-            models = _vtx_provider_model_ids(p.slug, p)[:100]
-            if not models:
-                continue
-            cache = _vtx_model_cache_entries(p.slug)
-            for m in models:
-                option = {
-                    "profile_id": p.slug,
-                    "model_id": m,
-                    "profile_name": getattr(p, "display_name", p.slug),
-                    "model_name": m,
-                    "model": m,
-                    "provider": p.slug,
-                    "provider_label": getattr(p, "display_name", p.slug),
-                    "supports_vision": bool(getattr(p, "supports_vision", False)),
-                    "supports_thinking": bool(getattr(p, "supports_thinking", False)),
-                    "is_active_default": False,
-                }
-                # Per-model capability data comes from vtx's own cache entry
-                # (context window, reasoning levels, vision) — same source
-                # the vtx TUI reads, not a frontend-side guess.
-                option.update(_vtx_model_capability_fields(cache.get(m)))
-                options.append(option)
-    except Exception:  # noqa: BLE001
-        pass
-    return options
-
-
 def _saved_selection(request: Request) -> dict[str, Any] | None:
-    path = request.app.state.settings.data_dir / "settings.json"
-    try:
-        import json as _json
-
-        data = _json.loads(path.read_text(encoding="utf-8"))
-        sel = data.get("llm_selection")
-        return sel if isinstance(sel, dict) else None
-    except Exception:
-        return None
+    """Active selection from DeepTutor's own catalog (legacy file as fallback)."""
+    return provider_config.get_selection(_settings(request))
 
 
 @router.get("/settings/llm-options")
 def llm_options(request: Request) -> dict[str, Any]:
-    options = _vtx_model_options()
+    """Models and active selection from DeepTutor's own catalog — no vtx reads."""
+    settings = _settings(request)
+    options = provider_config.model_options(settings)
     saved = _saved_selection(request)
-    # vtx's own last_selected is the shared source of truth with the CLI.
-    try:
-        from vtx.core.config import get_last_selected
-
-        last = get_last_selected()
-        if last.provider and last.model_id:
-            saved = {
-                "profile_id": last.provider,
-                "model_id": last.model_id,
-                "reasoning_effort": last.thinking_level,
-            }
-    except Exception:  # noqa: BLE001
-        pass
     active = None
-    if saved and saved.get("profile_id") and saved.get("model_id"):
-        active = {
-            "profile_id": saved["profile_id"],
-            "model_id": saved["model_id"],
-            "reasoning_effort": saved.get("reasoning_effort"),
-        }
-        for opt in options:
-            if opt["profile_id"] == saved["profile_id"] and opt["model_id"] == saved["model_id"]:
-                opt["is_active_default"] = True
-                break
+    if saved:
+        active = dict(saved)
     if active is None and options:
         active = {
             "profile_id": options[0]["profile_id"],
@@ -477,18 +337,6 @@ def llm_options(request: Request) -> dict[str, Any]:
             "reasoning_effort": None,
         }
         options[0]["is_active_default"] = True
-    # Mark models from vtx's recent_models list (~/.vtx/config.yml) so the
-    # composer dropdown can show just what the user actually picks — the
-    # same recency the vtx TUI /model picker uses.
-    try:
-        from vtx.core.config import get_recent_models
-
-        recent = {(p, m) for p, m in get_recent_models()}
-        for opt in options:
-            if (opt["profile_id"], opt["model_id"]) in recent:
-                opt["is_recent"] = True
-    except Exception:  # noqa: BLE001
-        pass
     return {"active": active, "options": options}
 
 
@@ -500,39 +348,14 @@ class ProviderApply(BaseModel):
 
 @router.post("/settings/apply/provider")
 def apply_provider(request: Request, body: ProviderApply) -> dict[str, Any]:
-    import json as _json
-
+    """Store the active selection in DeepTutor's catalog (no vtx config writes)."""
     sel = body.llm_selection or (
         {"profile_id": body.profile_id, "model_id": body.model_id}
         if body.profile_id and body.model_id
         else None
     )
-    if sel:
-        # Mirror into ~/.vtx/config.yml exactly like the vtx TUI /model picker:
-        # last_selected + recent_models, so the CLI and this backend agree.
-        try:
-            from vtx.core.config import add_recent_model, set_last_selected
-
-            provider = sel.get("profile_id")
-            model_id = sel.get("model_id")
-            if provider and model_id:
-                set_last_selected(
-                    model_id=model_id,
-                    provider=provider,
-                    thinking_level=sel.get("reasoning_effort"),
-                )
-                add_recent_model(provider, model_id)
-        except Exception:  # noqa: BLE001 - vtx config write is best-effort
-            pass
-        path = request.app.state.settings.data_dir / "settings.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            data = _json.loads(path.read_text(encoding="utf-8"))
-        except Exception:
-            data = {}
-        data["llm_selection"] = sel
-        path.write_text(_json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-    return {"ok": True, "llm_selection": sel}
+    saved = provider_config.set_selection(_settings(request), sel)
+    return {"ok": True, "llm_selection": saved}
 
 
 class ProviderProbe(BaseModel):
@@ -548,32 +371,48 @@ class ProviderProbe(BaseModel):
     proxy: str | None = None
 
 
+def _probe_inputs(
+    request: Request,
+    *,
+    binding: str | None,
+    base_url: str | None,
+    api_key: str | None,
+    api_format: str | None,
+    connection_id: str | None = None,
+) -> tuple[str, str, str, str | None, dict[str, Any] | None]:
+    """Resolve probe inputs from the request body, then our catalog/presets."""
+    settings = _settings(request)
+    catalog = provider_config.load_catalog(settings)
+    slug = (binding or "").strip()
+    conn = None
+    if connection_id:
+        conn = next(
+            (c for c in catalog.get("connections") or [] if c.get("id") == connection_id),
+            None,
+        )
+    if conn is None and slug:
+        conn = next(
+            (c for c in catalog.get("connections") or [] if c.get("provider") == slug),
+            None,
+        )
+    preset = provider_config.builtin_preset(slug)
+    if conn:
+        slug = slug or str(conn.get("provider") or "")
+    base = (
+        base_url or (conn or {}).get("base_url") or (preset or {}).get("base_url") or ""
+    ).strip()
+    key = (
+        api_key or (conn or {}).get("api_key") or provider_config.preset_api_key(slug)
+        or ""
+    ).strip()
+    fmt = api_format or (conn or {}).get("api_format") or (preset or {}).get("api_format")
+    return slug, base, key, fmt, conn
+
+
 @router.post("/settings/test-provider")
 def test_provider(request: Request, body: ProviderProbe) -> dict[str, Any]:
-    """Probe a provider connection and return a Discovery payload.
-
-    Uses vtx's own fetchers so the model list lands in ``~/.vtx/models/`` —
-    the same cache the vtx TUI reads. ``binding`` is the provider slug.
-    """
+    """Probe a connection via a direct GET {base_url}/models (no vtx fetchers)."""
     service = (body.service or "llm").strip()
-    slug = (body.binding or "").strip()
-    provider = _vtx_provider_for(slug or None, body.base_url)
-    resolved_slug = getattr(provider, "slug", None) or slug
-
-    # Persist a typed key into vtx's auth store so probes AND turns can use it.
-    if resolved_slug and body.api_key:
-        try:
-            from vtx.ai.oauth import dynamic as vtx_dynamic
-
-            vtx_dynamic.save_api_key(resolved_slug, body.api_key)
-        except Exception:  # noqa: BLE001
-            pass
-
-    base = (body.base_url or (getattr(provider, "base_url", "") if provider else "") or "").strip()
-    if base and not base.lower().startswith(("http://", "https://")):
-        return {"status": "invalid_url", "models": []}
-
-    # vtx providers are LLM-shaped; other services have no catalog here.
     if service not in ("llm", "task"):
         return {
             "status": "unavailable",
@@ -582,43 +421,34 @@ def test_provider(request: Request, body: ProviderProbe) -> dict[str, Any]:
             "http_status": None,
         }
 
-    if not resolved_slug and not base:
-        return {"status": "unreachable", "models": []}
-
-    # Refresh through vtx (writes ~/.vtx/models/<slug>.json), then read back.
-    status = "connected"
-    http_status: int | None = None
-    try:
-        if resolved_slug:
-            from vtx.ai import dynamic_models, model_fetcher
-
-            try:
-                dynamic_models.refresh_provider(resolved_slug)
-            except Exception:  # noqa: BLE001 - not a dynamic provider
-                pass
-            try:
-                model_fetcher.refresh_provider_models(resolved_slug)
-            except Exception:  # noqa: BLE001
-                pass
-    except Exception:  # noqa: BLE001
-        status = "unreachable"
-
-    ids = _vtx_provider_model_ids(resolved_slug, provider) if resolved_slug else []
-    if not ids:
-        # No listable models — connection may still be valid for manual IDs.
-        status = "unavailable" if status == "connected" else status
-
-    models = [{"id": m, "name": m} for m in ids[:200]]
+    slug, base, key, fmt, conn = _probe_inputs(
+        request,
+        binding=body.binding,
+        base_url=body.base_url,
+        api_key=body.api_key,
+        api_format=body.api_format,
+        connection_id=body.connection_id,
+    )
+    result = provider_config.probe_models(base, key, fmt)
+    models = result["models"]
+    if result["status"] == "connected" and slug:
+        provider_config.store_discovered_models(
+            _settings(request),
+            slug,
+            [m["id"] for m in models],
+            connection_id=body.connection_id or (conn or {}).get("id"),
+        )
     return {
-        "status": status,
+        "status": result["status"],
         "models": models,
         "capabilities": (
-            [{"category": "llm", "evidence": "metadata"}] if status == "connected" else []
+            [{"category": "llm", "evidence": "metadata"}]
+            if result["status"] == "connected" else []
         ),
         "checked_at": __import__("datetime").datetime.now(
             __import__("datetime").timezone.utc
         ).isoformat(),
-        "http_status": http_status,
+        "http_status": result["http_status"],
     }
 
 
@@ -636,149 +466,45 @@ class FetchModelsBody(BaseModel):
     api_format: str | None = None
 
 
-def _vtx_provider_for(binding: str | None, base_url: str | None):
-    """Find the vtx catalog provider matching a connection binding/base_url."""
-    try:
-        from vtx.ai.provider_catalog import list_providers
-
-        providers = list(list_providers())
-        if binding:
-            for p in providers:
-                if p.slug == binding:
-                    return p
-        if base_url:
-            norm = base_url.rstrip("/")
-            for p in providers:
-                if (getattr(p, "base_url", "") or "").rstrip("/") == norm:
-                    return p
-    except Exception:  # noqa: BLE001
-        pass
-    return None
-
-
 @router.post("/settings/fetch-models")
-def fetch_models(body: FetchModelsBody) -> dict[str, Any]:
-    """Discover models for a provider connection.
-
-    Resolution order: vtx catalog ``known_models`` → live ``GET {base_url}/models``.
-    """
-    provider = _vtx_provider_for(body.binding, body.base_url)
-    slug = getattr(provider, "slug", None) or (body.binding or "").strip()
-
-    # Persist the user's api_key/base_url override into vtx's dynamic-auth
-    # store so the refresh below can authenticate — same file vtx reads.
-    if slug and (body.api_key or body.base_url):
-        try:
-            from vtx.ai.oauth import dynamic as vtx_dynamic
-
-            if body.api_key:
-                vtx_dynamic.save_api_key(slug, body.api_key)
-        except Exception:  # noqa: BLE001
-            pass
-
-    # Refresh through vtx's own fetchers — they write ~/.vtx/models/<slug>.json
-    # in the same CachedCatalog format the vtx TUI reads.
-    refreshed = False
-    if slug:
-        try:
-            from vtx.ai import dynamic_models, model_fetcher
-
-            try:
-                n = dynamic_models.refresh_provider(slug)
-                refreshed = refreshed or n > 0
-            except Exception:  # noqa: BLE001 - not a dynamic provider
-                pass
-            try:
-                n = model_fetcher.refresh_provider_models(slug)
-                refreshed = refreshed or n > 0
-            except Exception:  # noqa: BLE001
-                pass
-        except Exception:  # noqa: BLE001
-            pass
-
-    # Read back through the same cached path vtx uses (no extra network).
-    ids = _vtx_provider_model_ids(slug, provider) if slug else []
-    if not ids and provider is not None:
-        ids = [str(m) for m in (getattr(provider, "known_models", None) or [])]
-    return {"models": [{"id": m, "name": m} for m in ids[:200]], "refreshed": refreshed}
-
-
-def _vtx_provider_options() -> list[dict[str, Any]]:
-    """vtx provider catalog → ProviderOption rows for the connections page."""
-    options: list[dict[str, Any]] = []
-    try:
-        from vtx.ai.provider_catalog import list_providers
-
-        for p in list_providers():
-            known = list(getattr(p, "known_models", None) or [])
-            api_key_env = getattr(p, "api_key_env", None)
-            options.append(
-                {
-                    "value": p.slug,
-                    "label": getattr(p, "display_name", p.slug),
-                    "base_url": getattr(p, "base_url", None),
-                    "default_model": known[0] if known else None,
-                    "auth_mode": "api_key" if api_key_env else "api_key",
-                    "api_key_env": api_key_env,
-                    "supports_vision": bool(getattr(p, "supports_vision", False)),
-                    "supports_thinking": bool(getattr(p, "supports_thinking", False)),
-                    "status": "supported",
-                }
-            )
-    except Exception:  # noqa: BLE001
-        pass
-    return options
-
-
-def _vtx_connection_targets() -> list[dict[str, Any]]:
-    """Per-provider prefills the connections UI needs (base_url, default model).
-
-    Every vtx catalog provider is LLM-shaped (openai_compat or anthropic),
-    so each gets an ``llm`` service entry — same shape DeepTutor emits.
-    """
-    targets: list[dict[str, Any]] = []
-    try:
-        from vtx.ai.provider_catalog import list_providers
-
-        for p in list_providers():
-            known = list(getattr(p, "known_models", None) or [])
-            base = getattr(p, "base_url", "") or ""
-            if not base and not known:
-                continue
-            targets.append(
-                {
-                    "provider": p.slug,
-                    "label": getattr(p, "display_name", p.slug),
-                    "default_base_url": base,
-                    "services": {
-                        "llm": {
-                            "provider": p.slug,
-                            "base_url": base,
-                            "default_model": known[0] if known else "",
-                        }
-                    },
-                }
-            )
-    except Exception:  # noqa: BLE001
-        pass
-    return targets
+def fetch_models(request: Request, body: FetchModelsBody) -> dict[str, Any]:
+    """Discover models from a live GET {base_url}/models, store in our catalog."""
+    slug, base, key, fmt, conn = _probe_inputs(
+        request,
+        binding=body.binding,
+        base_url=body.base_url,
+        api_key=body.api_key,
+        api_format=body.api_format,
+    )
+    result = provider_config.probe_models(base, key, fmt)
+    models = result["models"]
+    refreshed = result["status"] == "connected"
+    if refreshed and slug:
+        provider_config.store_discovered_models(
+            _settings(request),
+            slug,
+            [m["id"] for m in models],
+            connection_id=(conn or {}).get("id"),
+        )
+    return {"models": models, "refreshed": refreshed}
 
 
 @router.get("/settings")
 def settings_root(request: Request) -> dict[str, Any]:
-    providers = _vtx_provider_options()
+    settings = _settings(request)
+    providers = provider_config.provider_options(settings)
     return {
         "providers": {
             "llm": providers,
-            "task": [],
-            "embedding": [],
+            "task": providers,
+            "embedding": providers,
             "search": [],
-            "tts": [],
-            "stt": [],
-            "imagegen": [],
+            "tts": providers,
+            "stt": providers,
+            "imagegen": providers,
             "videogen": [],
         },
-        "connection_targets": _vtx_connection_targets(),
+        "connection_targets": provider_config.connection_targets(settings),
         "task_kinds": [],
         "ui": {"theme": "dark", "language": "en", "response_language": "en"},
         "services": {},
@@ -836,58 +562,27 @@ def _settings_dir(request: Request) -> Path:
 
 
 def _default_catalog() -> dict[str, Any]:
-    return {
-        "version": 1,
-        "connections": [],
-        "services": {
-            name: {"active_profile_id": None, "profiles": []}
-            for name in ("llm", "task", "embedding", "search", "tts", "stt", "imagegen", "videogen")
-        },
-    }
+    return provider_config.default_catalog()
 
 
 def _load_live_catalog(request: Request) -> dict[str, Any]:
-    import json as _json
-    from pathlib import Path
-
-    path = _settings_dir(request) / "settings-catalog.json"
-    data = None
-    try:
-        raw = _json.loads(path.read_text(encoding="utf-8"))
-        if isinstance(raw, dict) and "services" in raw:
-            data = raw
-    except Exception:
-        pass
-    if data is None:
-        return _default_catalog()
-    # Self-heal: connections saved before connection_targets existed can have
-    # an empty base_url, which makes the UI's model-sync guard skip fetching.
-    # Backfill from the vtx provider catalog (same source connection_targets uses).
-    try:
-        from vtx.ai.provider_catalog import list_providers
-
-        by_slug = {p.slug: p for p in list_providers()}
-        dirty = False
-        for conn in data.get("connections", []) or []:
-            if conn.get("base_url"):
-                continue
-            p = by_slug.get(conn.get("provider") or "")
-            base = getattr(p, "base_url", "") if p else ""
-            if base:
-                conn["base_url"] = base
-                dirty = True
-        if dirty:
-            _save_live_catalog(request, data)
-    except Exception:  # noqa: BLE001
-        pass
+    """Load the DeepTutor catalog, self-healing base_urls from our own presets."""
+    data = provider_config.load_catalog(_settings(request))
+    dirty = False
+    for conn in data.get("connections", []) or []:
+        if conn.get("base_url"):
+            continue
+        preset = provider_config.builtin_preset(str(conn.get("provider") or ""))
+        if preset and preset.get("base_url"):
+            conn["base_url"] = preset["base_url"]
+            dirty = True
+    if dirty:
+        _save_live_catalog(request, data)
     return data
 
 
 def _save_live_catalog(request: Request, catalog: dict[str, Any]) -> None:
-    import json as _json
-
-    path = _settings_dir(request) / "settings-catalog.json"
-    path.write_text(_json.dumps(catalog, ensure_ascii=False, indent=1), encoding="utf-8")
+    provider_config.save_catalog(_settings(request), catalog)
 
 
 def _load_draft(request: Request) -> dict[str, Any] | None:
