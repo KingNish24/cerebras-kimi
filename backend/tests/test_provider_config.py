@@ -103,7 +103,45 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(names, {"settings-catalog.json", "settings.json"})
 
 
+class CatalogFileTests(unittest.TestCase):
+    def test_builtin_catalog_contains_all_providers(self) -> None:
+        presets = pc.builtin_presets()
+        self.assertGreaterEqual(len(presets), 60)
+        for slug in (
+            "openai", "anthropic", "zhipu", "opengateway", "experientiallabs",
+            "kilo", "aihubmix", "ollama", "aerolink", "fastrouter", "xai",
+            "conduit", "sarvam", "bai",
+        ):
+            self.assertIn(slug, presets)
+        self.assertEqual(presets["zhipu"]["api_key_env"], "ZAI_API_KEY")
+        self.assertEqual(presets["zhipu"]["base_url"], "https://api.z.ai/api/coding/paas/v4")
+        self.assertEqual(presets["experientiallabs"]["model_parser"]["id_field"], "slug")
+
+
 class ProbeTests(unittest.TestCase):
+    def test_custom_models_parser(self) -> None:
+        preset = pc.builtin_preset("experientiallabs")
+        payload = {"model": [{
+            "slug": "m1",
+            "display_name": "Model One",
+            "context_window": 128000,
+        }]}
+        rows = pc._extract_models(payload, preset["model_parser"])
+        self.assertEqual(rows, [{"id": "m1", "name": "Model One", "context_window": 128000}])
+
+    def test_preset_models_endpoint_is_used(self) -> None:
+        response = mock.Mock(status_code=200)
+        response.json.return_value = {"data": [{"id": "m1"}]}
+        preset = pc.builtin_preset("experientiallabs")
+        with mock.patch("httpx.Client") as client_cls:
+            client = client_cls.return_value.__enter__.return_value
+            client.get.return_value = response
+            pc.probe_models(preset["base_url"], "k", "openai_chat", preset)
+        self.assertEqual(
+            client.get.call_args.args[0],
+            "https://api.experientiallabs.ai/api/models",
+        )
+
     def test_parse_openai_models_response(self) -> None:
         response = mock.Mock(status_code=200)
         response.json.return_value = {"data": [{"id": "a"}, {"id": "b"}, {"id": "a"}]}

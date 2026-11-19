@@ -379,7 +379,7 @@ def _probe_inputs(
     api_key: str | None,
     api_format: str | None,
     connection_id: str | None = None,
-) -> tuple[str, str, str, str | None, dict[str, Any] | None]:
+) -> tuple[str, str, str, str | None, dict[str, Any] | None, dict[str, Any] | None]:
     """Resolve probe inputs from the request body, then our catalog/presets."""
     settings = _settings(request)
     catalog = provider_config.load_catalog(settings)
@@ -395,9 +395,9 @@ def _probe_inputs(
             (c for c in catalog.get("connections") or [] if c.get("provider") == slug),
             None,
         )
-    preset = provider_config.builtin_preset(slug)
     if conn:
         slug = slug or str(conn.get("provider") or "")
+    preset = provider_config.builtin_preset(slug)
     base = (
         base_url or (conn or {}).get("base_url") or (preset or {}).get("base_url") or ""
     ).strip()
@@ -406,7 +406,7 @@ def _probe_inputs(
         or ""
     ).strip()
     fmt = api_format or (conn or {}).get("api_format") or (preset or {}).get("api_format")
-    return slug, base, key, fmt, conn
+    return slug, base, key, fmt, conn, preset
 
 
 @router.post("/settings/test-provider")
@@ -421,7 +421,7 @@ def test_provider(request: Request, body: ProviderProbe) -> dict[str, Any]:
             "http_status": None,
         }
 
-    slug, base, key, fmt, conn = _probe_inputs(
+    slug, base, key, fmt, conn, preset = _probe_inputs(
         request,
         binding=body.binding,
         base_url=body.base_url,
@@ -429,13 +429,13 @@ def test_provider(request: Request, body: ProviderProbe) -> dict[str, Any]:
         api_format=body.api_format,
         connection_id=body.connection_id,
     )
-    result = provider_config.probe_models(base, key, fmt)
+    result = provider_config.probe_models(base, key, fmt, preset)
     models = result["models"]
     if result["status"] == "connected" and slug:
         provider_config.store_discovered_models(
             _settings(request),
             slug,
-            [m["id"] for m in models],
+            models,
             connection_id=body.connection_id or (conn or {}).get("id"),
         )
     return {
@@ -469,21 +469,21 @@ class FetchModelsBody(BaseModel):
 @router.post("/settings/fetch-models")
 def fetch_models(request: Request, body: FetchModelsBody) -> dict[str, Any]:
     """Discover models from a live GET {base_url}/models, store in our catalog."""
-    slug, base, key, fmt, conn = _probe_inputs(
+    slug, base, key, fmt, conn, preset = _probe_inputs(
         request,
         binding=body.binding,
         base_url=body.base_url,
         api_key=body.api_key,
         api_format=body.api_format,
     )
-    result = provider_config.probe_models(base, key, fmt)
+    result = provider_config.probe_models(base, key, fmt, preset)
     models = result["models"]
     refreshed = result["status"] == "connected"
     if refreshed and slug:
         provider_config.store_discovered_models(
             _settings(request),
             slug,
-            [m["id"] for m in models],
+            models,
             connection_id=(conn or {}).get("id"),
         )
     return {"models": models, "refreshed": refreshed}

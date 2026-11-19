@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import time
 from pathlib import Path
 from typing import Any
@@ -38,119 +37,50 @@ _PROBE_TIMEOUT = 20.0
 
 
 # ---------------------------------------------------------------------------
-# Built-in presets — DeepTutor's own static catalogue. No vtx import, ever.
+# Built-in presets — loaded from DeepTutor's own catalog file. No vtx import.
 # ---------------------------------------------------------------------------
 
-# Each preset supplies the prefills the settings UI needs when adding a
-# connection. Users can still add any custom provider with a custom base_url.
-_BUILTIN: dict[str, dict[str, Any]] = {
-    "openai": {
-        "label": "OpenAI",
-        "base_url": "https://api.openai.com/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "OPENAI_API_KEY",
-        "known_models": ["gpt-4o", "gpt-4o-mini", "o3-mini", "o4-mini"],
-        "supports_vision": True,
-        "supports_thinking": True,
-        "services": ("llm", "embedding", "tts", "stt", "imagegen"),
-    },
-    "anthropic": {
-        "label": "Anthropic",
-        "base_url": "https://api.anthropic.com/v1",
-        "api_format": "anthropic",
-        "api_key_env": "ANTHROPIC_API_KEY",
-        "known_models": [
-            "claude-sonnet-4-20250514", "claude-3-7-sonnet-20250219",
-            "claude-3-5-sonnet-20241022",
-        ],
-        "supports_vision": True,
-        "supports_thinking": True,
-        "services": ("llm",),
-    },
-    "openrouter": {
-        "label": "OpenRouter",
-        "base_url": "https://openrouter.ai/api/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "OPENROUTER_API_KEY",
-        "known_models": [
-            "openai/gpt-4o", "anthropic/claude-3.7-sonnet",
-            "google/gemini-2.5-pro", "deepseek/deepseek-chat",
-        ],
-        "supports_vision": True,
-        "supports_thinking": True,
-        "services": ("llm",),
-    },
-    "deepseek": {
-        "label": "DeepSeek",
-        "base_url": "https://api.deepseek.com/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "DEEPSEEK_API_KEY",
-        "known_models": ["deepseek-chat", "deepseek-reasoner"],
-        "supports_vision": False,
-        "supports_thinking": True,
-        "services": ("llm",),
-    },
-    "gemini": {
-        "label": "Google Gemini",
-        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
-        "api_format": "openai_chat",
-        "api_key_env": "GEMINI_API_KEY",
-        "known_models": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
-        "supports_vision": True,
-        "supports_thinking": True,
-        "services": ("llm",),
-    },
-    "groq": {
-        "label": "Groq",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "GROQ_API_KEY",
-        "known_models": ["llama-3.3-70b-versatile", "mixtral-8x7b-32768"],
-        "supports_vision": False,
-        "supports_thinking": False,
-        "services": ("llm",),
-    },
-    "mistral": {
-        "label": "Mistral",
-        "base_url": "https://api.mistral.ai/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "MISTRAL_API_KEY",
-        "known_models": ["mistral-large-latest", "mistral-small-latest"],
-        "supports_vision": False,
-        "supports_thinking": False,
-        "services": ("llm",),
-    },
-    "ollama": {
-        "label": "Ollama (local)",
-        "base_url": "http://localhost:11434/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "",
-        "known_models": ["llama3.1", "qwen2.5"],
-        "supports_vision": False,
-        "supports_thinking": False,
-        "services": ("llm", "embedding"),
-    },
-    "xai": {
-        "label": "xAI",
-        "base_url": "https://api.x.ai/v1",
-        "api_format": "openai_chat",
-        "api_key_env": "XAI_API_KEY",
-        "known_models": ["grok-3", "grok-3-mini"],
-        "supports_vision": False,
-        "supports_thinking": True,
-        "services": ("llm",),
-    },
-    "zhipu": {
-        "label": "Zhipu AI",
-        "base_url": "https://open.bigmodel.cn/api/paas/v4",
-        "api_format": "openai_chat",
-        "api_key_env": "ZHIPU_API_KEY",
-        "known_models": ["glm-4.5", "glm-4-plus"],
-        "supports_vision": True,
-        "supports_thinking": True,
-        "services": ("llm", "embedding"),
-    },
-}
+_CATALOG_FILE = Path(__file__).with_name("provider_catalog.json")
+
+
+def _load_presets() -> dict[str, dict[str, Any]]:
+    """Normalize provider_catalog.json into the preset shape used below."""
+    try:
+        raw = json.loads(_CATALOG_FILE.read_text(encoding="utf-8"))
+        entries = raw.get("providers") or []
+    except Exception:
+        entries = []
+    presets: dict[str, dict[str, Any]] = {}
+    for entry in entries:
+        slug = str(entry.get("slug") or "").strip().lower()
+        if not slug:
+            continue
+        family = str(entry.get("family") or "openai_compat")
+        env = entry.get("api_key_env") or ""
+        presets[slug] = {
+            "slug": slug,
+            "label": str(entry.get("display_name") or slug),
+            "description": str(entry.get("description") or ""),
+            "base_url": str(entry.get("base_url") or ""),
+            "api_format": "anthropic" if family == "anthropic" else "openai_chat",
+            "family": family,
+            "api_key_env": str(env) if env else "",
+            "known_models": [str(m) for m in (entry.get("known_models") or [])],
+            "supports_vision": bool(entry.get("supports_vision", False)),
+            "supports_thinking": bool(entry.get("supports_thinking", False)),
+            "api_key_optional": bool(entry.get("api_key_optional", False)),
+            "is_local": bool(entry.get("is_local", False)),
+            "headers": dict(entry.get("headers") or {}),
+            "openmodelendpoint": bool(entry.get("openmodelendpoint", False)),
+            "fetch_models": bool(entry.get("fetch_models", False)),
+            "models_endpoint": str(entry.get("models_endpoint") or "/models"),
+            "model_parser": dict(entry.get("model_parser") or {}),
+            "services": tuple(entry.get("services") or ("llm",)),
+        }
+    return presets
+
+
+_BUILTIN = _load_presets()
 
 # Provider slugs whose wire protocol vtx must not infer from the model name.
 _anthropic_slugs = {"anthropic", "aerolink"}
@@ -650,42 +580,79 @@ def context_window_for(profile_id: str, model_id: str) -> int:
 # Live model discovery (no vtx fetchers, no ~/.vtx caches)
 # ---------------------------------------------------------------------------
 
-def _extract_ids(payload: Any) -> list[str]:
-    ids: list[str] = []
-    seen: set[str] = set()
+def _extract_models(payload: Any, parser: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """Parse a provider's /models payload into normalized model rows.
 
-    def add(value: Any) -> None:
-        mid = str(value or "").strip()
-        if mid and mid not in seen:
-            seen.add(mid)
-            ids.append(mid)
+    Supports the catalog's ``model_parser`` options: ``array_path``,
+    ``flatten_field``, ``id_field``, ``name_field``, ``context_field`` and
+    ``output_field``. Defaults match the OpenAI shape.
+    """
+    parser = parser or {}
+    array_path = str(parser.get("array_path") or "data")
+    flatten_field = parser.get("flatten_field")
+    id_field = str(parser.get("id_field") or "id")
+    name_field = str(parser.get("name_field") or "name")
+    context_field = str(parser.get("context_field") or "context_length")
+    output_field = str(parser.get("output_field") or "max_completion_tokens")
 
+    items: Any = payload
     if isinstance(payload, dict):
-        for item in payload.get("data") or payload.get("models") or []:
-            if isinstance(item, dict):
-                add(item.get("id") or item.get("name") or item.get("model_id"))
-            else:
-                add(item)
-    elif isinstance(payload, list):
-        for item in payload:
-            add(item.get("id") if isinstance(item, dict) else item)
-    return ids
+        if flatten_field:
+            items = payload.get(str(flatten_field))
+            if items is None:
+                root = payload.get("data") or payload.get("models") or {}
+                items = root.get(str(flatten_field)) if isinstance(root, dict) else None
+        else:
+            items = (
+                payload.get(array_path) or payload.get("models")
+                or payload.get("data")
+            )
+    if not isinstance(items, list):
+        return []
+
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in items:
+        if isinstance(item, str):
+            mid, name, raw = item.strip(), item.strip(), {}
+        elif isinstance(item, dict):
+            mid = str(
+                item.get(id_field) or item.get("id") or item.get("model_id") or ""
+            ).strip()
+            name = str(item.get(name_field) or item.get("name") or mid)
+            raw = item
+        else:
+            continue
+        if not mid or mid in seen:
+            continue
+        seen.add(mid)
+        row: dict[str, Any] = {"id": mid, "name": name}
+        for key, field in (("context_window", context_field), ("max_tokens", output_field)):
+            value = raw.get(field) if isinstance(raw, dict) else None
+            if isinstance(value, (int, float)) and value > 0:
+                row[key] = int(value)
+        out.append(row)
+    return out
 
 
 def probe_models(
     base_url: str,
     api_key: str | None = None,
     api_format: str | None = None,
+    preset: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """GET {base_url}/models directly. Returns status + model id list."""
+    """GET the provider's models endpoint directly (no vtx fetchers/caches)."""
     base = (base_url or "").strip().rstrip("/")
     if not base:
         return {"status": "unreachable", "models": [], "http_status": None}
     if not base.lower().startswith(("http://", "https://")):
         return {"status": "invalid_url", "models": [], "http_status": None}
 
+    preset = preset or {}
     headers = dict(_HEADERS)
-    fmt = (api_format or "").strip().lower()
+    for key, value in (preset.get("headers") or {}).items():
+        headers[str(key)] = str(value)
+    fmt = str(api_format or preset.get("api_format") or "").strip().lower()
     if api_key:
         if fmt == "anthropic":
             headers["x-api-key"] = api_key
@@ -693,7 +660,10 @@ def probe_models(
         else:
             headers["Authorization"] = f"Bearer {api_key}"
 
-    url = f"{base}/models"
+    endpoint = str(preset.get("models_endpoint") or "")
+    if not endpoint:
+        endpoint = "/v1/models" if fmt == "anthropic" else "/models"
+    url = f"{base}/{endpoint.lstrip('/')}"
     try:
         with httpx.Client(timeout=_PROBE_TIMEOUT, follow_redirects=True) as client:
             response = client.get(url, headers=headers)
@@ -707,12 +677,12 @@ def probe_models(
             "http_status": response.status_code,
         }
     try:
-        ids = _extract_ids(response.json())
+        models = _extract_models(response.json(), preset.get("model_parser"))
     except Exception:
-        ids = []
+        models = []
     return {
-        "status": "connected" if ids else "unavailable",
-        "models": [{"id": m, "name": m} for m in ids[:200]],
+        "status": "connected" if models else "unavailable",
+        "models": models[:200],
         "http_status": response.status_code,
     }
 
@@ -720,12 +690,20 @@ def probe_models(
 def store_discovered_models(
     settings: Settings,
     provider: str,
-    model_ids: list[str],
+    models: list[Any],
     *,
     connection_id: str | None = None,
 ) -> None:
-    """Persist discovered model ids into the DeepTutor catalog."""
-    if not provider or not model_ids:
+    """Persist discovered models (ids or full rows) into the DeepTutor catalog."""
+    if not provider or not models:
+        return
+    rows: list[dict[str, Any]] = []
+    for model in models:
+        if isinstance(model, dict) and model.get("id"):
+            rows.append(dict(model))
+        elif isinstance(model, str) and model.strip():
+            rows.append({"id": model.strip(), "name": model.strip()})
+    if not rows:
         return
     catalog = load_catalog(settings)
     changed = False
@@ -735,9 +713,7 @@ def store_discovered_models(
         )
         if not match:
             continue
-        conn.setdefault("discovery", {})["models"] = [
-            {"id": m, "name": m} for m in model_ids
-        ]
+        conn.setdefault("discovery", {})["models"] = rows
         conn["discovery"]["status"] = "connected"
         conn["discovery"]["checked_at"] = time.time()
         changed = True

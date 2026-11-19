@@ -24,7 +24,7 @@ describe('provider branding', () => {
     // (FETCH_PROVIDERS), not a brandable search/LLM provider.
     const generic = new Set([
       'none', 'custom', 'custom_anthropic', 'custom_openai_sdk', 'custom_chat', 'y_api',
-      'google_browser_scraper', 'xai', // No bundled verified xAI brand asset yet.
+      'google_browser_scraper',
       'local',
     ])
     expect(ids.size).toBeGreaterThan(50)
