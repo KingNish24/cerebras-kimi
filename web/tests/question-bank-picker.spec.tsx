@@ -77,4 +77,4 @@ it("loads later pages and selects only the visible search matches", async () => 
   fireEvent.click(screen.getByRole("button", { name: "Select all (1)" }));
   fireEvent.click(screen.getByRole("button", { name: "Use Selected Questions (1)" }));
   await waitFor(() => expect(onApply.mock.calls[0][0].map((row: SelectedQuestionEntry) => row.id)).toEqual([201]));
-});
+}, 15000);

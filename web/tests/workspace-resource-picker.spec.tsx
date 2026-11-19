@@ -30,32 +30,32 @@ function Picker({ initial = inheritedWorkspaceResources() }: { initial?: Workspa
 
 it('preserves inherited access and supports an explicit empty selection per resource type', async () => {
   fixture.catalog.mockResolvedValue({
-    skills: [{ id: 'research', name: 'Research', source: 'account' }],
+    skills: [],
     mcp: [],
-    knowledge_bases: [],
+    knowledge_bases: [{ id: 'account:kb:Math', name: 'Math', source: 'account' }],
   })
   render(<Picker />)
-  expect(screen.getByTestId('policy')).toHaveTextContent('"skills":null')
-  fireEvent.change(screen.getByRole('combobox', { name: 'Skills assignment mode' }), {
+  expect(screen.getByTestId('policy')).toHaveTextContent('"knowledge_bases":null')
+  fireEvent.change(screen.getByRole('combobox', { name: 'Knowledge bases assignment mode' }), {
     target: { value: 'selected' },
   })
-  expect(screen.getByTestId('policy')).toHaveTextContent('"skills":[]')
-  fireEvent.click(await screen.findByRole('checkbox', { name: /Research/ }))
-  expect(screen.getByTestId('policy')).toHaveTextContent('"skills":["research"]')
-  expect(screen.getByTestId('policy')).toHaveTextContent('"mcp":null')
-  fireEvent.change(screen.getByRole('combobox', { name: 'Skills assignment mode' }), {
+  expect(screen.getByTestId('policy')).toHaveTextContent('"knowledge_bases":[]')
+  fireEvent.click(await screen.findByRole('checkbox', { name: /Math/ }))
+  expect(screen.getByTestId('policy')).toHaveTextContent('"knowledge_bases":["account:kb:Math"]')
+  expect(screen.getByTestId('policy')).toHaveTextContent('"skills":null')
+  fireEvent.change(screen.getByRole('combobox', { name: 'Knowledge bases assignment mode' }), {
     target: { value: 'inherit' },
   })
-  expect(screen.getByTestId('policy')).toHaveTextContent('"skills":null')
+  expect(screen.getByTestId('policy')).toHaveTextContent('"knowledge_bases":null')
 })
 
 it('keeps stale selections visible and removable instead of silently enabling everything', async () => {
   fixture.catalog.mockResolvedValue({ skills: [], mcp: [], knowledge_bases: [] })
-  render(<Picker initial={{ skills: ['deleted'], mcp: [], knowledge_bases: [] }} />)
+  render(<Picker initial={{ skills: [], mcp: [], knowledge_bases: ['deleted'] }} />)
   const missing = await screen.findByRole('checkbox', { name: /deleted/ })
   expect(missing).toBeChecked()
   fireEvent.click(missing)
-  await waitFor(() => expect(screen.getByTestId('policy')).toHaveTextContent('"skills":[]'))
+  await waitFor(() => expect(screen.getByTestId('policy')).toHaveTextContent('"knowledge_bases":[]'))
 })
 
 it('keeps same-name KB identities distinct while preserving legacy names', () => {

@@ -223,5 +223,5 @@ it('saves an explicit empty resource selection without changing other resource t
   fireEvent.click(await screen.findByRole('button', { name: 'Assigned resources' }))
   fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'selected' } })
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
-  await waitFor(() => expect(fixtures.save).toHaveBeenCalledWith({ resources: { skills: [], mcp: null, knowledge_bases: null } }, 'ws_a'))
+  await waitFor(() => expect(fixtures.save).toHaveBeenCalledWith({ resources: { skills: null, mcp: null, knowledge_bases: [] } }, 'ws_a'))
 })
