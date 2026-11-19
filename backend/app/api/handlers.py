@@ -29,107 +29,6 @@ def _settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
-_VTX_SESSIONS_CACHE: tuple[float, list[dict[str, Any]]] = (0.0, [])
-_VTX_SESSIONS_LOCK = __import__("threading").Lock()
-_VTX_SESSIONS_TTL = 300.0
-
-
-def _cheap_session_info(path) -> dict[str, Any] | None:
-    """Bounded parse: header + first user message only (first ~200 lines),
-    mtime for updated_at — avoids reading whole JSONL histories."""
-    import json as _json
-    import os as _os
-
-    sid = title = created = None
-    try:
-        with open(path, encoding="utf-8", errors="replace") as f:
-            for i, line in enumerate(f):
-                if i > 200:
-                    break
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    data = _json.loads(line)
-                except Exception:  # noqa: BLE001
-                    continue
-                if data.get("type") == "header":
-                    sid = data.get("id")
-                    created = data.get("timestamp")
-                elif data.get("type") == "message" and not title:
-                    msg = data.get("message") or {}
-                    if msg.get("role") == "user":
-                        c = msg.get("content")
-                        if isinstance(c, str):
-                            title = c[:100]
-                        elif isinstance(c, list) and c:
-                            title = str(c[0].get("text") or c[0])[:100]
-                if sid and title:
-                    break
-    except Exception:  # noqa: BLE001
-        return None
-    if not sid:
-        return None
-    try:
-        mtime = _os.path.getmtime(path)
-    except OSError:
-        mtime = 0.0
-    import datetime as _dt
-    return {
-        "id": sid,
-        "session_id": sid,
-        "title": title or "",
-        "created_at": created,
-        "updated_at": _dt.datetime.fromtimestamp(mtime, _dt.timezone.utc).isoformat(),
-        "message_count": 0,
-        "vtx_native": True,
-        "vtx_file": str(path),
-    }
-
-
-def _vtx_native_sessions() -> list[dict[str, Any]]:
-    """Sessions persisted by vtx itself (~/.vtx/sessions/*/*.jsonl) that no
-    DeepTutor record references yet — same listing vtx-vscode shows."""
-    global _VTX_SESSIONS_CACHE
-    import time as _time
-
-    if _time.time() - _VTX_SESSIONS_CACHE[0] < _VTX_SESSIONS_TTL:
-        return list(_VTX_SESSIONS_CACHE[1])
-    with _VTX_SESSIONS_LOCK:
-        if _time.time() - _VTX_SESSIONS_CACHE[0] < _VTX_SESSIONS_TTL:
-            return list(_VTX_SESSIONS_CACHE[1])
-        try:
-            from vtx.core.paths import get_config_dir
-
-            out: list[dict[str, Any]] = []
-            sdir = get_config_dir() / "sessions"
-            if sdir.is_dir():
-                for path in sdir.glob("*/*.jsonl"):
-                    info = _cheap_session_info(path)
-                    if info is not None:
-                        out.append(info)
-            out.sort(key=lambda r: r.get("updated_at") or "", reverse=True)
-            _VTX_SESSIONS_CACHE = (_time.time(), out)
-            return list(out)
-        except Exception:  # noqa: BLE001
-            return []
-
-
-def _resolve_vtx_session(request: Request, session_id: str) -> dict[str, Any] | None:
-    """Bind a vtx-native session id to a DeepTutor record (idempotent)."""
-    store = _store(request)
-    if store.get(session_id):
-        return store.get(session_id)
-    for row in _vtx_native_sessions():
-        if row["id"] == session_id:
-            session = store.create()
-            session["vtx_session_file"] = row["vtx_file"]
-            session["title"] = row["title"]
-            store.save(session)
-            return session
-    return None
-
-
 # -- auth -------------------------------------------------------------------
 
 
@@ -252,20 +151,11 @@ def list_sessions(
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:
-    # Paginate the *combined* index. Appending native sessions to every page
-    # (regardless of offset) made a full page appear at every offset, so the
-    # frontend's load-all loop never terminated and pinned the server.
+    # DeepTutor's record is the only session index. vtx-native JSONL files
+    # are neither read nor written any more (see app.main's in-memory patch).
     stored = _store(request).all()
-    bound_files = {s.get("vtx_session_file") for s in stored}
-    seen_ids = {s["id"] for s in stored}
-    merged = list(stored)
-    for row in _vtx_native_sessions():
-        if row.get("vtx_file") in bound_files or row.get("id") in seen_ids:
-            continue
-        merged.append(row)
-        seen_ids.add(row.get("id"))
-    merged.sort(key=_session_updated_key, reverse=True)
-    return {"sessions": [_summary(s) for s in merged[offset : offset + limit]]}
+    stored.sort(key=_session_updated_key, reverse=True)
+    return {"sessions": [_summary(s) for s in stored[offset : offset + limit]]}
 
 
 @router.get("/sessions/search")
@@ -291,7 +181,7 @@ def session_capabilities() -> dict[str, Any]:
 
 @router.get("/sessions/{session_id}")
 def get_session(request: Request, session_id: str) -> dict[str, Any]:
-    session = _resolve_vtx_session(request, session_id) or _store(request).get(session_id)
+    session = _store(request).get(session_id)
     if session is None:
         raise HTTPException(status_code=404, detail="session not found")
     summary = _summary(session)

@@ -428,29 +428,18 @@ class AgentRuntime:
                     agent_extensions=list(loaded_extensions.extensions),
                 )
                 runtime.set_loaded_extensions(loaded_extensions)
-                # Resume the vtx-native session so DeepTutor chats continue
-                # the same JSONL history the vtx CLI/TUI sees.
-                resume_id = None
-                vtx_file = session.get("vtx_session_file")
-                if vtx_file:
-                    try:
-                        from vtx.agent.session import Session as _VS
-                        resume_id = _VS.load(vtx_file).id
-                    except Exception:  # noqa: BLE001
-                        resume_id = None
-                init = await asyncio.to_thread(
-                    runtime.initialize, resume_session=resume_id)
+                # Bind this DeepTutor record while vtx builds its Session, so
+                # the session's entries are loaded from / saved to our JSON
+                # document instead of ~/.vtx/sessions/*.jsonl.
+                from .dt_session import bind as bind_dt_session, unbind as unbind_dt_session
+
+                dt_token = bind_dt_session(self._store, session)
+                try:
+                    init = await asyncio.to_thread(runtime.initialize)
+                finally:
+                    unbind_dt_session(dt_token)
                 if getattr(init, "provider_error", None):
                     raise RuntimeError(str(init.provider_error))
-                # Bind the vtx-native session to this DeepTutor record. Without
-                # this, /api/sessions merges the unbound JSONL as a second
-                # conversation with the same title, and clicking it creates a
-                # third record via _resolve_vtx_session.
-                vtx_session = getattr(runtime, "session", None)
-                session_file = getattr(vtx_session, "_session_file", None)
-                if session_file is not None and not session.get("vtx_session_file"):
-                    session["vtx_session_file"] = str(session_file)
-                    self._store.save(session)
                 agent = await asyncio.to_thread(runtime.prepare_for_run)
                 if agent is None:
                     raise RuntimeError("agent initialization failed")

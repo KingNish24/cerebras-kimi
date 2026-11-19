@@ -13,7 +13,7 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 
 - **`backend/`** — FastAPI/Uvicorn app (`app/main.py`). REST handlers live in `app/api/handlers.py`; turn commands and feature-channel messages are dispatched directly by the REST+SSE controller in `app/api/realtime.py`, which drives the vtx agent loop in `app/agent/runtime.py`. There is no ACP or JSON-RPC layer.
 - **`web/`** — Next.js app. `features/chat/transport/` holds the SSE-backed `TurnSocket` and the turn protocol client; `lib/sse-socket.ts` is the shared REST+SSE shim used by the turn protocol, `lib/rpc-ws.ts`, and `lib/reconnecting-websocket.ts` for legacy feature channels. Commands are POSTed; frames arrive as named SSE events and are re-emitted with the same JSON payloads the old transport produced.
-- **Sessions are real vtx sessions** — conversations persist as JSONL under `~/.vtx/sessions/<cwd>/` via vtx's own `Session`/`JSONLSession`, shared with the vtx CLI/TUI (`session/list`, `session/load`, `session/new`, `session/prompt`, `session/cancel`, `session/set_model`…).
+- **DeepTutor owns sessions** — conversations persist as JSON documents under `data/sessions/<id>.json` (messages, turn events, settings, and the agent's vtx session header/entries). The agent uses a real, append-only vtx `Session`, but its persistence layer is that DeepTutor record; nothing is read from or written to `~/.vtx/sessions`.
 
 ### API surface
 
@@ -35,7 +35,8 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | `agent/tools.py` | Tool registry — `builtin_tools()` with toggleable/locked-on gating |
 | `agent/dt_tools.py` | Consolidated tutor tools (see below) |
 | `agent/kb_tools.py` | `knowledge_base_search` — BM25 retrieval over knowledge bases |
-| `store/session_store.py` | DeepTutor session records + bridge to `~/.vtx/sessions` |
+| `store/session_store.py` | DeepTutor session records — the sole conversation store |
+| `agent/dt_session.py` | vtx `Session` subclass that persists entries into the DeepTutor record |
 | `store/kb_store.py` | Knowledge-base store (chunked docs, BM25 search) |
 | `config.py` | `Settings` — `data_dir`, `workspace_dir` via `DT_DATA_DIR`/`DT_WORKSPACE_DIR` |
 
@@ -72,7 +73,7 @@ Model/provider config is shared with vtx: keys in `~/.vtx/dynamic_auth.json`, mo
 
 | Data | Location |
 |---|---|
-| Conversations | `~/.vtx/sessions/*/*.jsonl` (shared with vtx CLI) |
+| Conversations | `data/sessions/<id>.json` (DeepTutor-owned) |
 | DeepTutor session records | `data/sessions/` |
 | Knowledge bases | `data/kb/` (via `KnowledgeBaseStore`) |
 | Memory/learning/mastery/notes | `data/*.json`, `data/notes/` |

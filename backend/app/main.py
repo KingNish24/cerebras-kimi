@@ -19,6 +19,33 @@ from .config import get_settings
 from .store.kb_store import KnowledgeBaseStore
 from .store.session_store import SessionStore
 
+
+def _use_deeptutor_vtx_sessions() -> None:
+    """Back vtx Sessions with DeepTutor's store instead of ~/.vtx JSONL files.
+
+    ConversationRuntime.initialize() creates a Session via Session.create().
+    Redirecting that factory to DeepTutorSession keeps the full vtx session
+    protocol (append-only, resumable, checkpoints) while persisting entries in
+    ``data/sessions/<id>.json``. No vtx session files are read or written.
+    """
+    from vtx.agent.session import Session
+
+    from .agent.dt_session import DeepTutorSession
+
+    original_create = Session.__dict__["create"]
+
+    def create(cls, cwd, *args, **kwargs):  # type: ignore[no-untyped-def]
+        created = original_create.__func__(DeepTutorSession, cwd, *args, **kwargs)
+        # Belt and braces: never let a base method fall back to JSONL I/O.
+        created._session_file = None
+        created._load_from_record()
+        return created
+
+    Session.create = classmethod(create)
+
+
+_use_deeptutor_vtx_sessions()
+
 settings = get_settings()
 settings.data_dir.mkdir(parents=True, exist_ok=True)
 settings.workspace_dir.mkdir(parents=True, exist_ok=True)
