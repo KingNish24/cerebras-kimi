@@ -1,10 +1,10 @@
 /**
- * WebSocket-compatible socket over the Python backend's native WS endpoint.
- * Drop-in for `new WebSocket(wsUrl(path))`: send() writes JSON to the
- * socket; inbound frames arrive as parsed JSON events.
+ * WebSocket-compatible socket over the backend's REST + SSE transport.
+ * Drop-in for `new WebSocket(wsUrl(path))`: send() POSTs JSON to the realtime
+ * command endpoint; inbound frames arrive as parsed JSON events over SSE.
  */
 
-import { backendWsUrl } from "@/shared/api/client";
+import { sseSocketFactory, type SseSocketLike } from "@/lib/sse-socket";
 
 type MessageListener = (event: { data: string }) => void;
 
@@ -17,33 +17,34 @@ export class RpcSocket {
   onclose: (() => void) | null = null;
   onerror: ((e: unknown) => void) | null = null;
 
-  private readonly ws: WebSocket;
+  private readonly socket: SseSocketLike;
   private closed = false;
 
   constructor(path: string) {
-    this.ws = new WebSocket(backendWsUrl(path));
-    this.ws.onopen = () => {
+    this.socket = sseSocketFactory(path);
+    this.socket.onopen = () => {
       if (this.closed) return;
       this.readyState = OPEN;
       this.onopen?.();
     };
-    this.ws.onmessage = (ev) => {
-      const data = typeof ev.data === "string" ? ev.data : "";
-      this.onmessage?.({ data });
+    this.socket.onmessage = (ev) => {
+      if (this.closed) return;
+      this.onmessage?.({ data: ev.data });
     };
-    this.ws.onclose = () => {
+    this.socket.onclose = () => {
+      if (this.closed) return;
       this.readyState = 3;
       this.onclose?.();
     };
-    this.ws.onerror = (e) => this.onerror?.(e);
+    this.socket.onerror = (e) => this.onerror?.(e);
   }
 
   send(data: string) {
-    if (this.ws.readyState === OPEN) this.ws.send(data);
+    if (this.readyState === OPEN) this.socket.send(data);
   }
 
   close() {
     this.closed = true;
-    this.ws.close();
+    this.socket.close();
   }
 }

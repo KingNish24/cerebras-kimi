@@ -17,6 +17,7 @@ from typing import Any
 
 import httpx
 from .toolkit import tool
+from vtx.agent.tools.ask_user import AskUserTool
 
 from ..config import Settings
 
@@ -335,8 +336,12 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "read_file": ws_tools[0],
         "apply_patch": dt_tools.apply_patch,
         "list_files": ws_tools[2],
-        # User-requested consolidated tools
-        "ask_user": dt_tools.ask_user,
+        # Interactive questionnaire. Use the SDK's AskUserTool (not the
+        # plain dt_tools.ask_user): the turn runner intercepts a tool named
+        # "ask_user" and calls params.normalized_questions(), which only the
+        # SDK's params model implements. A plain function tool crashed the
+        # turn with AttributeError instead of showing the question.
+        "ask_user": AskUserTool(),
         "learning": dt_tools.learning,
         "workspace": dt_tools.workspace,
         "quiz": dt_tools.quiz,

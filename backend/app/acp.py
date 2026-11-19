@@ -3,8 +3,8 @@
 ``_notify`` / ``_dispatch`` over plain dicts, sessions own their runtime
 state, agent->client traffic is ``session/update`` notifications.
 
-No web-framework types here — transports (HTTP POST, WebSocket) adapt
-messages to :meth:`AcpAgent.handle` and drain :meth:`AcpAgent.send`.
+No web-framework types here — the REST + SSE transport in ``api/realtime.py``
+adapts messages to :meth:`AcpAgent.handle` and drains :meth:`AcpAgent.send`.
 """
 
 from __future__ import annotations
@@ -335,9 +335,13 @@ class AcpAgent:
             await self._notify("turn.event",
                                {"type": "pong", "protocol_version": "2.0"})
         elif ctype in ("submit_user_reply", "user_input"):
-            await self._ack(command, str(command.get("turn_id") or ""), False,
-                            "unsupported",
-                            "This backend does not support mid-turn user input yet.")
+            turn_id = str(command.get("turn_id") or "")
+            answers = [a for a in (command.get("answers") or []) if isinstance(a, dict)]
+            text = str(command.get("text") or "")
+            accepted = await self.runtime.resolve_ask_user(turn_id, text, answers)
+            await self._ack(command, turn_id, accepted,
+                            None if accepted else "no_pending_question",
+                            None if accepted else "No question is waiting on this turn.")
 
     async def _turn_regenerate(self, command: dict[str, Any]) -> None:
         session_id = str(command.get("session_id") or "")
@@ -689,10 +693,10 @@ class AcpAgent:
                           "message": f"Unknown method: {method}"}}
 
     async def _legacy_send(self, req_id: Any, params: dict[str, Any]) -> dict[str, Any]:
-        """WS-compat bridge: legacy /ws/* JSON protocols over RPC+SSE.
+        """Compat bridge for legacy feature-channel JSON protocols over SSE.
 
-        params: {channel, message} where message is the raw JSON the old
-        WebSocket client sent. Replies go out as ``legacy.event``
+        params: {channel, message} where message is the raw JSON the
+        channel client sent. Replies go out as ``legacy.event``
         notifications carrying {channel, data}.
         """
         channel = str(params.get("channel") or "")

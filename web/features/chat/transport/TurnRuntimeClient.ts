@@ -12,7 +12,7 @@ import {
 import { parseTurnEvent } from "@/contracts/parse/turn-event";
 import { scopedUrl } from "@/lib/workspace-scope";
 import { NO_LLM_ACCESS } from "../model/protocol";
-import { backendWsUrl } from "@/shared/api/client";
+import { apiUrl } from "@/shared/api/client";
 
 import {
   SOCKET_CONNECTING,
@@ -142,7 +142,7 @@ export class TurnRuntimeClient {
 
   constructor(options: TurnRuntimeClientOptions) {
     this.options = {
-      url: backendWsUrl("/ws"),
+      url: apiUrl("/api/realtime/events"),
       socketFactory: browserSocketFactory,
       scheduler: defaultScheduler,
       random: Math.random,

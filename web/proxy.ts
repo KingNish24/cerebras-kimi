@@ -11,10 +11,9 @@ import {
   isBackendPath,
   isCodexCallbackPath,
   isRetiredPagePath,
-  isWebSocketPath,
 } from "./lib/proxy-policy";
 
-// Backend base URL for `/api/*` and `/ws/*` rewrites. The container entrypoint
+// Backend base URL for `/api/*` rewrites. The container entrypoint
 // exports `DEEPTUTOR_API_BASE_URL` from `data/user/settings/system.json`
 // (preferring `next_public_api_base`, then `next_public_api_base_external`,
 // then `http://127.0.0.1:${BACKEND_PORT}`). This last-resort default applies
@@ -66,12 +65,7 @@ export function proxy(req: NextRequest): NextResponse {
   //    rather than baked into the frontend bundle.
   if (isBackendPath(pathname)) {
     return NextResponse.rewrite(new URL(pathname + search, API_BASE_URL), {
-      request: {
-        headers: prepareBackendForwardHeaders(req.headers, {
-          allowWebSocketUpgrade:
-            req.method === "GET" && isWebSocketPath(pathname),
-        }),
-      },
+      request: { headers: prepareBackendForwardHeaders(req.headers) },
     });
   }
 
@@ -93,7 +87,7 @@ export function proxy(req: NextRequest): NextResponse {
 
 export const config = {
   // Run on every request except Next.js internals and the favicon. The /api/*
-  // and /ws/* paths are explicitly handled above (rewritten to the backend);
+  // paths are explicitly handled above (rewritten to the backend);
   // Knowledge-base creation and upload requests that carry multipart bodies
   // are handled by dedicated App Router endpoints that stream directly to
   // FastAPI. The browser's list call uses /api/knowledge-bases/list so it can

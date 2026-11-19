@@ -70,8 +70,8 @@ export function selectAttachmentProcessing(
   }
   const items = [...byAttachment.values()];
   // Before the first server progress event the PDF is travelling in the
-  // start_turn WebSocket payload. This is a stage, not a byte percentage:
-  // browser WebSocket.send does not expose upload progress (#1523).
+  // start_turn REST request body. This is a stage, not a byte percentage:
+  // fetch has no request-body progress callback (#1523).
   if (isStreaming && userIndex >= 0) {
     const receivedByName = new Map<string, number>();
     for (const item of items) {

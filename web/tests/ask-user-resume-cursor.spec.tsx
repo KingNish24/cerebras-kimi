@@ -17,28 +17,39 @@ initI18n("en");
 
 // Keep the real adapter and both transport layers: the bug only appears
 // when submitting an answer copies the session cursor back into the socket.
+// The transport is SSE now, so the fake socket is an EventSource and commands
+// are captured from the POSTs made by SseSocket.send().
 class TestSocket extends EventTarget {
   static instances: TestSocket[] = [];
+  static byClient = new Map<string, TestSocket>();
   readyState = 0;
   sent: Record<string, unknown>[] = [];
+  listeners = new Map<string, (event: { data: string }) => void>();
+  close = vi.fn(() => {
+    this.readyState = 3;
+    this.listeners.get("close")?.({ data: undefined });
+  });
+  readonly clientId: string;
 
-  constructor() {
+  constructor(public url: string) {
     super();
     TestSocket.instances.push(this);
+    this.clientId =
+      new URL(url, "http://local").searchParams.get("client_id") || "";
+    TestSocket.byClient.set(this.clientId, this);
+  }
+
+  addEventListener(type: string, listener: (event: { data: string }) => void) {
+    this.listeners.set(type, listener);
   }
 
   open() {
     this.readyState = 1;
-    this.dispatchEvent(new Event("open"));
+    this.listeners.get("ready")?.({ data: "" });
   }
 
-  send(data: string) {
-    this.sent.push(JSON.parse(data));
-  }
-
-  close() {
-    this.readyState = 3;
-    this.dispatchEvent(new Event("close"));
+  emit(type: string, payload: unknown) {
+    this.listeners.get(type)?.({ data: JSON.stringify(payload) });
   }
 
   frame(
@@ -48,21 +59,35 @@ class TestSocket extends EventTarget {
     metadata = {},
     content = "",
   ) {
-    this.dispatchEvent(
-      new MessageEvent("message", {
-        data: JSON.stringify({
-          protocol_version: "2.0",
-          type,
-          turn_id: turnId,
-          session_id: "session-quiz",
-          seq,
-          timestamp: Date.now() / 1000,
-          metadata,
-          content,
-        }),
-      }),
-    );
+    this.emit("turn_event", {
+      protocol_version: "2.0",
+      type,
+      turn_id: turnId,
+      session_id: "session-quiz",
+      seq,
+      timestamp: Date.now() / 1000,
+      metadata,
+      content,
+    });
   }
+}
+
+function installTransport() {
+  vi.stubGlobal("EventSource", TestSocket);
+  vi.stubGlobal("fetch", async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.includes("/api/realtime/commands") && init?.body) {
+      const clientId =
+        new URL(url, "http://local").searchParams.get("client_id") || "";
+      TestSocket.byClient.get(clientId)?.sent.push(
+        JSON.parse(String(init.body)),
+      );
+    }
+    return new Response("{}", {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  });
 }
 
 function Harness() {
@@ -88,10 +113,11 @@ afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
   TestSocket.instances = [];
+  TestSocket.byClient.clear();
 });
 
 async function poseCard() {
-  vi.stubGlobal("WebSocket", TestSocket);
+  installTransport();
   const user = userEvent.setup();
   render(<ChatStateAdapterProvider><Harness /></ChatStateAdapterProvider>);
   await user.click(screen.getByRole("button", { name: "Start turn" }));
@@ -113,12 +139,10 @@ async function poseCard() {
 }
 
 function acknowledge(socket: TestSocket, commandId: unknown, accepted = true) {
-  act(() => socket.dispatchEvent(new MessageEvent("message", {
-    data: JSON.stringify({
-      protocol_version: "2.0", type: "command_ack", command_type: "submit_user_reply",
-      command_id: commandId, accepted, turn_id: "turn-quiz",
-    }),
-  })));
+  act(() => socket.emit("turn_event", {
+    protocol_version: "2.0", type: "command_ack", command_type: "submit_user_reply",
+    command_id: commandId, accepted, turn_id: "turn-quiz",
+  }));
 }
 
 it("keeps a reply queued through a long reconnect without ending the turn (#1648)", async () => {
@@ -171,18 +195,26 @@ it("uses a new command id for a later question with identical answers", async ()
       ] } },
     });
   });
+  await act(async () => {
+    await Promise.resolve();
+  });
   // The card may preserve the choice between identical question shapes.
   const option = screen.getByRole("button", { name: /Overwrite/ });
   if (option.getAttribute("aria-pressed") !== "true") fireEvent.click(option);
   fireEvent.click(screen.getByRole("button", { name: "Submit" }));
-  const replies = socket.sent.filter((m) => m.type === "submit_user_reply");
+  const replySockets = TestSocket.instances.filter((candidate) =>
+    candidate.sent.some((m) => m.type === "submit_user_reply"),
+  );
+  const replies = replySockets.flatMap((candidate) =>
+    candidate.sent.filter((m) => m.type === "submit_user_reply"),
+  );
   expect(replies).toHaveLength(2);
   expect(replies[1].command_id).not.toBe(first.command_id);
-  acknowledge(socket, replies[1].command_id);
+  acknowledge(replySockets.at(-1)!, replies[1].command_id);
 });
 
 it("resumes an ask_user in a shorter second turn without skipping its reply or done", async () => {
-  vi.stubGlobal("WebSocket", TestSocket);
+  installTransport();
   const user = userEvent.setup();
   render(
     <ChatStateAdapterProvider>

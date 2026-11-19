@@ -35,13 +35,15 @@ export interface ReconnectingWebSocketOptions {
   staleConnectingMs?: number;
 }
 
+import { sseSocketFactory } from "@/lib/sse-socket";
+
 const defaultScheduler: RetryScheduler = {
   set: (callback, delayMs) => setTimeout(callback, delayMs),
   clear: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
 };
 
 /**
- * Owns one browser WebSocket and keeps it alive across transient disconnects.
+ * Owns one transport socket (SSE-backed over REST) and keeps it alive across transient disconnects.
  *
  * The class deliberately knows nothing about React or the wire protocol. A
  * caller can pause retries while its page is hidden, then call `wake()` on
@@ -67,7 +69,9 @@ export class ReconnectingWebSocket {
     private readonly handlers: ReconnectingWebSocketHandlers,
     options: ReconnectingWebSocketOptions = {},
   ) {
-    this.createSocket = options.createSocket ?? ((url) => new WebSocket(url));
+    this.createSocket =
+      options.createSocket ??
+      ((url) => sseSocketFactory(url) as unknown as WebSocket);
     this.shouldReconnect = options.shouldReconnect ?? (() => true);
     this.scheduler = options.scheduler ?? defaultScheduler;
     this.now = options.now ?? Date.now;

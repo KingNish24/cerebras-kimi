@@ -13,16 +13,13 @@ export function apiUrl(path: string): string {
   return scopedUrl(path);
 }
 
+/**
+ * @deprecated Legacy channel paths are still written as `/ws/<channel>` by a
+ * few callers; the SSE transport maps them onto the REST realtime endpoints.
+ * New code should build `/api/realtime/...` URLs with `apiUrl`.
+ */
 export function wsUrl(path: string): string {
   return scopedUrl(path);
-}
-
-/** Absolute ws(s):// URL to the Python backend (REST/WS server on :8001). */
-export function backendWsUrl(path: string): string {
-  const base = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_BASE)
-    || "http://127.0.0.1:8001";
-  const wsBase = base.replace(/^http/, "ws");
-  return `${wsBase}${path}`;
 }
 
 export function parseAuthEnabled(raw: string | undefined): boolean {

@@ -19,7 +19,6 @@ import {
   isBackendPath,
   isCodexCallbackPath,
   isRetiredPagePath,
-  isWebSocketPath,
 } from "../lib/proxy-policy";
 import { prepareBackendForwardHeaders } from "../lib/backend-forward";
 
@@ -29,15 +28,13 @@ function makeToken(payload: Record<string, unknown>): string {
   return `${encode({ alg: "HS256" })}.${encode(payload)}.signature`;
 }
 
-test("isBackendPath matches /api and /ws paths only", () => {
+test("isBackendPath matches only /api paths", () => {
   assert.equal(isBackendPath("/api/knowledge-bases"), true);
-  assert.equal(isBackendPath("/ws/chat"), true);
+  assert.equal(isBackendPath("/api/realtime/events"), true);
+  assert.equal(isBackendPath("/ws/chat"), false);
   assert.equal(isBackendPath("/chat"), false);
   assert.equal(isBackendPath("/apidocs"), false); // no trailing slash → not backend
   assert.equal(isBackendPath("/logo.png"), false);
-  assert.equal(isWebSocketPath("/ws"), true);
-  assert.equal(isWebSocketPath("/ws/books"), true);
-  assert.equal(isWebSocketPath("/ws-extra"), false);
 });
 
 test("large knowledge uploads bypass the buffering proxy", () => {
@@ -168,35 +165,22 @@ test("backend forwarding does not invent a frontend host from the Next URL", () 
   assert.equal(headers.has("x-deeptutor-frontend-host"), false);
 });
 
-test("backend forwarding preserves only a valid WebSocket upgrade on /ws", () => {
-  const source = new Headers({
+test("backend forwarding strips upgrade headers but preserves SSE headers", () => {
+  const forwarded = prepareBackendForwardHeaders(new Headers({
     connection: "keep-alive, Upgrade, x-remove-me",
     upgrade: "websocket",
     host: "app.example",
-    "sec-websocket-key": "test-key",
+    accept: "text/event-stream",
+    "last-event-id": "turn_1:7",
     "x-forwarded-for": "1.2.3.4",
     "x-remove-me": "hop-by-hop",
-  });
-  const websocket = prepareBackendForwardHeaders(source, {
-    allowWebSocketUpgrade: true,
-  });
-  assert.equal(websocket.get("connection"), "Upgrade");
-  assert.equal(websocket.get("upgrade"), "websocket");
-  assert.equal(websocket.get("sec-websocket-key"), "test-key");
-  assert.equal(websocket.get("x-deeptutor-frontend-host"), "app.example");
-  assert.equal(websocket.has("x-forwarded-for"), false);
-  assert.equal(websocket.has("x-remove-me"), false);
-
-  const http = prepareBackendForwardHeaders(source);
-  assert.equal(http.has("connection"), false);
-  assert.equal(http.has("upgrade"), false);
-
-  const invalid = prepareBackendForwardHeaders(
-    new Headers({ connection: "Upgrade", upgrade: "h2c" }),
-    { allowWebSocketUpgrade: true },
-  );
-  assert.equal(invalid.has("connection"), false);
-  assert.equal(invalid.has("upgrade"), false);
+  }));
+  assert.equal(forwarded.get("accept"), "text/event-stream");
+  assert.equal(forwarded.get("last-event-id"), "turn_1:7");
+  assert.equal(forwarded.get("x-deeptutor-frontend-host"), "app.example");
+  for (const name of ["connection", "upgrade", "x-forwarded-for", "x-remove-me"]) {
+    assert.equal(forwarded.has(name), false, name);
+  }
 });
 
 test("isAuthExempt does NOT exempt protected app routes", () => {

@@ -22,21 +22,13 @@ export function isRetiredPagePath(pathname: string): boolean {
   return RETIRED_PAGE_PATHS.has(pathname);
 }
 
-// Paths whose responses come from the backend, not the Next app. The middleware
+// Paths whose responses come from the backend, not the Next app. The proxy
 // rewrites these to DEEPTUTOR_API_BASE_URL so the browser can use frontend-
-// relative URLs (e.g. `:3782/api/...` or `.../ws`) and let the rewrite
-// bridge the origin gap.
+// relative URLs (e.g. `:3782/api/...`) and let the rewrite bridge the origin gap.
 export function isBackendPath(pathname: string): boolean {
   // /files/* is served by the Next route at app/files/ (agent outputs).
   if (pathname.startsWith("/files/")) return false;
-  return (
-    pathname.startsWith("/api/") ||
-    isWebSocketPath(pathname)
-  );
-}
-
-export function isWebSocketPath(pathname: string): boolean {
-  return pathname === "/ws" || pathname.startsWith("/ws/");
+  return pathname.startsWith("/api/");
 }
 
 // Static assets served straight out of `web/public` (logos, favicons, fonts,

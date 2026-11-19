@@ -1,14 +1,8 @@
-"""Internal handler registry — NOT mounted as HTTP routes.
+"""FastAPI handler registry, mounted at ``/api/*`` by ``app.main``.
 
-These functions back the ACP ``http.request`` dispatch (app/api/dispatch.py).
-The APIRouter below is never included in the app; it exists only as a route
-table (path templates + methods + endpoints) for the dispatcher to match.
-
-Implements the subset of DeepTutor's API the frontend needs to boot and hold a
-
-Implements the subset of DeepTutor's API the frontend needs to boot and hold a
-conversation: auth status, session index/detail/search, runtime status,
-capability catalog, and LLM options. Everything else 404s cleanly.
+Implements the DeepTutor REST API the frontend uses to boot and hold a
+conversation: auth, sessions, settings, knowledge bases, notebooks, mastery,
+partners, documents, and the other feature stores.
 """
 
 from __future__ import annotations

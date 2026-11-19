@@ -86,10 +86,12 @@ it("tracks linked-folder syncs as their own progress task", async () => {
     kind: "sync",
     executing: true,
   });
-  expect(Socket.instances).toHaveLength(1);
-  expect(Socket.instances[0].url).toContain(
-    "/papers/progress?task_id=sync-task",
+  // The progress channel and the task stream are both SSE now — no WebSocket.
+  expect(Socket.instances).toHaveLength(0);
+  expect(Stream.instances.map((stream) => stream.url)).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining("/api/realtime/events"),
+      expect.stringContaining("/tasks/sync-task/stream"),
+    ]),
   );
-  expect(Stream.instances).toHaveLength(1);
-  expect(Stream.instances[0].url).toContain("/tasks/sync-task/stream");
 });

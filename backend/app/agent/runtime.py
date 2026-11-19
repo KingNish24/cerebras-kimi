@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 from typing import Any, AsyncIterator
 
 from vtx.agent.tools.base import BaseTool
+from vtx.core.events import AskUserEvent
+from vtx.core.permissions import AskUserAnswer, AskUserResponse
 from vtx.protocol.types import ToolResult
 
 from ..config import Settings
@@ -125,7 +127,7 @@ class _SdkToolAdapter(BaseTool):
 
 
 class AgentRuntime:
-    """Owns sessions, turns, and the vtx agent loop for the WS endpoint."""
+    """Owns sessions, turns, and the vtx agent loop for the REST/SSE endpoint."""
 
     def __init__(self, settings: Settings, store: SessionStore) -> None:
         self._settings = settings
@@ -133,6 +135,8 @@ class AgentRuntime:
         self._turns: dict[str, TurnHandle] = {}
         self._vtx_runtimes: dict[str, Any] = {}
         self._session_locks: dict[str, asyncio.Lock] = {}
+        # turn_id -> (future to resolve, tool_call_id, question prompts by id)
+        self._ask_user_waiters: dict[str, tuple[Any, str, dict[str, str]]] = {}
 
     # -- turn registry ----------------------------------------------------
 
@@ -144,6 +148,60 @@ class AgentRuntime:
 
     def get_turn(self, turn_id: str) -> TurnHandle | None:
         return self._turns.get(turn_id)
+
+    async def resolve_ask_user(
+        self,
+        turn_id: str,
+        text: str,
+        answers: list[dict[str, Any]],
+    ) -> bool:
+        """Feed a learner's answer into a paused ask_user tool call.
+
+        Resolves the SDK's future so the same turn resumes with the answer
+        substituted into the tool result. Emits the resolution event the UI
+        uses to seal the question card. Returns False when no question is
+        currently waiting on this turn (e.g. after a backend restart).
+        """
+        waiter = self._ask_user_waiters.pop(turn_id, None)
+        if waiter is None:
+            return False
+        future, tool_call_id, prompts = waiter
+        resolved: list[dict[str, Any]] = []
+        sdk_answers: list[AskUserAnswer] = []
+        for a in answers:
+            if not isinstance(a, dict):
+                continue
+            qid = str(a.get("questionId") or a.get("id") or "").strip()
+            value = str(a.get("text") or "").strip()
+            question = prompts.get(qid, qid)
+            resolved.append({"questionId": qid, "text": value})
+            if value:
+                sdk_answers.append(
+                    AskUserAnswer(question=question, kind="custom", answer=value)
+                )
+        if text.strip() and not sdk_answers:
+            # Legacy flat reply: attribute it to the first pending question.
+            first = next(iter(prompts.values()), "")
+            sdk_answers.append(
+                AskUserAnswer(question=first, kind="custom", answer=text.strip())
+            )
+        response = AskUserResponse(
+            custom_text=text.strip() or None,
+            answers=tuple(sdk_answers),
+        )
+        if future is not None and not future.done():
+            future.set_result(response)
+        handle = self._turns.get(turn_id)
+        if handle is not None:
+            await self._emit(handle, self._stream_event(
+                handle, "progress", source="ask_user", stage="responding",
+                metadata={
+                    "ask_user_resolved": True,
+                    "ask_user_tool_call_id": tool_call_id,
+                    "answers": resolved,
+                    "reply_preview": text.strip(),
+                }))
+        return True
 
     def _lock_for(self, session_id: str) -> asyncio.Lock:
         return self._session_locks.setdefault(session_id, asyncio.Lock())
@@ -423,6 +481,38 @@ class AgentRuntime:
                 prompt,
                 cancel_event=handle.cancel,
             ):
+                if isinstance(event, AskUserEvent):
+                    # The SDK intercepts ask_user and hands us the questionnaire
+                    # plus a future for the learner's answer. Publish a card to
+                    # the client now and let submit_user_reply resolve the future.
+                    prompts: dict[str, str] = {}
+                    questions = []
+                    for i, q in enumerate(event.questions or []):
+                        qid = f"q{i + 1}"
+                        prompts[qid] = q.question
+                        questions.append({
+                            "id": qid,
+                            "prompt": q.question,
+                            "header": q.header or None,
+                            "multi_select": bool(q.multi_select),
+                            "options": [
+                                {"label": o.label, "description": o.description or None}
+                                for o in (q.options or [])
+                            ],
+                            "allow_free_text": True,
+                            "placeholder": None,
+                        })
+                    await self._emit(handle, self._stream_event(
+                        handle, "tool_result", source=capability,
+                        stage="responding",
+                        metadata={
+                            "tool_call_id": event.tool_call_id,
+                            "tool_name": "ask_user",
+                            "tool_metadata": {"ask_user": {"questions": questions}},
+                        }))
+                    self._ask_user_waiters[handle.turn_id] = (
+                        event.future, event.tool_call_id, prompts)
+                    continue
                 if isinstance(event, ThinkingDeltaEvent):
                     if event.delta:
                         await self._emit(handle, self._stream_event(

@@ -89,28 +89,27 @@ it("tracks creation when the server accepts an indexing task", async () => {
       files: [new File(["hello"], "text.txt")],
     });
   });
-  expect(Socket.instances).toHaveLength(1);
-  expect(Socket.instances[0].url).toContain(
-    "/papers/progress?task_id=index-task",
+  expect(Socket.instances).toHaveLength(0);
+  expect(Stream.instances.map((stream) => stream.url)).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining("/api/realtime/events"),
+      expect.stringContaining("/tasks/index-task/stream"),
+    ]),
   );
-  expect(Stream.instances).toHaveLength(1);
-  expect(Stream.instances[0].url).toContain("/tasks/index-task/stream");
   expect(result.current.tasksByKb.papers).toMatchObject({
     taskId: "index-task",
     executing: true,
   });
 });
 
-it("subscribes without a task ID and tolerates opening a removed target", () => {
+it("subscribes without a task ID and closes its SSE channel", () => {
   const { result } = renderHook(() => useKnowledgeProgress());
   act(() => result.current.subscribeWs("kb"));
-  const socket = Socket.instances[0];
-  expect(socket.url).toContain("/kb/progress");
-  expect(socket.url).not.toContain("task_id");
-  expect(() => socket.onopen?.()).not.toThrow();
+  const stream = Stream.instances[0];
+  expect(stream.url).toContain("/api/realtime/events");
+  expect(stream.url).toContain("client_id=");
   act(() => result.current.cleanupKb("kb"));
-  expect(socket.close).toHaveBeenCalledOnce();
-  expect(() => socket.onopen?.()).not.toThrow();
+  expect(stream.close).toHaveBeenCalledOnce();
 });
 
 it("keeps one log line when process and structured progress interleave", () => {
@@ -153,14 +152,16 @@ it("restores the log stream when opening a processing KB, without clearing logs 
   ]);
   const { result } = renderHook(() => useKnowledgeBases());
   await waitFor(() => expect(result.current.loading).toBe(false));
-  expect(Stream.instances).toHaveLength(1);
-  expect(Stream.instances[0].url).toContain("/tasks/kb_reindex_running/stream");
+  const taskStream = Stream.instances.find((stream) =>
+    stream.url.includes("/tasks/kb_reindex_running/stream"),
+  )!;
+  expect(taskStream).toBeDefined();
   expect(result.current.tasksByKb[kbId]).toMatchObject({
     kind: "reindex",
     executing: true,
   });
   act(() =>
-    Stream.instances[0].emit("process_log", {
+    taskStream.emit("process_log", {
       message: "Restored backend detail",
     }),
   );
@@ -170,35 +171,36 @@ it("restores the log stream when opening a processing KB, without clearing logs 
   await act(async () => {
     await result.current.refresh({ force: true });
   });
-  expect(Stream.instances).toHaveLength(1);
-  expect(Socket.instances).toHaveLength(1);
+  expect(Stream.instances.filter((stream) => stream.url.includes("/tasks/"))).toHaveLength(1);
+  expect(Socket.instances).toHaveLength(0);
   expect(result.current.tasksByKb[kbId].logs).toContain(
     "Restored backend detail",
   );
-  act(() => Stream.instances[0].emit("complete", {}));
+  act(() => taskStream.emit("complete", {}));
   await waitFor(() =>
     expect(result.current.tasksByKb[kbId].executing).toBe(false),
   );
-  expect(Stream.instances).toHaveLength(1);
 });
 
 it("opens detailed logs when a legacy progress connection discovers its task ID", () => {
   const { result } = renderHook(() => useKnowledgeProgress());
   act(() => result.current.resumeTask("papers", { stage: "starting" }));
-  expect(Stream.instances).toHaveLength(0);
+  expect(Stream.instances).toHaveLength(1); // SSE progress channel, no task yet
   act(() =>
-    Socket.instances[0].onmessage?.({
-      data: JSON.stringify({
-        type: "progress",
-        data: {
-          task_id: "kb_init_discovered",
-          stage: "processing_documents",
-          message: "Parsing document",
-        },
-      }),
+    Stream.instances[0].emit("legacy_event", {
+      type: "progress",
+      data: {
+        task_id: "kb_init_discovered",
+        stage: "processing_documents",
+        message: "Parsing document",
+      },
     }),
   );
-  expect(Stream.instances).toHaveLength(1);
+  expect(
+    Stream.instances.some((stream) =>
+      stream.url.includes("/tasks/kb_init_discovered/stream"),
+    ),
+  ).toBe(true);
   expect(result.current.tasksByKb.papers).toMatchObject({
     kind: "create",
     executing: true,
@@ -214,8 +216,12 @@ it("ignores late events from a task replaced by a new processing run", () => {
       stage: "starting",
     }),
   );
-  const oldStream = Stream.instances[0];
-  const oldSocket = Socket.instances[0];
+  const oldTaskStream = Stream.instances.find((stream) =>
+    stream.url.includes("/tasks/kb_init_old/stream"),
+  )!;
+  const oldChannel = Stream.instances.find((stream) =>
+    stream.url.includes("/api/realtime/events"),
+  )!;
   act(() =>
     result.current.resumeTask("papers", {
       task_id: "kb_reindex_new",
@@ -223,18 +229,19 @@ it("ignores late events from a task replaced by a new processing run", () => {
       progress_percent: 20,
     }),
   );
+  const newTaskStream = Stream.instances.find((stream) =>
+    stream.url.includes("/tasks/kb_reindex_new/stream"),
+  )!;
   act(() => {
-    oldStream.emit("progress", { progress_percent: 99 });
-    oldStream.emit("complete", {});
-    oldSocket.onmessage?.({
-      data: JSON.stringify({ stage: "completed", task_id: "kb_init_old" }),
-    });
+    oldTaskStream.emit("progress", { progress_percent: 99 });
+    oldTaskStream.emit("complete", {});
+    oldChannel.emit("legacy_event", { stage: "completed", task_id: "kb_init_old" });
   });
   expect(result.current.progressByKb.papers.progress_percent).toBe(20);
   expect(result.current.tasksByKb.papers.executing).toBe(true);
-  expect(Stream.instances[1].close).not.toHaveBeenCalled();
+  expect(newTaskStream.close).not.toHaveBeenCalled();
   act(() =>
-    Stream.instances[1].emit("process_log", { message: "New run is active" }),
+    newTaskStream.emit("process_log", { message: "New run is active" }),
   );
   expect(result.current.tasksByKb.papers.logs).toContain("New run is active");
 });
