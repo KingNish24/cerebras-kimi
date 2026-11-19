@@ -83,10 +83,6 @@ import type { FilePreviewSource } from "@/components/chat/preview/previewerFor";
 import type { LLMSelection, StreamEvent } from "@/features/chat/model/protocol";
 import { selectAttachmentProcessing } from "@/features/chat/selectors/attachment-processing";
 import {
-  extractBase64FromDataUrl,
-  readFileAsDataUrl,
-} from "@/lib/file-attachments";
-import {
   fileToPendingAttachment,
   selectAttachmentFiles,
   toOutgoingAttachment,
@@ -115,11 +111,6 @@ import {
   type SessionDetail,
   type SessionSummary,
 } from "@/lib/session-api";
-import {
-  DEFAULT_QUIZ_CONFIG,
-  buildQuizWSConfig,
-  type DeepQuestionFormConfig,
-} from "@/lib/quiz-types";
 import {
   DEFAULT_VISUALIZE_CONFIG,
   buildVisualizeWSConfig,
@@ -226,10 +217,6 @@ const CapabilityConfigCard = dynamic(
   {
     ssr: false,
   },
-);
-const QuizConfigPanel = dynamic(
-  () => import("@/components/quiz/QuizConfigPanel"),
-  { ssr: false },
 );
 const VisualizeConfigPanel = dynamic(
   () => import("@/components/visualize/VisualizeConfigPanel"),
@@ -466,13 +453,6 @@ export default function ChatWorkspace() {
     null,
   );
   const [capMenuOpen, setCapMenuOpen] = useState(false);
-  const [quizConfig, setQuizConfig] = useState<DeepQuestionFormConfig>({
-    ...DEFAULT_QUIZ_CONFIG,
-  });
-  const [quizValidationErrors, setQuizValidationErrors] = useState<string[]>(
-    [],
-  );
-  const [quizPdf, setQuizPdf] = useState<File | null>(null);
   const [visualizeConfig, setVisualizeConfig] = useState<VisualizeFormConfig>({
     ...DEFAULT_VISUALIZE_CONFIG,
   });
@@ -510,12 +490,10 @@ export default function ChatWorkspace() {
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as {
-        quizConfig?: DeepQuestionFormConfig;
         visualizeConfig?: VisualizeFormConfig;
         researchConfig?: DeepResearchFormConfig;
         capabilityConfigConfirmed?: boolean;
       };
-      if (parsed.quizConfig) setQuizConfig(parsed.quizConfig);
       if (parsed.visualizeConfig) setVisualizeConfig(parsed.visualizeConfig);
       if (parsed.researchConfig) setResearchConfig(parsed.researchConfig);
       if (typeof parsed.capabilityConfigConfirmed === "boolean") {
@@ -534,7 +512,6 @@ export default function ChatWorkspace() {
       "local",
       capabilityConfigStorageKey,
       JSON.stringify({
-        quizConfig,
         visualizeConfig,
         researchConfig,
         capabilityConfigConfirmed,
@@ -542,7 +519,6 @@ export default function ChatWorkspace() {
     );
   }, [
     capabilityConfigStorageKey,
-    quizConfig,
     visualizeConfig,
     researchConfig,
     capabilityConfigConfirmed,
@@ -683,7 +659,6 @@ export default function ChatWorkspace() {
     if (state.activeCapability) setCapability(null);
   }, [state.activeCapability, setCapability]);
 
-  const isQuizMode = activeCap.value === "deep_question";
   const isVisualizeMode = activeCap.value === "visualize";
   const isResearchMode = activeCap.value === "deep_research";
   useEffect(() => {
@@ -691,7 +666,7 @@ export default function ChatWorkspace() {
       router.replace(watchingRoute(sessionIdParam, state.workspaceId || ""), { scroll: false });
     }
   }, [state.activeCapability, state.sessionId, state.workspaceId, sessionIdParam, router]);
-  const capabilityNeedsConfig = isQuizMode || isVisualizeMode || isResearchMode;
+  const capabilityNeedsConfig = isVisualizeMode || isResearchMode;
   const returnedResearchTurnRef = useRef<string | null>(null);
 
   // Deep Research is a one-shot workflow: once its confirmed-outline turn
@@ -729,15 +704,6 @@ export default function ChatWorkspace() {
   // hit *Confirm* should restore the gate so they re-confirm intentionally.
   // `useCallback` keeps identities stable so the memoized ChatComposer /
   // CapabilityConfigCard don't churn on every keystroke.
-  const handleChangeQuizConfig = useCallback((next: DeepQuestionFormConfig) => {
-    setQuizConfig(next);
-    setQuizValidationErrors([]);
-    setCapabilityConfigConfirmed(false);
-  }, []);
-  const handleUploadQuizPdf = useCallback((file: File | null) => {
-    setQuizPdf(file);
-    setCapabilityConfigConfirmed(false);
-  }, []);
   const handleChangeVisualizeConfig = useCallback(
     (next: VisualizeFormConfig) => {
       setVisualizeConfig(next);
@@ -1702,24 +1668,6 @@ export default function ChatWorkspace() {
    */
   const capabilityConfigSection = useMemo(() => {
     if (!capabilityNeedsConfig) return null;
-    if (isQuizMode) {
-      return (
-        <CapabilityConfigCard
-          capability="deep_question"
-          confirmed={capabilityConfigConfirmed}
-          canConfirm={quizValidationErrors.length === 0}
-          validationErrors={quizValidationErrors}
-          onConfirm={handleConfirmCapabilityConfig}
-        >
-          <QuizConfigPanel
-            value={quizConfig}
-            onChange={handleChangeQuizConfig}
-            uploadedPdf={quizPdf}
-            onUploadPdf={handleUploadQuizPdf}
-          />
-        </CapabilityConfigCard>
-      );
-    }
     if (isVisualizeMode) {
       return (
         <CapabilityConfigCard
@@ -1756,15 +1704,9 @@ export default function ChatWorkspace() {
     );
   }, [
     capabilityNeedsConfig,
-    isQuizMode,
     isVisualizeMode,
     capabilityConfigConfirmed,
     handleConfirmCapabilityConfig,
-    quizConfig,
-    quizValidationErrors,
-    quizPdf,
-    handleChangeQuizConfig,
-    handleUploadQuizPdf,
     visualizeConfig,
     handleChangeVisualizeConfig,
     researchConfig,
@@ -2088,56 +2030,9 @@ export default function ChatWorkspace() {
       )
         return;
 
-      const quizPrompt = content.trim().toLowerCase();
-      const isPlaceholderQuizPrompt = new Set([
-        "开始",
-        "开始生成",
-        "生成",
-        "生成题目",
-        "start",
-        "generate",
-      ]).has(quizPrompt);
-      const hasQuizSource = Boolean(content.trim()) && !isPlaceholderQuizPrompt;
-      if (
-        isQuizMode &&
-        quizConfig.mode === "custom" &&
-        !hasQuizSource &&
-        !attachments.length &&
-        !selectedBookReferences.length &&
-        !selectedNotebookRecords.length &&
-        !selectedHistorySessions.length &&
-        !selectedQuestionEntries.length &&
-        !selectedMemoryFiles.length
-      ) {
-        setQuizValidationErrors([
-          t(
-            "Please provide a topic, for example: generate questions about limits.",
-          ),
-        ]);
-        ensureActivityPanelOpen();
-        return;
-      }
-
       let extraAttachments = attachments.map(toOutgoingAttachment);
       let config: Record<string, unknown> | undefined;
 
-      if (isQuizMode) {
-        config = buildQuizWSConfig(quizConfig);
-        if (quizConfig.mode === "mimic" && quizPdf) {
-          const b64 = extractBase64FromDataUrl(
-            await readFileAsDataUrl(quizPdf),
-          );
-          extraAttachments = [
-            ...extraAttachments,
-            {
-              type: "pdf",
-              filename: quizPdf.name,
-              base64: b64,
-              mime_type: "application/pdf",
-            },
-          ];
-        }
-      }
       if (isVisualizeMode) config = buildVisualizeWSConfig(visualizeConfig);
       if (isResearchMode) {
         if (!researchValidation.valid) return;
@@ -2207,7 +2102,6 @@ export default function ChatWorkspace() {
           !selectedAgentSessions.length &&
           !selectedQuestionEntries.length &&
           !selectedMemoryFiles.length &&
-          !isQuizMode &&
           !isVisualizeMode &&
           !isResearchMode &&
           !selectedPartner &&
@@ -2241,14 +2135,11 @@ export default function ChatWorkspace() {
       bookReferencesPayload,
       readingReferencesPayload,
       historyReferencesPayload,
-      isQuizMode,
-      isResearchMode,
+        isResearchMode,
       isVisualizeMode,
       memoryReferencesPayload,
       notebookReferencesPayload,
       questionNotebookReferencesPayload,
-      quizConfig,
-      quizPdf,
       researchConfig,
       researchValidation,
       ensureActivityPanelOpen,

@@ -40,10 +40,6 @@ import {
   type SelectedBookReference,
 } from "@/lib/book-references";
 import {
-  extractBase64FromDataUrl,
-  readFileAsDataUrl,
-} from "@/lib/file-attachments";
-import {
   fileToPendingAttachment,
   selectAttachmentFiles,
   toOutgoingAttachment,
@@ -59,11 +55,6 @@ import type { SelectedRecord } from "@/lib/notebook-selection-types";
 import type { SpaceMemoryFile } from "@/lib/space-items";
 import { getSubagentSettings } from "@/lib/subagents-api";
 import type { LLMSelection } from "@/features/chat/model/protocol";
-import {
-  DEFAULT_QUIZ_CONFIG,
-  buildQuizWSConfig,
-  type DeepQuestionFormConfig,
-} from "@/lib/quiz-types";
 import {
   DEFAULT_VISUALIZE_CONFIG,
   buildVisualizeWSConfig,
@@ -101,10 +92,6 @@ const BookReferencePicker = dynamic(
 );
 const CapabilityConfigCard = dynamic(
   () => import("@/components/chat/home/CapabilityConfigCard"),
-  { ssr: false },
-);
-const QuizConfigPanel = dynamic(
-  () => import("@/components/quiz/QuizConfigPanel"),
   { ssr: false },
 );
 const VisualizeConfigPanel = dynamic(
@@ -290,10 +277,6 @@ function StandaloneComposerImpl({
   const [capMenuOpen, setCapMenuOpen] = useState(false);
   const resourceReuse = useResourceReusePolicy("standalone");
   const [spaceMenuOpen, setSpaceMenuOpen] = useState(false);
-  const [quizConfig, setQuizConfig] = useState<DeepQuestionFormConfig>({
-    ...DEFAULT_QUIZ_CONFIG,
-  });
-  const [quizPdf, setQuizPdf] = useState<File | null>(null);
   const [visualizeConfig, setVisualizeConfig] = useState<VisualizeFormConfig>({
     ...DEFAULT_VISUALIZE_CONFIG,
   });
@@ -713,7 +696,6 @@ function StandaloneComposerImpl({
     resolvedCapabilities.find(
       (capability) => capability.value === activeCapValue,
     ) ?? resolvedCapabilities[0];
-  const isQuizMode = activeCap.value === "deep_question";
   const isVisualizeMode = activeCap.value === "visualize";
   const isResearchMode = activeCap.value === "deep_research";
   const capabilityNeedsConfig = workspaceActionNeedsConfiguration(
@@ -723,10 +705,6 @@ function StandaloneComposerImpl({
     () => validateResearchConfig(researchConfig),
     [researchConfig],
   );
-  const quizValidationErrors =
-    quizConfig.mode === "mimic" && !quizPdf
-      ? [t("Upload a PDF to mimic its question style.")]
-      : [];
 
   const selectCapability = useCallback(
     (value: string) => {
@@ -752,21 +730,7 @@ function StandaloneComposerImpl({
 
       let config: Record<string, unknown> | undefined;
       let outgoingAttachments = attachments.map(toOutgoingAttachment);
-      if (isQuizMode) {
-        config = buildQuizWSConfig(quizConfig);
-        if (quizConfig.mode === "mimic" && quizPdf) {
-          const raw = await readFileAsDataUrl(quizPdf);
-          outgoingAttachments = [
-            ...outgoingAttachments,
-            {
-              type: "pdf",
-              filename: quizPdf.name,
-              base64: extractBase64FromDataUrl(raw),
-              mime_type: "application/pdf",
-            },
-          ];
-        }
-      } else if (isVisualizeMode) {
+if (isVisualizeMode) {
         config = buildVisualizeWSConfig(visualizeConfig);
       } else if (isResearchMode) {
         if (!researchValidation.valid) return;
@@ -820,14 +784,11 @@ function StandaloneComposerImpl({
       attachments,
       awaitingUserReply,
       isStreaming,
-      isQuizMode,
       isResearchMode,
       isVisualizeMode,
       llmSelection,
       notebookReferencesPayload,
       onSubmit,
-      quizConfig,
-      quizPdf,
       researchConfig,
       researchValidation.valid,
       selectedAgent,
@@ -847,28 +808,7 @@ function StandaloneComposerImpl({
 
   const capabilityConfigSection = capabilityNeedsConfig ? (
     <div className="mx-auto mb-2 w-full max-w-[720px] px-3">
-      {isQuizMode ? (
-        <CapabilityConfigCard
-          capability="deep_question"
-          confirmed={capabilityConfigConfirmed}
-          canConfirm={quizValidationErrors.length === 0}
-          validationErrors={quizValidationErrors}
-          onConfirm={() => setCapabilityConfigConfirmed(true)}
-        >
-          <QuizConfigPanel
-            value={quizConfig}
-            onChange={(next) => {
-              setQuizConfig(next);
-              setCapabilityConfigConfirmed(false);
-            }}
-            uploadedPdf={quizPdf}
-            onUploadPdf={(file) => {
-              setQuizPdf(file);
-              setCapabilityConfigConfirmed(false);
-            }}
-          />
-        </CapabilityConfigCard>
-      ) : isVisualizeMode ? (
+      {isVisualizeMode ? (
         <CapabilityConfigCard
           capability="visualize"
           confirmed={capabilityConfigConfirmed}

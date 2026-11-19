@@ -12,7 +12,6 @@ import {
   Lightbulb,
   MessageSquare,
   Microscope,
-  PenLine,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -107,14 +106,6 @@ export const CHAT_CAPABILITIES: ChatCapabilityDef[] = [
       "videogen",
     ],
     defaultTools: [],
-  },
-  {
-    value: "deep_question",
-    label: "Quiz",
-    description: "Auto-validated question generation",
-    icon: PenLine,
-    allowedTools: ["web_search", "exec"],
-    defaultTools: ["web_search", "exec"],
   },
   {
     value: "deep_research",

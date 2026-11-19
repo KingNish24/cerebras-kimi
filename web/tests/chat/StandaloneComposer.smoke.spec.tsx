@@ -66,7 +66,6 @@ vi.mock("@/components/chat/BookReferencePicker", () => ({
 vi.mock("@/components/chat/home/CapabilityConfigCard", () => ({
   default: () => null,
 }));
-vi.mock("@/components/quiz/QuizConfigPanel", () => ({ default: () => null }));
 vi.mock("@/components/visualize/VisualizeConfigPanel", () => ({
   default: () => null,
 }));

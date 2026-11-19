@@ -68,11 +68,6 @@ import { activeWorkspaceId } from "@/lib/workspace-scope";
 import { useVoicePlaybackRate, VOICE_PLAYBACK_RATES } from "@/hooks/useVoicePlaybackRate";
 import { extractMathAnimatorResult } from "@/lib/math-animator-types";
 import { extractVideoLessonResult } from "@/lib/video-lesson-types";
-import {
-  extractQuizQuestions,
-  extractQuizTurnId,
-  extractStreamingQuizQuestions,
-} from "@/lib/quiz-types";
 import { extractVisualizeResult } from "@/lib/visualize-types";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import { hasVisibleMarkdownContent } from "@/lib/markdown-display";
@@ -152,10 +147,6 @@ const MasteryHandoffCards = dynamic(
   () => import("@/components/chat/home/MasteryHandoffCard").then(module => module.MasteryHandoffCards),
   { ssr: false },
 );
-const QuizViewer = dynamic(() => import("@/components/quiz/QuizViewer"), {
-  ssr: false,
-});
-
 const ResearchOutlineEditor = dynamic(
   () => import("@/components/research/ResearchOutlineEditor"),
   { ssr: false },
@@ -198,7 +189,6 @@ const MODE_BADGE_LABELS: Record<string, string> = {
   chat: "Chat",
   ask_questions: "Ask Questions",
   deep_solve: "Deep Solve",
-  deep_question: "Quiz Generation",
   deep_research: "Deep Research",
   math_animator: "Math Animator",
   video_lesson: "Video Lesson",
@@ -851,25 +841,6 @@ export const AssistantMessage = memo(function AssistantMessage({
     };
   }, [msg.capability, resultEvent]);
 
-  const quizQuestions = useMemo(() => {
-    if (msg.capability !== "deep_question") return null;
-    // Once the final result event lands, it's authoritative — it carries
-    // the canonical summary.results[]. Until then, accumulate questions
-    // from the live ``quiz_question_emitted`` content events so the
-    // QuizViewer can render each card the moment it's generated.
-    if (resultEvent) return extractQuizQuestions(resultEvent.metadata);
-    return extractStreamingQuizQuestions(msg.events ?? []);
-  }, [msg.capability, msg.events, resultEvent]);
-
-  // Turn identity for the quiz card. Derived from the streamed events, not
-  // just the final result event — during generation the result hasn't landed
-  // yet, and a null turn id would let the QuizViewer fall back to
-  // session-wide notebook state from a previous quiz (issue #677).
-  const quizTurnId = useMemo(() => {
-    if (msg.capability !== "deep_question") return null;
-    return extractQuizTurnId(msg.events);
-  }, [msg.capability, msg.events]);
-
   const mathAnimatorResult = useMemo(() => {
     if (msg.capability !== "math_animator" || !resultEvent) return null;
     return extractMathAnimatorResult(resultEvent.metadata);
@@ -1000,8 +971,7 @@ export const AssistantMessage = memo(function AssistantMessage({
     !outlinePreview &&
     !mathAnimatorResult &&
     !visualizeResult &&
-    !videoLessonResult &&
-    !(quizQuestions && quizQuestions.length > 0);
+    !videoLessonResult;
   const messageSegments = useMemo(
     () =>
       useInlineSegments
@@ -1235,34 +1205,6 @@ export const AssistantMessage = memo(function AssistantMessage({
               events={events}
             />
           ) : null}
-        </>
-      ) : quizQuestions && quizQuestions.length > 0 ? (
-        <>
-          {/* The quiz preface (the "I researched X, now let me quiz you on Y"
-              sentence the user watched stream in) rides along ABOVE the quiz
-              card. Without this, the streamed text
-              vanishes from the bubble the moment the first card appears
-              because the branch above is mutually exclusive with
-              <AssistantResponse>. The body is already free of the
-              per-question markdown — the pipeline trims that out of
-              ``msg.content`` since the QuizViewer renders the cards
-              themselves. */}
-          {msg.content ? (
-            <AssistantResponse
-              content={msg.content}
-              language={turnLanguage}
-              isStreaming={isStreaming}
-              readingMaterialId={readingMaterialId}
-              readingMaterialRevision={readingMaterialRevision}
-              events={events}
-            />
-          ) : null}
-          <QuizViewer
-            questions={quizQuestions}
-            sessionId={sessionId}
-            turnId={quizTurnId}
-            language={language}
-          />
         </>
       ) : hasOpenUILang(msg.content) ? (
         // The main chat now answers with OpenUI Lang programs; render them as

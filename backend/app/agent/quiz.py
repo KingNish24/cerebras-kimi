@@ -1,4 +1,4 @@
-"""`deep_question` capability — MCQ generation for the QuizViewer.
+"""Quiz judging helpers for embedded quiz blocks (books/reading/notes).
 
 Inspired by reff/deeptutor/agents/question/pipeline.py. The emitter contract
 matches web/lib/quiz-types.ts: one `content` event per question with

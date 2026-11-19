@@ -78,7 +78,6 @@ test("unrelated sessions do not inherit stale learning ids", () => {
 });
 
 test("configured workspace actions do not bypass their settings", () => {
-  assert.equal(workspaceActionNeedsConfiguration("deep_question"), true);
   assert.equal(workspaceActionNeedsConfiguration("visualize"), true);
   assert.equal(workspaceActionNeedsConfiguration("deep_research"), true);
   assert.equal(workspaceActionNeedsConfiguration("deep_solve"), false);

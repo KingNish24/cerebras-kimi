@@ -66,15 +66,6 @@ const AskBackIcon = createLucideIcon('mode-ask', [
   ['circle', { cx: '12', cy: '14.45', r: '.95', className: solid, stroke: 'none', key: 'dot' }],
 ])
 
-/** Quiz: a sheet checked as it is answered — one mark right, one still open. */
-const QuizSheetIcon = createLucideIcon('mode-quiz', [
-  ['rect', { x: '4', y: '2.75', width: '16', height: '18.5', rx: '3', className: duo, key: 'sheet' }],
-  ['path', { d: 'm7.25 9 1.6 1.6 3.15-3.35', strokeWidth: '1.9', key: 'right' }],
-  ['path', { d: 'M14.25 9h2.5', key: 'a' }],
-  ['circle', { cx: '9.4', cy: '15.25', r: '1.75', key: 'open' }],
-  ['path', { d: 'M14.25 15.25h2.5', key: 'b' }],
-])
-
 /** Visualize: a pie with one share drawn out and lit. */
 const VisualizeRingIcon = createLucideIcon('mode-visualize', [
   ['path', { d: 'M11 5a8 8 0 1 0 8 8h-8z', className: duo, key: 'rest' }],
@@ -119,7 +110,6 @@ const MathMotionIcon = createLucideIcon('mode-math-animator', [
 /** The tray's own marks for each mode; anything else keeps the icon it came with. */
 export const MODE_ICONS: Record<string, LucideIcon> = {
   ask_questions: AskBackIcon,
-  deep_question: QuizSheetIcon,
   visualize: VisualizeRingIcon,
   deep_solve: SolveStepsIcon,
   deep_research: ResearchLensIcon,

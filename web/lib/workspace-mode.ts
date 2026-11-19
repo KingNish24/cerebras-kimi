@@ -5,7 +5,6 @@ export const READING_WORKSPACE_MODE = "immersive_reading" as const;
 export const MASTERY_WORKSPACE_MODE = "mastery_path" as const;
 
 const CONFIGURED_WORKSPACE_ACTIONS = new Set([
-  "deep_question",
   "visualize",
   "deep_research",
 ]);
