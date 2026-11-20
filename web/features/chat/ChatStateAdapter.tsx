@@ -1747,14 +1747,16 @@ const POST_DONE_DISCONNECT_DELAY_MS = 15_000;
 /**
  * How long after DONE to refetch the sidebar so a post-turn title shows up.
  *
- * The title is written *after* the turn finishes (see `title_service`), so the
+ * The title is written *after* the turn finishes (see `title_service`), which
+ * now means a background task rather than a step inside the turn — so the
  * sidebar refresh that `STREAM_END` already triggers necessarily runs before
  * the title exists — it re-reads the list and gets the placeholder that was
  * there all along, which is why a finished conversation could sit on "New
  * conversation" forever.
  *
  * The backend publishes the title as a post-DONE `session_meta` frame and the
- * client holds the socket open for it (above), so that is the primary path —
+ * client holds the socket open for it (above, and the backend pump waits on the
+ * runtime's `settled` event), so that is the primary path —
  * it was broken until the subscription stopped closing itself on DONE
  * (`TurnApplication.subscribe_turn`). This refetch stays as the belt to that
  * brace: a socket dropped between DONE and the title would otherwise lose it
@@ -2419,10 +2421,10 @@ export function ChatStateAdapterProvider({
         const runner = runnersRef.current.get(effectiveKey);
         // Hold the WS open briefly so post-turn ``session_meta`` events
         // (e.g. the LLM-generated title for the first user/assistant
-        // pair) can still reach us. The backend generates the title
-        // before its finally block sends the subscriber sentinel, but
-        // the title model can take a couple of seconds — disconnecting
-        // synchronously on ``done`` would race that publish.
+        // pair) can still reach us. The backend generates the title in a
+        // background task after ``done`` and keeps its own pump open until
+        // that attempt settles, so the frame can land a moment later;
+        // disconnecting synchronously on ``done`` would race that publish.
         if (runner) {
           runnersRef.current.delete(effectiveKey);
           window.setTimeout(() => {

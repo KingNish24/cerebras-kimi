@@ -27,6 +27,10 @@ from fastapi.responses import StreamingResponse
 router = APIRouter(prefix="/api/realtime")
 
 HEARTBEAT_SECONDS = 15
+# How long a pump keeps forwarding after ``done`` while the runtime finishes
+# post-turn work (the generated chat title). The browser client holds its socket
+# for 15s after done for exactly this reason, so stay just inside it.
+POST_DONE_GRACE_SECONDS = 12.0
 CLIENT_IDLE_SECONDS = 15 * 60
 SWEEP_SECONDS = 60
 MAX_QUEUE = 2000
@@ -293,6 +297,41 @@ class _ClientSession:
 
     # -- event pumps ---------------------------------------------------------
 
+    async def _forward_until_settled(self, handle: Any, queue: asyncio.Queue) -> None:
+        """Keep forwarding frames the runtime settles *after* ``done``.
+
+        The conversation title is generated in the background once the turn is
+        done, so the client cannot be told about it before ``done`` without
+        blocking the turn. Instead of closing the moment ``done`` is seen, wait
+        on the handle's ``settled`` event — set when the title attempt finished,
+        or when there was nothing to do — and forward anything that arrives
+        meanwhile. Bounded, so a hung title endpoint cannot pin an event stream
+        open forever.
+        """
+        settled = getattr(handle, "settled", None)
+        if settled is None or settled.is_set():
+            return
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + POST_DONE_GRACE_SECONDS
+        while not settled.is_set():
+            remaining = deadline - loop.time()
+            if remaining <= 0:
+                break
+            getter = asyncio.ensure_future(queue.get())
+            settler = asyncio.ensure_future(settled.wait())
+            done, pending = await asyncio.wait(
+                {getter, settler},
+                timeout=remaining,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in pending:
+                task.cancel()
+            if getter in done and not getter.cancelled():
+                await self.emit(getter.result())
+        # Anything already handed to the queue before the signal still goes out.
+        while not queue.empty():
+            await self.emit(queue.get_nowait())
+
     async def _pump_raw(self, handle: Any) -> None:
         """Forward a turn's events (plus session/update mirrors) until done."""
         queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
@@ -314,6 +353,7 @@ class _ClientSession:
                         "update": upd,
                     })
                 if event.get("type") == "done":
+                    await self._forward_until_settled(handle, queue)
                     return
         finally:
             handle.subscribers.discard(queue)
@@ -327,6 +367,7 @@ class _ClientSession:
                 event = await queue.get()
                 await self.emit(event)
                 if event.get("type") == "done":
+                    await self._forward_until_settled(handle, queue)
                     return
         finally:
             handle.subscribers.discard(queue)

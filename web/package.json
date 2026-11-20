@@ -33,7 +33,7 @@
     "build:brand-icons": "tsx ./scripts/build-brand-icons.mts",
     "sync:logo": "node ./scripts/sync-logo-assets.mjs",
     "openui:generate": "openui generate lib/openui/library.ts --spec --out lib/openui/generated/spec.json",
-    "openui:prompt": "openui generate lib/openui/library.ts --out lib/openui/generated/system-prompt.txt --prompt-options promptOptions && openui generate lib/openui/library.ts --out lib/openui/generated/dashboard-system-prompt.txt --prompt-options dashboardPromptOptions && rm -f lib/openui/generated/*system-prompt.spec.json"
+    "openui:prompt": "openui generate lib/openui/library.ts --out lib/openui/generated/system-prompt.txt --prompt-options promptOptions && openui generate lib/openui/library.ts --out lib/openui/generated/dashboard-system-prompt.txt --prompt-options dashboardPromptOptions && rm -f lib/openui/generated/*system-prompt.spec.json && node ./scripts/compact-openui-prompt.mjs --sync-backend"
   },
   "dependencies": {
     "@blocknote/core": "0.56.0",

@@ -48,6 +48,10 @@ class CoWriterDocument(BaseModel):
     icon: str = ""
     cover: str = ""
     pinned: bool = False
+    # Tags attached by the agent's ``notes`` tool. Kept on the
+    # page itself so notebook pages written by the tool stay searchable in the
+    # same place they are displayed.
+    tags: list[str] = Field(default_factory=list)
     applied_suggestion_ids: list[str] = Field(default_factory=list)
     created_at: float = Field(default_factory=lambda: time.time())
     updated_at: float = Field(default_factory=lambda: time.time())
@@ -240,6 +244,7 @@ class CoWriterStorage:
         content: str = "",
         blocks: list[dict[str, Any]] | None = None,
         parent_id: str | None = None,
+        tags: list[str] | None = None,
     ) -> CoWriterDocument:
         with self.locked():
             if parent_id and self.load_document(parent_id) is None:
@@ -259,6 +264,7 @@ class CoWriterStorage:
                 content=content,
                 blocks=blocks,
                 parent_id=parent_id,
+                tags=[t.strip() for t in (tags or []) if t.strip()],
                 created_at=now,
                 updated_at=now,
             )

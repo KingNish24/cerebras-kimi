@@ -115,7 +115,9 @@ import {
 } from "@/features/chat/trace/TracePresentation";
 import { hasSettledFinalRound } from "@/features/chat/trace/selectors";
 import OpenUIMessage from "@/features/chat/messages/OpenUIMessage";
+import LegacyOguiMessage from "@/features/chat/messages/LegacyOguiMessage";
 import { hasOpenUILang } from "@/lib/openui/lang";
+import { hasLegacyOgui } from "@/lib/openui/legacy-ogui";
 import type { MessageTraceMetadata } from "@/features/chat/trace/memory";
 import { supportsSubmissionReplacement, type OrphanedFailedTurn } from "@/lib/session-api";
 import { agentGlyph } from "@/components/agents/agent-icons";
@@ -763,6 +765,48 @@ export function GeneratedFileCards({
   );
 }
 
+/**
+ * The reply body renderer, for every turn that shows model output.
+ *
+ * OpenUI Lang is the format the tutor writes today. Transcripts from before it
+ * still hold the retired `ogui-*` bundles, and those are a different shape
+ * altogether: OpenUI Lang cannot parse them, so the Markdown fallback drew
+ * their JSON, CSS, HTML and JavaScript as fenced code — the map, quiz or
+ * slider a stored turn built arrived as a wall of source. A bundle is
+ * reassembled into the widget it described instead, and everything else takes
+ * the OpenUI path unchanged.
+ */
+const ReplyBody = memo(function ReplyBody({
+  content,
+  isStreaming,
+  language,
+  onSendFollowUp,
+}: {
+  content: string;
+  isStreaming?: boolean;
+  language?: string;
+  onSendFollowUp?: (text: string) => void | Promise<void>;
+}) {
+  if (hasLegacyOgui(content)) {
+    return (
+      <LegacyOguiMessage
+        content={content}
+        isStreaming={isStreaming}
+        language={language}
+        onSendFollowUp={onSendFollowUp}
+      />
+    );
+  }
+  return (
+    <OpenUIMessage
+      content={content}
+      isStreaming={isStreaming}
+      language={language}
+      onSendFollowUp={onSendFollowUp}
+    />
+  );
+});
+
 export const AssistantMessage = memo(function AssistantMessage({
   msg,
   isStreaming,
@@ -1221,7 +1265,7 @@ export const AssistantMessage = memo(function AssistantMessage({
             status={outlineStatus}
           />
           {showResearchBody ? (
-            <OpenUIMessage
+            <ReplyBody
               content={msg.content}
               isStreaming={isStreaming}
               language={turnLanguage}
@@ -1237,7 +1281,7 @@ export const AssistantMessage = memo(function AssistantMessage({
         <>
           <VideoLessonViewer result={videoLessonResult} />
           {msg.content ? (
-            <OpenUIMessage
+            <ReplyBody
               content={msg.content}
               isStreaming={isStreaming}
               language={turnLanguage}
@@ -1249,7 +1293,7 @@ export const AssistantMessage = memo(function AssistantMessage({
         // The main chat now answers with OpenUI Lang programs; render them as
         // live components instead of Markdown so dashboards/quizzes/flashcards
         // work here as they did on the removed /openui page.
-        <OpenUIMessage
+        <ReplyBody
           content={msg.content}
           isStreaming={isStreaming}
           language={turnLanguage}
@@ -1299,7 +1343,7 @@ export const AssistantMessage = memo(function AssistantMessage({
           ) : null,
         )
       ) : (
-        <OpenUIMessage
+        <ReplyBody
           content={body}
           isStreaming={isStreaming}
           language={turnLanguage}

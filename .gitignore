@@ -8,3 +8,5 @@ reff/
 web-reff/
 web/dist
 video-ref2/
+.tmp-shots/
+.ruff_cache/

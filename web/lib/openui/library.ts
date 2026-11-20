@@ -4,7 +4,7 @@ import "./components/theme.css";
 import "./components/components.css";
 import "./components/map/map.css";
 import { MapMarker, MapView } from "./components/map/map";
-import { MATH_TEXT_COMPONENTS, withInlineMath } from "./components/math";
+import { MATH_TEXT_COMPONENTS, withInlineMath, withNormalizedTex } from "./components/math";
 import { SearchImage } from "./components/search-image";
 import { safeActionOverrides } from "./safe-action";
 
@@ -20,6 +20,21 @@ const mathTextOverrides = MATH_TEXT_COMPONENTS.flatMap((name) => {
 });
 
 /**
+ * The library's own `Math` component, wrapped so `Math("$x^2$")` renders the
+ * formula instead of the delimiters.
+ *
+ * The component renders its `tex` prop through KaTeX directly. Models write
+ * formulas in prose form everywhere in this app, so they routinely hand it
+ * `"$V_{bi}=\\dfrac{kT}{q}\\ln...$"`; KaTeX then fails on the leading `$` and its
+ * `throwOnError: false` fallback paints the raw source red — the formula reached
+ * the reader as an error box rather than maths.
+ */
+const mathTexOverrides = (["Math"] as const).flatMap((name) => {
+  const definition = intelligentUiLibrary.components[name];
+  return definition ? [withNormalizedTex(definition)] : [];
+});
+
+/**
  * @openuidev/intelligent-ui-library (the components and @functions a model
  * composes) plus what only this app can do: photos it finds for a query, a
  * street map, copying to the clipboard, and inline LaTeX in prose.
@@ -27,7 +42,7 @@ const mathTextOverrides = MATH_TEXT_COMPONENTS.flatMap((name) => {
 export const library = intelligentUiLibrary.extend({
   components: {
     add: [SearchImage, MapView, MapMarker],
-    override: [...mathTextOverrides, ...safeActionOverrides],
+    override: [...mathTextOverrides, ...mathTexOverrides, ...safeActionOverrides],
   },
   actions: { add: actions },
 });

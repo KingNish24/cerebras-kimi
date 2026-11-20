@@ -175,6 +175,11 @@ kb = KnowledgeBaseStore(settings)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.realtime.start()
+    # Notes saved by older versions lived outside the notebook store. Bring
+    # them into Co-Writer on boot so they are visible without a tool call.
+    from .services.documents.notes import sync_legacy_notes
+
+    sync_legacy_notes()
     # Scheduled reminders run through the app's agent runtime; the cron
     # scheduler owns its own loop and stops with the server.
     from .services.cron.executor import set_runtime

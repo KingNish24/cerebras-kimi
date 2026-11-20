@@ -123,8 +123,11 @@ def notes(action: str, title: str = "", content: str = "", tags: str = "",
           query: str = "") -> str:
     """The user's notebook — one tool for write, list, and search.
 
+    Notes are Co-Writer notebook pages, so anything saved here is visible in
+    the Notebook tab. A markdown copy is kept alongside them as a backup.
+
     Actions:
-    - ``write``: save a markdown note (``title``, ``content``, optional
+    - ``write``: save a notebook page (``title``, ``content``, optional
       comma-separated ``tags``).
     - ``list``: list all notes (id | title | tags).
     - ``search``: full-text search across notes (``query``).
@@ -135,47 +138,20 @@ def notes(action: str, title: str = "", content: str = "", tags: str = "",
     :param tags: Comma-separated tags (write).
     :param query: Search terms (search).
     """
-    root = _notes_dir_for_env()
+    from ..services.documents import notes as note_store
+
     action = (action or "list").lower()
 
     if action == "write":
         if not title:
             return "notes write needs a title."
-        slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "note"
-        note_id = f"{slug}-{uuid.uuid4().hex[:6]}"
-        path = root / f"{note_id}.md"
-        meta = (f"---\ntitle: {title}\ntags: {tags}\n"
-                f"created: {time.strftime('%Y-%m-%dT%H:%M:%S')}\n---\n\n")
-        path.write_text(meta + content, encoding="utf-8")
-        return f"Saved note '{title}' as {note_id}"
+        note_id = note_store.write_note(title, content, tags)
+        return f"Saved note '{title}' to your notebook as {note_id}"
 
     if action == "search":
-        q = query.strip().lower()
-        if not q:
-            return "notes search needs a query."
-        hits = []
-        for path in sorted(root.glob("*.md")):
-            text = path.read_text(encoding="utf-8", errors="replace")
-            if q in text.lower():
-                idx = text.lower().find(q)
-                snippet = text[max(0, idx - 80):idx + 200].replace("\n", " ")
-                hits.append(f"[{path.stem}] …{snippet}…")
-        return "\n\n".join(hits[:10]) if hits else "No matching notes."
+        return note_store.search_notes(query)
 
-    # list
-    out = []
-    for path in sorted(root.glob("*.md")):
-        head = path.read_text(encoding="utf-8", errors="replace")[:600]
-        title = path.stem
-        m = re.search(r"^title:\s*(.+)$", head, re.M)
-        if m:
-            title = m.group(1).strip()
-        tags = ""
-        m = re.search(r"^tags:\s*(.+)$", head, re.M)
-        if m:
-            tags = m.group(1).strip()
-        out.append(f"{path.stem} | {title} | tags: {tags}")
-    return "\n".join(out) if out else "No notes saved yet."
+    return note_store.list_notes()
 
 
 @tool(mutating=True, tool_icon="❓")

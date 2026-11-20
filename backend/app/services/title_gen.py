@@ -10,7 +10,10 @@ from ..config import Settings, get_settings
 
 log = logging.getLogger(__name__)
 
-_TIMEOUT = httpx.Timeout(15.0, connect=5.0)
+# Kept well under the client's post-``done`` socket hold (15s): the title is
+# pushed as a late ``session_meta`` frame, so a slow endpoint must give up while
+# the stream that carries the frame is still open.
+_TIMEOUT = httpx.Timeout(6.0, connect=4.0)
 _MODEL = "llama3.1-8B"
 _MAX_TITLE_CHARS = 80
 

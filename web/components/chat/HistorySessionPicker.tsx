@@ -22,6 +22,7 @@ import {
   type SessionSummary,
 } from "@/lib/session-api";
 import { normalizeMessageContent, truncateText } from "@/lib/message-content";
+import { previewProse } from "@/lib/openui/preview-text";
 import { displaySessionTitle } from "@/lib/session-title";
 
 export interface SelectedHistorySession {
@@ -492,10 +493,17 @@ function ConversationPreview({
         .map((m) => ({
           id: m.id,
           role: m.role,
-          text: truncateText(normalizeMessageContent(m.content), 1400),
+          // A stored reply is often an OpenUI Lang program or an older
+          // `ogui-*` bundle. Drawn as-is, the preview pane became a wall of
+          // assignments, JSON, CSS and JavaScript; its prose is what makes a
+          // conversation recognisable, and a reply that carries only a
+          // program is labelled instead of quoted.
+          text:
+            truncateText(previewProse(normalizeMessageContent(m.content)), 1400) ||
+            t("Interactive"),
         }))
         .filter((m) => m.text.trim().length > 0),
-    [detail.messages],
+    [detail.messages, t],
   );
 
   useEffect(() => {

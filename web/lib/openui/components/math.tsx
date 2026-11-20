@@ -199,6 +199,51 @@ export function MathNode({
 type AnyProps = Record<string, unknown> & { children?: unknown };
 type AnyDefinedComponent = DefinedComponent<any>;
 
+/**
+ * Strip the math delimiters a model wraps a `Math(...)` argument in.
+ *
+ * `Math` takes raw LaTeX, but the same model writes `$...$` in prose all day, so
+ * it hands the component `"$E=mc^2$"` often enough to matter. KaTeX reads the
+ * leading `$` as a parse error and the formula prints as red source text.
+ * Only a balanced pair is unwrapped, and only when it is the *whole* string, so
+ * a formula containing a literal `\$` or several separate spans is left alone.
+ */
+export function normalizeTex(input: string): string {
+  const tex = String(input ?? "").trim();
+  if (!tex) return tex;
+  const count = (token: string) => tex.split(token).length - 1;
+
+  if (tex.startsWith("$$") && tex.endsWith("$$") && count("$$") === 2) {
+    return tex.slice(2, -2).trim();
+  }
+  // `\$` is an escaped literal dollar, never a delimiter.
+  if (tex.startsWith("$") && tex.endsWith("$") && count("$") === 2) {
+    return tex.slice(1, -1).trim();
+  }
+  if (tex.startsWith("\\[") && tex.endsWith("\\]") && count("\\[") === 1) {
+    return tex.slice(2, -2).trim();
+  }
+  if (tex.startsWith("\\(") && tex.endsWith("\\)") && count("\\(") === 1) {
+    return tex.slice(2, -2).trim();
+  }
+  return tex;
+}
+
+/** Wrap a component so a delimited `tex` prop is unwrapped before KaTeX sees it. */
+export function withNormalizedTex<T extends AnyDefinedComponent>(definition: T): T {
+  const component = (context: ComponentRenderProps<AnyProps>) => {
+    const props = context.props ?? {};
+    const raw = props.tex;
+    const render = definition.component as (
+      context: ComponentRenderProps<AnyProps>,
+    ) => React.ReactNode;
+    if (typeof raw !== "string") return render(context);
+    const tex = normalizeTex(raw);
+    return tex === raw ? render(context) : render({ ...context, props: { ...props, tex } });
+  };
+  return { ...definition, component } as T;
+}
+
 /** Replace placeholders inside the tree a component produced. */
 function injectMath(node: React.ReactNode, parts: MathPart[]): React.ReactNode {
   if (typeof node === "string") return splitPlaceholderString(node, parts);
