@@ -269,6 +269,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         # Scheduled reminders: the run lands in the turn's own session and
         # shows up on the calendar's Automations layer.
         "cron": dt_tools.cron,
+        "review": dt_tools.review,
     }
     # DeepTutor semantics: only the user-toggleable tools are gated by the
     # frontend's `tools` list; every other built-in (workspace files, exec,

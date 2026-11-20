@@ -23,6 +23,10 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 - **Event stream** — `GET /api/realtime/events?client_id=<id>` (`text/event-stream`). Named events: `turn_event` (with `id: <turn_id>:<seq>` for replay), `session_update`, `legacy_event`, and `ready`/`heartbeat`. Each browser client has its own event queue, so events are scoped to the client that sent the command.
 - **Client lifecycle** — `DELETE /api/realtime/clients/{client_id}` releases a client explicitly; idle clients are reclaimed by a periodic sweep.
 - **Health** — `GET /health` → `{"status":"ok"}`.
+- **Scheduled reminders** — `GET/POST /api/cron/jobs`, `DELETE /api/cron/jobs/{id}`,
+  `GET /api/cron/reports?since=` (fired reminders for live in-app delivery).
+- **Reviews** — `GET /api/reviews/due`, `POST /api/reviews/{key}/grade` (spaced
+  repetition over the question bank, 1/3/7/14/30/60-day boxes).
 - **Calendar** — `GET/POST /api/calendar/calendars`, `PATCH/DELETE /api/calendar/calendars/{id}`,
   `GET/POST /api/calendar/events`, `PATCH/DELETE /api/calendar/events/{id}` (with
   `scope=this|following|all` + `occurrence`), `POST /api/calendar/undo/{token}`,
@@ -68,6 +72,7 @@ mode, AGENTS.md/skills and git context are replaced by the tutor prompt in
 - **`workspace`** — jailed ops for artifacts DeepTutor itself creates
 - **`question_bank`** — stored question entries
 - **`cron`** — `list|schedule|cancel` for scheduled reminders/automations (`at`, `every_seconds`, `cron_expr`); a due job runs a turn in the session it was scheduled from and appears on the calendar's Automations layer
+- **`review`** — `due|grade|status` spaced repetition over the question bank; due cards show on the calendar's Reviews layer
 
 Coding-agent tools (`apply_patch`, `read_file`, `list_files`, `codemode`,
 `tool_search`, `ask_user`) are intentionally not registered.
@@ -89,6 +94,8 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 - `app/files/[...path]/route.ts` — serves agent-generated files
 - `lib/sse-socket.ts` — shared WebSocket-shaped client over REST command POST + SSE event stream
 - `features/chat/transport/` — `TurnRuntimeClient`, `socket.ts` (SSE-backed), protocol parsing
+- `components/chat/home/ReminderButton.tsx` — composer "Remind me" control (one-off or daily/weekly at 09:00) posting to `/api/cron/jobs`
+- `features/calendar/components/CalendarRuntime.tsx` — event reminders *and* polled cron reports: toast + desktop notification anywhere in the signed-in app
 - `lib/rpc-ws.ts`, `lib/reconnecting-websocket.ts` — legacy channel compatibility shims over the same SSE transport
 - `lib/*-api.ts` — typed clients for sessions/settings/partners/notebooks/etc.
 
@@ -102,7 +109,8 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 | Memory/learning/mastery/notes | `data/*.json`, `data/notes/` |
 | Extended feature stores | `data/ext/` |
 | Settings catalog/draft | `data/settings-catalog.json`, `data/settings-draft.json` |
-| Scheduled reminders | `data/cron/jobs.sqlite3` (job payloads, run history, next-run times) |
+| Scheduled reminders | `data/cron/jobs.sqlite3` (job payloads, run history, next-run times); `data/cron/reports.json` (recent deliveries) |
+| Review schedule | `data/reviews.json` (per-card box and due time; cards come from `data/question_bank.json`) |
 | Calendars and events | `data/calendar/calendar.sqlite` (per-account calendars, recurring events, undo tokens) |
 | Workspace files | `data/workspace/` (`DT_WORKSPACE_DIR`) |
 | Model/provider config | `data/settings-catalog.json` (+ `data/settings.json` mirror); preset keys from env vars |

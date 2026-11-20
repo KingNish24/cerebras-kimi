@@ -106,7 +106,8 @@ export function previewKindFor(source: FilePreviewSource): PreviewKind {
   if (ext === ".svg" || mime === "image/svg+xml") return "svg";
   if (isImage(source, ext)) return "image";
   if (VIDEO_EXTS.has(ext) || mime.startsWith("video/")) return "video";
-  // Agent video lessons are HyperFrames HTML compositions under /files/videos.
+  // Agent video lessons are MP4 renders; legacy lessons are HyperFrames
+  // HTML compositions under /files/videos.
   if (
     mime === HYPERFRAMES_MIME ||
     (ext === ".html" && /\/videos\//.test(source.url || ""))

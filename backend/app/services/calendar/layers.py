@@ -1,9 +1,9 @@
 """Read-only projections of the selected workspace onto calendar days.
 
-Spaced-repetition reviews are not implemented in this backend, so that list
-is empty. Scheduled reminders/automations come from the cron service, and
-*footprints* — the days the learner actually studied — are derived from
-session transcripts.
+*Reviews* are due flashcards from the question bank (spaced repetition),
+*automations* are scheduled reminders from the cron service, and *footprints*
+— the days the learner actually studied — are derived from session
+transcripts.
 """
 
 from __future__ import annotations
@@ -14,7 +14,14 @@ from typing import Literal, cast
 
 from ...config import get_settings
 from ...store.session_store import SessionStore
-from .models import AutomationRun, CalendarLayers, FootprintDay, FootprintSession
+from .models import (
+    AutomationRun,
+    CalendarLayers,
+    FootprintDay,
+    FootprintSession,
+    ReviewDay,
+    ReviewPathCount,
+)
 from .recurrence import format_instant, zone
 
 MAX_SESSIONS_PER_DAY = 20
@@ -24,6 +31,29 @@ MAX_AUTOMATIONS = 1000
 def owner_key() -> str:
     """One stable owner for locally scheduled jobs (single-user deployment)."""
     return "chat:local-admin"
+
+
+def _reviews(lo: float, hi: float) -> list[ReviewDay]:
+    """Due flashcards per local day, grouped by their bank."""
+    try:
+        from ..reviews import due_between
+
+        cards = due_between(lo, hi)
+    except Exception:  # a broken review store must not break the calendar
+        return []
+    days: dict[str, ReviewDay] = {}
+    tz = datetime.now().astimezone().tzinfo
+    for card in cards:
+        key = datetime.fromtimestamp(float(card["due_at"]), tz).date().isoformat()
+        day = days.setdefault(key, ReviewDay(date=key))
+        day.mastery += 1
+        topic = card.get("topic") or "Question bank"
+        existing = next((path for path in day.paths if path.title == topic), None)
+        if existing is None:
+            day.paths.append(ReviewPathCount(id=topic, title=topic, count=1))
+        else:
+            existing.count += 1
+    return sorted(days.values(), key=lambda item: item.date)
 
 
 def _automations(workspace_id: str, lo: float, hi: float) -> list[AutomationRun]:
@@ -118,7 +148,7 @@ def read_layers(workspace_id: str, start: datetime, end: datetime, tzid: str) ->
 
     return CalendarLayers(
         workspace_id=workspace_id,
-        reviews=[],
+        reviews=_reviews(lo, hi),
         automations=_automations(workspace_id, lo, hi),
         footprints=sorted(footprints.values(), key=lambda item: item.date),
     )

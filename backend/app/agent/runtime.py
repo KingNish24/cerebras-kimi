@@ -655,10 +655,11 @@ class AgentRuntime:
                     out = event.result
                     text = _tool_result_text(out)
                     tool_meta: dict[str, Any] = {}
-                    # The video tool publishes a HyperFrames composition (or a
-                    # rendered mp4) into the /files tree and marks its result
-                    # with a machine-readable prefix. Turn that into an
-                    # artifact so the chat embeds it with the right player.
+                    # The video tool publishes a Cleya-rendered MP4 (or a
+                    # legacy HyperFrames composition) into the /files tree and
+                    # marks its result with a machine-readable prefix. Turn
+                    # that into an artifact so the chat embeds it with the
+                    # right player.
                     # Marker format: VIDEO_ARTIFACT:<rel>|<title>|<readable>
                     if (
                         event.tool_name == "video"

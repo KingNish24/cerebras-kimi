@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { notify } from '@/lib/notifications'
+import { recentCronReports } from '@/lib/cron-api'
 import { startCalendarSync, useCalendarRevision } from '../store/calendar-store'
 import { listOccurrences } from '../transport/api'
 import { browserTimeZone, formatTime } from '../model/dates'
@@ -24,6 +25,68 @@ export default function CalendarRuntime({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (enabled) return startCalendarSync()
   }, [enabled])
+  // Scheduled reminders fire in the backend; poll the report buffer so an open
+  // tab shows them without reloading the conversation they landed in.
+  useEffect(() => {
+    if (!enabled) return
+    const controller = new AbortController()
+    const key = 'deeptutor.cron.reminders'
+    let since = Date.now() / 1000
+    const seen = (): Record<string, number> => {
+      try {
+        return JSON.parse(browserStorage.readRaw('local', key) ?? '{}') as Record<string, number>
+      } catch {
+        return {}
+      }
+    }
+    let running = false
+    const check = async () => {
+      if (running) return
+      running = true
+      try {
+        const result = await recentCronReports(since, controller.signal)
+        if (controller.signal.aborted) return
+        const now = Date.now()
+        let delivered = seen()
+        for (const report of result.reports) {
+          since = Math.max(since, report.at + 0.001)
+          if (delivered[report.id]) continue
+          delivered = Object.fromEntries(
+            Object.entries(delivered).filter(([, at]) => at > now - 2 * 86400_000)
+          )
+          delivered[report.id] = now
+          // A reminder text is already the finished message; title is the job.
+          notify(report.text || report.name, { durationMs: 15000 })
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            try {
+              const notification = new Notification(report.name || t('Reminder'), {
+                body: report.text,
+                tag: report.id,
+              })
+              notification.onclick = () => {
+                window.focus()
+                notification.close()
+              }
+            } catch {}
+          }
+        }
+        browserStorage.writeRaw('local', key, JSON.stringify(delivered))
+      } catch {
+        /* Offline or no cron service: retry on the next tick. */
+      } finally {
+        running = false
+      }
+    }
+    void check()
+    const timer = setInterval(() => void check(), 30_000)
+    const focus = () => void check()
+    window.addEventListener('focus', focus)
+    return () => {
+      controller.abort()
+      clearInterval(timer)
+      window.removeEventListener('focus', focus)
+    }
+  }, [enabled, t])
   useEffect(() => {
     if (!enabled) return
     const controller = new AbortController()

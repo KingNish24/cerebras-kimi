@@ -1221,13 +1221,11 @@ export const AssistantMessage = memo(function AssistantMessage({
             status={outlineStatus}
           />
           {showResearchBody ? (
-            <AssistantResponse
+            <OpenUIMessage
               content={msg.content}
-              language={turnLanguage}
               isStreaming={isStreaming}
-              readingMaterialId={readingMaterialId}
-              readingMaterialRevision={readingMaterialRevision}
-              events={events}
+              language={turnLanguage}
+              onSendFollowUp={onSendFollowUp}
             />
           ) : null}
         </>
@@ -1239,13 +1237,11 @@ export const AssistantMessage = memo(function AssistantMessage({
         <>
           <VideoLessonViewer result={videoLessonResult} />
           {msg.content ? (
-            <AssistantResponse
+            <OpenUIMessage
               content={msg.content}
-              language={turnLanguage}
               isStreaming={isStreaming}
-              readingMaterialId={readingMaterialId}
-              readingMaterialRevision={readingMaterialRevision}
-              events={events}
+              language={turnLanguage}
+              onSendFollowUp={onSendFollowUp}
             />
           ) : null}
         </>

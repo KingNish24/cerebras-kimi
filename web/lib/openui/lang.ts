@@ -129,5 +129,9 @@ export function toOpenUIProgram(content: string | null | undefined): string {
   const source = String(content ?? "");
   const extraction = extractOpenUILang(source);
   if (extraction.found) return extraction.program;
+  // Mid-stream a program can start with a state or component assignment before
+  // its `root` line arrives. Hand the partial source to the renderer rather
+  // than showing it as Markdown for a frame.
+  if (source.split("\n").some((line) => STATEMENT.test(line))) return source;
   return `root = Markdown(${JSON.stringify(source)})`;
 }

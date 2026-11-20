@@ -51,6 +51,7 @@ import type { SelectedRecord } from "@/lib/notebook-selection-types";
 import type { LLMSelection } from "@/features/chat/model/protocol";
 import { sameLLMSelection, type LLMOption } from "@/lib/llm-options";
 import { effectiveReasoningEffort } from "@/lib/reasoning-effort";
+import ReminderButton from "./ReminderButton";
 import ChatSpaceMenu from "@/components/chat/space/ChatSpaceMenu";
 import type { SpaceMemoryFile } from "@/lib/space-items";
 import type { SelectedBookReference } from "@/lib/book-references";
@@ -1558,6 +1559,8 @@ export default memo(function ChatComposer({
                 )}
 
               </div>
+
+              <ReminderButton />
 
               <div className={styles.actions}>
                 <ModelSelector
