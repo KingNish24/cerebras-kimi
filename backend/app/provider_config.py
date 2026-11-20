@@ -722,7 +722,10 @@ def probe_models(
         models = []
     return {
         "status": "connected" if models else "unavailable",
-        "models": models[:200],
+        # Return the provider's full catalog. A hard cap here (previously 200)
+        # silently dropped valid models from gateways that publish large lists
+        # (e.g. Kilo), so the settings UI reported a truncated count.
+        "models": models,
         "http_status": response.status_code,
     }
 

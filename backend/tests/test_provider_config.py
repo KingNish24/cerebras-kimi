@@ -208,6 +208,18 @@ class ProbeTests(unittest.TestCase):
         self.assertEqual(result["status"], "invalid_url")
         self.assertEqual(result["models"], [])
 
+    def test_large_model_list_is_not_truncated(self) -> None:
+        """Gateways like Kilo publish more than 200 models; return them all."""
+        expected = [f"model-{i}" for i in range(250)]
+        response = mock.Mock(status_code=200)
+        response.json.return_value = {"data": [{"id": mid} for mid in expected]}
+        with mock.patch("httpx.Client") as client_cls:
+            client = client_cls.return_value.__enter__.return_value
+            client.get.return_value = response
+            result = pc.probe_models("https://gw.example/v1", "sk-x")
+        self.assertEqual(result["status"], "connected")
+        self.assertEqual([m["id"] for m in result["models"]], expected)
+
     def test_discovered_models_are_stored_in_catalog(self) -> None:
         settings = make_settings()
         catalog = pc.load_catalog(settings)

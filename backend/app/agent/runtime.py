@@ -601,6 +601,15 @@ class AgentRuntime:
                 return True
         else:
             runtime, agent = self._vtx_runtimes[cache_key]
+            # The cached vtx session still points at the dict from the turn
+            # that created it. Re-point persistence at this turn's record so
+            # new history is not written into the stale object and then lost
+            # when the turn-end save writes the fresh one.
+            vtx_session = getattr(runtime, "session", None) or getattr(agent, "session", None)
+            if vtx_session is not None:
+                from .dt_session import rebind as rebind_dt_session
+
+                rebind_dt_session(vtx_session, self._store, session)
         await self._emit(handle, self._stream_event(
             handle, "stage_start", source=capability, stage="responding"))
 
@@ -758,6 +767,7 @@ class AgentRuntime:
             try:
                 assistant_message = self._store.append_assistant_message(
                     session, assistant_text,
+                    events=[],  # events live on the turn log, not the message row
                     turn_id=handle.turn_id,
                     capability=capability,
                     metadata={"status": status},
