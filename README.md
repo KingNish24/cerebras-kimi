@@ -104,6 +104,7 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 - `app/files/[...path]/route.ts` — serves agent-generated files
 - `lib/sse-socket.ts` — shared WebSocket-shaped client over REST command POST + SSE event stream
 - `features/chat/transport/` — `TurnRuntimeClient`, `socket.ts` (SSE-backed), protocol parsing
+- `features/notes/components/NoteAiEdit.tsx` — "Edit with AI" in the note editor's selection toolbar: Rewrite/Shorten/Expand or a custom instruction streams from `/documents/actions/edit-react/stream` and lands in the page's suggestion queue; "Annotate page" applies `【term】`/`《statement》` markers directly
 - `components/chat/home/ReminderButton.tsx` — composer "Remind me" control (one-off or daily/weekly at 09:00) posting to `/api/cron/jobs`
 - `features/calendar/components/CalendarRuntime.tsx` — event reminders *and* polled cron reports: toast + desktop notification anywhere in the signed-in app
 - `lib/rpc-ws.ts`, `lib/reconnecting-websocket.ts` — legacy channel compatibility shims over the same SSE transport

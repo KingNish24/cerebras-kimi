@@ -1957,3 +1957,113 @@
 .dt-note-upload p[role='alert'] {
   color: var(--destructive, #dc2626);
 }
+
+/* ── Edit with AI ──────────────────────────────────────────────────────── */
+.dt-note-ai-panel {
+  width: 300px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.dt-note-ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.dt-note-ai-head > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dt-note-ai-head svg {
+  color: var(--primary);
+}
+.dt-note-toolbar-panel .dt-note-ai-close {
+  width: auto;
+  height: auto;
+  padding: 2px;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+}
+.dt-note-ai-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.dt-note-toolbar-panel .dt-note-ai-modes button {
+  width: auto;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  color: var(--muted-foreground);
+}
+.dt-note-toolbar-panel .dt-note-ai-modes button.is-active {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
+}
+.dt-note-ai-instruction {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--foreground);
+  outline: none;
+}
+.dt-note-ai-instruction:focus {
+  border-color: var(--primary);
+}
+.dt-note-ai-preview {
+  max-height: 120px;
+  overflow: auto;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--foreground);
+}
+.dt-note-ai-error {
+  margin: 0;
+  font-size: 12px;
+  color: #c0392b;
+}
+.dt-note-ai-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.dt-note-toolbar-panel .dt-note-ai-annotate {
+  width: auto;
+  height: 28px;
+  gap: 5px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.dt-note-toolbar-panel .dt-note-ai-apply {
+  width: auto;
+  height: 28px;
+  gap: 5px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.dt-note-toolbar-panel .dt-note-ai-apply:disabled,
+.dt-note-toolbar-panel .dt-note-ai-annotate:disabled {
+  opacity: 0.6;
+}

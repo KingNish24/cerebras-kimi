@@ -80,12 +80,23 @@ import {
   Maximize2,
   Languages,
   MessageSquareText,
+  Wand2,
 } from 'lucide-react'
 import Tooltip from '@/shared/ui/Tooltip'
 import { subscribeToThemeChanges } from '@/lib/theme'
 import { parseNoteMarkdown } from '../model/markdown'
 import { insertNoteClips, type NoteClipInput } from '../model/clip-editing'
-import { listNotes, type NoteBlock, type NotePage, type NoteSuggestion } from '@/lib/notes-api'
+import {
+  listNotes,
+  noteRequest,
+  type NoteBlock,
+  type NotePage,
+  type NoteSuggestion,
+} from '@/lib/notes-api'
+import { autoMarkPage } from '@/lib/note-ai'
+import { notify } from '@/lib/notifications'
+import { spliceSelectedText } from '../model/inline-edit'
+import NoteAiEdit from './NoteAiEdit'
 import { apiFetch, apiUrl } from '@/lib/api'
 import { inputRules, InputRule } from '@tiptap/pm/inputrules'
 import { closeHistory } from '@tiptap/pm/history'
@@ -711,6 +722,7 @@ export default function NoteEditor({
   onOpenThread,
   onDeleteThread,
   onFocusBlock,
+  onRefreshSuggestions,
 }: {
   page: NotePage
   suggestions: NoteSuggestion[]
@@ -729,6 +741,8 @@ export default function NoteEditor({
   onDeleteThread: (sessionId: string) => Promise<void>
   /** The block the learner clicked or moved the cursor into. */
   onFocusBlock?: (blockId: string) => void
+  /** Reload the review queue after the editor proposes an AI edit itself. */
+  onRefreshSuggestions?: () => void
 }) {
   const { t, i18n } = useTranslation()
   const theme = useSyncExternalStore<'light' | 'dark'>(
@@ -938,6 +952,51 @@ export default function NoteEditor({
     },
     [editor]
   )
+  /** Turn an AI rewrite of the selection into a reviewable page suggestion. */
+  const proposeAiEdit = useCallback(
+    async (edited: string) => {
+      const block = editor.getTextCursorPosition().block as unknown as NoteBlock
+      const selected = editor.getSelectedText()
+      const spliced = spliceSelectedText(block, selected, edited)
+      const replacement =
+        spliced ?? (editor.tryParseMarkdownToBlocks(edited) as unknown as NoteBlock[])
+      try {
+        await noteRequest(`/${page.id}/suggestions`, {
+          operation: 'replace',
+          block_id: block.id,
+          markdown: edited,
+          blocks: replacement.length ? replacement : undefined,
+          explanation: 'Dito',
+        })
+        onRefreshSuggestions?.()
+        notify(t('Suggested an edit below your selection'))
+      } catch (err) {
+        notify(err instanceof Error ? err.message : t('Could not suggest the edit.'), {
+          tone: 'error',
+        })
+      }
+    },
+    [editor, onRefreshSuggestions, page.id, t]
+  )
+  const annotatePage = useCallback(async () => {
+    const text = await editor.blocksToMarkdownLossy(editor.document)
+    if (!text.trim()) {
+      notify(t('Add some content before annotating.'), { tone: 'error' })
+      return false
+    }
+    try {
+      const marked = await autoMarkPage(text)
+      const blocks = parseMarkdown(marked)
+      if (!blocks.length) return false
+      editor.replaceBlocks(editor.document, blocks as never)
+      notify(t('Annotated the page'))
+      return true
+    } catch (err) {
+      notify(err instanceof Error ? err.message : t('Annotation failed.'), { tone: 'error' })
+      return false
+    }
+  }, [editor, parseMarkdown, t])
+
   const getItems = async (query: string): Promise<NoteMenuItem[]> => {
     const insert = (block: Record<string, unknown>) => {
       const current = editor.getTextCursorPosition().block
@@ -1252,9 +1311,13 @@ export default function NoteEditor({
   }
   const Toolbar = () => {
     const activeStyles = useActiveStyles(editor)
-    const [panel, setPanel] = useState<'link' | 'ai' | 'color' | null>(null)
+    const [panel, setPanel] = useState<'link' | 'ai' | 'color' | 'edit' | null>(null)
     const [linkUrl, setLinkUrl] = useState('')
     const [linkError, setLinkError] = useState('')
+    // The passage is captured when the panel opens: clicking into the panel
+    // would otherwise collapse the editor selection under it.
+    const [aiSelection, setAiSelection] = useState('')
+    const [annotating, setAnnotating] = useState(false)
     // Atomic source/media blocks cannot receive inline formatting. BlockNote
     // also selects these on interaction; only offer tools for selected text.
     if (!editor.getSelectedText().trim()) return null
@@ -1277,6 +1340,24 @@ export default function NoteEditor({
           <Sparkles size={14} />
           {t('Ask Dito')}
           <ChevronDown size={12} className="opacity-60" />
+        </button>
+        <button
+          className={`dt-note-toolbar-ai ${panel === 'edit' ? 'is-open' : ''}`}
+          aria-haspopup="dialog"
+          aria-expanded={panel === 'edit'}
+          aria-label={t('Edit with AI')}
+          onMouseDown={keep}
+          onClick={() => {
+            if (panel === 'edit') {
+              setPanel(null)
+              return
+            }
+            setAiSelection(editor.getSelectedText())
+            setPanel('edit')
+          }}
+        >
+          <Wand2 size={14} />
+          {t('Edit with AI')}
         </button>
         <span className="dt-note-toolbar-sep" aria-hidden />
         {(
@@ -1391,6 +1472,24 @@ export default function NoteEditor({
               </button>
             ))}
           </div>
+        )}
+        {panel === 'edit' && (
+          <NoteAiEdit
+            selectedText={aiSelection}
+            annotating={annotating}
+            onApply={edited => {
+              setPanel(null)
+              void proposeAiEdit(edited)
+            }}
+            onAnnotate={() => {
+              setAnnotating(true)
+              void annotatePage().finally(() => {
+                setAnnotating(false)
+                setPanel(null)
+              })
+            }}
+            onCancel={() => setPanel(null)}
+          />
         )}
         {panel === 'link' && (
           <form

@@ -685,6 +685,10 @@ export default function NoteWorkspace({
                   if (version.current !== savedVersion.current) void flush().catch(() => {})
                 }}
                 onAI={ask}
+                onRefreshSuggestions={() => {
+                  refreshSuggestions()
+                  refreshPages()
+                }}
                 threads={threads.threads}
                 activeThread={threads.open}
                 threadsInteractive={!embedded}
