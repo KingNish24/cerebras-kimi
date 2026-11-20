@@ -30,7 +30,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 
 from vtx.agent.tools.base import BaseTool
 from vtx.core.events import AskUserEvent
@@ -41,7 +41,6 @@ from .. import provider_config
 from ..config import Settings
 from ..services.inline_thinking import InlineThinkingSplitter
 from ..store.session_store import AUTO_PARENT_MESSAGE, SessionStore
-from .tools import builtin_tools
 from .turn_context import set_note_context, set_turn_context
 
 log = logging.getLogger("deeptutor.runtime")
@@ -112,33 +111,6 @@ def _suppress_vtx_selection_writes():
 # dispatch the SDK docs recommend.
 def _event_name(event: Any) -> str:
     return type(event).__name__
-
-
-TUTOR_INSTRUCTIONS = """\
-You are DeepTutor, a patient and rigorous personal tutor.
-
-- Explain concepts clearly, step by step, at the learner's level.
-- Use the tools that fit the task:
-  - `web` — current information, news, fetching pages (mode='search'|'fetch')
-  - `knowledge_base_search` — the learner's uploaded documents; always
-    search before answering questions about their materials
-  - `memory` — remember durable facts about the learner across sessions
-  - `notes` — save study notes, summaries, and reference material
-  - `learning`/`mastery` — track progress and run guided-learning sessions
-  - `workspace`/`apply_patch`/`read_file`/`list_files` — files and artifacts
-  - `paper_search` — arXiv papers for research questions
-  - `video` — for videos/animations: call it with a plain-language `query`
-    (e.g. "explain photosynthesis in 90 seconds"); a video sub-agent writes
-    the composition and it plays inline in the chat. Never write video code
-    yourself.
-  - `codemode` — multi-step work: write Python that calls other tools;
-    `%bash <cmd>` runs shell commands inside the script
-  - `tool_search` — discover which tool fits when unsure
-  - `ask_user` — ask the learner a clarifying question and wait for the reply
-- For multi-step tasks prefer `codemode` over many separate tool calls.
-- Ask a clarifying question only when the request is genuinely ambiguous.
-- Keep answers focused; use Markdown for structure.
-"""
 
 
 @dataclass
@@ -401,12 +373,10 @@ class AgentRuntime:
 
         session_id = (command.get("session_id") or "").strip() or None
         session = self._store.get(session_id) if session_id else None
-        created = False
         if session is None:
             session = self._store.create(
                 preferences={"workspace_id": command.get("workspace_id")}
             )
-            created = True
 
         capability = (command.get("capability") or "chat").strip() or "chat"
         turn_id = _new_id("turn")
@@ -942,9 +912,8 @@ class AgentRuntime:
         command: dict[str, Any],
         user_message: dict[str, Any],
     ) -> None:
-        capability = str(command.get("capability") or "chat").strip() or "chat"
         await self._run_vtx(handle, session, command, user_message)
-        return
+
     def turn_events_after(self, turn_id: str, after_seq: int) -> list[dict[str, Any]]:
         handle = self._turns.get(turn_id)
         if handle is not None:

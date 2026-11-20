@@ -152,7 +152,10 @@ export function resolveResponseLanguage(
   if ((SUPPORTED_RESPONSE_LANGUAGE_CODES as readonly string[]).includes(base ?? "")) {
     return base as ResponseLanguage;
   }
-  return RESPONSE_LANGUAGE_ALIASES[code ?? ""] ?? normalizeLanguage(legacyLanguage);
+  const alias = RESPONSE_LANGUAGE_ALIASES[code ?? ""];
+  if (alias) return alias;
+  void legacyLanguage;
+  return "en";
 }
 
 export function readStoredLanguage(): AppLanguage {

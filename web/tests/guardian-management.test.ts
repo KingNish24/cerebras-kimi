@@ -141,10 +141,6 @@ test("guardian management copy is localized", () => {
     string,
     string
   >;
-  const zh = JSON.parse(readWebFile("locales", "zh", "app.json")) as Record<
-    string,
-    string
-  >;
   for (const key of [
     "Guardian management",
     "Approved materials",
@@ -157,6 +153,5 @@ test("guardian management copy is localized", () => {
     "This changes the learner password and revokes every learner device credential.",
   ]) {
     assert.ok(en[key], `missing English key: ${key}`);
-    assert.ok(zh[key], `missing Chinese key: ${key}`);
   }
 });

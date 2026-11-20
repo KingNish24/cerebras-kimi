@@ -62,8 +62,8 @@ Co-Writer page — this is not the main OpenUI chat.
   `props.kind = "flashcards"` and
   `props.data = '{"cards":[{"front":"...","back":"..."}]}'`, or call the
   `flashcards` tool with a JSON array of cards. Cards are reviewable before
-  they are added. The same block shape supports `quiz` (questions),
-  `timeline`, `concept_map`, `research` and `visualization`.
+  they are added. The same block shape supports the quiz, timeline,
+  concept_map, research and visualization kinds.
 """
 
 # Registered by ``builtin_tools`` only while a notebook page is bound.

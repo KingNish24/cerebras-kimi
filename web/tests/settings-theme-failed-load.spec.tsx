@@ -106,7 +106,7 @@ it("does not apply the placeholder system theme when a later UI change is saved"
   await ready();
 
   await act(async () => {
-    await settings.updateLanguage("zh");
+    await settings.updateCodeBlockShowLineNumbers(true);
     await settings.updateTheme("dark");
   });
   await act(async () => {
@@ -119,7 +119,7 @@ it("does not apply the placeholder system theme when a later UI change is saved"
   const puts = uiPuts();
   expect(puts).toHaveLength(1);
   const body = JSON.parse(String((puts[0][1] as RequestInit).body));
-  expect(body.language).toBe("zh");
+  expect(body.language).toBe("en");
   expect(body).not.toHaveProperty("theme");
 });
 
@@ -128,7 +128,7 @@ it("does not persist system when nothing is stored and settings fail to load", a
   await ready();
 
   await act(async () => {
-    await settings.updateLanguage("zh");
+    await settings.updateCodeBlockShowLineNumbers(true);
   });
   await act(async () => {
     await settings.applyCatalog();
@@ -146,7 +146,7 @@ it("still sends the server theme after settings load", async () => {
 
   expect(settings.theme).toBe("dark");
   await act(async () => {
-    await settings.updateLanguage("zh");
+    await settings.updateCodeBlockShowLineNumbers(true);
   });
   await act(async () => {
     await settings.applyCatalog();
@@ -154,7 +154,7 @@ it("still sends the server theme after settings load", async () => {
 
   const body = JSON.parse(String((uiPuts()[0][1] as RequestInit).body));
   expect(body.theme).toBe("dark");
-  expect(body.language).toBe("zh");
+  expect(body.language).toBe("en");
   expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
 });
 
@@ -165,7 +165,7 @@ it("includes the confirmed theme in a failed-load draft after retry", async () =
   await ready();
 
   await act(async () => {
-    await settings.updateLanguage("zh");
+    await settings.updateCodeBlockShowLineNumbers(true);
     await settings.updateTheme("dark");
   });
 
@@ -187,6 +187,6 @@ it("includes the confirmed theme in a failed-load draft after retry", async () =
   expect(document.documentElement.classList.contains("dark")).toBe(false);
   expect(document.documentElement.classList.contains("theme-glass")).toBe(false);
   const body = JSON.parse(String((uiPuts()[0][1] as RequestInit).body));
-  expect(body.language).toBe("zh");
+  expect(body.language).toBe("en");
   expect(body.theme).toBe("snow");
 });

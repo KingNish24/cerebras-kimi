@@ -608,7 +608,6 @@ def _load_draft(request: Request) -> dict[str, Any] | None:
 
 def _save_draft(request: Request, draft: dict[str, Any] | None) -> None:
     import json as _json
-    from pathlib import Path
 
     path = _settings_dir(request) / "settings-draft.json"
     if draft is None:
@@ -934,12 +933,9 @@ def mastery_topics_index() -> dict[str, Any]:
 
 @router.get("/tools")
 def tools_settings() -> dict[str, Any]:
-    return {
-        "enabled_optional_tools": [
-            "brainstorm", "web_search", "paper_search",
-            "reason", "imagegen", "videogen",
-        ]
-    }
+    # Only tools the agent actually registers: the merged `web` tool is the
+    # frontend's `web_search` toggle, and `video` is not user-toggleable.
+    return {"enabled_optional_tools": ["web_search", "paper_search"]}
 
 
 @router.get("/subagents/settings")

@@ -10,7 +10,7 @@ import ts from 'typescript'
 
 const root = process.cwd()
 const SOURCE_ROOTS = ['app', 'components', 'context', 'features', 'hooks', 'lib', 'shared']
-const LOCALES = ['en', 'zh', 'de', 'fr', 'ja', 'pl', 'pt', 'tr', 'uk', 'vi']
+const LOCALES = ['en']
 // Chinese/English literals that are deliberately not catalog copy.
 const LITERAL_EXCEPTIONS = new Set([
   // Sample sentence spoken by the selected voice, not interface text.

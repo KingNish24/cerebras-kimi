@@ -1,5 +1,3 @@
-import json
-
 from app.config import Settings
 from app.store.session_store import SessionStore
 

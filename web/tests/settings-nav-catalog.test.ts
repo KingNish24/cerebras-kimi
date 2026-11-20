@@ -17,7 +17,7 @@ import {
 // English per key, but a first-class locale is expected to carry every key, so
 // these checks keep the navigation free of English-only rows.
 
-const LOCALES = ["en", "zh", "de", "fr", "ja", "pl", "pt", "tr", "uk", "vi"];
+const LOCALES = ["en"];
 const ALL_ACCESS = {
   resolved: true,
   hideAdminOnly: false,
@@ -89,7 +89,7 @@ test("settings navigation copy avoids inline zh/en pairs and language branches",
   }
 });
 
-test("settings search stays bilingual via fixed translators", () => {
+test("settings search includes the English catalog", () => {
   const source = readFileSync(
     path.join(process.cwd(), "components/settings/SettingsNav.tsx"),
     "utf8",
@@ -98,10 +98,5 @@ test("settings search stays bilingual via fixed translators", () => {
     source,
     /getFixedT\(\s*['"]en['"]/,
     "SettingsNav.tsx: include English terms in search via getFixedT('en')",
-  );
-  assert.match(
-    source,
-    /getFixedT\(\s*['"]zh['"]/,
-    "SettingsNav.tsx: include Chinese terms in search via getFixedT('zh')",
   );
 });

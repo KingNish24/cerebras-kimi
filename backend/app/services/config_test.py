@@ -12,7 +12,6 @@ user still has to apply their changes.
 from __future__ import annotations
 
 import asyncio
-import json
 import threading
 import time
 from dataclasses import dataclass, field

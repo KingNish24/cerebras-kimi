@@ -236,11 +236,11 @@ it("stages language and appearance without changing browser preferences until Ap
   await ready();
   await act(async () => {
     await settings.updateTheme("dark");
-    await settings.updateLanguage("zh");
+    await settings.updateLanguage("en");
     await settings.updateCodeBlockShowLineNumbers(true);
   });
   expect(settings.theme).toBe("dark");
-  expect(settings.language).toBe("zh");
+  expect(settings.language).toBe("en");
   expect(settings.codeBlockShowLineNumbers).toBe(true);
   expect(mocks.theme).not.toHaveBeenCalled();
   expect(writes("/api/settings/ui")).toHaveLength(0);

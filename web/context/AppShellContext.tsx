@@ -65,7 +65,6 @@ import {
   normalizeLearningDisplay,
   type LearningDisplay,
 } from "@/lib/learning-display";
-import { isAppLanguage } from "@/i18n/languages";
 
 interface AppShellContextValue {
   theme: Theme;
@@ -208,7 +207,9 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
       // the account's model output language.
       const hadLanguageAtStart = hasStoredLanguage();
       if (hadLanguageAtStart && !cancelled) {
-        setLanguageState(readStoredLanguage());
+        const storedLanguage = readStoredLanguage();
+        writeStoredLanguage(storedLanguage);
+        setLanguageState(storedLanguage);
       }
       if (hadLanguageAtStart && hasStoredResponseLanguage()) {
         if (!cancelled) {
@@ -230,12 +231,13 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
           language?: unknown;
           response_language?: unknown;
         };
-        if (!isAppLanguage(payload.language)) return;
+        if (typeof payload.language !== "string") return;
+        const nextLanguage = normalizeLanguage(payload.language);
         // Only what this browser is actually missing: a stored interface
         // language is this user's own choice and the server must not overwrite
         // it just because the response key was absent.
         const hadLanguage = hasStoredLanguage();
-        if (!hadLanguage) writeStoredLanguage(payload.language);
+        if (!hadLanguage) writeStoredLanguage(nextLanguage);
         if (!hasStoredResponseLanguage()) {
           // A backend that predates the split sends no response_language;
           // resolveResponseLanguage inherits the interface locale, matching
@@ -245,11 +247,11 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
               typeof payload.response_language === "string"
                 ? payload.response_language
                 : null,
-              payload.language,
+              nextLanguage,
             ),
           );
         }
-        if (!cancelled && !hadLanguage) setLanguageState(payload.language);
+        if (!cancelled && !hadLanguage) setLanguageState(nextLanguage);
       } catch {
         // Offline or unauthenticated: keep the local default.
       } finally {

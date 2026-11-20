@@ -12,6 +12,8 @@ import asyncio
 import pytest
 
 from app.agent import dito
+from app.agent.dito import DITO_SYSTEM_PROMPT
+from app.agent.prompt import DEEPTUTOR_BASE
 from app.agent.tools import builtin_tools
 from app.agent.turn_context import set_note_context
 from app.config import Settings
@@ -137,3 +139,23 @@ def test_deleting_a_page_forgets_its_dito_memory(tmp_path, monkeypatch):
     get_co_writer_storage().delete_document(page.id)
     assert dito_memory.forget_page(page.id)
     assert not dito_memory.conversations(page_id=page.id)
+
+
+def test_every_tool_named_in_a_prompt_is_registered(tmp_path, monkeypatch):
+    import re
+
+    monkeypatch.setenv("DT_DATA_DIR", str(tmp_path))
+    settings = Settings(data_dir=tmp_path)
+
+    def missing(prompt: str, available: set[str]) -> list[str]:
+        named = set(re.findall(r"`([a-z_][a-z0-9_]*)`", prompt))
+        return sorted(name for name in named if name not in available)
+
+    chat = {tool.name for tool in builtin_tools(settings)}
+    assert missing(DEEPTUTOR_BASE, chat) == []
+
+    page = _page()
+    set_note_context(page.id)
+    dito_set = {tool.name for tool in builtin_tools(settings)}
+    assert missing(DITO_SYSTEM_PROMPT, dito_set) == []
+    assert dito_set == set(dito.DITO_TOOL_NAMES)

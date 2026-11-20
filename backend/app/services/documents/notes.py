@@ -15,7 +15,6 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Any
 
 from ...config import get_settings
 from .storage import get_co_writer_storage

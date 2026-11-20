@@ -32,7 +32,7 @@ describe("setup preference synchronization during a streamed turn", () => {
     api.fetch.mockReset().mockReturnValue(pending.promise);
     renderHook(() => useSetupSync(messages()), { reactStrictMode: true });
     await finish(pending.resolve, "zh");
-    expect(localStorage.getItem("deeptutor-language")).toBe("zh");
+    expect(localStorage.getItem("deeptutor-language")).toBe("en");
     expect(api.fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -45,7 +45,7 @@ describe("setup preference synchronization during a streamed turn", () => {
     });
     rerender({ items: messages() });
     await finish(pending.resolve, "zh");
-    expect(localStorage.getItem("deeptutor-language")).toBe("zh");
+    expect(localStorage.getItem("deeptutor-language")).toBe("en");
     expect(api.fetch).toHaveBeenCalledTimes(1);
     rerender({ items: messages() });
     expect(api.fetch).toHaveBeenCalledTimes(1);
@@ -72,6 +72,6 @@ describe("setup preference synchronization during a streamed turn", () => {
     rerender({ items: messages("call-2") });
     await finish(second.resolve, "zh");
     await finish(first.resolve, "en");
-    expect(localStorage.getItem("deeptutor-language")).toBe("zh");
+    expect(localStorage.getItem("deeptutor-language")).toBe("en");
   });
 });

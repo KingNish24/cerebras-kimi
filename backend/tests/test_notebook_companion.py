@@ -49,7 +49,9 @@ def _page(tmp_path):
 def test_notebook_tools_are_only_exposed_for_note_threads(tmp_path, monkeypatch):
     monkeypatch.setenv("DT_DATA_DIR", str(tmp_path))
     settings = Settings(data_dir=tmp_path)
-    names = lambda: {t.name for t in builtin_tools(settings)}
+    def names() -> set[str]:
+        return {t.name for t in builtin_tools(settings)}
+
     assert "note_read" not in names()
 
     set_note_context("abc123")

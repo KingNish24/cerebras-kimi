@@ -116,9 +116,8 @@ test("every task the backend runs is named on the page, and nothing else is", ()
   assert.deepEqual(ungrouped, [], `groups with no heading: ${ungrouped.join(", ")}`);
 });
 
-test("every task name and sentence exists in both locales", () => {
+test("every task name and sentence exists in the English locale", () => {
   const en = locale("en");
-  const zh = locale("zh");
   const strings = [
     ...[...pageTaskText().values()].flatMap((entry) => [
       entry.label,
@@ -128,14 +127,6 @@ test("every task name and sentence exists in both locales", () => {
   ];
 
   assert.ok(strings.length >= 23, `expected the page's copy, found ${strings.length}`);
-  const missing = strings.filter((s) => !(s in en) || !(s in zh));
+  const missing = strings.filter((s) => !(s in en));
   assert.deepEqual(missing, [], `copy missing a locale entry: ${missing.join(" | ")}`);
-  // An entry that was added to zh untranslated is the same failure as a missing
-  // one: the reader still gets English, only with nothing left to grep for.
-  const untranslated = strings.filter((s) => zh[s] === s);
-  assert.deepEqual(
-    untranslated,
-    [],
-    `copy still in English under zh: ${untranslated.join(" | ")}`,
-  );
 });

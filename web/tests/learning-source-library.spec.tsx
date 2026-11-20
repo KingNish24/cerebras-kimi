@@ -63,19 +63,13 @@ it('reads the current workspace indexes and pins file expansion and book hydrati
   expect(window.location.search).toBe('?dt_workspace=destination')
 })
 
-it('keeps fallback labels Chinese in Chinese and reads the catalog elsewhere', async () => {
+it('reads fallback labels from the English catalog', async () => {
   const i18n = initI18n('en')
-  await ensureLanguage('tr')
-  await ensureLanguage('zh')
-  const t = i18n.getFixedT('tr')
-  const zh = catalogTranslate(t, true)
-  const tr = catalogTranslate(t, false)
+  await ensureLanguage('en')
+  const t = i18n.getFixedT('en')
+  const translate = catalogTranslate(t, false)
 
-  // Callers used to pass i18next's t, which read the Chinese text as the key and fell back to English.
-  expect(zh('未命名题目', 'Untitled question')).toBe('未命名题目')
-  expect(zh('未命名', 'Untitled')).toBe(i18n.getFixedT('zh')('Untitled'))
-  expect(zh('{{count}} 条消息', '{{count}} messages', { count: 3 })).toBe('3 条消息')
-  expect(tr('未命名题目', 'Untitled question')).toBe(t('Untitled question'))
-  expect(tr('未命名题目', 'Untitled question')).not.toBe('Untitled question')
-  expect(tr('{{name}} 中的文件', 'File in {{name}}', { name: 'notes' })).toContain('notes')
+  expect(translate('未命名题目', 'Untitled question')).toBe(t('Untitled question'))
+  expect(translate('未命名', 'Untitled')).toBe(t('Untitled'))
+  expect(translate('{{name}} 中的文件', 'File in {{name}}', { name: 'notes' })).toContain('notes')
 })

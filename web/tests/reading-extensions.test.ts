@@ -23,10 +23,6 @@ const english = readFileSync(
   path.resolve(process.cwd(), "locales/en/app.json"),
   "utf8",
 );
-const chinese = readFileSync(
-  path.resolve(process.cwd(), "locales/zh/app.json"),
-  "utf8",
-);
 
 test("the Reader toolbar is empty when no extension is installed", () => {
   assert.match(component, /if \(actions\.length === 0\) return null/);
@@ -107,7 +103,6 @@ test("the built-in study-guidance action is localized", () => {
   );
   assert.match(component, /t\(builtInLabel\)/);
   assert.match(english, /"Guide me": "Guide me"/);
-  assert.match(chinese, /"Guide me": "引导我"/);
 });
 
 test("study-guidance steps are visible in the result card", () => {

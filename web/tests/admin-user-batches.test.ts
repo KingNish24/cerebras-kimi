@@ -18,9 +18,6 @@ const authRouter = readFileSync(
 const en = JSON.parse(
   readFileSync(path.resolve(process.cwd(), "locales/en/app.json"), "utf8"),
 ) as Record<string, string>;
-const zh = JSON.parse(
-  readFileSync(path.resolve(process.cwd(), "locales/zh/app.json"), "utf8"),
-) as Record<string, string>;
 
 test("admin API exposes row-oriented user import and batch deletion", () => {
   assert.match(adminApi, /apiUrl\("\/api\/auth\/users\/import"\)/);
@@ -45,7 +42,7 @@ test("batch import cannot provision administrators", () => {
   assert.match(authRouter, /Only non-admin users can be provisioned/);
 });
 
-test("batch user copy is present in both supported locales", () => {
+test("batch user copy is present in the English locale", () => {
   const keys = [
     "Import users",
     "CSV file",
@@ -58,8 +55,6 @@ test("batch user copy is present in both supported locales", () => {
   ];
   for (const key of keys) {
     assert.ok(key in en, `missing English key: ${key}`);
-    assert.ok(key in zh, `missing Chinese key: ${key}`);
     assert.notEqual(en[key], "");
-    assert.notEqual(zh[key], "");
   }
 });

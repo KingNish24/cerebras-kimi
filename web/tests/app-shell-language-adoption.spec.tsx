@@ -32,7 +32,7 @@ beforeEach(() => {
 
 afterEach(() => cleanup())
 
-it('adopts Ukrainian UI and French output preferences from the server on a new browser', async () => {
+it('normalizes a removed server UI locale to English while keeping output preferences', async () => {
   render(
     <AppShellProvider>
       <LanguageProbe />
@@ -40,14 +40,14 @@ it('adopts Ukrainian UI and French output preferences from the server on a new b
   )
 
   await waitFor(() => {
-    expect(screen.getByTestId('language')).toHaveTextContent('uk')
+    expect(screen.getByTestId('language')).toHaveTextContent('en')
     expect(screen.getByTestId('language')).toHaveAttribute('data-ready', 'true')
   })
-  expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('uk')
+  expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en')
   expect(localStorage.getItem(RESPONSE_LANGUAGE_STORAGE_KEY)).toBe('fr')
 })
 
-it("keeps a browser's French UI choice while adopting its missing output preference", async () => {
+it("normalizes a removed browser UI choice to English while adopting its missing output preference", async () => {
   localStorage.setItem(LANGUAGE_STORAGE_KEY, 'fr')
   vi.mocked(apiFetch).mockResolvedValue({
     ok: true,
@@ -60,9 +60,9 @@ it("keeps a browser's French UI choice while adopting its missing output prefere
   )
 
   await waitFor(() => {
-    expect(screen.getByTestId('language')).toHaveTextContent('fr')
+    expect(screen.getByTestId('language')).toHaveTextContent('en')
     expect(screen.getByTestId('language')).toHaveAttribute('data-ready', 'true')
   })
-  expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('fr')
+  expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en')
   expect(localStorage.getItem(RESPONSE_LANGUAGE_STORAGE_KEY)).toBe('uk')
 })

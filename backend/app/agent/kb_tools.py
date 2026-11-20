@@ -7,9 +7,6 @@ selects which KBs are in scope (empty = all).
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from typing import Any
 
 from .toolkit import tool
 

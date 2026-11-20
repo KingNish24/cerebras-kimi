@@ -7,44 +7,13 @@ import { resolveResponseLanguage } from "../context/app-shell-storage";
 import { APP_LANGUAGES, isAppLanguage, normalizeLanguage } from "../i18n/languages";
 import { formatDate, formatTime, getLocale } from "../lib/datetime";
 
-test("the locale registry accepts every supported language", () => {
-  for (const { code } of APP_LANGUAGES) assert.equal(isAppLanguage(code), true);
-  assert.equal(isAppLanguage("xx"), false);
-  assert.equal(normalizeLanguage("uk-UA"), "uk");
-  assert.equal(normalizeLanguage("fr-FR"), "fr");
-  assert.equal(normalizeLanguage("de-AT"), "de");
-  assert.equal(normalizeLanguage("pl-PL"), "pl");
-  assert.equal(normalizeLanguage("Polish"), "pl");
-  assert.equal(normalizeLanguage("Polski"), "pl");
-  assert.equal(normalizeLanguage("pt-BR"), "pt");
-  assert.equal(normalizeLanguage("pt_PT"), "pt");
-  assert.equal(normalizeLanguage("Português"), "pt");
-  assert.equal(normalizeLanguage("vi-VN"), "vi");
-  assert.equal(normalizeLanguage("vi_VN"), "vi");
-  assert.equal(normalizeLanguage("Vietnamese"), "vi");
-  assert.equal(normalizeLanguage("Tiếng Việt"), "vi");
-  assert.equal(getLocale("vi"), "vi-VN");
-  assert.equal(normalizeLanguage("ja-JP"), "ja");
-  assert.equal(normalizeLanguage("Japanese"), "ja");
-  for (const raw of ["tr", "tr-TR", "tr_TR", "Turkish", "Türkçe"]) {
-    assert.equal(normalizeLanguage(raw), "tr");
-    assert.equal(resolveResponseLanguage(raw, "en"), "tr");
+test("only English is a supported interface locale", () => {
+  assert.deepEqual(APP_LANGUAGES.map(({ code }) => code), ["en"]);
+  assert.equal(isAppLanguage("en"), true);
+  for (const raw of ["zh", "fr-FR", "de-AT", "uk-UA", "pl-PL", "pt-BR", "vi-VN", "ja-JP", "tr-TR", "ko-KR", "it-IT", "hu-HU", "xx"]) {
+    assert.equal(isAppLanguage(raw), false);
+    assert.equal(normalizeLanguage(raw), "en");
   }
-  assert.equal(getLocale("tr"), "tr-TR");
-  for (const raw of ["ko", "ko-KR", "ko_KR", "Korean", "한국어"]) {
-    assert.equal(normalizeLanguage(raw), "ko");
-  }
-  assert.equal(getLocale("ko"), "ko-KR");
-  for (const raw of ["it", "it-IT", "it_IT", "Italian", "Italiano", "italiano"]) {
-    assert.equal(normalizeLanguage(raw), "it");
-    assert.equal(resolveResponseLanguage(raw, "en"), "it");
-  }
-  assert.equal(getLocale("it"), "it-IT");
-  for (const raw of ["hu", "hu-HU", "hu_HU", "Hungarian", "Magyar"]) {
-    assert.equal(normalizeLanguage(raw), "hu");
-    assert.equal(resolveResponseLanguage(raw, "en"), "hu");
-  }
-  assert.equal(getLocale("hu"), "hu-HU");
 });
 
 test("response language remains independent from the interface language", () => {
@@ -76,25 +45,23 @@ test("response language accepts and normalizes the extended registry", () => {
   for (const raw of ["hi", "hi-IN", "hi_IN", "Hindi", "हिन्दी", "हिंदी"]) {
     assert.equal(resolveResponseLanguage(raw, "en"), "hi");
   }
-  assert.equal(resolveResponseLanguage("klingon", "zh"), "zh");
+  assert.equal(resolveResponseLanguage("klingon", "zh"), "en");
 });
 
-test("legacy settings inherit the interface language when response language is missing", () => {
-  assert.equal(resolveResponseLanguage(null, "zh"), "zh");
+test("missing response language falls back to the English interface", () => {
+  assert.equal(resolveResponseLanguage(null, "en"), "en");
   assert.equal(resolveResponseLanguage(undefined, "en"), "en");
-  assert.equal(resolveResponseLanguage(null, "fr"), "fr");
-  assert.equal(resolveResponseLanguage(null, "uk"), "uk");
-  assert.equal(resolveResponseLanguage(null, "vi"), "vi");
+  assert.equal(resolveResponseLanguage(null, "zh"), "en");
 });
 
 
-test("Portuguese dates and times use Brazilian conventions", () => {
+test("dates and times use the English locale", () => {
   const date = new Date("2026-03-05T14:05:00Z");
-  assert.equal(getLocale("pt"), "pt-BR");
-  assert.equal(formatDate(date, "pt", {
+  assert.equal(getLocale("en"), "en-US");
+  assert.equal(formatDate(date, "en", {
     year: "numeric", month: "long", day: "numeric", timeZone: "UTC",
-  }), "5 de março de 2026");
-  assert.equal(formatTime(date, "pt", {
+  }), "March 5, 2026");
+  assert.equal(formatTime(date, "en", {
     hour: "2-digit", minute: "2-digit", timeZone: "UTC",
-  }), "14:05");
+  }), "02:05 PM");
 });

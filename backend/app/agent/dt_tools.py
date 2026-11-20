@@ -1,9 +1,7 @@
 """Ports of DeepTutor's built-in tools (``reff/deeptutor/tools``) onto vtx ``@tool``.
 
-Only self-contained tools are ported — anything needing DeepTutor services
-(KB/RAG indexing, mastery engine, partners, media generation, cron, vision)
-is intentionally absent. LLM-backed tools (``reason``, ``brainstorm``) run a
-tool-less sub-agent through the same vtx provider resolution.
+The notebook companion (Dito) lives in ``dito.py``; its tools are re-exported
+at the bottom of this module.
 """
 
 from __future__ import annotations
@@ -13,7 +11,6 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import time
 import uuid
 from pathlib import Path
@@ -22,100 +19,14 @@ from typing import Any, cast
 import httpx
 from .toolkit import tool
 
-from ..config import Settings
 
 _HEADERS = {"User-Agent": "DeepTutor/0.1 (+https://deeptutor.info)"}
-
-
-async def _run_text_subagent(instructions: str, prompt: str, label: str) -> str:
-    """Run a tool-less vtx sub-agent and return its final text."""
-    from vtx.agent.dispatcher import get_context
-    from vtx.agent.tools.task import SubagentSpec, resolve_subagent_runner
-
-    ctx = get_context()
-    if ctx is None:
-        return f"{label} unavailable: dispatcher context not initialized."
-    spec = SubagentSpec(
-        name=label.lower().replace(" ", "-"),
-        description=label,
-        instructions=instructions,
-        instructions_mode="replace",
-        tools_allow=["__none__"],
-        tools_deny=[],
-        max_turns=2,
-    )
-    try:
-        result = await resolve_subagent_runner()(
-            parent_ctx=ctx,
-            spec=spec,
-            prompt=prompt,
-            cancel_event=None,
-            model_override=None,
-            progress_callback=None,
-            tool_call_id=f"{label.lower().replace(' ', '_')}_{uuid.uuid4().hex[:12]}",
-            label=label,
-        )
-    except Exception as exc:  # noqa: BLE001
-        return f"{label} error: {exc}"
-    return result.final_text or "(no output)"
-
-
-@tool(mutating=False, tool_icon="🧠")
-async def reason(question: str, context: str = "") -> str:
-    """Run a dedicated deep-reasoning pass on a question.
-
-    :param question: The question or problem to reason about.
-    :param context: Optional extra context to reason over.
-    """
-    prompt = question if not context else f"{question}\n\nContext:\n{context}"
-    return await _run_text_subagent(
-        "You are a careful reasoning engine. Think step by step and give a "
-        "precise, well-structured answer. No preamble.",
-        prompt,
-        "reasoner",
-    )
-
-
-@tool(mutating=False, tool_icon="💡")
-async def brainstorm(topic: str, constraints: str = "") -> str:
-    """Breadth-first idea exploration with rationale for each idea.
-
-    :param topic: The subject to brainstorm about.
-    :param constraints: Optional constraints (audience, budget, timeframe…).
-    """
-    prompt = f"Brainstorm ideas about: {topic}"
-    if constraints:
-        prompt += f"\nConstraints: {constraints}"
-    return await _run_text_subagent(
-        "You are a creative brainstorming partner. Generate a broad set of "
-        "distinct ideas; for each give a one-line rationale. Organize by theme.",
-        prompt,
-        "brainstormer",
-    )
-
-
-# ---------------------------------------------------------------------------
-# Notes — simple markdown/JSON store under data/notes (write_note, list_notebook,
-# search_notes) and question_bank
-# ---------------------------------------------------------------------------
-
-
-def _notes_dir(settings: Settings) -> Path:
-    path = settings.data_dir / "notes"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
 
 
 def _notes_dir_for_env() -> Path:
     root = Path(os.environ.get("DT_DATA_DIR", "./data")).resolve() / "notes"
     root.mkdir(parents=True, exist_ok=True)
     return root
-
-
-
-
 
 
 @tool(mutating=True, tool_icon="📝")
@@ -172,7 +83,6 @@ from .dito import (  # noqa: E402,F401
 )
 
 
-
 @tool(mutating=True, tool_icon="❓")
 def question_bank(action: str, question: str = "", answer: str = "", topic: str = "") -> str:
     """Manage a personal Q&A bank (add | list | search).
@@ -214,8 +124,6 @@ def _memory_path() -> Path:
     return root / "memory.json"
 
 
-
-
 @tool(mutating=True, tool_icon="🧠")
 def memory(action: str, query: str = "", fact: str = "",
            category: str = "general") -> str:
@@ -248,63 +156,6 @@ def memory(action: str, query: str = "", fact: str = "",
     if q:
         memories = [m for m in memories if q in json.dumps(m, ensure_ascii=False).lower()]
     return json.dumps(memories[-50:], ensure_ascii=False, indent=1) or "[]"
-
-
-# ---------------------------------------------------------------------------
-# imagegen — pollinations.ai (no key required)
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=False, tool_icon="🎨")
-async def imagegen(prompt: str, width: int = 1024, height: int = 1024) -> str:
-    """Generate an image from a text prompt. Returns a URL to the image.
-
-    :param prompt: Image description.
-    :param width: Width in pixels.
-    :param height: Height in pixels.
-    """
-    from urllib.parse import quote
-
-    url = (
-        f"https://image.pollinations.ai/prompt/{quote(prompt)}"
-        f"?width={width}&height={height}&nologo=true"
-    )
-    try:
-        async with httpx.AsyncClient(timeout=60.0, headers=_HEADERS) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-        return f"Generated image URL: {url}\n(Content type: {resp.headers.get('content-type')})"
-    except Exception as exc:  # noqa: BLE001
-        return f"imagegen error: {exc}"
-
-
-# ---------------------------------------------------------------------------
-# ask_user — pause the turn and ask the learner a question
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=False, tool_icon="❓")
-def ask_user(question: str, options: str = "", context: str = "") -> str:
-    """Ask the learner a question and wait for their reply.
-
-    Use when you need clarification, a decision, or confirmation before
-    continuing. The learner's next message is the answer.
-
-    :param question: The question to ask.
-    :param options: Optional comma-separated choices.
-    :param context: Optional background explaining why you're asking.
-    """
-    parts = [f"QUESTION: {question}"]
-    if options:
-        parts.append(f"OPTIONS: {options}")
-    if context:
-        parts.append(f"CONTEXT: {context}")
-    parts.append(
-        "INSTRUCTION: Present this question to the learner clearly and stop. "
-        "Their reply will arrive as the next user message — do not continue "
-        "the task until then."
-    )
-    return "\n".join(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -921,167 +772,6 @@ async def video(query: str, title: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
-# apply_patch — ported from vtx coding_agent/tools/apply_patch.py
-# Atomic file edits: ops update/create/delete/move, validated fully before
-# any byte is written. Replaces the simple write_file tool.
-# ---------------------------------------------------------------------------
-
-_APPLY_PATCH_OPS = (
-    '{"op":"update","path":"a.py","old":"exact text","new":"replacement"} | '
-    '{"op":"update","path":"a.py","edits":[{"old":"..","new":"..","replace_all":false}]} | '
-    '{"op":"create","path":"b.txt","content":"..."} | '
-    '{"op":"delete","path":"c.txt"} | '
-    '{"op":"move","path":"a","new_path":"b"}'
-)
-
-
-def _patch_root() -> Path:
-    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
-    root.mkdir(parents=True, exist_ok=True)
-    return root
-
-
-def _patch_resolve(root: Path, p: str) -> Path:
-    cand = (root / (p or "").lstrip("/")).resolve()
-    if cand != root and root not in cand.parents:
-        raise ValueError(f"path escapes workspace: {p}")
-    return cand
-
-
-@tool(mutating=True, tool_icon="🩹")
-def apply_patch(ops_json: str) -> str:
-    """Apply file edits atomically — the ONLY tool for file modifications.
-
-    Pass a JSON array of ops (see format below). Every op is validated
-    against an in-memory view first; if ANY op fails, NOTHING is written.
-
-    Ops:
-    - ``{"op":"update","path":P,"old":O,"new":N}`` — replace first exact
-      occurrence of O (must match whitespace) with N; add
-      ``"replace_all":true`` for all occurrences.
-    - ``{"op":"update","path":P,"edits":[{"old":O,"new":N,"replace_all":bool}]}``
-      — several edits to one file.
-    - ``{"op":"create","path":P,"content":C}`` — new file (fails if exists).
-    - ``{"op":"delete","path":P}`` — remove file.
-    - ``{"op":"move","path":P,"new_path":Q}`` — rename.
-
-    :param ops_json: JSON array of ops, e.g. [{"op":"update","path":"a.py",
-        "old":"x = 1","new":"x = 2"}]
-    """
-    try:
-        ops = json.loads(ops_json)
-    except Exception as exc:  # noqa: BLE001
-        return f"apply_patch: invalid JSON ops: {exc}"
-    if not isinstance(ops, list) or not ops:
-        return "apply_patch: ops must be a non-empty JSON array."
-
-    root = _patch_root()
-    _DELETED = object()
-    state: dict[Path, Any] = {}
-
-    def current(path: Path) -> str | None:
-        if path in state:
-            v = state[path]
-            return None if v is _DELETED else v
-        if not path.exists():
-            return None
-        try:
-            return path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            raise ValueError(f"cannot read {path}: {exc}") from exc
-
-    def exists(path: Path) -> bool:
-        if path in state:
-            return state[path] is not _DELETED
-        return path.exists()
-
-    def mark(path: Path, content: str | None) -> None:
-        state[path] = _DELETED if content is None else content
-
-    try:
-        for idx, raw in enumerate(ops):
-            if not isinstance(raw, dict):
-                raise ValueError(f"op {idx + 1}: not an object")
-            op = raw.get("op")
-            path = _patch_resolve(root, str(raw.get("path") or ""))
-            label = f"op {idx + 1} ({op} {raw.get('path')})"
-
-            if op == "update":
-                edits = raw.get("edits")
-                if edits is None:
-                    edits = [{"old": raw.get("old"), "new": raw.get("new"),
-                              "replace_all": raw.get("replace_all", False)}]
-                content = current(path)
-                if content is None:
-                    raise ValueError(f"{label}: file does not exist")
-                new_content = content
-                for j, e in enumerate(edits):
-                    old, new = e.get("old"), e.get("new")
-                    if old is None or new is None:
-                        raise ValueError(f"{label} edit {j + 1}: old/new required")
-                    if old == new:
-                        raise ValueError(f"{label} edit {j + 1}: old == new")
-                    count = new_content.count(old)
-                    if count == 0:
-                        raise ValueError(f"{label} edit {j + 1}: 'old' not found")
-                    if count > 1 and not e.get("replace_all"):
-                        raise ValueError(
-                            f"{label} edit {j + 1}: 'old' matches {count} times "
-                            "— set replace_all or make it unique")
-                    new_content = (new_content.replace(old, new)
-                                   if e.get("replace_all")
-                                   else new_content.replace(old, new, 1))
-                mark(path, new_content)
-            elif op == "create":
-                if exists(path):
-                    raise ValueError(f"{label}: file already exists")
-                content = raw.get("content")
-                if content is None:
-                    raise ValueError(f"{label}: 'content' required")
-                mark(path, str(content))
-            elif op == "delete":
-                if not exists(path):
-                    raise ValueError(f"{label}: file does not exist")
-                mark(path, None)
-            elif op == "move":
-                new_path = raw.get("new_path")
-                if not new_path:
-                    raise ValueError(f"{label}: 'new_path' required")
-                content = current(path)
-                if content is None:
-                    raise ValueError(f"{label}: file does not exist")
-                dest = _patch_resolve(root, str(new_path))
-                if dest.exists() and dest not in state:
-                    raise ValueError(f"{label}: destination exists")
-                state[dest] = state.get(path, content)
-                mark(path, None)
-            else:
-                raise ValueError(f"{label}: unknown op {op!r}")
-    except Exception as exc:  # noqa: BLE001
-        return f"apply_patch failed (no changes written): {exc}"
-
-    # All ops validated — apply atomically.
-    applied: list[str] = []
-    try:
-        for path, value in state.items():
-            if value is _DELETED:
-                if path.exists():
-                    if path.is_dir():
-                        import shutil
-                        shutil.rmtree(path)
-                    else:
-                        path.unlink()
-                applied.append(f"deleted {path.relative_to(root)}")
-            else:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(value, encoding="utf-8")
-                applied.append(f"wrote {path.relative_to(root)} ({len(value)} chars)")
-    except Exception as exc:  # noqa: BLE001
-        return f"apply_patch write failed mid-apply: {exc}"
-    return "apply_patch applied:\n" + "\n".join(applied)
-
-
-# ---------------------------------------------------------------------------
 # web — vtx WebTool port: Exa MCP search + Jina Reader fetch, single tool
 # ---------------------------------------------------------------------------
 
@@ -1268,91 +958,6 @@ async def paper_search(
         return f"arXiv search error: {exc}"
 
 
-# ---------------------------------------------------------------------------
-# github — gh CLI or api.github.com
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=False, tool_icon="🐙")
-async def github(query_type: str, target: str) -> str:
-    """Query GitHub read-only data.
-
-    :param query_type: "pr" | "issue" | "run" | "repo" | "api".
-    :param target: owner/repo[#n] or URL for pr/issue; owner/repo for run/repo;
-        raw api path (e.g. "users/octocat") for api.
-    """
-    q = (query_type or "").strip().lower()
-    t = (target or "").strip()
-    if not q or not t:
-        return "query_type and target are required."
-
-    def _gh(args: list[str]) -> tuple[int, str]:
-        try:
-            proc = subprocess.run(
-                ["gh", *args], capture_output=True, text=True, timeout=30
-            )
-            return proc.returncode, (proc.stdout or proc.stderr)[:12000]
-        except FileNotFoundError:
-            return 127, "gh CLI not installed"
-
-    if q == "pr":
-        code, out = _gh(["pr", "view", t, "--json", "title,body,state,author,url,comments"])
-    elif q == "issue":
-        code, out = _gh(["issue", "view", t, "--json", "title,body,state,author,url,comments"])
-    elif q == "run":
-        code, out = _gh(["run", "list", "--repo", t, "--limit", "10", "--json", "databaseId,name,status,conclusion,url"])
-    elif q == "repo":
-        code, out = _gh(["repo", "view", t, "--json", "name,description,stargazerCount,forkCount,url,defaultBranchRef"])
-    elif q == "api":
-        code, out = _gh(["api", t])
-    else:
-        return f"Unknown query_type {q!r}; use pr|issue|run|repo|api."
-    return out if code == 0 else f"gh exited {code}: {out}"
-
-
-# ---------------------------------------------------------------------------
-# exec — run code in the workspace (python or shell)
-# ---------------------------------------------------------------------------
-
-
-@tool(mutating=True, tool_icon="▶️")
-async def exec(code: str, language: str = "python", timeout: int = 30) -> str:
-    """Execute code and return stdout/stderr. Runs inside the workspace dir.
-
-    :param code: Source code (python) or shell commands.
-    :param language: "python" (default) or "bash".
-    :param timeout: Seconds before the process is killed (max 120).
-    """
-    timeout = max(1, min(int(timeout), 120))
-    lang = (language or "python").strip().lower()
-    root = Path(os.environ.get("DT_WORKSPACE_DIR", "./data/workspace")).resolve()
-    root.mkdir(parents=True, exist_ok=True)
-    try:
-        if lang in ("python", "py"):
-            proc = await asyncio.create_subprocess_exec(
-                "python3", "-c", code,
-                cwd=root, stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-        elif lang in ("bash", "sh", "shell"):
-            proc = await asyncio.create_subprocess_exec(
-                "bash", "-c", code,
-                cwd=root, stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-        else:
-            return f"Unsupported language {language!r}; use python or bash."
-        try:
-            out, err = await asyncio.wait_for(proc.communicate(), timeout=timeout)
-        except asyncio.TimeoutError:
-            proc.kill()
-            await proc.communicate()
-            return f"Error: timed out after {timeout}s"
-        stdout = out.decode("utf-8", "replace")[:12000]
-        stderr = err.decode("utf-8", "replace")[:4000]
-        return (stdout + (("\n[stderr]\n" + stderr) if stderr else "")) or "(no output)"
-    except Exception as exc:  # noqa: BLE001
-        return f"exec error: {exc}"
 # ---------------------------------------------------------------------------
 # cron — scheduled reminders and automations ("remind me every Monday at 9")
 # ---------------------------------------------------------------------------

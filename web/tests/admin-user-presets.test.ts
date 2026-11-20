@@ -18,9 +18,6 @@ const grantEditor = readFileSync(
 const en = JSON.parse(
   readFileSync(path.resolve(process.cwd(), "locales/en/app.json"), "utf8"),
 ) as Record<string, string>;
-const zh = JSON.parse(
-  readFileSync(path.resolve(process.cwd(), "locales/zh/app.json"), "utf8"),
-) as Record<string, string>;
 
 test("admin user creation sends the selected preset", () => {
   assert.match(
@@ -46,7 +43,7 @@ test("grant editing exposes the server-enforced learning policy controls", () =>
   );
 });
 
-test("account preset copy is present in both supported locales", () => {
+test("account preset copy is present in the English locale", () => {
   const keys = [
     "Account preset",
     "Learner",
@@ -60,8 +57,6 @@ test("account preset copy is present in both supported locales", () => {
   ];
   for (const key of keys) {
     assert.ok(key in en, `missing English key: ${key}`);
-    assert.ok(key in zh, `missing Chinese key: ${key}`);
     assert.notEqual(en[key], "");
-    assert.notEqual(zh[key], "");
   }
 });
