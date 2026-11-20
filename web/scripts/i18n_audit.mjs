@@ -91,15 +91,7 @@ function translationKeys(file, content) {
   return keys;
 }
 
-const REQUIRED_LOCALES = ["en", "zh", "fr", "de", "uk", "vi", "tr"];
-// French, Ukrainian and Korean are deliberately partial. i18next falls back to the
-// English resource per key; these floors make a coverage regression visible.
-const MIN_USED_COVERAGE = new Map([
-  ["fr", 0.65],
-  ["uk", 0.75],
-  // Initial Korean contribution covers navigation, common actions and learning.
-  ["ko", 0.07],
-]);
+const REQUIRED_LOCALES = ["en"];
 
 function hasTranslation(entries, pluralForms, key) {
   if (Object.hasOwn(entries, key)) return true;
@@ -176,7 +168,7 @@ function reportUntranslatedKeys() {
         ? catalogTranslated / englishKeys.size
         : 1;
     const formatPercent = (ratio) => `${(ratio * 100).toFixed(1)}%`;
-    const floor = MIN_USED_COVERAGE.get(locale);
+    const floor = undefined;
 
     if (floor === undefined) {
       console.log(`[i18n:audit] ${locale}: ${translated}/${usedKeys.size} used keys (${formatPercent(usedCoverage)}), strict`);

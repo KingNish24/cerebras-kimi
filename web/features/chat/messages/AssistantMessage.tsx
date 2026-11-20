@@ -81,12 +81,25 @@ const ReplyBody = memo(function ReplyBody({
   isStreaming,
   language,
   onSendFollowUp,
+  renderMarkdown = false,
 }: {
   content: string;
   isStreaming?: boolean;
   language?: string;
   onSendFollowUp?: (text: string) => void | Promise<void>;
+  /** Notebook threads answer in Markdown and render with the note renderer. */
+  renderMarkdown?: boolean;
 }) {
+  if (renderMarkdown) {
+    return (
+      <AssistantResponse
+        content={content}
+        isStreaming={isStreaming}
+        language={language}
+        className="dt-note-chat-markdown"
+      />
+    );
+  }
   if (hasLegacyOgui(content)) {
     return (
       <LegacyOguiMessage
@@ -119,6 +132,7 @@ export const AssistantMessage = memo(function AssistantMessage({
   onSkipMasteryQuestion,
   onChallengeMasteryQuestion,
   onSendFollowUp,
+  renderMarkdown = false,
   researchRequestSnapshot,
   onTraceToggle,
   masteryGrades,
@@ -192,6 +206,8 @@ export const AssistantMessage = memo(function AssistantMessage({
   onChallengeMasteryQuestion?: (questionId: string) => void | boolean | Promise<void | boolean>;
   /** OpenUI `continue_conversation` actions become a normal user turn. */
   onSendFollowUp?: (text: string) => void | Promise<void>;
+  /** Notebook companion renders Markdown instead of OpenUI programs. */
+  renderMarkdown?: boolean;
 }) {
   const { t } = useTranslation();
   const events = useMemo(() => msg.events ?? [], [msg.events]);
@@ -570,6 +586,7 @@ export const AssistantMessage = memo(function AssistantMessage({
               isStreaming={isStreaming}
               language={turnLanguage}
               onSendFollowUp={onSendFollowUp}
+              renderMarkdown={renderMarkdown}
             />
           ) : null}
         </>
@@ -586,18 +603,28 @@ export const AssistantMessage = memo(function AssistantMessage({
               isStreaming={isStreaming}
               language={turnLanguage}
               onSendFollowUp={onSendFollowUp}
+              renderMarkdown={renderMarkdown}
             />
           ) : null}
         </>
+      ) : hasLegacyOgui(msg.content) ? (
+        <LegacyOguiMessage
+          content={msg.content}
+          isStreaming={isStreaming}
+          language={turnLanguage}
+          onSendFollowUp={onSendFollowUp}
+        />
       ) : hasOpenUILang(msg.content) ? (
         // The main chat now answers with OpenUI Lang programs; render them as
         // live components instead of Markdown so dashboards/quizzes/flashcards
-        // work here as they did on the removed /openui page.
+        // work here as they did on the removed /openui page. Notebook threads
+        // opt out and render the same text with the Markdown renderer instead.
         <ReplyBody
           content={msg.content}
           isStreaming={isStreaming}
           language={turnLanguage}
           onSendFollowUp={onSendFollowUp}
+          renderMarkdown={renderMarkdown}
         />
       ) : useSegmentLayout ? (
         // Default chat surface. The working-out (prose interleaved with the
@@ -630,16 +657,23 @@ export const AssistantMessage = memo(function AssistantMessage({
               <SentMidTurn key={block.key} messages={block.segment.messages} />
             ) : null
           ) : block.segment.kind === "text" ? (
-            // Every answer — a program, a reply with prose around one, or plain
-            // prose — renders through OpenUI, so there is one renderer for the
-            // chat body and inline maths is handled uniformly.
-            <OpenUIMessage
-              key={block.key}
-              content={block.segment.text}
-              isStreaming={isStreaming}
-              language={turnLanguage}
-              onSendFollowUp={onSendFollowUp}
-            />
+            renderMarkdown ? (
+              <AssistantResponse
+                key={block.key}
+                content={block.segment.text}
+                isStreaming={isStreaming}
+                language={turnLanguage}
+                className="dt-note-chat-markdown"
+              />
+            ) : (
+              <OpenUIMessage
+                key={block.key}
+                content={block.segment.text}
+                isStreaming={isStreaming}
+                language={turnLanguage}
+                onSendFollowUp={onSendFollowUp}
+              />
+            )
           ) : null,
         )
       ) : (
@@ -648,6 +682,7 @@ export const AssistantMessage = memo(function AssistantMessage({
           isStreaming={isStreaming}
           language={turnLanguage}
           onSendFollowUp={onSendFollowUp}
+          renderMarkdown={renderMarkdown}
         />
       )}
       {events.some(event => event.type === "sources" &&

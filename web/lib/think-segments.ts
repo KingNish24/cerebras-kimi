@@ -40,11 +40,36 @@ export type ContentSegment = TextSegment | ThinkSegment;
 const FENCE_LINE_REGEX = /^ {0,3}(`{3,}|~{3,})([^\r\n]*)(?:\r?\n|$)/gm;
 const FENCED_PLACEHOLDER_REGEX = /\u0000FENCED_(\d+)\u0000/g;
 
-// `?<\s*think(?:ing)?\b[^>]*>`?
+// `?<\s*(think(?:ing)?|thoughts?|reasoning|analysis|reflection)\b[^>]*>`?
 //   leading/trailing backtick is optional so we match both the raw streaming
 //   form and the post-`escapeUnknownHtmlTags` form. The `[^>]*` swallows any
 //   stray attributes some providers emit (e.g. `<thinking duration="3s">`).
-const OPEN_TAG_REGEX = /`?<\s*(think(?:ing)?)\b[^>]*>`?/i;
+const THINKING_TAG_NAMES = "think(?:ing)?|thoughts?|reasoning|analysis|reflection";
+const OPEN_TAG_REGEX = new RegExp(
+  `\`?<\\s*(${THINKING_TAG_NAMES})\\b[^>]*>\`?`,
+  "i",
+);
+const HAS_THINKING_REGEX = new RegExp(`<\\s*(?:${THINKING_TAG_NAMES})\\b`, "i");
+const SPECIAL_TOKEN_REGEX =
+  /<\|\s*(?:begin_of_|begin_)?(thought|thinking|reasoning|analysis|reflection)\s*\|>/gi;
+const SPECIAL_END_TOKEN_REGEX =
+  /<\|\s*(?:end_of_|end_)(thought|thinking|reasoning|analysis|reflection)\s*\|>/gi;
+
+/**
+ * Map the token spelling some models use (`<|begin_of_thought|>`) onto the
+ * XML spelling this parser understands. Everything else is left untouched.
+ */
+function normalizeSpecialTokens(input: string): string {
+  if (!input.includes("<|")) return input;
+  return input
+    .replace(SPECIAL_TOKEN_REGEX, (_, tag: string) => {
+      return `<${tag.toLowerCase()}>`;
+    })
+    .replace(SPECIAL_END_TOKEN_REGEX, (_, tag: string) => {
+      const name = tag.toLowerCase();
+      return `</${name}>`;
+    });
+}
 
 function closeTagRegex(tag: string): RegExp {
   return new RegExp(`\`?<\\s*/\\s*${tag}\\s*>\`?`, "i");
@@ -105,11 +130,12 @@ function trimThinkContent(content: string): string {
 
 export function parseModelThinkingSegments(input: string): ContentSegment[] {
   if (!input) return [];
-  if (!/<\s*think(?:ing)?\b/i.test(input)) {
+  const normalized = normalizeSpecialTokens(input);
+  if (!HAS_THINKING_REGEX.test(normalized)) {
     return [{ kind: "text", content: input }];
   }
 
-  const { masked, blocks } = maskFencedCode(input);
+  const { masked, blocks } = maskFencedCode(normalized);
   const segments: ContentSegment[] = [];
   let cursor = 0;
 
@@ -156,5 +182,5 @@ export function parseModelThinkingSegments(input: string): ContentSegment[] {
 /** True when `input` contains at least one model-thinking block. */
 export function hasModelThinking(input: string): boolean {
   if (!input) return false;
-  return /<\s*think(?:ing)?\b/i.test(input);
+  return HAS_THINKING_REGEX.test(normalizeSpecialTokens(input));
 }

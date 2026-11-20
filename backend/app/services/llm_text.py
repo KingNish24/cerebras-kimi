@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -18,6 +17,7 @@ import httpx
 
 from .. import provider_config
 from ..config import Settings
+from .inline_thinking import strip_inline_reasoning
 
 logger = logging.getLogger(__name__)
 
@@ -27,14 +27,14 @@ _TIMEOUT = httpx.Timeout(120.0, connect=20.0)
 _ANTHROPIC = "anthropic"
 _RESPONSES = "openai-responses"
 
-_THINKING_TAGS = re.compile(
-    r"<(thinking|reasoning|analysis)>.*?</\1>", re.DOTALL | re.IGNORECASE
-)
-
-
 def clean_thinking_tags(text: str) -> str:
-    """Drop inline reasoning blocks some models still emit in their text."""
-    return _THINKING_TAGS.sub("", text or "").strip()
+    """Drop inline reasoning blocks some models still emit in their text.
+
+    Covers ``<thinking>``/``<thought>``/``<reasoning>``/``<analysis>`` blocks,
+    their special-token (``<|begin_of_thought|>``) spelling, and an unterminated
+    block at the end of a truncated response.
+    """
+    return strip_inline_reasoning(text or "")
 
 
 def resolve(settings: Settings, llm_selection: dict[str, Any] | None = None) -> dict[str, Any]:

@@ -3,6 +3,7 @@ import type { SessionMessage } from "@/lib/session-api";
 import { normalizeMarkdownForDisplay } from "@/lib/markdown-display";
 import { normalizeMessageContent } from "@/lib/message-content";
 import { hasOpenUILang } from "@/lib/openui/lang";
+import { hasLegacyOgui } from "@/lib/openui/legacy-ogui";
 import {
   dropUnvalidatedReasoningEffort,
   normalizeReasoningEffort,
@@ -286,7 +287,9 @@ export function hydrateSessionMessages(
         id: message.id,
         role: message.role,
         content:
-          message.role === "assistant" && !hasOpenUILang(raw)
+          message.role === "assistant" &&
+          !hasOpenUILang(raw) &&
+          !hasLegacyOgui(raw)
             ? normalizeMarkdownForDisplay(raw)
             : raw,
         capability: message.capability || "",

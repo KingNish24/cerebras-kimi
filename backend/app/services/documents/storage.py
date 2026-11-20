@@ -30,7 +30,7 @@ import uuid
 from pydantic import BaseModel, Field
 
 from ...config import get_settings
-from .blocks import blocks_to_markdown, validate_blocks
+from .blocks import blocks_to_markdown, coarse_markdown_to_blocks, validate_blocks
 
 logger = logging.getLogger(__name__)
 
@@ -270,6 +270,20 @@ class CoWriterStorage:
             )
             self._write(document)
             return document
+
+    def ensure_block_document(self, doc_id: str) -> CoWriterDocument | None:
+        """Give a markdown-only page block IDs so edits can be proposed on it.
+
+        The markdown projection is left untouched; the next editor save writes
+        the canonical projection from whatever blocks the learner accepts.
+        """
+        with self.locked():
+            doc = self.load_document(doc_id)
+            if doc is None or doc.blocks is not None:
+                return doc
+            doc.blocks = coarse_markdown_to_blocks(doc.content)
+            self._write(doc)
+            return doc
 
     def load_document(self, doc_id: str) -> CoWriterDocument | None:
         data = _read_json(self.manifest_path(doc_id))

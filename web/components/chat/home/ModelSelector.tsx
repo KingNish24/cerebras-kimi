@@ -12,7 +12,6 @@ import type { LLMSelection } from "@/features/chat/model/protocol";
 import {
   llmSelectionKey,
   resolveLLMSelection,
-  sameLLMSelection,
   type LLMOption,
 } from "@/lib/llm-options";
 
@@ -156,20 +155,16 @@ export default function ModelSelector({
   const selectedKey = selectedOption
     ? llmSelectionKey(selectedOption)
     : llmSelectionKey(selectedSelection);
-  // Recent models are shown as a short list, but the active selection must
-  // stay reachable even when it drops out of recency (e.g. the default was
-  // changed in Settings, or the catalog replaced a profile id).
-  const visibleOptions = useMemo(() => {
-    if (!options.some((option) => option.is_recent)) return options;
-    const recent = options.filter((option) => option.is_recent);
-    if (
-      !selectedOption ||
-      recent.some((option) => sameLLMSelection(option, selectedOption))
-    ) {
-      return recent;
-    }
-    return [selectedOption, ...recent];
-  }, [options, selectedOption]);
+  // Every configured model is selectable. Recently used ones stay at the top
+  // so the familiar short list is still the first thing in the menu; the rest
+  // of the catalog follows. Sort is stable, so each group keeps catalog order.
+  const visibleOptions = useMemo(
+    () =>
+      [...options].sort(
+        (a, b) => Number(Boolean(b.is_recent)) - Number(Boolean(a.is_recent)),
+      ),
+    [options],
+  );
 
   useOutsideClick(rootRef, open, () => {
     setOpen(false);

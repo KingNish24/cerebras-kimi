@@ -30,7 +30,7 @@ function option(profileId: string, modelId: string, overrides: Partial<LLMOption
   } as LLMOption;
 }
 
-it('keeps the selected model in the short recent-only menu', () => {
+it('shows every configured model, with recent ones first', () => {
   const selected = option('wusrouter', 'wr/deepseek-v4.1-flash:free', {
     is_active_default: true,
   });
@@ -39,6 +39,11 @@ it('keeps the selected model in the short recent-only menu', () => {
       options={[
         option('wusrouter', 'codex/gpt-5:free', { is_recent: true }),
         option('wusrouter', 'ws/gpt-5.6-terra:free', { is_recent: true }),
+        option('kilo', 'baidu/ernie-5.5-flash-preview:free', {
+          provider: 'kilo',
+          profile_name: 'Kilo Gateway',
+          provider_label: 'Kilo Gateway',
+        }),
         selected,
       ]}
       activeDefault={{ profile_id: selected.profile_id, model_id: selected.model_id }}
@@ -53,10 +58,11 @@ it('keeps the selected model in the short recent-only menu', () => {
   expect(trigger.textContent).toContain('wr/deepseek-v4.1-flash:free');
   fireEvent.click(trigger);
 
-  // The selected model is not flagged recent, but must still be reachable so
-  // the user can see which model is driving the conversation.
+  // Neither the selected model nor a configured-but-never-used model is
+  // flagged recent; both must still be reachable from the composer.
   expect(screen.getByRole('button', { name: 'wr/deepseek-v4.1-flash:free | WuS Router' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'codex/gpt-5:free | WuS Router' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'baidu/ernie-5.5-flash-preview:free | Kilo Gateway' })).toBeTruthy();
 });
 
 it('shows a legacy slug selection as its catalog model', () => {

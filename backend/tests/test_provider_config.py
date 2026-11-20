@@ -46,6 +46,17 @@ class SelectionTests(unittest.TestCase):
 
 
 class CatalogTests(unittest.TestCase):
+    def test_unconfigured_preset_models_stay_out_of_chat_options(self) -> None:
+        settings = make_settings()
+        # A fresh install has no saved models and no recency: built-in presets
+        # must not fill the composer with OpenAI/Gemini/xAI models.
+        self.assertEqual(pc.model_options(settings), [])
+
+        pc.set_selection(settings, {"profile_id": "wusrouter", "model_id": "codex/gpt-5:free"})
+        options = pc.model_options(settings)
+        self.assertEqual([o["model"] for o in options], ["codex/gpt-5:free"])
+        self.assertTrue(options[0]["is_recent"])
+
     def test_saved_profile_is_source_of_truth_for_options(self) -> None:
         settings = make_settings()
         catalog = pc.load_catalog(settings)
@@ -196,6 +207,18 @@ class ProbeTests(unittest.TestCase):
         result = pc.probe_models("ftp://bad")
         self.assertEqual(result["status"], "invalid_url")
         self.assertEqual(result["models"], [])
+
+    def test_large_model_list_is_not_truncated(self) -> None:
+        """Gateways like Kilo publish more than 200 models; return them all."""
+        expected = [f"model-{i}" for i in range(250)]
+        response = mock.Mock(status_code=200)
+        response.json.return_value = {"data": [{"id": mid} for mid in expected]}
+        with mock.patch("httpx.Client") as client_cls:
+            client = client_cls.return_value.__enter__.return_value
+            client.get.return_value = response
+            result = pc.probe_models("https://gw.example/v1", "sk-x")
+        self.assertEqual(result["status"], "connected")
+        self.assertEqual([m["id"] for m in result["models"]], expected)
 
     def test_discovered_models_are_stored_in_catalog(self) -> None:
         settings = make_settings()

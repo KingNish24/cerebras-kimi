@@ -84,6 +84,7 @@ export const ChatMessageList = memo(function ChatMessageList({
   onOpenThread,
   onDeleteThread,
   onDetachThread,
+  renderMarkdown = false,
 }: {
   messages: ChatMessageItem[];
   isStreaming: boolean;
@@ -170,6 +171,9 @@ export const ChatMessageList = memo(function ChatMessageList({
   onDeleteThread?: (thread: SessionSummary) => Promise<void>;
   /** Detach a thread from this message without deleting its conversation. */
   onDetachThread?: (thread: SessionSummary) => Promise<void>;
+  /** Render assistant replies as Markdown (not OpenUI Lang). Used by notebook
+   *  companion threads, whose answers are saved into a Markdown-based page. */
+  renderMarkdown?: boolean;
 }) {
   const { t } = useTranslation();
   // One lookup for both bubbles; the map is memoized by the chat page, so a
@@ -534,6 +538,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 onSkipMasteryQuestion={onSkipMasteryQuestion}
                 onChallengeMasteryQuestion={onChallengeMasteryQuestion}
                 onSendFollowUp={onSendFollowUp}
+                renderMarkdown={renderMarkdown}
                 researchRequestSnapshot={
                   pairedUserMessage?.requestSnapshot ?? null
                 }

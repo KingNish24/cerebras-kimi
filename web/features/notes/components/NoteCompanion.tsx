@@ -442,6 +442,7 @@ function ThreadPanel({
             showModeBadge={false}
             compactActions
             assistantActions={replyActions}
+            renderMarkdown
           />
         ) : (
           <div className="dt-note-companion-welcome">

@@ -9,6 +9,7 @@ import {
 } from "@/lib/markdown-display";
 import { selectChildBranch } from "@/lib/message-branches";
 import { hasOpenUILang } from "@/lib/openui/lang";
+import { hasLegacyOgui } from "@/lib/openui/legacy-ogui";
 import { nextOptimisticId } from "@/lib/optimistic-id";
 import { shouldAppendEventContent } from "@/lib/stream";
 import { reconcileTurnIds } from "@/lib/turn-reconcile";
@@ -764,9 +765,10 @@ function reduce(state: ProviderState, action: Action): ProviderState {
         const last = messages[messages.length - 1];
         if (last?.role !== "assistant") return messages;
         const raw = last.rawContent ?? last.content ?? "";
-        const repaired = hasOpenUILang(raw)
-          ? raw
-          : repairChineseEmphasis(raw, ending.language);
+        const repaired =
+          hasOpenUILang(raw) || hasLegacyOgui(raw)
+            ? raw
+            : repairChineseEmphasis(raw, ending.language);
         const trace =
           ending.isStreaming && last.trace?.started_at != null
             ? { ...last.trace, ended_at: Date.now() / 1000 }

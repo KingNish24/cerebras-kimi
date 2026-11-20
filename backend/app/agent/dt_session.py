@@ -44,6 +44,23 @@ def unbind(token) -> None:
     _DT_CONTEXT.reset(token)
 
 
+def rebind(session: Any, store: Any, record: dict[str, Any]) -> None:
+    """Point an already-created vtx Session at this turn's record.
+
+    ConversationRuntime is cached per DeepTutor session, but ``start_turn``
+    loads a fresh dict on every turn. Without this, vtx keeps writing its
+    entries into the first turn's dict while the turn-end save persists the
+    fresh one — so the model only ever sees the first turn's history.
+    """
+    if (
+        getattr(session, "_dt_store", None) is store
+        and getattr(session, "_dt_record", None) is record
+    ):
+        return
+    session._dt_store = store
+    session._dt_record = record
+
+
 _ENTRY_TYPES = {
     "message": MessageEntry,
     "thinking_level_change": ThinkingLevelChangeEntry,

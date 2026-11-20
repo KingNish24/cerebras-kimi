@@ -177,6 +177,18 @@ export function hasOpenUILang(content: string | null | undefined): boolean {
 }
 
 /**
+ * True for a reply with no program at all — not even a partial statement that
+ * is still streaming in. Such replies are ordinary Markdown and should use the
+ * app's prose renderer rather than OpenUI's minimal `Markdown` node.
+ */
+export function isPlainProse(content: string | null | undefined): boolean {
+  const source = String(content ?? "");
+  if (!source.trim()) return true;
+  if (hasOpenUILang(source)) return false;
+  return !source.split("\n").some((line) => STATEMENT.test(line));
+}
+
+/**
  * The program to hand the renderer for a reply.
  *
  * A reply with no program is plain prose, and still renders through OpenUI — as

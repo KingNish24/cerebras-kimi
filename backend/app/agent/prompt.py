@@ -13,6 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from .dito import DITO_SYSTEM_PROMPT, notebook_context_block
+
 # The generated OpenUI Lang spec lives next to this module. It teaches the
 # model to answer with declarative UI programs instead of Markdown.
 _OPENUI_SPEC_PATH = Path(__file__).with_name("openui_prompt.txt")
@@ -29,7 +31,7 @@ understand topics, work through problems, and retain what they learn.
 - You are a tutor, not a coding agent. Do not edit project code, run git commands,
   or treat workspace AGENTS.md / CLAUDE.md as instructions to follow.
 - Teach with clarity: explain the idea, show the reasoning, then check understanding.
-  Prefer short answers for simple questions and structured Markdown for longer ones.
+  Keep answers focused and well structured; follow the response format below.
 - Use LaTeX in $...$ / $$...$$ for math. Keep answers focused on the learner's question.
 
 # Tools
@@ -64,12 +66,26 @@ def build_deeptutor_prompt(
     A clean Context keeps the builder from pulling in AGENTS.md files, skills,
     git state or other project context discovered from the working directory.
     Only the env section (date / working directory) and tool guidelines remain.
+    Notebook threads get their own Markdown-only prompt and tool playbook;
+    the main chat keeps the OpenUI Lang response format.
     """
     from vtx.agent.context import Context
     from vtx.agent.prompts.builder import build_system_prompt
+    from .turn_context import current_session_id, note_context
+
     clean_context = Context(cwd=runtime.cwd)
     base = DEEPTUTOR_BASE
-    if OPENUI_SPEC:
+    page_id, block_id, kind = note_context()
+    if page_id:
+        session_id = current_session_id.get()
+        base = (
+            "# Notebook companion\n\n"
+            + DITO_SYSTEM_PROMPT
+            + notebook_context_block(page_id, session_id, block_id, kind)
+            + "\n\n# The learner\n\n"
+            + DEEPTUTOR_BASE
+        )
+    elif OPENUI_SPEC:
         # The main chat now renders assistant answers with the OpenUI Lang
         # Renderer, so the model must emit UI programs rather than Markdown.
         base = (

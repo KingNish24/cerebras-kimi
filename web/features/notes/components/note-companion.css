@@ -426,3 +426,16 @@
 .dt-note-composer-send.is-stop {
   background: var(--foreground);
 }
+
+/* Notebook replies are Markdown, drawn with the same renderer as note blocks.
+   The side panel is narrower than chat, so keep the type a step smaller. */
+.dt-note-companion .dt-note-chat-markdown {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.dt-note-companion .dt-note-chat-markdown > :first-child {
+  margin-top: 0;
+}
+.dt-note-companion .dt-note-chat-markdown > :last-child {
+  margin-bottom: 0;
+}

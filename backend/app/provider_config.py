@@ -481,7 +481,9 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
                 is_recent=is_recent_option(recent, pid, mid, provider_slug, wire_model),
             ))
 
-    # Preset fallback for slugs with no saved profile (env-key usage).
+    # Preset fallback for slugs with no saved profile (env-key usage). Only
+    # models the learner has actually picked are surfaced — an unconfigured
+    # built-in preset must not fill the composer with OpenAI/Gemini/xAI rows.
     for slug, preset in _BUILTIN.items():
         conn = _connection_for_provider(catalog, slug)
         if conn and any(
@@ -493,6 +495,9 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
             key = (slug, str(mid))
             if key in seen:
                 continue
+            is_recent = is_recent_option(recent, slug, str(mid), slug, str(mid))
+            if not is_recent:
+                continue
             seen.add(key)
             options.append(_option(
                 slug, str(mid),
@@ -501,7 +506,7 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
                 supports_vision=bool(preset.get("supports_vision")),
                 supports_thinking=bool(preset.get("supports_thinking")),
                 is_active_default=f"{slug}:{mid}" == active_key,
-                is_recent=is_recent_option(recent, slug, str(mid), slug, str(mid)),
+                is_recent=True,
             ))
     return options
 
@@ -717,7 +722,10 @@ def probe_models(
         models = []
     return {
         "status": "connected" if models else "unavailable",
-        "models": models[:200],
+        # Return the provider's full catalog. A hard cap here (previously 200)
+        # silently dropped valid models from gateways that publish large lists
+        # (e.g. Kilo), so the settings UI reported a truncated count.
+        "models": models,
         "http_status": response.status_code,
     }
 
