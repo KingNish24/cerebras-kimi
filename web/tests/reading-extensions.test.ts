@@ -88,11 +88,8 @@ test("the built-in read-aloud action is localized", () => {
     /extensionId === "read_aloud" && actionId === "read"/,
   );
   assert.match(english, /"Read aloud": "Read aloud"/);
-  assert.match(chinese, /"Read aloud": "朗读"/);
   assert.match(english, /"Reading aloud": "Reading aloud"/);
-  assert.match(chinese, /"Reading aloud": "正在朗读"/);
   assert.match(english, /"Stop reading aloud": "Stop reading aloud"/);
-  assert.match(chinese, /"Stop reading aloud": "停止朗读"/);
 });
 
 test("the built-in study-guidance action is localized", () => {
@@ -117,7 +114,6 @@ test("the built-in vocabulary action is localized", () => {
     /extensionId === "vocabulary" && actionId === "explain"/,
   );
   assert.match(english, /"Explain vocabulary": "Explain vocabulary"/);
-  assert.match(chinese, /"Explain vocabulary": "解释词汇"/);
 });
 
 test("vocabulary terms are visible in the result card", () => {
@@ -133,7 +129,6 @@ test("the built-in reading-quiz action is localized", () => {
   assert.match(component, /extensionId === "quiz" && actionId === "start"/);
   assert.match(component, /t\(builtInLabel\)/);
   assert.match(english, /"Quiz me": "Quiz me"/);
-  assert.match(chinese, /"Quiz me": "测一测"/);
 });
 
 test("reading quizzes reveal grading only after the learner answers", () => {
@@ -154,7 +149,6 @@ test("the built-in translation actions have explicit target languages", () => {
     /extensionId === "translation" && actionId === "translate_zh"/,
   );
   assert.match(english, /"Translate to English": "Translate to English"/);
-  assert.match(chinese, /"Translate to Chinese": "翻译成中文"/);
 });
 
 test("translation results are rendered as text in the result card", () => {

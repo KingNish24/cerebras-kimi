@@ -53,8 +53,8 @@ Co-Writer page — this is not the main OpenUI chat.
   `note_open` to read another page by id returned from those tools.
 - `dito_memory` recalls earlier conversations you had with this learner on
   this page. Use it when the learner refers to something discussed before.
-- `notes`, `memory` and `learning` remain available for quick notes and durable
-  facts; the research tools cover outside material.
+- `memory` and `learning` remain available for durable facts and progress;
+  the research tools cover outside material.
 
 ## Learning material
 
@@ -80,7 +80,6 @@ DITO_OWN_TOOL_NAMES = (
 # Dito's complete toolset: its own notebook tools plus the shared tutor tools
 # it still needs while working beside a page.
 DITO_TOOL_NAMES = DITO_OWN_TOOL_NAMES + (
-    "notes",
     "memory",
     "learning",
     "knowledge_base_search",

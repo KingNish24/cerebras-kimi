@@ -27,6 +27,7 @@ import {
 import type { CodeBlockThemeId } from "@/components/common/code-block-themes";
 import {
   normalizeCodeBlockTheme,
+  normalizeLanguage,
   writeStoredCodeBlockShowLineNumbers,
   writeStoredCodeBlockTheme,
   writeStoredCodeBlockWrapLongLines,
@@ -831,7 +832,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       }
       serverThemeLoadedRef.current = true;
       setTheme(loadedTheme);
-      setLanguage(payload.ui.language);
+      setLanguage(normalizeLanguage(payload.ui.language));
       const loadedResponseLanguage =
         payload.ui.response_language ?? payload.ui.language;
       setResponseLanguage(loadedResponseLanguage);
@@ -842,7 +843,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       // language alone therefore left the server (and this page) showing 中文
       // while every turn still shipped the "en" the bootstrap had stamped —
       // the "I set Chinese and it answers in English" report.
-      writeStoredLanguage(payload.ui.language);
+      writeStoredLanguage(normalizeLanguage(payload.ui.language));
       writeStoredResponseLanguage(loadedResponseLanguage);
       // Writes the backend-loaded values into app-shell storage and dispatches
       // the code-block settings event; AppShellContext (the single source) picks
@@ -1002,8 +1003,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       applyThemePreference(ui.theme);
     }
     if (ui.language) {
-      setLanguage(ui.language);
-      writeStoredLanguage(ui.language);
+      const language = normalizeLanguage(ui.language);
+      setLanguage(language);
+      writeStoredLanguage(language);
     }
     if (ui.response_language) {
       setResponseLanguage(ui.response_language);

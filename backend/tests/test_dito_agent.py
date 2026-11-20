@@ -49,6 +49,10 @@ def test_dito_has_its_own_narrower_toolset(tmp_path, monkeypatch):
     assert set(dito.DITO_OWN_TOOL_NAMES) <= names
     assert names == set(dito.DITO_TOOL_NAMES)
     assert not {"video", "cron", "mastery", "workspace", "question_bank"} & names
+    # The standalone `notes` tool duplicates note_create/note_list/note_search,
+    # so Dito manages pages through the note_* tools only.
+    assert "notes" not in names
+    assert "notes" in chat
 
 
 def test_note_create_and_list_manage_the_notebook(tmp_path, monkeypatch):
