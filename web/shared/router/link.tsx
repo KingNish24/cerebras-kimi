@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Link as TanStackLink } from "@tanstack/react-router";
+import { isExternalHref, parseInternalHref } from "./href";
 
 export interface UrlObject {
   pathname?: string | null;
@@ -40,34 +41,6 @@ function resolveHref(href: LinkHref): string {
       : `#${href.hash}`
     : "";
   return `${pathname}${search ? `?${search}` : ""}${hash}`;
-}
-
-function isExternalHref(href: string): boolean {
-  return (
-    href.startsWith("http://") ||
-    href.startsWith("https://") ||
-    href.startsWith("//") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:")
-  );
-}
-
-function parseInternalHref(href: string): {
-  to: string;
-  search?: Record<string, string>;
-  hash?: string;
-} {
-  try {
-    const url = new URL(href, "http://localhost");
-    const searchObj = Object.fromEntries(url.searchParams.entries());
-    return {
-      to: url.pathname,
-      search: Object.keys(searchObj).length > 0 ? searchObj : undefined,
-      hash: url.hash ? url.hash.slice(1) : undefined,
-    };
-  } catch {
-    return { to: href };
-  }
 }
 
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(

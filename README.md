@@ -1,6 +1,6 @@
 # DeepTutor
 
-An agent-native AI learning companion — Next.js frontend + Python backend powered by the [VTX coding-agent SDK](https://github.com/OEvortex/vtx-coding-agent). The frontend talks to the backend over **REST**; real-time turn and channel events are delivered over **Server-Sent Events (SSE)**. There are no WebSockets.
+An agent-native AI learning companion — Vite + React 19 + TanStack Router frontend + Python backend powered by the [VTX coding-agent SDK](https://github.com/OEvortex/vtx-coding-agent). The frontend talks to the backend over **REST**; real-time turn and channel events are delivered over **Server-Sent Events (SSE)**. There are no WebSockets.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 ```
 
 - **`backend/`** — FastAPI/Uvicorn app (`app/main.py`). REST handlers live in `app/api/handlers.py`; turn commands and feature-channel messages are dispatched directly by the REST+SSE controller in `app/api/realtime.py`, which drives the vtx agent loop in `app/agent/runtime.py`. There is no ACP or JSON-RPC layer.
-- **`web/`** — Next.js app. `features/chat/transport/` holds the SSE-backed `TurnSocket` and the turn protocol client; `lib/sse-socket.ts` is the shared REST+SSE shim used by the turn protocol, `lib/rpc-ws.ts`, and `lib/reconnecting-websocket.ts` for legacy feature channels. Commands are POSTed; frames arrive as named SSE events and are re-emitted with the same JSON payloads the old transport produced.
+- **`web/`** — Vite + React 19 + TanStack Router app (`vite.config.ts`, `src/router.tsx`). `features/chat/transport/` holds the SSE-backed `TurnSocket` and the turn protocol client; `lib/sse-socket.ts` is the shared REST+SSE shim used by the turn protocol, `lib/rpc-ws.ts`, and `lib/reconnecting-websocket.ts` for legacy feature channels. Commands are POSTed; frames arrive as named SSE events and are re-emitted with the same JSON payloads the old transport produced.
 - **DeepTutor owns sessions** — conversations persist as JSON documents under `data/sessions/<id>.json` (messages, turn events, settings, and the agent's vtx session header/entries). The agent uses a real, append-only vtx `Session`, but its persistence layer is that DeepTutor record; nothing is read from or written to `~/.vtx/sessions`.
 
 ### API surface
@@ -52,6 +52,8 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | `main.py` | FastAPI app: middleware, state, REST router, SSE realtime router, `/health`, Uvicorn entry point |
 | `api/realtime.py` | REST + SSE controller: per-client command dispatch (turns and feature channels), named-event stream, idle cleanup |
 | `api/handlers.py` | REST handler registry mounted at `/api/*` |
+| `api/files.py` | Serves workspace and generated files under `/files/*` |
+| `api/openui.py` | OpenUI endpoints (`/api/openui/wiki`, `/api/openui/research`, `/api/openui/street-route`) |
 | `api/calendar.py` | Calendar router at `/api/calendar` (calendars, events, RRULE expansion, search, ICS export, SSE revision stream, workspace layers) |
 | `agent/runtime.py` | `AgentRuntime` — builds vtx `ConversationRuntime`, owns turns/subscribers and event replay |
 | `agent/tools.py` | Tool registry — `builtin_tools()` with toggleable/locked-on gating |
@@ -99,9 +101,9 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 
 ## Frontend layout (`web/`)
 
-- `app/(workspace)/` — chat, settings, knowledge, calendar, notebook pages
-- `proxy.ts` — rewrites `/api/*` to the backend; no WebSocket upgrade handling
-- `app/files/[...path]/route.ts` — serves agent-generated files
+- `vite.config.ts` — Vite config: `/api` & `/files` proxy to `127.0.0.1:8001`, `compactLocalePlugin`, env defines
+- `src/router.tsx` — TanStack Router code-based route tree, auth gate, and redirects
+- `app/(workspace)/` — chat, settings, knowledge, calendar, notebook page & layout components
 - `lib/sse-socket.ts` — shared WebSocket-shaped client over REST command POST + SSE event stream
 - `features/chat/transport/` — `TurnRuntimeClient`, `socket.ts` (SSE-backed), protocol parsing
 - `features/notes/components/NoteAiEdit.tsx` — "Edit with AI" in the note editor's selection toolbar: Rewrite/Shorten/Expand or a custom instruction streams from `/documents/actions/edit-react/stream` and lands in the page's suggestion queue; "Annotate page" applies `【term】`/`《statement》` markers directly
@@ -130,17 +132,17 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 
 ## Development
 
-The frontend and the Python backend are **separate processes**. The backend is a FastAPI/Uvicorn server on `127.0.0.1:8001` (REST under `/api/*`, SSE event stream at `/api/realtime/events`). `npm run dev` starts **only Next.js** — if the backend is not running, chat fails after ~12 s with *"Couldn't reach the server. Please check your connection and retry."*
+The frontend and the Python backend are **separate processes**. The backend is a FastAPI/Uvicorn server on `127.0.0.1:8001` (REST under `/api/*`, SSE event stream at `/api/realtime/events`). `bun run dev` starts **only Vite** (`http://localhost:5173`, proxying `/api` and `/files` to `127.0.0.1:8001`) — if the backend is not running, chat fails after ~12 s with *"Couldn't reach the server. Please check your connection and retry."*
 
 ```bash
 # Terminal 1 — backend (required)
 cd backend && .venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 
-# Terminal 2 — frontend (http://localhost:3000)
-cd web && npm run dev
+# Terminal 2 — frontend (http://localhost:5173)
+cd web && bun run dev
 ```
 
-Alternatively, `cd web && npm start` builds and starts both processes together.
+Alternatively, `cd web && bun start` builds with Vite and starts both FastAPI and `vite preview` (`http://127.0.0.1:3000`) together.
 Check the backend with `curl http://127.0.0.1:8001/health` → `{"status":"ok"}`.
 
 ## Notes

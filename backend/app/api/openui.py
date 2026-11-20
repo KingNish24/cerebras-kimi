@@ -27,15 +27,25 @@ _SKIP_WIKI_RE = re.compile(r"\.svg|icon|logo|map|flag|seal", re.IGNORECASE)
 _IMAGE_WIDTH = 960
 _MAX_STOPS = 25
 
-_image_cache: dict[str, list[str]] = {}
-_route_cache: dict[str, list[list[float]]] = {}
-_wiki_cache: dict[str, dict[str, Any]] = {}
+class BoundedCache:
+    """In-memory FIFO-bounded cache preserving insertion order."""
+
+    def __init__(self, max_size: int) -> None:
+        self._max_size = max_size
+        self._data: dict[str, Any] = {}
+
+    def get(self, key: str) -> Any | None:
+        return self._data.get(key)
+
+    def set(self, key: str, value: Any) -> None:
+        if key not in self._data and len(self._data) >= self._max_size:
+            self._data.pop(next(iter(self._data)))
+        self._data[key] = value
 
 
-def _cache_set(cache: dict[str, Any], key: str, value: Any, max_size: int) -> None:
-    if len(cache) >= max_size:
-        cache.pop(next(iter(cache)))
-    cache[key] = value
+_image_cache = BoundedCache(500)
+_route_cache = BoundedCache(200)
+_wiki_cache = BoundedCache(500)
 
 
 def _words(text: str) -> list[str]:
@@ -137,39 +147,39 @@ async def image_search(q: str = Query(default="")) -> JSONResponse:
             return JSONResponse(
                 {"error": {"message": "Image search unavailable"}}, status_code=502
             )
-        _cache_set(_image_cache, cleaned, images, 500)
+        _image_cache.set(cleaned, images)
     return JSONResponse({"images": images}, headers=_CACHE_HEADERS)
+
+
+def parse_coords(coords: str) -> list[tuple[float, float]] | None:
+    """Parse ``lng,lat;lng,lat;...`` into 2–25 valid finite coordinate pairs."""
+    raw_pairs = coords.split(";") if coords else []
+    if len(raw_pairs) < 2 or len(raw_pairs) > _MAX_STOPS:
+        return None
+    points: list[tuple[float, float]] = []
+    for pair in raw_pairs:
+        parts = pair.split(",")
+        if len(parts) != 2:
+            return None
+        try:
+            lng, lat = float(parts[0]), float(parts[1])
+        except ValueError:
+            return None
+        if (
+            not math.isfinite(lng)
+            or not math.isfinite(lat)
+            or abs(lng) > 180
+            or abs(lat) > 90
+        ):
+            return None
+        points.append((lng, lat))
+    return points
 
 
 @router.get("/street-route")
 async def street_route(coords: str = Query(default="")) -> JSONResponse:
-    points: list[tuple[float, float]] = []
-    valid = True
-    raw_pairs = coords.split(";") if coords else []
-    if len(raw_pairs) < 2 or len(raw_pairs) > _MAX_STOPS:
-        valid = False
-    else:
-        for pair in raw_pairs:
-            parts = pair.split(",")
-            if len(parts) != 2:
-                valid = False
-                break
-            try:
-                lng, lat = float(parts[0]), float(parts[1])
-            except ValueError:
-                valid = False
-                break
-            if (
-                not math.isfinite(lng)
-                or not math.isfinite(lat)
-                or abs(lng) > 180
-                or abs(lat) > 90
-            ):
-                valid = False
-                break
-            points.append((lng, lat))
-
-    if not valid:
+    points = parse_coords(coords)
+    if points is None:
         return JSONResponse(
             {"error": {"message": f"coords must be 2–{_MAX_STOPS} lng,lat pairs"}},
             status_code=400,
@@ -200,7 +210,7 @@ async def street_route(coords: str = Query(default="")) -> JSONResponse:
             if data.get("code") != "Ok" or len(coordinates) < 2:
                 raise RuntimeError("No street route")
             route = [[lat, lng] for lng, lat in coordinates]
-            _cache_set(_route_cache, key, route, 200)
+            _route_cache.set(key, route)
         except Exception:  # noqa: BLE001
             return JSONResponse(
                 {"error": {"message": "Street routing unavailable"}}, status_code=502
@@ -269,7 +279,7 @@ async def wiki_lookup(title: str = Query(default="")) -> JSONResponse:
                 info["lat"] = coords["lat"]
             if coords.get("lon") is not None:
                 info["lng"] = coords["lon"]
-            _cache_set(_wiki_cache, cleaned, info, 500)
+            _wiki_cache.set(cleaned, info)
         except Exception:  # noqa: BLE001
             return JSONResponse(
                 {"error": {"message": "Wikipedia unavailable"}}, status_code=502

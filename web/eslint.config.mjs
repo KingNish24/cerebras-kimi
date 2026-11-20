@@ -1,8 +1,24 @@
-import nextConfig from "eslint-config-next";
+import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 import i18nPlugin from "./eslint/i18n-plugin.mjs";
 
 const config = [
-  ...nextConfig,
+  {
+    files: ["**/*.{ts,tsx,mts}"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+      "react-hooks": reactHooks,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+    },
+  },
   {
     files: ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "features/**/*.{ts,tsx}"],
     plugins: {
@@ -64,10 +80,6 @@ const config = [
     },
   },
   {
-    // ``.next-*`` covers every build output, including the throwaway dist dirs
-    // a second dev server needs (DEEPTUTOR_NEXT_DIST_DIR, see next.config.js):
-    // without it, running one turns `npx eslint .` — a CI gate — red with
-    // hundreds of errors from generated code.
     ignores: [
       "node_modules/**",
       ".next/**",

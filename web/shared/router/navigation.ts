@@ -8,30 +8,7 @@ import {
   useParams as useTanStackParams,
   useRouter as useTanStackRouter,
 } from "@tanstack/react-router";
-
-function parseInternalHref(href: string): {
-  to: string;
-  search?: Record<string, string>;
-  hash?: string;
-} {
-  const url = new URL(href, "http://localhost");
-  const searchObj = Object.fromEntries(url.searchParams.entries());
-  return {
-    to: url.pathname,
-    search: Object.keys(searchObj).length > 0 ? searchObj : undefined,
-    hash: url.hash ? url.hash.slice(1) : undefined,
-  };
-}
-
-function isExternalHref(href: string): boolean {
-  return (
-    href.startsWith("http://") ||
-    href.startsWith("https://") ||
-    href.startsWith("//") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:")
-  );
-}
+import { isExternalHref, parseInternalHref } from "./href";
 
 export interface AppRouterInstance {
   push: (href: string, options?: { scroll?: boolean }) => void;
