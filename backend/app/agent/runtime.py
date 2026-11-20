@@ -41,7 +41,7 @@ from .. import provider_config
 from ..config import Settings
 from ..store.session_store import AUTO_PARENT_MESSAGE, SessionStore
 from .tools import builtin_tools
-from .turn_context import set_turn_context
+from .turn_context import set_note_context, set_turn_context
 
 log = logging.getLogger("deeptutor.runtime")
 
@@ -203,6 +203,17 @@ class AgentRuntime:
     def __init__(self, settings: Settings, store: SessionStore) -> None:
         self._settings = settings
         self._store = store
+        # vtx rebuilds its provider model list on every session init and each
+        # entry re-scans the whole models.dev table for limits: measured 5.8s of
+        # the first turn's latency, 1.9s on later sessions. The caches below are
+        # behaviour-preserving (see their module docstrings).
+        from .vtx_catalog_cache import (
+            install_context_limit_cache,
+            install_model_fetch_cache,
+        )
+
+        install_context_limit_cache()
+        install_model_fetch_cache()
         self._turns: dict[str, TurnHandle] = {}
         self._vtx_runtimes: dict[str, Any] = {}
         self._session_locks: dict[str, asyncio.Lock] = {}
@@ -431,6 +442,23 @@ class AgentRuntime:
         set_turn_context(
             session["id"],
             str(command.get("workspace_id") or session.get("preferences", {}).get("workspace_id") or ""),
+        )
+        # A notebook thread is an ordinary chat session bound to a Co-Writer
+        # page. Keep the binding on the session so later turns inherit it even
+        # when the client does not resend it.
+        note_doc = str(
+            command.get("note_document_id")
+            or session.get("preferences", {}).get("note_document_id")
+            or ""
+        ).strip()
+        note_generation = command.get("note_generation") or {}
+        if note_doc:
+            session.setdefault("preferences", {})["note_document_id"] = note_doc
+            self._store.save(session)
+        set_note_context(
+            note_doc,
+            str(note_generation.get("block_id") or "") if isinstance(note_generation, dict) else "",
+            str(note_generation.get("kind") or "") if isinstance(note_generation, dict) else "",
         )
         task = asyncio.create_task(
             self._run(handle, session, command, user_message)
@@ -730,7 +758,7 @@ class AgentRuntime:
             try:
                 assistant_message = self._store.append_assistant_message(
                     session, assistant_text,
-                    events=list(handle.events), turn_id=handle.turn_id,
+                    turn_id=handle.turn_id,
                     capability=capability,
                     metadata={"status": status},
                     parent_message_id=user_message.get("id"),

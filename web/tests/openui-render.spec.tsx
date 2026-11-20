@@ -24,12 +24,14 @@ describe("OpenUIMessage", () => {
     expect(container.textContent).not.toContain("root = Col");
   });
 
-  it("renders a reply with no program as prose instead of blank", () => {
+  it("renders a reply with no program as prose instead of blank", async () => {
     const { container } = render(
       <OpenUIMessage content={"The gradient points uphill, at $|\\nabla f|$."} />,
     );
 
-    expect(container.textContent).toContain("The gradient points uphill");
+    // Plain prose uses the app's Markdown renderer, which is dynamically
+    // imported so KaTeX is only loaded for answers that need it.
+    expect(await screen.findByText(/The gradient points uphill/)).toBeTruthy();
     expect(container.querySelector("p")).toBeTruthy();
   });
   it("renders a program written entirely on one line", () => {

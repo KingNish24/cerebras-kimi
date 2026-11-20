@@ -71,6 +71,7 @@ import {
 } from "@/lib/markdown-display";
 import { normalizeMessageContent } from "@/lib/message-content";
 import { hasOpenUILang } from "@/lib/openui/lang";
+import { hasLegacyOgui } from "@/lib/openui/legacy-ogui";
 import {
   buildVisiblePath,
   persistedBranchSelections,
@@ -1306,9 +1307,10 @@ function reduce(state: ProviderState, action: Action): ProviderState {
         const last = messages[messages.length - 1];
         if (last?.role !== "assistant") return messages;
         const raw = last.rawContent ?? last.content ?? "";
-        const repaired = hasOpenUILang(raw)
-          ? raw
-          : repairChineseEmphasis(raw, ending.language);
+        const repaired =
+          hasOpenUILang(raw) || hasLegacyOgui(raw)
+            ? raw
+            : repairChineseEmphasis(raw, ending.language);
         const trace =
           ending.isStreaming && last.trace?.started_at != null
             ? { ...last.trace, ended_at: Date.now() / 1000 }
@@ -2260,8 +2262,15 @@ export function ChatStateAdapterProvider({
           return {
             id: message.id,
             role: message.role,
+            // Both code formats are source, not prose. The Markdown
+            // normalizer rewrites what it is given — it deleted an empty
+            // `<div id="trip-map"></div>` from a stored `ogui-*` bundle, which
+            // is the element the widget's script mounts its map into, so the
+            // turn rendered as "Map container not found".
             content:
-              message.role === "assistant" && !hasOpenUILang(raw)
+              message.role === "assistant" &&
+              !hasOpenUILang(raw) &&
+              !hasLegacyOgui(raw)
                 ? normalizeMarkdownForDisplay(raw)
                 : raw,
             capability: message.capability || "",

@@ -5,9 +5,10 @@ import "@openuidev/react-ui/styles/index.css";
 import { Renderer, type ActionEvent } from "@openuidev/react-lang";
 import { useEffect, useMemo, useState } from "react";
 import { ThemeProvider } from "@openuidev/intelligent-ui-library";
+import AssistantResponse from "@/components/common/AssistantResponse";
 import { handleOpenUIAction } from "@/lib/openui/actions";
 import { library } from "@/lib/openui/library";
-import { extractOpenUILang, toOpenUIProgram } from "@/lib/openui/lang";
+import { extractOpenUILang, isPlainProse, toOpenUIProgram } from "@/lib/openui/lang";
 import { contentLang } from "@/lib/content-lang";
 import { resolveTheme, getStoredThemePreference, subscribeToThemeChanges } from "@/lib/theme";
 
@@ -75,6 +76,20 @@ export default function OpenUIMessage({
     if (isStreaming) return;
     if (errors.some((error) => error?.code === "parse-failed")) setRejectedProgram(program);
   };
+
+  // A reply with no OpenUI program is plain Markdown. OpenUI's own `Markdown`
+  // node renders headings at body-text size, which reads as raw text; the app's
+  // prose renderer gives it the full heading/list/code/math styling instead.
+  // Keep real programs on the OpenUI path (including prose preambles).
+  if (isPlainProse(content)) {
+    return (
+      <AssistantResponse
+        content={content}
+        isStreaming={isStreaming}
+        language={language}
+      />
+    );
+  }
 
   return (
     <ThemeProvider mode={mode}>

@@ -46,6 +46,17 @@ class SelectionTests(unittest.TestCase):
 
 
 class CatalogTests(unittest.TestCase):
+    def test_unconfigured_preset_models_stay_out_of_chat_options(self) -> None:
+        settings = make_settings()
+        # A fresh install has no saved models and no recency: built-in presets
+        # must not fill the composer with OpenAI/Gemini/xAI models.
+        self.assertEqual(pc.model_options(settings), [])
+
+        pc.set_selection(settings, {"profile_id": "wusrouter", "model_id": "codex/gpt-5:free"})
+        options = pc.model_options(settings)
+        self.assertEqual([o["model"] for o in options], ["codex/gpt-5:free"])
+        self.assertTrue(options[0]["is_recent"])
+
     def test_saved_profile_is_source_of_truth_for_options(self) -> None:
         settings = make_settings()
         catalog = pc.load_catalog(settings)

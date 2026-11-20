@@ -247,6 +247,7 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
     """
     from . import dt_tools
     from . import kb_tools as _kb
+    from .turn_context import note_context
 
     workspace = WorkspaceFiles(settings)
     ws_tools = workspace.tools()
@@ -279,6 +280,15 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         "web", "web_search", "paper_search",
         "geogebra_analysis", "videogen",
     }
+    # The notebook companion gets its own playbook: read the page and propose
+    # reviewable changes (including learning blocks/flashcards). These tools
+    # are absent from ordinary chat turns.
+    if note_context()[0]:
+        registry.update({
+            "note_read": dt_tools.note_read,
+            "note_suggest": dt_tools.note_suggest,
+            "flashcards": dt_tools.flashcards,
+        })
     # web_search is the frontend's toggle name for the merged `web` tool.
     enabled = [{"web_search": "web"}.get(n, n) for n in (enabled or [])]
     locked_on = set(registry) - toggleable

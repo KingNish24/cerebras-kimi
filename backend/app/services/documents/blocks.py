@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from typing import Any
 
 MAX_BLOCK_BYTES = 4 * 1024 * 1024
@@ -27,6 +28,72 @@ LEAF_BLOCK_TYPES = frozenset(
         "taskView",
     }
 )
+
+
+def coarse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
+    """Best-effort blocks for a markdown-only page that must be edited.
+
+    Imported notes can arrive with ``blocks=None``. Before the notebook
+    companion can propose a reviewable change, the page needs block IDs; this
+    keeps the markdown as text (headings and lists get their own blocks) instead
+    of asking the learner to re-save the page by hand. It is a fallback, not a
+    faithful markdown parser — the editor still owns rich conversions.
+    """
+    blocks: list[dict[str, Any]] = []
+    paragraph: list[str] = []
+
+    def flush() -> None:
+        if paragraph:
+            text = "\n".join(paragraph)
+            blocks.append(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "type": "paragraph",
+                    "props": {},
+                    "content": [{"type": "text", "text": text, "styles": {}}],
+                    "children": [],
+                }
+            )
+            paragraph.clear()
+
+    for line in content.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            flush()
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.*)$", stripped)
+        if heading:
+            flush()
+            level = len(heading.group(1))
+            blocks.append(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "type": "heading",
+                    "props": {"level": level},
+                    "content": [{"type": "text", "text": heading.group(2), "styles": {}}],
+                    "children": [],
+                }
+            )
+            continue
+        bullet = re.match(r"^[-*+]\s+(.*)$", stripped)
+        numbered = re.match(r"^\d+[.)]\s+(.*)$", stripped)
+        if bullet or numbered:
+            flush()
+            blocks.append(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "type": "bulletListItem" if bullet else "numberedListItem",
+                    "props": {},
+                    "content": [{"type": "text", "text": (bullet or numbered).group(1), "styles": {}}],
+                    "children": [],
+                }
+            )
+            continue
+        paragraph.append(stripped)
+        if len(blocks) > 500:
+            break
+    flush()
+    return blocks[:500]
 
 
 def safe_link(value: str) -> bool:
