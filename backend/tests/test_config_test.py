@@ -139,8 +139,6 @@ class TestRunnerTests(unittest.TestCase):
             for _ in range(200):
                 if test_run.is_terminal():
                     break
-                import time
-
                 time.sleep(0.02)
             events = test_run.snapshot(0)
 

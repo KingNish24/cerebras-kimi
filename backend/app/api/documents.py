@@ -434,9 +434,15 @@ def update_document(doc_id: str, payload: UpdateDocumentRequest) -> dict[str, An
 @router.delete("/api/documents/{doc_id}")
 def delete_document(doc_id: str) -> dict[str, bool]:
     storage = get_co_writer_storage()
-    if not storage.doc_exists(_doc_id(doc_id)):
+    page_id = _doc_id(doc_id)
+    if not storage.doc_exists(page_id):
         raise HTTPException(status_code=404, detail="Page not found")
-    return {"deleted": storage.delete_document(doc_id)}
+    deleted = storage.delete_document(page_id)
+    if deleted:
+        from ..services import dito_memory
+
+        dito_memory.forget_page(page_id)
+    return {"deleted": deleted}
 
 
 @router.get("/api/documents/{doc_id}/backlinks")

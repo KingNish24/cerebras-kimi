@@ -1,0 +1,5 @@
+{
+    "vtx.implicitContext.enabled": true,
+    "vtx.defaultMode": "bypass",
+    "vtx.defaultModel": "kilo:reflection/beam-free"
+}

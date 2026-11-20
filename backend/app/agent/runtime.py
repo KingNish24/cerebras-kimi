@@ -788,6 +788,8 @@ class AgentRuntime:
             metadata={"metadata": {"context_budget": self._context_budget(
                 runtime, session, usage)}}))
         assistant_text = "".join(assistant_parts).strip()
+        if status == "completed" and assistant_text:
+            self._remember_dito_turn(session, user_message, assistant_text)
         assistant_message: dict[str, Any] | None = None
         if assistant_text:
             try:
@@ -836,6 +838,29 @@ class AgentRuntime:
         else:
             handle.settled.set()
         return True
+
+    def _remember_dito_turn(
+        self,
+        session: dict[str, Any],
+        user_message: dict[str, Any],
+        assistant_text: str,
+    ) -> None:
+        """Record a finished notebook exchange in Dito's page memory."""
+        from .turn_context import note_context
+
+        page_id, block_id, _ = note_context()
+        if not page_id:
+            return
+        from .dito import remember_turn
+
+        remember_turn(
+            page_id=page_id,
+            session_id=str(session.get("id") or ""),
+            block_id=block_id,
+            user_text=str(user_message.get("content") or ""),
+            assistant_text=assistant_text,
+            session_title=str(session.get("title") or ""),
+        )
 
     def _spawn_title_update(
         self,
