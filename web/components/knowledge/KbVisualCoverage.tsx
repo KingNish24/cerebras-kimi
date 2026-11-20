@@ -44,7 +44,7 @@ export default function KbVisualCoverage({ kbName, sourcePath, revision }: { kbN
           {report.page_fallback && <p>{"PDF pages and higher-detail regions are available through source inspection in chat."}</p>}
           {!!report.issues.length && <ul className="space-y-1">{report.issues.map((issue, i) => <li key={i} className="break-words">
             {issue.page && <a className="underline" href={`${apiUrl(knowledgeBaseFilePath(kbName, sourcePath))}#page=${issue.page}`} target="_blank" rel="noreferrer">{"Page"} {issue.page}: </a>}
-            {issue.asset && `${issue.asset}: `}{englishLabel(`visualCoverage.${issue.reason}`, `visualCoverage.${issue.reason}`})
+            {issue.asset && `${issue.asset}: `}{englishLabel(`visualCoverage.${issue.reason}`, `visualCoverage.${issue.reason}`)}
           </li>)}</ul>}
           <ul className="space-y-1">{data?.assets.map((asset) => <li key={asset.asset_id}>
             <a className="underline break-words" href={apiUrl(`/api/knowledge-bases/${encodeURIComponent(kbName)}/visual-assets/${asset.asset_id}`)} target="_blank" rel="noreferrer">{asset.caption || "Source figure"}{asset.page_number ? ` (${"Page"} ${asset.page_number})` : ""}</a>

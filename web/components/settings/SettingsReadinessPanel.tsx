@@ -333,7 +333,7 @@ export default function SettingsReadinessPanel({
 }
 
 function detailText(t: (key: string) => string, code: string): string {
-  return EXPLAINED_DETAIL_CODES.has(code) ? englishLabel(`readiness.detail.${code}`, `readiness.detail.${code}` : "");
+  return EXPLAINED_DETAIL_CODES.has(code) ? englishLabel(`readiness.detail.${code}`, `readiness.detail.${code}`) : "";
 }
 
 function ReadinessGroup({
@@ -352,7 +352,7 @@ function ReadinessGroup({
     <div className="pt-4">
       <div className="flex items-baseline justify-between gap-3 pb-1">
         <h3 className="text-[12px] font-medium text-[var(--muted-foreground)]">
-          {englishLabel(`readiness.section.${section}`, `readiness.section.${section}`})
+          {englishLabel(`readiness.section.${section}`, `readiness.section.${section}`)}
         </h3>
         {ready > 0 && (
           <span className="text-[11px] text-[var(--muted-foreground)] opacity-70">
@@ -424,7 +424,7 @@ function ReadinessRow({ row }: { row: PanelRow }) {
             severity ? SEVERITY_TONES[severity] : STATE_TONES[row.state]
           }`}
         >
-          {englishLabel(`readiness.state.${row.state}`, `readiness.state.${row.state}`})
+          {englishLabel(`readiness.state.${row.state}`, `readiness.state.${row.state}`)}
         </span>
       </span>
     </li>

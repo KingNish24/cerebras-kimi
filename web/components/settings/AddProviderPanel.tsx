@@ -131,7 +131,7 @@ export function AddProviderPanel({
             }}
             className={`rounded-full border px-3 py-1.5 text-[13px] ${filter === item ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]' : 'border-[var(--border)] hover:bg-[var(--accent)]'}`}
           >
-            {englishLabel(`settings.providerServices.filter.${item}`, `settings.providerServices.filter.${item}`})
+            {englishLabel(`settings.providerServices.filter.${item}`, `settings.providerServices.filter.${item}`)}
           </button>
         ))}
       </div>
