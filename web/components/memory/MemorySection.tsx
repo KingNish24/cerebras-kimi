@@ -261,7 +261,7 @@ interface MemorySectionProps {
   hideHeader?: boolean; // when true, skips the SpaceSectionHeader (parent page renders its own)
 }
 
-export default function MemorySection({
+function MemorySection({
   forcedTab,
   hideHeader = false,
 }: MemorySectionProps = {}) {

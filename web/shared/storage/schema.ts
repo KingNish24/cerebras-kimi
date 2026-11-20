@@ -1,4 +1,5 @@
 import type { StorageKey } from "./keys";
+import { isRecord } from "@/shared/lib/record";
 
 export interface StorageEnvelope<T> {
   version: number;
@@ -9,10 +10,6 @@ export interface StorageEnvelope<T> {
 export type ParsedStorageValue<T> =
   | { ok: true; value: T; migrated: boolean }
   | { ok: false; reason: "corrupt" | "invalid" | "version" };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
 
 export function encodeStorageValue<T>(
   key: StorageKey<T>,

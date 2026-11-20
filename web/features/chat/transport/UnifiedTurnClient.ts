@@ -1,3 +1,4 @@
+import { asRecordOrEmpty as asRecord } from "@/shared/lib/record";
 import type {
   ClientCommand,
   ServerEvent,
@@ -31,12 +32,6 @@ const STREAM_TYPES = new Set<StreamEventType>([
   "wait_for_input",
   "done",
 ]);
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object"
-    ? (value as Record<string, unknown>)
-    : {};
-}
 
 function toStreamEvent(event: ServerEvent): StreamEvent | null {
   const raw = event as unknown as Record<string, unknown>;

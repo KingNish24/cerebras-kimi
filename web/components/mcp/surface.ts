@@ -7,12 +7,9 @@ import {
   getMcpSettings,
   getSpaceMcpState,
   putSpaceMcpServer,
-  testMcpServer,
-  testSpaceMcpServer,
   updateMcpSettings,
   type McpServerConfig,
   type McpStoreState,
-  type McpTestResult,
   type McpTransport,
 } from "@/lib/mcp-api";
 
@@ -61,32 +58,6 @@ export const SPACE_MCP_SURFACE: McpSurface = {
   writes: "per-server",
 };
 
-export function surfaceAllows(
-  surface: McpSurface,
-  transport: McpTransport,
-): boolean {
-  return surface.transports.includes(transport);
-}
-
-/**
- * Delete one server by name, bypassing the whole-map diff.
- *
- * Needed for an entry the backend lists but will not connect (a hand-edited
- * stdio server): it never appears in the servers map, so a diff-based write has
- * nothing to remove.
- */
-export async function deleteMcpSurfaceServer(
-  surface: McpSurface,
-  name: string,
-): Promise<McpStoreState> {
-  if (surface.writes !== "per-server") {
-    throw new Error(
-      "Direct deletion is only available on a per-server surface",
-    );
-  }
-  return deleteSpaceMcpServer(surface.basePath, name);
-}
-
 export async function loadMcpSurface(
   surface: McpSurface,
 ): Promise<McpStoreState> {
@@ -127,32 +98,6 @@ export async function writeMcpSurface(
   // No diff at all (a toggle re-applied to the same value): the caller still
   // expects fresh state, and re-reading is cheaper than a redundant write.
   return state ?? loadMcpSurface(surface);
-}
-
-/**
- * Probe one definition before saving it.
- *
- * The per-user route is `POST /servers/{name}/test` — it runs under the caller's
- * own owner id so the probe obeys the same address policy and stored
- * credentials the real connection will. An unnamed draft borrows a name that no
- * real server can hold (the backend's name rule rejects a leading underscore),
- * so testing before naming cannot touch another server's stored credentials.
- */
-export async function testMcpSurfaceServer(
-  surface: McpSurface,
-  name: string,
-  cfg: McpServerConfig,
-  secrets: Record<string, string> = {},
-): Promise<McpTestResult> {
-  if (surface.writes === "per-server") {
-    return testSpaceMcpServer(
-      surface.basePath,
-      name.trim() || "_draft",
-      cfg,
-      secrets,
-    );
-  }
-  return testMcpServer(surface.basePath, cfg);
 }
 
 /**

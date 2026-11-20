@@ -1,3 +1,5 @@
+import { asRecord } from "@/shared/lib/record";
+
 /**
  * Reading a mastery question — and its verdict — out of a turn's events.
  *
@@ -74,12 +76,6 @@ export interface MasteryGradeResult {
 export interface MasteryAnswerRejection {
   questionId: string;
   retryKey: string;
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : null;
 }
 
 function text(value: unknown): string {

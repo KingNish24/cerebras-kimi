@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatDay } from "@/shared/lib/date";
 import {
   ArrowLeft,
   Bot,
@@ -68,17 +69,6 @@ interface PreviewState {
   row: PickerRow;
   messages: { id: string; role: string; content: string }[] | null;
   loading: boolean;
-}
-
-function formatDay(key: string, lang: string): string {
-  const d = new Date(`${key}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return key;
-  return d.toLocaleDateString(lang, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    weekday: "short",
-  });
 }
 
 /** Reference imported local agent conversations, grouped by project or day. */

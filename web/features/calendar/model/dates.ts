@@ -81,13 +81,7 @@ export function atMinutes(day: Date, minutes: number): Date {
   return new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, minutes)
 }
 
-export function browserTimeZone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
-  } catch {
-    return 'UTC'
-  }
-}
+export { browserTimeZone } from '@/shared/lib/date'
 
 /** First day of the week for a locale: Sunday in the US, Monday by default. */
 export function weekStartsOn(locale: string): number {

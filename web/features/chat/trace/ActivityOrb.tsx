@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ActivityOrb as SharedActivityOrb,
-  type OrbState,
-} from "@/components/activity";
+import type { OrbState } from "@/components/activity";
 
 import type { StreamingMode } from "./model";
 
@@ -40,16 +37,5 @@ const MODE_TO_ORB: Record<StreamingMode, OrbState> = {
 const MODE_SPEED: Partial<Record<StreamingMode, number>> = {
   responded: 0.5,
 };
-
-/** The orb for a chat phase. Sizing, ink and resolution live in the shared
- *  component; this file is only the mapping. */
-export default function ChatActivityOrb({ mode }: { mode: StreamingMode }) {
-  return (
-    <SharedActivityOrb
-      state={MODE_TO_ORB[mode]}
-      speed={MODE_SPEED[mode] ?? 1}
-    />
-  );
-}
 
 export { MODE_TO_ORB, MODE_SPEED };

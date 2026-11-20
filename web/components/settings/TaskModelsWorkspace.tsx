@@ -281,5 +281,3 @@ export function TaskModelsWorkspace() {
     </div>
   );
 }
-
-export default TaskModelsWorkspace;

@@ -22,7 +22,7 @@ import { getLocale } from "@/lib/datetime";
 // `block` is there for the same reason from the other side: an inline-block
 // control sits on a line box, so the parent's strut left a few pixels above it
 // that a control in a differently-worded column did not have.
-export const fieldControlClass =
+const fieldControlClass =
   "block min-h-10 w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-[14px] leading-5 text-[var(--foreground)] outline-none transition-[border-color,box-shadow,background-color] duration-150 hover:border-[color-mix(in_srgb,var(--foreground)_22%,var(--border))] focus:border-[var(--ring)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--ring)_16%,transparent)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-[var(--border)]";
 
 export const inputClass = `${fieldControlClass} bg-transparent placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)]`;
@@ -84,56 +84,6 @@ export function formatContextWindowSource(
   if (source === "known_model") return t("Model catalog (models.dev)");
   if (source === "default") return t("Conservative fallback (not detected)");
   return t("Unset");
-}
-
-export function formatContextWindowUpdatedAt(
-  value: string | undefined,
-  language: AppLanguage,
-): string {
-  if (!value) return "";
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toLocaleString(getLocale(language), {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
-export function activeProfileDetail(
-  profile: CatalogProfile | null,
-  service: ServiceName,
-  t: (key: string) => string,
-): string {
-  if (!profile) return t("No profile");
-  if (service === "search") return profile.provider || t("No provider");
-  return profile.base_url || t("No endpoint");
-}
-
-export function activeModelDetail(
-  profile: CatalogProfile | null,
-  model: { model?: string; name?: string } | null,
-  service: ServiceName,
-  t: (key: string) => string,
-): string {
-  if (service === "search") return profile?.provider || t("No provider");
-  return model?.model || model?.name || t("No model selected");
-}
-
-// Category-label typography. English looks good with uppercase + wide tracking;
-// CJK glyphs are already square blocks so we drop both and bump size a hair.
-export function labelClass(
-  size: "sm" | "md" | "lg",
-  language: AppLanguage,
-): string {
-  if (language === "zh") {
-    if (size === "sm") return "text-[10.5px] font-medium";
-    if (size === "lg") return "text-[12px] font-medium";
-    return "text-[11px] font-medium";
-  }
-  if (size === "sm")
-    return "text-[9.5px] font-semibold uppercase tracking-[0.16em]";
-  if (size === "lg") return "text-[11px] uppercase tracking-[0.16em]";
-  return "text-[10px] font-semibold uppercase tracking-[0.16em]";
 }
 
 // One-row settings group used on simple pages (Appearance, Status etc.).

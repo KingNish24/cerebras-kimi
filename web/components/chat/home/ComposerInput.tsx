@@ -120,17 +120,17 @@ export interface ComposerInputHandle {
   setValue: (value: string) => void;
 }
 
-export function shouldOpenAtPopup(value: string, cursorPos: number): boolean {
+function shouldOpenAtPopup(value: string, cursorPos: number): boolean {
   const prefix = value.slice(0, cursorPos);
   return /(^|\s)@[^\s]*$/.test(prefix);
 }
 
-export function stripTrailingAtMention(value: string): string {
+function stripTrailingAtMention(value: string): string {
   return value.replace(/(^|\s)@[^\s]*$/, "$1").replace(/\s+$/, "");
 }
 
 /** The text typed after a trailing ``@`` (the agent-mention query), or "". */
-export function atMentionQuery(value: string, cursorPos: number): string {
+function atMentionQuery(value: string, cursorPos: number): string {
   const match = /(^|\s)@([^\s]*)$/.exec(value.slice(0, cursorPos));
   return match ? match[2] : "";
 }
@@ -138,7 +138,7 @@ export function atMentionQuery(value: string, cursorPos: number): string {
 type SlashCommand = "persona" | "language";
 
 /** Slash commands only match at the start of the composer. */
-export function matchingSlashCommands(
+function matchingSlashCommands(
   value: string,
   cursorPos: number,
   enabled: readonly SlashCommand[] = ["persona", "language"],
@@ -147,13 +147,6 @@ export function matchingSlashCommands(
   if (!match) return [];
   const query = match[1].toLowerCase();
   return enabled.filter((command) => command.startsWith(query));
-}
-
-export function shouldOpenSlashPopup(
-  value: string,
-  cursorPos: number,
-): boolean {
-  return matchingSlashCommands(value, cursorPos).length > 0;
 }
 
 export const ComposerInput = memo(

@@ -2,20 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, KeyRound, Loader2 } from "lucide-react";
-import Modal from "@/components/common/Modal";
+import { ExternalLink, Loader2 } from "lucide-react";
 import {
   getPageIndexConfig,
   updatePageIndexConfig,
   type PageIndexConfig,
 } from "@/features/knowledge/api/engines";
-
-interface PageIndexSettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  /** Called after a successful save so callers can refresh provider state. */
-  onSaved?: () => void;
-}
 
 interface PageIndexConfigFormProps {
   onChanged?: () => void;
@@ -177,35 +169,5 @@ export function PageIndexConfigForm({
         </div>
       </div>
     </div>
-  );
-}
-
-export default function PageIndexSettingsModal({
-  isOpen,
-  onClose,
-  onSaved,
-}: PageIndexSettingsModalProps) {
-  const { t } = useTranslation();
-  const [saving, setSaving] = useState(false);
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={saving ? () => {} : onClose}
-      title={t("PageIndex settings")}
-      titleIcon={<KeyRound size={16} />}
-      width="md"
-      closeOnBackdrop={!saving}
-      closeOnEscape={!saving}
-    >
-      {isOpen && (
-        <PageIndexConfigForm
-          onChanged={onSaved}
-          onSubmit={onClose}
-          onCancel={onClose}
-          onSavingChange={setSaving}
-        />
-      )}
-    </Modal>
   );
 }

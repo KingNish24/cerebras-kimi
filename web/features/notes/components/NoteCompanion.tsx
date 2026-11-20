@@ -421,7 +421,7 @@ function ThreadPanel({
             isStreaming={streaming}
             sessionId={state.sessionId}
             language={state.language}
-            onCopyAssistantMessage={content => copyText(content)}
+            onCopyAssistantMessage={(content: string) => copyText(content)}
             onRegenerateMessage={onRegenerate}
             onDeleteTurn={deleteTurn}
             selectedBranches={state.selectedBranches}

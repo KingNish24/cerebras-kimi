@@ -1,208 +1,46 @@
 "use client";
 
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
-import {
-  currentWorkspaceDraftLocation,
-  saveWorkspaceDraft,
-  readWorkspaceDraft,
-  type WorkspaceDraft,
-  type WorkspaceDraftLocation,
-} from "@/lib/workspace-drafts";
-import {
-  ArrowUp,
-  BookMarked,
-  BookOpen,
-  Bot,
-  Brain,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  ClipboardList,
-  Database,
-  Loader2,
-  MessageSquare,
-  Mic,
-  Paperclip,
-  PencilRuler,
-  Plug,
-  Sparkles,
-  Square,
-  UserRound,
-  X,
-} from "lucide-react";
-import {
-  ATTACHMENT_ACCEPT,
-} from "@/lib/doc-attachments";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Paperclip } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import type { SelectedHistorySession } from "@/components/chat/HistorySessionPicker";
-import type { SelectedQuestionEntry } from "@/components/chat/QuestionBankPicker";
-import type { SelectedRecord } from "@/lib/notebook-selection-types";
-import type { LLMSelection } from "@/features/chat/model/protocol";
-import { sameLLMSelection, type LLMOption } from "@/lib/llm-options";
-import { effectiveReasoningEffort } from "@/lib/reasoning-effort";
-import ReminderButton from "./ReminderButton";
-import ChatSpaceMenu from "@/components/chat/space/ChatSpaceMenu";
-import type { SpaceMemoryFile } from "@/lib/space-items";
-import type { SelectedBookReference } from "@/lib/book-references";
-import type { SelectedReadingReference } from "@/lib/reading-references";
-import { usePartnerRoster } from "@/hooks/usePartnerRoster";
-import { usePartnerGroups } from "@/hooks/usePartnerGroups";
-import ContextBudgetChip, { type ContextBudget } from "./ContextBudgetChip";
-import ComposerResources, {
-  type ComposerResourceItem,
-} from "./ComposerResources";
-import KnowledgeSelector from "./KnowledgeSelector";
-import ModelSelector from "./ModelSelector";
-import ReasoningEffortSelector from "./ReasoningEffortSelector";
-import styles from "./ChatComposer.module.css";
-import { ComposerTray, type TrayCreate, type TrayMode } from "./ComposerTray";
-import type { AnswerModeProps, PartnerLinkProps } from "./AnswerModeMenu";
-import type { LeadToken } from "./ComposerLead";
-import { modeIcon } from "./ComposerIcons";
-import type { ComposerResourceCatalog } from "@/hooks/useComposerResources";
-import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
-import { CREATE_KINDS, isCreationKind } from "@/lib/creations";
-
+import { ATTACHMENT_ACCEPT } from "@/lib/doc-attachments";
+import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";
 import { useTaskBoard } from "@/lib/task-board-store";
 import { sessionTaskLinks } from "@/lib/task-board-api";
-
-type SpaceSelectionCounts = {
-  attachments: number;
-  knowledge: number;
-  chatHistory: number;
-  myAgents: number;
-  books: number;
-  reading: number;
-  notebooks: number;
-  questionBank: number;
-  persona: number;
-  memory: number;
-};
-import type { ContextTreeItem } from "./ContextReferenceTree";
-import SelectedResources from "./SelectedResources";
-import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
-import { ComposerInput, type ComposerInputHandle } from "./ComposerInput";
+import { usePartnerRoster } from "@/hooks/usePartnerRoster";
+import { usePartnerGroups } from "@/hooks/usePartnerGroups";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
-import type { CapabilityDef } from "@/features/capabilities/presentation";
-import AttachmentProcessingStatus from "./AttachmentProcessingStatus";
-import { QuotedPassage } from "./QuotedPassage";
-import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";
-import type { AttachmentProcessingItem } from "@/features/chat/selectors/attachment-processing";
-import Tooltip from "@/shared/ui/Tooltip";
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";
 import { usePageCustomization } from "@/context/PageCustomizationContext";
 import { useUiLayout } from "@/hooks/useUiLayout";
+import ChatSpaceMenu from "@/components/chat/space/ChatSpaceMenu";
 
-interface PendingAttachment {
-  type: string;
-  filename: string;
-  base64?: string;
-  previewUrl?: string;
-  size?: number;
-  mimeType?: string;
-  text?: string;
-}
-
-interface KnowledgeBase {
-  name: string;
-}
-
-/** One row in the capability picker — shared by the built-in list and the
- *  "More" flyout so both render identically. */
-function CapMenuItem({
-  cap,
-  selected,
-  onSelect,
-}: {
-  cap: CapabilityDef;
-  selected: boolean;
-  onSelect: (value: string) => void;
-}) {
-  const { t } = useTranslation();
-  const capabilityLabel = useCapabilityLabel();
-
-  const Icon = cap.icon;
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(cap.value)}
-      className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left transition-colors active:bg-[var(--muted)]/70 ${
-        selected ? "bg-[var(--primary)]/[0.06]" : "hover:bg-[var(--muted)]/45"
-      }`}
-    >
-      <Icon
-        size={15}
-        strokeWidth={1.7}
-        className={`shrink-0 ${selected ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}
-      />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
-          {capabilityLabel(cap)}
-        </div>
-        <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
-          {t(cap.description)}
-        </div>
-      </div>
-      {selected && (
-        <Check
-          size={14}
-          strokeWidth={2}
-          className="shrink-0 text-[var(--primary)]"
-        />
-      )}
-    </button>
-  );
-}
-
-/**
- * The composer's primary action is a single control that spans the whole
- * turn — send, working, stop — rather than two buttons that swap places at
- * the moment of the click. These are its four states; only the skin changes.
- */
-type SendState = "idle" | "blocked" | "ready" | "streaming";
-
-/**
- * `idle` keeps a legible glyph on a hairline ring instead of fading the whole
- * button down: a translucent arrow on an equally translucent fill left the
- * arrow invisible in every theme. Readiness is carried by colour (neutral →
- * primary), not by opacity.
- *
- * Translucency goes through `color-mix` rather than Tailwind's `/NN` opacity
- * modifier. Tailwind 3 can only apply that modifier to colours it can split
- * into channels, so `bg-[var(--primary)]/90` — where the variable holds a hex
- * literal — compiles to nothing at all. `hover:ring-[5px]` and the lift carry
- * the hover state here; the fill deliberately doesn't shift, which also keeps
- * it from having to mix in a direction that reads right on all four themes.
- */
-const SEND_STATE_CLASS: Record<SendState, string> = {
-  idle: "cursor-default text-[var(--muted-foreground)] ring-1 ring-inset ring-[var(--border)]",
-  // The glyph goes to `--foreground`, not `--primary-foreground`: this fill is
-  // a wash of `--muted-foreground` and therefore sits near the background, so
-  // only the foreground colour is guaranteed to read against it on all four
-  // themes. (Inherited as `--primary-foreground`, which was white on pale grey
-  // — invisible — but never showed because the old `/30` compiled to nothing.)
-  blocked:
-    "bg-[color-mix(in_srgb,var(--muted-foreground)_30%,transparent)] text-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--muted-foreground)_45%,transparent)]",
-  ready:
-    "bg-[var(--primary)] text-[var(--primary-foreground)] ring-[3px] ring-[color-mix(in_srgb,var(--primary)_18%,transparent)] hover:-translate-y-px hover:ring-[5px]",
-  streaming: "bg-[var(--primary)] text-[var(--primary-foreground)]",
-};
+import AttachmentProcessingStatus from "./AttachmentProcessingStatus";
+import styles from "./ChatComposer.module.css";
+import { ComposerInput, type ComposerInputHandle } from "./ComposerInput";
+import ComposerResources from "./ComposerResources";
+import { ComposerTray } from "./ComposerTray";
+import { QuotedPassage } from "./QuotedPassage";
+import ReminderButton from "./ReminderButton";
+import SelectedResources from "./SelectedResources";
+import { CapabilityMenu } from "./composer/CapabilityMenu";
+import { ComposerActionButtons } from "./composer/ComposerActionButtons";
+import {
+  buildContextTreeItems,
+  buildKnowledgeResourceItems,
+  buildSpaceSelectionCounts,
+  buildTrayConfig,
+} from "./composer/composerContextHelpers";
+import type { ChatComposerProps, SendState } from "./composer/types";
+import { useComposerFocus } from "./composer/useComposerFocus";
+import { useModelSelection } from "./composer/useModelSelection";
+import { useWorkspaceDraftSync } from "./composer/useWorkspaceDraftSync";
 
 export default memo(function ChatComposer({
   taskSessionId,
   draftTaskIds = [],
-  onDraftTaskIdsChange,
+  onDraftTaskIdsChange: _onDraftTaskIdsChange,
   onTasksLinked,
   composerRef,
   capMenuRef,
@@ -269,7 +107,7 @@ export default memo(function ChatComposer({
   onSelectPersonaPicker,
   onSelectMemoryPicker,
   onClearPersona,
-  personaSelection,
+  personaSelection: _personaSelection,
   onPersonaSelectionChange,
   personaSelectorOpen,
   onPersonaSelectorOpenChange,
@@ -312,195 +150,16 @@ export default memo(function ChatComposer({
   showCapabilityChip = true,
   docked = false,
   trayEnd,
-}: {
-  taskSessionId?: string | null;
-  draftTaskIds?: string[];
-  onDraftTaskIdsChange?: (ids: string[]) => void;
-  onTasksLinked?: () => void;
-  composerRef: RefObject<HTMLDivElement | null>;
-  capMenuRef: RefObject<HTMLDivElement | null>;
-  capBtnRef: RefObject<HTMLButtonElement | null>;
-  spaceMenuRef: RefObject<HTMLDivElement | null>;
-  spaceBtnRef: RefObject<HTMLButtonElement | null>;
-  dragCounter: RefObject<number>;
-  dragging: boolean;
-  capMenuOpen: boolean;
-  /* The conversation's workspace, for task links. Choosing it is the
-     shell's job (the sidebar and the location chip), not the composer's. */
-  workspaceId?: string;
-  spaceMenuOpen: boolean;
-  hasMessages: boolean;
-  attachments: PendingAttachment[];
-  attachmentError: string | null;
-  attachmentProcessing?: AttachmentProcessingItem[];
-  activeCap: CapabilityDef;
-  knowledgeBases: KnowledgeBase[];
-  /** Connected local subagents (Claude Code / Codex) selectable for this turn. */
-  connectedAgents?: { name: string; kind?: string }[];
-  /** The connected agent selected for this turn, if any (single-select). */
-  selectedPartner?: string | null;
-  onSelectPartner?: (id: string | null) => void;
-  selectedPartnerGroup?: string | null;
-  onSelectPartnerGroup?: (id: string | null) => void;
-  /** Who answers instead of DeepTutor: `partner:<id>`, `subagent:<name>`, or null. */
-  answerBy?: string | null;
-  onAnswerByChange?: (value: string | null) => void;
-  selectedAgent?: string | null;
-  onSelectAgent?: (name: string | null) => void;
-  /** Max times DeepTutor may consult the selected agent this turn. */
-  subagentBudget?: number | null;
-  onSubagentBudgetChange?: (budget: number) => void;
-  llmOptions: LLMOption[];
-  activeLLMDefault: LLMSelection | null;
-  llmSelection: LLMSelection | null;
-  llmOptionsLoading: boolean;
-  llmOptionsError: boolean;
-  onRefreshLLMOptions?: () => void;
-  /**
-   * Context-window breakdown measured on the last turn that reported one.
-   * Omitted by surfaces that don't track it (quiz follow-up) and null until
-   * the first turn completes — the chip is skipped entirely in both cases.
-   */
-  contextBudget?: ContextBudget | null;
-  selectedNotebookRecords: SelectedRecord[];
-  selectedBookReferences: SelectedBookReference[];
-  selectedReadingReferences?: SelectedReadingReference[];
-  selectedHistorySessions: SelectedHistorySession[];
-  selectedAgentSessions: SelectedHistorySession[];
-  selectedQuestionEntries: SelectedQuestionEntry[];
-  notebookReferenceGroups: Array<{
-    notebookId: string;
-    notebookName: string;
-    count: number;
-  }>;
-  selectedPersona: string | null;
-  selectedMemoryFiles: SpaceMemoryFile[];
-  selectedKnowledgeBases: string[];
-  isStreaming: boolean;
-  /** The live turn is paused on an ask_user card and needs an answer. */
-  awaitingUserReply?: boolean;
-  isVisualizeMode: boolean;
-  /**
-   * True when the active capability (e.g. Quiz / Visualize / Research)
-   * requires explicit configuration before sending. When true, `canSend`
-   * is gated on `capabilityConfigConfirmed`.
-   */
-  capabilityNeedsConfig: boolean;
-  capabilityConfigConfirmed: boolean;
-  /**
-   * Called when the user clicks the send button while config is required
-   * but not yet confirmed. The page uses this to surface the config card
-   * (open the Activity panel, scroll to it, etc.).
-   */
-  onRequestConfigConfirm: () => void;
-  capabilities: CapabilityDef[];
-  customizable?: boolean;
-  onSetCapMenuOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  onSetSpaceMenuOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  onToggleKB: (name: string) => void;
-  onSelectLLM: (selection: LLMSelection | null) => void;
-  onSelectNotebookPicker: () => void;
-  onSelectBookPicker: () => void;
-  onSelectReadingPicker?: () => void;
-  onSelectHistoryPicker: () => void;
-  onSelectAgentsPicker: () => void;
-  onSelectQuestionBankPicker: () => void;
-  onSelectPersonaPicker: () => void;
-  onSelectMemoryPicker: () => void;
-  onClearPersona: () => void;
-  /**
-   * Session-persona wiring (main chat only). When `onPersonaSelectionChange`
-   * is provided, the tray's answer list offers response styles and the
-   * composer accepts `/persona`, which opens that list. The quiz follow-up
-   * surface omits these and keeps its per-turn persona picker flow.
-   */
-  personaSelection?: string;
-  onPersonaSelectionChange?: (persona: string) => void;
-  personaSelectorOpen?: boolean;
-  onPersonaSelectorOpenChange?: (open: boolean) => void;
-  /** Main chat's session-level reply language, selected via /language. */
-  replyLanguageOverride?: string | null;
-  replyLanguageOptions?: readonly { value: string; label: string }[];
-  replyLanguageDefaultLabel?: string;
-  replyLanguageDisabled?: boolean;
-  onReplyLanguageChange?: (value: string) => void;
-  /**
-   * Skill / MCP narrowing for this conversation. Supplied together: the
-   * catalog is what may be picked (already clipped to what the workspace
-   * allows) and the selection is what was picked, where empty means the
-   * conversation inherits everything. Surfaces without a rail omit all three
-   * and keep inheriting, exactly as before the pickers existed.
-   */
-  resourceCatalog?: ComposerResourceCatalog;
-  resourceSelection?: ResourceSelection;
-  onResourceSelectionChange?: (selection: ResourceSelection) => void;
-  /** Create mode: the artifact kind this conversation is authoring, or null.
-   *  Rendered (and its tray entry shown) only when a parent supplies both. */
-  createTarget?: string | null;
-  onCreateTargetChange?: (value: string | null) => void;
-  /** Hide the My Agents reference entry (e.g. the quiz follow-up surface). */
-  agentsAvailable?: boolean;
-  onToggleMemoryFile: (file: SpaceMemoryFile) => void;
-  onSend: (content: string) => void;
-  onRemoveAttachment: (index: number) => void;
-  onPreviewAttachment?: (index: number) => void;
-  onRemoveHistory: (sessionId: string) => void;
-  onRemoveAgent: (sessionId: string) => void;
-  onRemoveBookReference: (bookId: string) => void;
-  onRemoveReadingReference?: (materialId: string) => void;
-  onRemoveNotebook: (notebookId: string) => void;
-  onRemoveQuestion: (entryId: number) => void;
-  onDragEnter: (event: React.DragEvent) => void;
-  onDragLeave: (event: React.DragEvent) => void;
-  onDragOver: (event: React.DragEvent) => void;
-  onDrop: (event: React.DragEvent) => void;
-  onPaste: (event: React.ClipboardEvent) => void;
-  onAddFiles: (files: File[]) => void;
-  onSelectCapability: (value: string) => void;
-  onCancelStreaming: () => void;
-  /**
-   * Optional ref the composer writes its ``prefillInput`` function into
-   * once mounted, so the message-list side (specifically
-   * ``AskUserOptions`` chips) can drop a string into the textarea
-   * without owning the composer's imperative handle directly.
-   */
-  prefillInputRef?: React.MutableRefObject<((text: string) => void) | null>;
-  /** Receives a function that puts the caret in the textarea. */
-  focusInputRef?: React.MutableRefObject<(() => void) | null>;
-  /** Let a message be sent while a turn runs; the surface queues it. */
-  queueWhileStreaming?: boolean;
-  /** Shown just above the input, under any attachments (the queue). */
-  inputFooter?: ReactNode;
-  /** Override the composer placeholder (e.g. quiz follow-up). */
-  inputPlaceholder?: string;
-  /** A line Tab accepts while the composer is empty. See ComposerInput. */
-  inputPlaceholderCompletion?: string;
-  /**
-   * Surface-owned context shown inside the box, above the text — the reading
-   * companion's quoted passage. Inside rather than above, so it reads as part
-   * of the message being written instead of a card floating over it.
-   */
-  inputHeader?: ReactNode;
-  /**
-   * Hide the capability chip. A surface that only ever runs one capability
-   * — and names it in its own chrome — gains nothing from a picker that
-   * cannot pick anything.
-   */
-  showCapabilityChip?: boolean;
-  /**
-   * The composer sits at the foot of a narrow pane (a side chat) rather than
-   * in the middle of an empty page: it stays one line tall from the start and
-   * its lists always open upward, into the pane, never off its bottom edge.
-   */
-  docked?: boolean;
-  /** A surface's own control at the far end of the tray (who answers). */
-  trayEnd?: ReactNode;
-}) {
+}: ChatComposerProps) {
   const { t } = useTranslation();
   const capabilityLabel = useCapabilityLabel();
   const { value: pageCustomization } = usePageCustomization();
   const controls = customizable ? pageCustomization.chat.controls : undefined;
-  const capabilities = customizable ? allCapabilities.filter(cap => !pageCustomization.chat.hidden_modes.includes(cap.value)) : allCapabilities;
+  const capabilities = customizable
+    ? allCapabilities.filter(
+        (cap) => !pageCustomization.chat.hidden_modes.includes(cap.value),
+      )
+    : allCapabilities;
   // The modern layout picks the mode in the tray and writes it at the start
   // of the message; the classic one keeps its chip in the toolbar.
   const modeInTray = useUiLayout() === "modern" && showCapabilityChip;
@@ -511,261 +170,34 @@ export default memo(function ChatComposer({
     loading: partnersLoading,
     error: partnerLoadError,
   } = usePartnerRoster(canSelectPartner);
-  const partnerName = partners.find(partner => partner.partner_id === selectedPartner)?.name || selectedPartner;
   const {
     groups: partnerGroups,
     loading: groupsLoading,
     error: groupLoadError,
   } = usePartnerGroups(canSelectGroup);
-  const partnerGroupName = partnerGroups.find(group => group.group_id === selectedPartnerGroup)?.name || selectedPartnerGroup;
-
-  const CapIcon = activeCap.icon;
 
   const [hasContent, setHasContent] = useState(false);
-  const [moreCapsOpen, setMoreCapsOpen] = useState(false);
-  const [lastCapMenuOpen, setLastCapMenuOpen] = useState(capMenuOpen);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const restoreFocusOnReturnRef = useRef(false);
   const inputHandleRef = useRef<ComposerInputHandle>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const draftAttachmentsRef = useRef(attachments);
-  const addDraftFilesRef = useRef(onAddFiles);
-  useEffect(() => {
-    draftAttachmentsRef.current = attachments;
-  }, [attachments]);
-  useEffect(() => {
-    addDraftFilesRef.current = onAddFiles;
-  }, [onAddFiles]);
-  const restoredDraftRef = useRef(false);
-  const restoreFailedRef = useRef(false);
-  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const draftDirtyRef = useRef(false);
-  const draftRevisionRef = useRef(0);
-  const draftLocationRef = useRef<WorkspaceDraftLocation | null>(null);
-  const draftTextRef = useRef("");
-  const interactedBeforeRestoreRef = useRef(false);
-  const restoreBaseRef = useRef<WorkspaceDraft | undefined | null>(null);
-  const suppressDraftSaveRef = useRef(false);
 
-  const draftWritesRef = useRef<Promise<void>>(Promise.resolve());
-  const enqueueDraftWrite = useCallback((write: () => Promise<void>) => {
-    const pending = draftWritesRef.current.catch(() => {}).then(write);
-    draftWritesRef.current = pending;
-    return pending;
-  }, []);
+  const { notifyDraftTextChange, clearDraftOnSend } = useWorkspaceDraftSync({
+    attachments,
+    onAddFiles,
+    inputHandleRef,
+  });
 
-  const collectDraft = useCallback(
-    (): WorkspaceDraft => ({
-      // Keep the last value in a ref: the imperative handle may already be
-      // detached when the unmount cleanup runs.
-      text: draftTextRef.current,
-      attachments: draftAttachmentsRef.current.map(
-        ({ filename, base64, mimeType }) => ({ filename, base64, mimeType }),
-      ),
-    }),
-    [],
-  );
+  const { textareaRef, focusTextarea } = useComposerFocus({
+    hasMessages,
+    focusInputRef,
+  });
 
-  const cancelDraftSave = useCallback(() => {
-    if (draftSaveTimerRef.current) {
-      clearTimeout(draftSaveTimerRef.current);
-      draftSaveTimerRef.current = null;
-    }
-    draftDirtyRef.current = false;
-  }, []);
-
-  const saveDraftInBackground = useCallback(async () => {
-    if (!draftDirtyRef.current) return;
-    const location = draftLocationRef.current;
-    if (!location) return;
-    const draft = collectDraft();
-    draftDirtyRef.current = false;
-    try {
-      await enqueueDraftWrite(async () => {
-      if (restoreFailedRef.current) {
-        // The stored draft never reached the composer; merge instead of
-        // overwriting it with only what was typed after the failure.
-        if (restoreBaseRef.current === null) {
-          restoreBaseRef.current = await readWorkspaceDraft(
-            location.workspaceId,
-            location.pathname,
-          );
-        }
-        const base = restoreBaseRef.current;
-        await saveWorkspaceDraft(
-          {
-            text: [base?.text, draft.text].filter(Boolean).join("\n"),
-            attachments: [...(base?.attachments ?? []), ...draft.attachments],
-          },
-          location.workspaceId,
-          location.pathname,
-        );
-      } else {
-        await saveWorkspaceDraft(draft, location.workspaceId, location.pathname);
-      }
-      });
-    } catch (error) {
-      draftDirtyRef.current = true;
-      console.warn("[ChatComposer] workspace draft autosave failed", error);
-    }
-  }, [collectDraft, enqueueDraftWrite]);
-
-  const scheduleDraftSave = useCallback(() => {
-    if (!restoredDraftRef.current && !restoreFailedRef.current) return;
-    draftDirtyRef.current = true;
-    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    draftSaveTimerRef.current = setTimeout(() => {
-      draftSaveTimerRef.current = null;
-      void saveDraftInBackground();
-    }, 500);
-  }, [saveDraftInBackground]);
-  useEffect(() => {
-    let alive = true;
-    const location = currentWorkspaceDraftLocation();
-    draftLocationRef.current = location;
-    const restore = readWorkspaceDraft(location.workspaceId, location.pathname);
-    if (!restoredDraftRef.current) {
-      void restore
-        .then((draft) => {
-          if (!alive || restoredDraftRef.current) return;
-          restoredDraftRef.current = true;
-          if (!draft) {
-            if (interactedBeforeRestoreRef.current) scheduleDraftSave();
-            return;
-          }
-          const current = inputHandleRef.current?.getValue() || "";
-          const restoredText = current ? `${draft.text}\n${current}` : draft.text;
-          draftTextRef.current = restoredText;
-          // Restoring is not user input; don't queue a save that would write
-          // the draft straight back to storage.
-          suppressDraftSaveRef.current = true;
-          inputHandleRef.current?.setValue(restoredText);
-          queueMicrotask(() => {
-            suppressDraftSaveRef.current = false;
-          });
-          if (interactedBeforeRestoreRef.current) scheduleDraftSave();
-          const files = draft.attachments
-            .filter((item) => item.base64)
-            .map((item) => {
-              const bytes = Uint8Array.from(atob(item.base64!), (char) =>
-                char.charCodeAt(0),
-              );
-              return new File([bytes], item.filename, {
-                type: item.mimeType || "application/octet-stream",
-              });
-            });
-          if (files.length) addDraftFilesRef.current(files);
-        })
-        .catch((error) => {
-          if (!alive) return;
-          restoreFailedRef.current = true;
-          console.warn(
-            "[ChatComposer] workspace draft restore failed; keeping the stored draft untouched",
-            error,
-          );
-        });
-    }
-    // The stored draft never made it into the composer, so saving the composer
-    // as-is could clobber it. Skip when nothing new was typed; otherwise merge
-    // the new input on top of the stored draft. If even the re-read fails,
-    // reject the switch (as on main) instead of losing the new input.
-    const saveAfterFailedRestore = () => {
-      restoreFailedRef.current = true;
-      const draft = collectDraft();
-      if (!draft.text && !draft.attachments.length) return Promise.resolve();
-      const merge = (stored?: WorkspaceDraft) =>
-        saveWorkspaceDraft({
-          text: [stored?.text, draft.text].filter(Boolean).join("\n"),
-          attachments: [...(stored?.attachments ?? []), ...draft.attachments],
-        }, location.workspaceId, location.pathname);
-      // Re-read only once per mount so a retried switch merges the original
-      // stored draft instead of re-appending the composer to itself. Autosave
-      // shares the same cache: it may already have written base + typed text.
-      if (restoreBaseRef.current !== null) return merge(restoreBaseRef.current);
-      return readWorkspaceDraft(location.workspaceId, location.pathname).then((stored) => {
-        restoreBaseRef.current = stored ?? { text: "", attachments: [] };
-        return merge(restoreBaseRef.current);
-      });
-    };
-    const save = (event: Event) => {
-      (event as CustomEvent<Promise<void>[]>).detail.push(
-        enqueueDraftWrite(async () => {
-          // The switch (and any draft transfer before navigation) must wait
-          // for older autosaves, including their asynchronous identity reads.
-          await restore.catch(() => { restoreFailedRef.current = true; });
-          const revision = draftRevisionRef.current;
-          if (restoreFailedRef.current) {
-            await saveAfterFailedRestore();
-          } else {
-            await saveWorkspaceDraft(collectDraft(), location.workspaceId, location.pathname);
-          }
-          // A successful switch already persisted this revision. Do not let
-          // unmount restore a source draft that beforeNavigate just moved.
-          // If the user typed while the save ran, keep that newer input dirty.
-          if (draftRevisionRef.current === revision) cancelDraftSave();
-        }),
-      );
-    };
-    window.addEventListener("deeptutor:before-workspace-switch", save);
-    return () => {
-      alive = false;
-      window.removeEventListener("deeptutor:before-workspace-switch", save);
-      if (draftSaveTimerRef.current) {
-        clearTimeout(draftSaveTimerRef.current);
-        draftSaveTimerRef.current = null;
-      }
-      if (!draftDirtyRef.current) return;
-      if (restoredDraftRef.current || restoreFailedRef.current) {
-        void saveDraftInBackground();
-        return;
-      }
-      // The composer unmounted before the stored draft arrived. Merge it with
-      // whatever was typed so neither side is lost.
-      void enqueueDraftWrite(async () => {
-        let draft: WorkspaceDraft | undefined;
-        try {
-          draft = await restore;
-        } catch {
-          if (draftDirtyRef.current) await saveAfterFailedRestore();
-          return;
-        }
-        if (!draftDirtyRef.current) return;
-        const current = collectDraft();
-        await saveWorkspaceDraft({
-          text: [draft?.text, current.text].filter(Boolean).join("\n"),
-          attachments: [...(draft?.attachments ?? []), ...current.attachments],
-        }, location.workspaceId, location.pathname);
-      }).catch((error) => {
-        console.warn("[ChatComposer] could not preserve draft after unmount", error);
-      });
-    };
-  }, [cancelDraftSave, collectDraft, enqueueDraftWrite, saveDraftInBackground, scheduleDraftSave]);
-
-  // Attachments are part of the same draft. Their signature is a cheap way to
-  // react to add/remove without re-saving on every parent render.
-  const attachmentSignature = attachments
-    .map((item) => `${item.filename}:${item.base64?.length ?? 0}:${item.mimeType ?? ""}`)
-    .join("|");
-  const attachmentsInitializedRef = useRef(false);
-  useEffect(() => {
-    if (!attachmentsInitializedRef.current) {
-      attachmentsInitializedRef.current = true;
-      return;
-    }
-    if (suppressDraftSaveRef.current) return;
-    draftRevisionRef.current += 1;
-    if (!restoredDraftRef.current && !restoreFailedRef.current) {
-      interactedBeforeRestoreRef.current = true;
-      draftDirtyRef.current = true;
-      return;
-    }
-    draftLocationRef.current = currentWorkspaceDraftLocation();
-    scheduleDraftSave();
-  }, [attachmentSignature, scheduleDraftSave]);
-  if (lastCapMenuOpen !== capMenuOpen) {
-    setLastCapMenuOpen(capMenuOpen);
-    if (!capMenuOpen) setMoreCapsOpen(false);
-  }
+  const { effortModelOption, handleSelectLLM, handleSelectReasoningEffort } =
+    useModelSelection({
+      llmOptions,
+      activeLLMDefault,
+      llmSelection,
+      onSelectLLM,
+    });
 
   useEffect(() => {
     if (!prefillInputRef) return;
@@ -800,127 +232,17 @@ export default memo(function ChatComposer({
     [onAddFiles],
   );
 
-  const focusTextarea = useCallback(() => {
-    requestAnimationFrame(() => textareaRef.current?.focus());
-  }, []);
-
-  useEffect(() => {
-    if (!focusInputRef) return;
-    focusInputRef.current = focusTextarea;
-    return () => {
-      focusInputRef.current = null;
-    };
-  }, [focusInputRef, focusTextarea]);
-
-  useEffect(() => {
-    const rememberFocus = () => {
-      restoreFocusOnReturnRef.current =
-        document.activeElement === textareaRef.current;
-    };
-    const restoreFocus = () => {
-      if (
-        restoreFocusOnReturnRef.current &&
-        document.visibilityState === "visible"
-      ) {
-        focusTextarea();
-      }
-    };
-
-    window.addEventListener("blur", rememberFocus);
-    window.addEventListener("focus", restoreFocus);
-    document.addEventListener("visibilitychange", restoreFocus);
-    return () => {
-      window.removeEventListener("blur", rememberFocus);
-      window.removeEventListener("focus", restoreFocus);
-      document.removeEventListener("visibilitychange", restoreFocus);
-    };
-  }, [focusTextarea]);
-
-  useEffect(() => {
-    if (!hasMessages) focusTextarea();
-  }, [hasMessages, focusTextarea]);
-
-  const handleSelectCapability = useCallback(
-    (value: string) => {
-      setMoreCapsOpen(false);
-      onSelectCapability(value);
-    },
-    [onSelectCapability, setMoreCapsOpen],
-  );
-
-  // The model backing the effort selector: the conversation's selection,
-  // falling back to the account default exactly like ModelSelector renders.
-  const effortModelOption = useMemo(
-    () =>
-      llmOptions.find((option) =>
-        sameLLMSelection(option, llmSelection ?? activeLLMDefault),
-      ) ?? null,
-    [llmOptions, llmSelection, activeLLMDefault],
-  );
-
-  // Switching models drops any reasoning-effort override: the new model may
-  // not support the stored level, and #641's contract is that only values
-  // the selected model supports are sent.
-  const handleSelectLLM = useCallback(
-    (selection: LLMSelection | null) => {
-      onSelectLLM(
-        selection
-          ? { profile_id: selection.profile_id, model_id: selection.model_id }
-          : null,
-      );
-    },
-    [onSelectLLM],
-  );
-
-  const handleSelectReasoningEffort = useCallback(
-    (effort: string | null) => {
-      const base = llmSelection ?? activeLLMDefault;
-      if (!base) return;
-      onSelectLLM(
-        effort
-          ? {
-              profile_id: base.profile_id,
-              model_id: base.model_id,
-              reasoning_effort: effort,
-            }
-          : { profile_id: base.profile_id, model_id: base.model_id },
-      );
-    },
-    [llmSelection, activeLLMDefault, onSelectLLM],
-  );
-
-  // A persisted override the selected model no longer supports (#641 —
-  // e.g. a saved `xhigh` after the catalog restricts the model to
-  // low/high) is dropped from the conversation's selection once the model
-  // options are loaded, reusing the selector's own onChange persist path.
-  // While the option is still unresolved (loading, or the catalog no
-  // longer lists the profile) nothing is cleared, so a legit value
-  // survives startup; the send path instead omits an override it cannot
-  // validate.
-  useEffect(() => {
-    const override = llmSelection?.reasoning_effort;
-    if (!override || !effortModelOption) return;
-    if (effectiveReasoningEffort(effortModelOption, override)) return;
-    handleSelectReasoningEffort(null);
-  }, [llmSelection, effortModelOption, handleSelectReasoningEffort]);
-
   // Functional-update form keeps `handleInputChange` identity stable across
   // every keystroke (no `hasContent` in deps), so the memoized ComposerInput
   // doesn't get re-rendered just because we observed a content-empty toggle.
-  const handleInputChange = useCallback((val: string) => {
-    draftTextRef.current = val;
-    const next = !!val.trim();
-    setHasContent((prev) => (prev === next ? prev : next));
-    if (suppressDraftSaveRef.current) return;
-    draftRevisionRef.current += 1;
-    if (!restoredDraftRef.current && !restoreFailedRef.current) {
-      interactedBeforeRestoreRef.current = true;
-      draftDirtyRef.current = true;
-      return;
-    }
-    draftLocationRef.current = currentWorkspaceDraftLocation();
-    scheduleDraftSave();
-  }, [scheduleDraftSave]);
+  const handleInputChange = useCallback(
+    (val: string) => {
+      const next = !!val.trim();
+      setHasContent((prev) => (prev === next ? prev : next));
+      notifyDraftTextChange(val);
+    },
+    [notifyDraftTextChange],
+  );
 
   const doSend = useCallback(
     (content: string) => {
@@ -932,37 +254,30 @@ export default memo(function ChatComposer({
         return false;
       }
       onSend(content);
-      if (restoredDraftRef.current && !restoreFailedRef.current) {
-        const location = draftLocationRef.current ?? currentWorkspaceDraftLocation();
-        void enqueueDraftWrite(() => saveWorkspaceDraft(
-          { text: "", attachments: [] },
-          location.workspaceId,
-          location.pathname,
-        )).catch(() => {});
-      }
       setHasContent(false);
-      // Suppress the draft save that the clear below would otherwise queue:
-      // the message is sent, so there is nothing left to restore.
-      suppressDraftSaveRef.current = true;
-      inputHandleRef.current?.clear();
-      draftTextRef.current = "";
-      queueMicrotask(() => {
-        suppressDraftSaveRef.current = false;
-      });
-      cancelDraftSave();
+      clearDraftOnSend();
       // Sending can move focus to the button or rerender the empty-state
       // composer into the conversation layout. Restore it after that update
       // so the user can keep typing, including after switching back to the tab.
       focusTextarea();
       return true;
     },
-    [awaitingUserReply, capabilityConfigConfirmed, capabilityNeedsConfig,
-      cancelDraftSave, enqueueDraftWrite, focusTextarea, isStreaming, onRequestConfigConfirm, onSend],
+    [
+      awaitingUserReply,
+      capabilityConfigConfirmed,
+      capabilityNeedsConfig,
+      clearDraftOnSend,
+      focusTextarea,
+      isStreaming,
+      onRequestConfigConfirm,
+      onSend,
+    ],
   );
 
   const { board: taskBoard } = useTaskBoard();
   const linkedTaskIds = taskSessionId
-    ? sessionTaskLinks(taskBoard, taskSessionId, workspaceId ?? "")?.task_ids ?? []
+    ? sessionTaskLinks(taskBoard, taskSessionId, workspaceId ?? "")?.task_ids ??
+      []
     : draftTaskIds;
   const taskPanelPending = useRef(false);
   useEffect(() => {
@@ -997,8 +312,10 @@ export default memo(function ChatComposer({
   // learner with no way out at all if the card failed to render.
   // Where the surface can hold messages for a running turn, a message typed
   // mid-turn is sent (queued) and Stop moves to a button of its own.
-  const queuing = Boolean(queueWhileStreaming) && isStreaming && !awaitingUserReply;
-  const streamingBlocksSend = isStreaming && !awaitingUserReply && !(queuing && hasIntent);
+  const queuing =
+    Boolean(queueWhileStreaming) && isStreaming && !awaitingUserReply;
+  const streamingBlocksSend =
+    isStreaming && !awaitingUserReply && !(queuing && hasIntent);
   const canSend = hasIntent && !streamingBlocksSend && !isConfigBlocked;
 
   // `blocked` only exists once there is intent: without it the button stays
@@ -1013,201 +330,85 @@ export default memo(function ChatComposer({
         ? "blocked"
         : "ready";
 
-  const spaceSelectionCounts: SpaceSelectionCounts = {
-    attachments: attachments.length,
-    knowledge: selectedKnowledgeBases.length,
-    chatHistory: selectedHistorySessions.length,
-    myAgents: selectedAgentSessions.length,
-    books: selectedBookReferences.reduce(
-      (total, ref) => total + ref.pages.length,
-      0,
-    ),
-    reading: selectedReadingReferences.reduce(
-      (total, reference) => total + reference.units.length,
-      0,
-    ),
-    notebooks: selectedNotebookRecords.length,
-    questionBank: selectedQuestionEntries.length,
-    persona: selectedPersona ? 1 : 0,
-    memory: selectedMemoryFiles.length,
-  };
+  const spaceSelectionCounts = buildSpaceSelectionCounts({
+    attachments,
+    selectedKnowledgeBases,
+    selectedHistorySessions,
+    selectedAgentSessions,
+    selectedBookReferences,
+    selectedReadingReferences,
+    selectedNotebookRecords,
+    selectedQuestionEntries,
+    selectedPersona,
+    selectedMemoryFiles,
+  });
+
   // One selection summary for files, references, and conversation resources.
-  const contextTreeItems: ContextTreeItem[] = [
-    // Quotes are drawn as passages above the input, not listed as files.
-    ...attachments.flatMap((file, index): ContextTreeItem[] => isQuoteAttachment(file) ? [] : [{key:`file-${index}`, icon:Paperclip, kind:t("Attach files"),label:file.filename,thumbnailUrl:file.type === "image" ? file.previewUrl : undefined,onClick:()=>onPreviewAttachment?.(index),onRemove:()=>onRemoveAttachment(index)}]),
-    ...selectedKnowledgeBases.map((id): ContextTreeItem => ({key:`kb-${id}`,icon:Database,kind:t("Knowledge"),label:knowledgeBases.find(kb=>knowledgeBaseRef(kb)===id)?.name || id,onRemove:()=>onToggleKB(id)})),
-    ...selectedBookReferences.map((book): ContextTreeItem => ({
-      key: `book-${book.bookId}`,
-      icon: BookOpen,
-      kind: t("Book"),
-      label: `${book.bookTitle} (${book.pages.length})`,
-      onRemove: () => onRemoveBookReference(book.bookId),
-    })),
-    ...selectedReadingReferences.map((material): ContextTreeItem => ({
-      key: `reading-${material.materialId}-r${material.revision}`,
-      icon: BookMarked,
-      kind: t("Reading"),
-      label: `${material.materialTitle} (${material.units.length})`,
-      onRemove: onRemoveReadingReference
-        ? () => onRemoveReadingReference(material.materialId)
-        : undefined,
-    })),
-    ...notebookReferenceGroups.map((group): ContextTreeItem => ({
-      key: `nb-${group.notebookId}`,
-      icon: BookOpen,
-      kind: t("Notebook"),
-      label: `${group.notebookName} (${group.count})`,
-      onRemove: () => onRemoveNotebook(group.notebookId),
-    })),
-    ...selectedHistorySessions.map((session): ContextTreeItem => ({
-      key: `hist-${session.sessionId}`,
-      icon: MessageSquare,
-      kind: t("Chat History"),
-      label: session.title,
-      onRemove: () => onRemoveHistory(session.sessionId),
-    })),
-    ...selectedAgentSessions.map((session): ContextTreeItem => ({
-      key: `agent-${session.sessionId}`,
-      icon: Bot,
-      kind: t("My Agents"),
-      label: session.title,
-      onRemove: () => onRemoveAgent(session.sessionId),
-    })),
-    ...selectedQuestionEntries.map((entry): ContextTreeItem => ({
-      key: `q-${entry.id}`,
-      icon: ClipboardList,
-      kind: t("Question Bank"),
-      label: entry.question,
-      onRemove: () => onRemoveQuestion(entry.id),
-    })),
-    ...(selectedPersona
-      ? [
-          {
-            key: "persona",
-            icon: UserRound,
-            kind: t("Persona"),
-            label: selectedPersona,
-            onRemove: onClearPersona,
-          } satisfies ContextTreeItem,
-        ]
-      : []),
-    ...selectedMemoryFiles.map((file): ContextTreeItem => ({
-      key: `mem-${file}`,
-      icon: Brain,
-      kind: t("Memory"),
-      label: file === "summary" ? t("Summary") : t("Profile"),
-      onRemove: () => onToggleMemoryFile(file),
-    })),
-  ];
+  const contextTreeItems = buildContextTreeItems({
+    t,
+    attachments,
+    selectedKnowledgeBases,
+    knowledgeBases,
+    selectedBookReferences,
+    selectedReadingReferences,
+    notebookReferenceGroups,
+    selectedHistorySessions,
+    selectedAgentSessions,
+    selectedQuestionEntries,
+    selectedPersona,
+    selectedMemoryFiles,
+    onPreviewAttachment,
+    onRemoveAttachment,
+    onToggleKB,
+    onRemoveBookReference,
+    onRemoveReadingReference,
+    onRemoveNotebook,
+    onRemoveHistory,
+    onRemoveAgent,
+    onRemoveQuestion,
+    onClearPersona,
+    onToggleMemoryFile,
+  });
 
-  // The mode, skills and connectors from the tray open the message itself
-  // instead of joining the attachments: they say how to answer, not what to
-  // read. The mode goes first, the way a command would.
-  const modeToken: LeadToken[] =
-    modeInTray && activeCap.value
-      ? [
-          {
-            key: `mode:${activeCap.value}`,
-            icon: modeIcon(activeCap),
-            kind: t("Mode"),
-            label: capabilityLabel(activeCap),
-            onRemove: () => handleSelectCapability(""),
-          },
-        ]
-      : [];
-  const trayMode: TrayMode | undefined = modeInTray
-    ? { capabilities, value: activeCap.value, onChange: handleSelectCapability }
-    : undefined;
-  // Create mode's own chip reads "Create Skill" / "Create Persona" and comes
-  // before even the mode token: picking a kind already forced the mode back
-  // to plain chat (see `trayCreate.onChange`), so the two never coexist, but
-  // this keeps the ordering right the instant a mode is chosen afterwards —
-  // which itself clears create mode (`onSelectCapability` in the parent).
-  const createKindDef = isCreationKind(createTarget) ? CREATE_KINDS[createTarget] : null;
-  const createToken: LeadToken[] =
-    onCreateTargetChange && createKindDef
-      ? [
-          {
-            key: `create:${createKindDef.kind}`,
-            icon: PencilRuler,
-            kind: t("Create"),
-            prefix: t("Create"),
-            label: t(createKindDef.labelKey),
-            onRemove: () => onCreateTargetChange(null),
-          },
-        ]
-      : [];
-  const trayCreate: TrayCreate | undefined = onCreateTargetChange
-    ? {
-        value: createTarget,
-        onChange: (kind) => {
-          onCreateTargetChange(kind);
-          // Create mode only makes sense on the plain chat loop.
-          if (kind) handleSelectCapability("");
-        },
-      }
-    : undefined;
-  const leadTokens: LeadToken[] = [
-    ...createToken,
-    ...modeToken,
-    ...(resourceSelection && onResourceSelectionChange
-      ? [
-        ]
-      : []),
-  ];
-  const answerMode: AnswerModeProps | undefined =
-    onPersonaSelectionChange || onAnswerByChange
-      ? {
-
-          answerers: onAnswerByChange
-            ? {
-                value: answerBy,
-                onChange: onAnswerByChange,
-                partners,
-                agents: connectedAgents,
-                loading: partnersLoading,
-                error: partnerLoadError,
-              }
-            : undefined,
-          // `/persona` opens this list; only when the parent can hear it close.
-          open: onPersonaSelectorOpenChange ? Boolean(personaSelectorOpen) : undefined,
-          onOpenChange: onPersonaSelectorOpenChange,
-        }
-      : undefined;
-  // Working with partners: DeepTutor still answers, having asked them first.
-  const partnerLinks: PartnerLinkProps | undefined =
-    onSelectAgent || onSelectPartner || onSelectPartnerGroup
-      ? {
-          agents:
-            onSelectAgent && connectedAgents.length
-              ? {
-                  options: connectedAgents,
-                  selected: selectedAgent,
-                  onSelect: onSelectAgent,
-                  budget: subagentBudget,
-                  onBudgetChange: onSubagentBudgetChange,
-                }
-              : undefined,
-          partners: onSelectPartner
-            ? {
-                options: partners,
-                selected: selectedPartner,
-                onSelect: onSelectPartner,
-                loading: partnersLoading,
-                error: partnerLoadError,
-              }
-            : undefined,
-          groups: onSelectPartnerGroup
-            ? {
-                options: partnerGroups,
-                selected: selectedPartnerGroup,
-                onSelect: onSelectPartnerGroup,
-                loading: groupsLoading,
-                error: groupLoadError,
-              }
-            : undefined,
-        }
-      : undefined;
+  const {
+    createKindDef,
+    leadTokens,
+    trayMode,
+    trayCreate,
+    answerMode,
+    partnerLinks,
+  } = buildTrayConfig({
+    t,
+    capabilityLabel,
+    modeInTray,
+    activeCap,
+    capabilities,
+    onSelectCapability,
+    createTarget,
+    onCreateTargetChange,
+    resourceSelection,
+    onResourceSelectionChange,
+    onPersonaSelectionChange,
+    personaSelectorOpen,
+    onPersonaSelectorOpenChange,
+    answerBy,
+    onAnswerByChange,
+    connectedAgents,
+    selectedAgent,
+    onSelectAgent,
+    subagentBudget,
+    onSubagentBudgetChange,
+    partners,
+    partnersLoading,
+    partnerLoadError,
+    selectedPartner,
+    onSelectPartner,
+    partnerGroups,
+    groupsLoading,
+    groupLoadError,
+    selectedPartnerGroup,
+    onSelectPartnerGroup,
+  });
 
   const handleManualSend = useCallback(() => {
     if (isConfigBlocked) {
@@ -1244,34 +445,12 @@ export default memo(function ChatComposer({
       ? t("Confirm settings on the right to send.")
       : sendLabel;
 
-  // The panel holds materials only; skills, connectors and how to answer live
-  // in the tray under the box. Omitted catalogs stay hidden.
-  const resourceItems: ComposerResourceItem[] = [];
-  if (onToggleKB) {
-    resourceItems.push({
-      key: "knowledge",
-      group: "Reference materials",
-      summary: selectedKnowledgeBases.length
-        ? `${selectedKnowledgeBases.length} ${t("selected")}`
-        : knowledgeBases.length > 0
-          ? t("Default")
-          : t("No KB"),
-      onClear: selectedKnowledgeBases.length
-        ? () => [...selectedKnowledgeBases].forEach(onToggleKB)
-        : undefined,
-      label: t("Knowledge"),
-      icon: Database,
-      count: selectedKnowledgeBases.length,
-      node: (
-        <KnowledgeSelector
-          knowledgeBases={knowledgeBases}
-          selected={selectedKnowledgeBases}
-          onToggle={onToggleKB}
-          embedded
-        />
-      ),
-    });
-  }
+  const resourceItems = buildKnowledgeResourceItems({
+    t,
+    knowledgeBases,
+    selectedKnowledgeBases,
+    onToggleKB,
+  });
 
   return (
     <div
@@ -1279,7 +458,9 @@ export default memo(function ChatComposer({
       className={`relative ${spaceMenuOpen || personaSelectorOpen ? "z-[61]" : "z-20"} mx-auto w-full shrink-0 ${
         // Docked in a pane: the pane is the frame, so the composer keeps a
         // narrow margin instead of the page's wide gutter.
-        docked ? "px-3 pb-3 pt-1" : `px-6 pb-5 ${hasMessages ? "pt-1 max-w-[960px]" : "max-w-[768px]"}`
+        docked
+          ? "px-3 pb-3 pt-1"
+          : `px-6 pb-5 ${hasMessages ? "pt-1 max-w-[960px]" : "max-w-[768px]"}`
       }`}
       style={{
         transition: "max-width 650ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -1337,7 +518,7 @@ export default memo(function ChatComposer({
               />
             ) : null,
           )}
-          <SelectedResources items={contextTreeItems}/>
+          <SelectedResources items={contextTreeItems} />
           <AttachmentProcessingStatus items={attachmentProcessing} />
           {inputFooter}
           <ComposerInput
@@ -1372,7 +553,10 @@ export default memo(function ChatComposer({
             replyLanguageDisabled={replyLanguageDisabled}
             onReplyLanguageChange={onReplyLanguageChange}
             languagePickerBelow={!hasMessages && !docked}
-            placeholder={inputPlaceholder ?? (createKindDef ? t(createKindDef.placeholderKey) : undefined)}
+            placeholder={
+              inputPlaceholder ??
+              (createKindDef ? t(createKindDef.placeholderKey) : undefined)
+            }
             placeholderCompletion={inputPlaceholderCompletion}
             minHeight={hasMessages || docked ? 28 : 64}
             lead={leadTokens}
@@ -1396,291 +580,102 @@ export default memo(function ChatComposer({
           <div className="px-3 pb-2 pt-0.5">
             <div className={styles.toolbar}>
               <div className={styles.context}>
-                {
-                  <ComposerResources
-                    selectedCount={contextTreeItems.length}
-                    items={resourceItems}
-                    open={spaceMenuOpen}
-                    onOpenChange={onSetSpaceMenuOpen}
-                    onBack={() => {}}
-                    triggerRef={spaceBtnRef}
-                    panelRef={spaceMenuRef}
-                    materials={(query) => (
-                      <ChatSpaceMenu
-                        variant="resources"
-                        query={query}
-                        selectedCounts={spaceSelectionCounts}
-                        knowledgeAvailable={false}
-                        personaAvailable={false}
-                        agentsAvailable={agentsAvailable}
-                        readingAvailable={Boolean(onSelectReadingPicker)}
-                        onSelectItem={(key) => {
-                          onSetSpaceMenuOpen(false);
-                          if (key === "attach") handlePickFiles();
-                          else if (key === "chat_history")
-                            onSelectHistoryPicker();
-                          else if (key === "my_agents") onSelectAgentsPicker();
-                          else if (key === "books") onSelectBookPicker();
-                          else if (key === "reading") onSelectReadingPicker?.();
-                          else if (key === "notebooks") onSelectNotebookPicker();
-                          else if (key === "question_bank")
-                            onSelectQuestionBankPicker();
-                          else if (key === "persona") onSelectPersonaPicker();
-                          else if (key === "memory") onSelectMemoryPicker();
-                        }}
-                      />
-                    )}
-                  />
-                }
+                <ComposerResources
+                  selectedCount={contextTreeItems.length}
+                  items={resourceItems}
+                  open={spaceMenuOpen}
+                  onOpenChange={onSetSpaceMenuOpen}
+                  onBack={() => {}}
+                  triggerRef={spaceBtnRef}
+                  panelRef={spaceMenuRef}
+                  materials={(query) => (
+                    <ChatSpaceMenu
+                      variant="resources"
+                      query={query}
+                      selectedCounts={spaceSelectionCounts}
+                      knowledgeAvailable={false}
+                      personaAvailable={false}
+                      agentsAvailable={agentsAvailable}
+                      readingAvailable={Boolean(onSelectReadingPicker)}
+                      onSelectItem={(key) => {
+                        onSetSpaceMenuOpen(false);
+                        if (key === "attach") handlePickFiles();
+                        else if (key === "chat_history")
+                          onSelectHistoryPicker();
+                        else if (key === "my_agents") onSelectAgentsPicker();
+                        else if (key === "books") onSelectBookPicker();
+                        else if (key === "reading") onSelectReadingPicker?.();
+                        else if (key === "notebooks") onSelectNotebookPicker();
+                        else if (key === "question_bank")
+                          onSelectQuestionBankPicker();
+                        else if (key === "persona") onSelectPersonaPicker();
+                        else if (key === "memory") onSelectMemoryPicker();
+                      }}
+                    />
+                  )}
+                />
 
                 {showCapabilityChip && !modeInTray && (
-                  <div className="relative min-w-0 max-w-full">
-                    <Tooltip label={capabilityLabel(activeCap)} suppressed={capMenuOpen} side="top">
-                      <button
-                        ref={capBtnRef}
-                        aria-haspopup="menu"
-                        aria-expanded={capMenuOpen}
-                        onClick={() => onSetCapMenuOpen((v) => !v)}
-                        aria-label={capabilityLabel(activeCap)}
-                        className={`inline-flex h-8 max-w-full items-center rounded-lg px-2 text-[14px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
-                          capMenuOpen
-                            ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                            : "text-[var(--foreground)] hover:bg-[var(--muted)]/55"
-                        }`}
-                      >
-                        <CapIcon size={16} strokeWidth={1.7} className="shrink-0" />
-                        <span className="ml-1.5 inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap">
-                          <span className="min-w-0 truncate">{capabilityLabel(activeCap)}</span>
-                          <ChevronDown size={13} strokeWidth={2} className={`shrink-0 transition-transform duration-200 ${capMenuOpen ? "rotate-180" : ""}`} />
-                        </span>
-                      </button>
-                    </Tooltip>
-
-                    {capMenuOpen && (
-                      <div
-                        ref={capMenuRef}
-                        className="dt-popup-up absolute bottom-full left-0 z-50 mb-1.5 w-[260px] overflow-visible rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1 shadow-lg backdrop-blur-md"
-                      >
-                        {capabilities
-                          .filter((cap) => !cap.secondary && !cap.legacy)
-                          .map((cap) => (
-                            <CapMenuItem
-                              key={cap.value}
-                              cap={cap}
-                              selected={activeCap.value === cap.value}
-                              onSelect={handleSelectCapability}
-                            />
-                          ))}
-                        {(() => {
-                          const loopCaps = capabilities.filter(
-                            (cap) => cap.secondary && !cap.legacy,
-                          );
-                          if (loopCaps.length === 0) return null;
-                          const loopSelected = loopCaps.some(
-                            (cap) => cap.value === activeCap.value,
-                          );
-                          return (
-                            <div
-                              className="group/more relative"
-                              onMouseEnter={() => setMoreCapsOpen(true)}
-                              onMouseLeave={() => setMoreCapsOpen(false)}
-                              onFocus={() => setMoreCapsOpen(true)}
-                              onBlur={(event) => {
-                                const next = event.relatedTarget;
-                                if (
-                                  !next ||
-                                  !event.currentTarget.contains(next as Node)
-                                ) {
-                                  setMoreCapsOpen(false);
-                                }
-                              }}
-                            >
-                              <button
-                                type="button"
-                                aria-haspopup="menu"
-                                aria-expanded={moreCapsOpen}
-                                onClick={() => setMoreCapsOpen((open) => !open)}
-                                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${
-                                  moreCapsOpen
-                                    ? "bg-[var(--muted)]/45"
-                                    : "group-hover/more:bg-[var(--muted)]/45"
-                                } ${
-                                  loopSelected && !moreCapsOpen
-                                    ? "bg-[var(--primary)]/[0.06]"
-                                    : ""
-                                }`}
-                              >
-                                <Sparkles
-                                  size={15}
-                                  strokeWidth={1.7}
-                                  className={`shrink-0 ${loopSelected ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}
-                                />
-                                <div className="min-w-0 flex-1">
-                                  <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
-                                    {t("More Capabilities")}
-                                  </div>
-                                  <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
-                                    {t("Agent-loop driven modes")}
-                                  </div>
-                                </div>
-                                <ChevronRight
-                                  size={14}
-                                  strokeWidth={2}
-                                  className="shrink-0 text-[var(--muted-foreground)]"
-                                />
-                              </button>
-                              {/* Right flyout. ``pl-1.5`` is a pointer bridge so the
-                                cursor can cross the gap without dropping hover;
-                                click/focus also open it for touch and keyboard. */}
-                              <div
-                                className={`absolute bottom-0 left-full z-50 pl-1.5 transition-opacity duration-150 ${
-                                  moreCapsOpen
-                                    ? "visible opacity-100"
-                                    : "invisible opacity-0"
-                                }`}
-                              >
-                                <div className="w-[240px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1 shadow-lg backdrop-blur-md">
-                                  {loopCaps.map((cap) => (
-                                    <CapMenuItem
-                                      key={cap.value}
-                                      cap={cap}
-                                      selected={activeCap.value === cap.value}
-                                      onSelect={handleSelectCapability}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </div>
+                  <CapabilityMenu
+                    activeCap={activeCap}
+                    capabilities={capabilities}
+                    capMenuOpen={capMenuOpen}
+                    capBtnRef={capBtnRef}
+                    capMenuRef={capMenuRef}
+                    onSetCapMenuOpen={onSetCapMenuOpen}
+                    onSelectCapability={onSelectCapability}
+                  />
                 )}
-
               </div>
 
               <ReminderButton />
 
-              <div className={styles.actions}>
-                <ModelSelector
-                  options={llmOptions}
-                  activeDefault={activeLLMDefault}
-                  value={llmSelection}
-                  loading={llmOptionsLoading}
-                  error={llmOptionsError}
-                  onChange={handleSelectLLM}
-                  onRefresh={onRefreshLLMOptions}
-                />
-
-                {/* Per-conversation reasoning-effort override (#641). Hidden
-                    by the selector itself when the selected model exposes no
-                    selectable level. */}
-                <ReasoningEffortSelector
-                  option={effortModelOption}
-                  value={llmSelection?.reasoning_effort ?? null}
-                  onChange={handleSelectReasoningEffort}
-                  disabled={llmOptionsLoading}
-                />
-
-                {contextBudget ? <ContextBudgetChip budget={contextBudget} /> : null}
-
-                {(controls?.voice !== false || recorder.state !== "idle") && <Tooltip
-                  label={recorder.state === "recording" ? t("Stop recording") : t("Record voice")}
-                  description={recorder.error || undefined}
-                  side="top"
-                >
-                  <button
-                    type="button"
-                    onClick={recorder.toggle}
-                    disabled={recorder.state === "transcribing" || isStreaming}
-                    className={`group relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] transition-[background-color,color,transform] duration-150 active:scale-90 disabled:opacity-40 ${
-                      recorder.state === "recording"
-                        ? "bg-red-500/15 text-red-500"
-                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
-                    }`}
-                    aria-label={recorder.state === "recording" ? t("Stop recording") : t("Record voice")}
-                  >
-                    {recorder.state === "recording" && (
-                      <span className="pointer-events-none absolute inset-0 rounded-[10px] border border-red-500/40 animate-pulse" />
-                    )}
-                    {recorder.state === "transcribing" ? (
-                      <Loader2
-                        size={16}
-                        strokeWidth={1.9}
-                        className="animate-spin"
-                      />
-                    ) : (
-                      <Mic size={16} strokeWidth={1.9} />
-                    )}
-                  </button>
-                </Tooltip>}
-
-                {/* The thing you press is the thing that's working is the
-                    thing you press to stop — one element for the whole turn,
-                    so the button never swaps out from under the cursor at the
-                    moment of the click. The glyph crossfades arrow→square in
-                    place (both stacked in the same grid cell) and the progress
-                    ring moves to the perimeter, where it can spin without
-                    fighting the square for the same space. */}
-                {queuing && hasIntent ? (
-                  <Tooltip label={t("Stop generating")} side="top">
-                    <button
-                      type="button"
-                      onClick={onCancelStreaming}
-                      aria-label={t("Stop generating")}
-                      className="relative ml-1 inline-grid h-8 w-8 shrink-0 place-items-center rounded-full text-[var(--muted-foreground)] ring-1 ring-inset ring-[var(--border)] transition-colors hover:text-[var(--foreground)] active:scale-95"
-                    >
-                      <span className="pointer-events-none absolute -inset-[3px] rounded-full border-2 border-[color-mix(in_srgb,var(--primary)_15%,transparent)] border-t-[var(--primary)] animate-spin" />
-                      <Square size={10} strokeWidth={2.6} className="fill-current" />
-                    </button>
-                  </Tooltip>
-                ) : null}
-                <Tooltip label={sendTitle} side="top">
-                  <button
-                    type="button"
-                    onClick={handleSendButtonClick}
-                    disabled={sendState === "idle"}
-                    className={`group relative ml-1 inline-grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[background-color,box-shadow,transform] duration-200 active:scale-95 ${SEND_STATE_CLASS[sendState]}`}
-                    aria-label={sendLabel}
-                  >
-                    {sendState === "streaming" && (
-                      // Outside the fill, so "still working" reads at a glance
-                      // and dims on hover to hand the control back as "stop".
-                      <span className="pointer-events-none absolute -inset-[3px] rounded-full border-2 border-[color-mix(in_srgb,var(--primary)_15%,transparent)] border-t-[var(--primary)] animate-spin transition-opacity group-hover:opacity-30" />
-                    )}
-                    <ArrowUp
-                      size={16}
-                      strokeWidth={2.5}
-                      className={`col-start-1 row-start-1 transition-[opacity,transform] duration-200 ${
-                        sendState === "streaming"
-                          ? "scale-50 opacity-0"
-                          : "scale-100 opacity-100"
-                      }`}
-                    />
-                    <Square
-                      size={10}
-                      strokeWidth={2.6}
-                      className={`col-start-1 row-start-1 fill-current transition-[opacity,transform] duration-200 ${
-                        sendState === "streaming"
-                          ? "scale-100 opacity-100"
-                          : "scale-50 opacity-0"
-                      }`}
-                    />
-                  </button>
-                </Tooltip>
-              </div>
+              <ComposerActionButtons
+                llmOptions={llmOptions}
+                activeLLMDefault={activeLLMDefault}
+                llmSelection={llmSelection}
+                llmOptionsLoading={llmOptionsLoading}
+                llmOptionsError={llmOptionsError}
+                onSelectLLM={handleSelectLLM}
+                onRefreshLLMOptions={onRefreshLLMOptions}
+                effortModelOption={effortModelOption}
+                onSelectReasoningEffort={handleSelectReasoningEffort}
+                contextBudget={contextBudget}
+                showVoiceControl={controls?.voice !== false}
+                recorderState={recorder.state}
+                recorderError={recorder.error}
+                onToggleRecorder={recorder.toggle}
+                isStreaming={isStreaming}
+                queuing={queuing}
+                hasIntent={hasIntent}
+                onCancelStreaming={onCancelStreaming}
+                sendState={sendState}
+                sendTitle={sendTitle}
+                sendLabel={sendLabel}
+                onSendButtonClick={handleSendButtonClick}
+              />
             </div>
           </div>
         </div>
-        {trayMode || (resourceCatalog && resourceSelection && onResourceSelectionChange) || trayCreate || answerMode || partnerLinks || trayEnd ? (
+        {trayMode ||
+        (resourceCatalog && resourceSelection && onResourceSelectionChange) ||
+        trayCreate ||
+        answerMode ||
+        partnerLinks ||
+        trayEnd ? (
           <ComposerTray
             controls={controls}
             placement={hasMessages || docked ? "up" : "down"}
             mode={trayMode}
             resources={
-              resourceCatalog && resourceSelection && onResourceSelectionChange
-                ? { catalog: resourceCatalog, selection: resourceSelection, onChange: onResourceSelectionChange }
+              resourceCatalog &&
+              resourceSelection &&
+              onResourceSelectionChange
+                ? {
+                    catalog: resourceCatalog,
+                    selection: resourceSelection,
+                    onChange: onResourceSelectionChange,
+                  }
                 : undefined
             }
             create={trayCreate}

@@ -57,11 +57,11 @@ export function useRecordView(storageKey: string) {
 export type RecordView = ReturnType<typeof useRecordView>
 
 /** Rows newest first under Today / Within a week / Earlier. */
-export function groupByDay<T>(rows: readonly T[], time: (row: T) => number) {
+function groupByDay<T>(rows: readonly T[], time: (row: T) => number) {
   return [...Map.groupBy(rows, row => getDayGroupKey(time(row)))]
 }
 
-export const dayGroupLabel = (group: DayGroupKey) => GROUP_LABELS[group]
+const dayGroupLabel = (group: DayGroupKey) => GROUP_LABELS[group]
 
 /** One list's title with its order and search controls on the right. */
 export function RecordHeader({
