@@ -211,11 +211,26 @@ export default function ReminderButton({ className = '' }: { className?: string 
             <select
               value={repeat}
               onChange={event => setRepeat(event.target.value as Repeat)}
-              className="rounded-md border border-[var(--border)] bg-transparent px-1.5 py-1 text-[12px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              className="rounded-md border border-[var(--border)] bg-[var(--popover)] px-1.5 py-1 text-[12px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             >
-              <option value="once">{t('Once')}</option>
-              <option value="daily">{t('Daily at 09:00')}</option>
-              <option value="weekly">{t('Weekly on Monday 09:00')}</option>
+              {/* Native option popups ignore inherited colors in dark themes:
+                  without explicit tokens Chrome paints a white list with light
+                  text, making every choice invisible. */}
+              <option value="once" className="bg-[var(--popover)] text-[var(--popover-foreground)]">
+                {t('Once')}
+              </option>
+              <option
+                value="daily"
+                className="bg-[var(--popover)] text-[var(--popover-foreground)]"
+              >
+                {t('Daily at 09:00')}
+              </option>
+              <option
+                value="weekly"
+                className="bg-[var(--popover)] text-[var(--popover-foreground)]"
+              >
+                {t('Weekly on Monday 09:00')}
+              </option>
             </select>
           </label>
 

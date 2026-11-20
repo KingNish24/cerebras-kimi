@@ -128,14 +128,27 @@ export interface SystemWorkspaceSnapshot {
 }
 
 export function getWorkspaceCatalog(): Promise<WorkspaceCatalog> {
-  return request<WorkspaceCatalog>(endpoint)
+  return request<WorkspaceCatalog & { registrations?: unknown }>(endpoint).then(normalizeWorkspaceCatalog)
+}
+
+function normalizeWorkspaceCatalog(payload: WorkspaceCatalog & { registrations?: unknown }): WorkspaceCatalog {
+  const rows = Array.isArray(payload?.workspaces)
+    ? payload.workspaces
+    : Array.isArray(payload?.registrations)
+      ? (payload.registrations as ChatWorkspaceRegistration[])
+      : []
+  return {
+    root: typeof payload?.root === 'string' ? payload.root : '',
+    workspaces: rows.filter((row): row is ChatWorkspaceRegistration => Boolean(row && typeof row === 'object')),
+    migration: payload?.migration ?? null,
+  }
 }
 
 export async function migrateWorkspace(
   path: string,
   workspaceId?: string
 ): Promise<WorkspaceCatalog> {
-  const result = await request<WorkspaceCatalog>(
+  const result = await request<WorkspaceCatalog & { registrations?: unknown }>(
     workspaceId
       ? `${endpoint}/${encodeURIComponent(workspaceId)}/migrate`
       : `${endpoint}/migrate-root`,
@@ -148,7 +161,7 @@ export async function migrateWorkspace(
   invalidateClientCache('workspaces:')
   invalidateClientCache('knowledge:')
   notifySessionsChanged()
-  return result
+  return normalizeWorkspaceCatalog(result)
 }
 
 export function getSystemWorkspaceSnapshot(): Promise<SystemWorkspaceSnapshot> {

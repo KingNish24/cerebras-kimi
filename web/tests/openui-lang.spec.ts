@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractOpenUILang,
   hasOpenUILang,
+  splitProgramStatements,
   toOpenUIProgram,
 } from "@/lib/openui/lang";
 
@@ -78,5 +79,30 @@ describe("locating an OpenUI Lang program in a model reply", () => {
     expect(hasOpenUILang("The root of the equation is x = 2.")).toBe(false);
     expect(extractOpenUILang("").found).toBe(false);
     expect(extractOpenUILang(null).found).toBe(false);
+  });
+});
+
+describe("a program written on one line", () => {
+  it("is split at statement boundaries", () => {
+    const reply =
+      'root = Col([head, note]) head = Title("Can\'t open it", "xl") note = Text("No content to read.", "md")';
+    const extraction = extractOpenUILang(reply);
+
+    expect(extraction.found).toBe(true);
+    expect(extraction.program.split("\n")).toEqual([
+      "root = Col([head, note])",
+      'head = Title("Can\'t open it", "xl")',
+      'note = Text("No content to read.", "md")',
+    ]);
+  });
+
+  it("does not split on a `=` inside a string or a call", () => {
+    const program = splitProgramStatements(
+      'root = Text("a = b, and (c = d)") x = Math("E = mc^2", true)',
+    );
+    expect(program.split("\n")).toEqual([
+      'root = Text("a = b, and (c = d)")',
+      'x = Math("E = mc^2", true)',
+    ]);
   });
 });

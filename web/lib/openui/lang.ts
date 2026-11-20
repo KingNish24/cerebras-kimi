@@ -34,6 +34,64 @@ const EMPTY: OpenUILangExtraction = {
   found: false,
 };
 
+/**
+ * Put each statement on its own line.
+ *
+ * A model sometimes writes the whole program on one line —
+ * `root = Col([a, b]) a = Title(…, "xl") b = Text(…)` — which the parser reads
+ * as one statement and renders as nothing. Splitting at top-level `name =`
+ * boundaries restores the shape the parser expects. String literals and
+ * brackets are tracked so a `=` inside a string or a call argument is not a
+ * boundary.
+ */
+export function splitProgramStatements(source: string): string {
+  let out = "";
+  let depth = 0;
+  let quote: string | null = null;
+  let escaped = false;
+
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+
+    if (quote) {
+      out += char;
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === quote) quote = null;
+      continue;
+    }
+
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      out += char;
+      continue;
+    }
+
+    if (char === "(" || char === "[" || char === "{") depth++;
+    else if (char === ")" || char === "]" || char === "}") depth = Math.max(0, depth - 1);
+
+    if (depth === 0 && /\s/.test(char)) {
+      const previous = out.trimEnd().slice(-1);
+      const boundary = /[)\]]|["'`]/.test(previous);
+      if (boundary) {
+        const space = /^\s+/.exec(source.slice(i));
+        if (
+          space &&
+          /^(?:\$?[A-Za-z_][\w$]*)\s*=(?!=)/.test(source.slice(i + space[0].length))
+        ) {
+          out += "\n";
+          i += space[0].length - 1;
+          continue;
+        }
+      }
+    }
+
+    out += char;
+  }
+
+  return out;
+}
+
 function buildExtraction(
   source: string,
 ): OpenUILangExtraction {
@@ -65,7 +123,7 @@ function buildExtraction(
   const trailingStart = lines.slice(last + 1).findIndex((line) => line.trim());
   const trailing =
     trailingStart === -1 ? "" : lines.slice(last + 1 + trailingStart).join("\n").trim();
-  const program = programLines.join("\n").trim();
+  const program = splitProgramStatements(programLines.join("\n").trim());
   if (!program) return EMPTY;
 
   return {

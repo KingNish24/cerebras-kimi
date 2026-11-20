@@ -23,6 +23,16 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 - **Event stream** — `GET /api/realtime/events?client_id=<id>` (`text/event-stream`). Named events: `turn_event` (with `id: <turn_id>:<seq>` for replay), `session_update`, `legacy_event`, and `ready`/`heartbeat`. Each browser client has its own event queue, so events are scoped to the client that sent the command.
 - **Client lifecycle** — `DELETE /api/realtime/clients/{client_id}` releases a client explicitly; idle clients are reclaimed by a periodic sweep.
 - **Health** — `GET /health` → `{"status":"ok"}`.
+- **Note pages** — `GET/POST /api/documents`, `GET/PUT/DELETE /api/documents/{id}`
+  (revision-checked block pages, `409` on stale writes), plus `/suggestions`
+  (review queue of proposed edits), `/threads`, `/backlinks`, `/assets`,
+  `/review/due` + `/review` (flashcards), `/flashcards/export` (Anki text) and
+  `/export|import/docx`.
+- **Co-Writer AI edits** — `POST /api/documents/actions/edit` (whole draft),
+  `/edit-react` + `/edit-react/stream` (SSE selection edit, optional rag/web
+  reference), `/automark` (inline annotation), and `GET /documents/history`
+  (`/{operation_id}`, `/tool-calls/{operation_id}`). All use the model picked in
+  Settings through `services/llm_text.py`.
 - **Scheduled reminders** — `GET/POST /api/cron/jobs`, `DELETE /api/cron/jobs/{id}`,
   `GET /api/cron/reports?since=` (fired reminders for live in-app delivery).
 - **Reviews** — `GET /api/reviews/due`, `POST /api/reviews/{key}/grade` (spaced
@@ -110,6 +120,8 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 | Extended feature stores | `data/ext/` |
 | Settings catalog/draft | `data/settings-catalog.json`, `data/settings-draft.json` |
 | Scheduled reminders | `data/cron/jobs.sqlite3` (job payloads, run history, next-run times); `data/cron/reports.json` (recent deliveries) |
+| AI edit history | `data/documents/history.json` (last 200 operations: action, mode, model, before/after text) |
+| Note pages | `data/documents/doc_<id>/` — `manifest.json` (blocks, revision), `suggestions.json` (review queue), `threads.json`, `assets/`, `review.json` (flashcard scheduling) |
 | Review schedule | `data/reviews.json` (per-card box and due time; cards come from `data/question_bank.json`) |
 | Calendars and events | `data/calendar/calendar.sqlite` (per-account calendars, recurring events, undo tokens) |
 | Workspace files | `data/workspace/` (`DT_WORKSPACE_DIR`) |

@@ -30,6 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import dynamic from "next/dynamic";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import { ACTIVITY_TILE } from "@/components/chat/home/SessionActivityPanel";
 import FollowupChatComposer from "@/components/quiz/FollowupChatComposer";
@@ -41,15 +42,23 @@ import {
   leadingTraceEvents,
 } from "@/components/chat/home/AskUserOptions";
 import { StreamingStatus, TraceFlow } from "@/features/chat/trace";
-import { useSmoothStreamText } from "@/hooks/useSmoothStreamText";
 import {
   type QuizFollowupTabContext,
   useFollowupThread,
   useQuizFollowupController,
 } from "@/context/QuizFollowupContext";
 import { apiUrl } from "@/lib/api";
+import { hasOpenUILang } from "@/lib/openui/lang";
 import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";
 import { getSession } from "@/lib/session-api";
+
+/** The chat renderer (OpenUI + its component library) is code-split here, as
+ *  every other heavy preview in the side panel is: the panel opens on a
+ *  keystroke, and its module graph should stay light. */
+const OpenUIMessage = dynamic(
+  () => import("@/features/chat/messages/OpenUIMessage"),
+  { ssr: false, loading: () => null },
+);
 
 /** Resolve a possibly-relative AttachmentStore URL to an absolute one. */
 function resolveImageSrc(url: string | null | undefined): string {
@@ -409,12 +418,6 @@ function AssistantThreadMessage({
     () => leadingTraceEvents(message.events, segments),
     [message.events, segments],
   );
-  // Smooth the trailing-text growth via the shared rAF typewriter so
-  // the markdown renderer sees a steadily-growing string instead of
-  // bursty deltas. Off when ``isStreaming`` is false — the hook
-  // short-circuits to a pure pass-through in that case.
-  const smoothedContent = useSmoothStreamText(message.content, isStreaming);
-
   return (
     <div className="flex flex-col gap-1.5">
       <TraceFlow events={headerTraceEvents} isStreaming={isStreaming} />
@@ -426,7 +429,15 @@ function AssistantThreadMessage({
                 key={seg.key}
                 className="text-[13px] leading-[1.6] text-[var(--foreground)]"
               >
-                <MarkdownRenderer content={seg.text} variant="compact" />
+                {/* A side chat gets the same answers the main chat does: an
+                    OpenUI Lang program is live components here too, instead of
+                    source. Plain prose keeps the Markdown renderer, which also
+                    links this thread's citations. */}
+                {hasOpenUILang(seg.text) ? (
+                  <OpenUIMessage content={seg.text} isStreaming={isStreaming} />
+                ) : (
+                  <MarkdownRenderer content={seg.text} variant="compact" />
+                )}
               </div>
             ) : null
           ) : seg.kind === "trace" ? (
@@ -445,9 +456,13 @@ function AssistantThreadMessage({
           // follow-up chat does not mount the mastery tools.
           null,
         )
-      ) : smoothedContent ? (
+      ) : message.content ? (
         <div className="text-[13px] leading-[1.6] text-[var(--foreground)]">
-          <MarkdownRenderer content={smoothedContent} variant="compact" />
+          {hasOpenUILang(message.content) ? (
+            <OpenUIMessage content={message.content} isStreaming={isStreaming} />
+          ) : (
+            <MarkdownRenderer content={message.content} variant="compact" />
+          )}
         </div>
       ) : null}
       {/* Status row pinned to the bottom of the assistant output. */}

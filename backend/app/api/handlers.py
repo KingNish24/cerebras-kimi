@@ -19,6 +19,12 @@ from pathlib import Path
 from ..agent.runtime import AgentRuntime
 from .. import provider_config
 from ..config import Settings
+from ..services.workspace_registry import (
+    SYSTEM_WORKSPACE_ID,
+    WorkspaceError,
+    WorkspaceRegistry,
+    workspace_snapshot,
+)
 from ..store.session_store import SessionStore
 
 router = APIRouter(prefix="/api")
@@ -811,14 +817,100 @@ def page_customization() -> dict[str, Any]:
     }
 
 
+def _workspaces(request: Request) -> WorkspaceRegistry:
+    return WorkspaceRegistry(_settings(request))
+
+
 @router.get("/settings/workspace/registrations")
-def workspace_registrations() -> dict[str, Any]:
-    return {"registrations": []}
+def workspace_registrations(request: Request) -> dict[str, Any]:
+    return _workspaces(request).describe()
+
+
+@router.post("/settings/workspace/registrations")
+def workspace_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        workspace = _workspaces(request).create(
+            body.get("name"),
+            body.get("path"),
+            resources=body.get("resources"),
+            instructions=body.get("instructions"),
+        )
+    except WorkspaceError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"workspace": workspace}
+
+
+@router.patch("/settings/workspace/registrations/{workspace_id}")
+def workspace_update(workspace_id: str, request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    changes = {
+        key: body[key]
+        for key in ("name", "archived", "resources", "instructions")
+        if key in body
+    }
+    try:
+        workspace = _workspaces(request).update(workspace_id, changes)
+    except WorkspaceError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"workspace": workspace}
+
+
+@router.post("/settings/workspace/registrations/migrate-root")
+def workspace_migrate_root(request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return _workspaces(request).migrate_root(body.get("path"))
+    except WorkspaceError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/settings/workspace/registrations/{workspace_id}/migrate")
+def workspace_migrate(workspace_id: str, request: Request, body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return _workspaces(request).migrate(workspace_id, body.get("path"))
+    except WorkspaceError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/settings/workspace/registrations/system-snapshot")
+@router.post("/settings/workspace/registrations/system-snapshot")
+def workspace_system_snapshot(request: Request) -> dict[str, Any]:
+    try:
+        registry = _workspaces(request)
+        if not any(
+            row["workspace_id"] == SYSTEM_WORKSPACE_ID
+            for row in registry.describe()["workspaces"]
+        ):
+            raise WorkspaceError("The system workspace is unavailable.")
+        return workspace_snapshot(_settings(request))
+    except (WorkspaceError, OSError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/settings/workspace/resources")
+def workspace_resources(request: Request, workspace_id: str = "") -> dict[str, Any]:
+    knowledge_bases = [
+        {
+            "id": str(row.get("id") or row.get("name") or ""),
+            "name": str(row.get("name") or row.get("id") or ""),
+            "description": "",
+            "source": "account",
+            "available": str(row.get("status") or "ready") == "ready",
+        }
+        for row in request.app.state.kb.list()
+    ]
+    return {"skills": [], "mcp": [], "knowledge_bases": knowledge_bases}
+
+
+@router.get("/settings/workspace/resource-usage")
+def workspace_resource_usage(request: Request, kind: str, resource_id: str) -> dict[str, Any]:
+    return {"workspaces": _workspaces(request).resource_usage(kind, resource_id)}
 
 
 @router.get("/settings/workspace/folders")
-def workspace_folders(path: str = "") -> dict[str, Any]:
-    return {"name": "", "path": "", "roots": [], "parent": None, "folders": [], "truncated": False}
+def workspace_folders(request: Request, path: str = "") -> dict[str, Any]:
+    try:
+        return _workspaces(request).browse(path)
+    except WorkspaceError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/system/status")
@@ -1388,26 +1480,7 @@ def creation_draft_approve(request: Request, draft_id: str, body: dict[str, Any]
     _put_item(request, d, "creations", "drafts", draft_id)
     return d
 
-@router.get("/documents")
-def documents_list(request: Request) -> dict[str, Any]:
-    return {"documents": _list_dir(request, "documents")}
-
-
-@router.post("/documents")
-def document_create(request: Request, body: dict[str, Any]) -> dict[str, Any]:
-    _put_item(request, body, "documents", "d")
-    return body
-
-
-@router.get("/documents/{doc_id}")
-def document_get(request: Request, doc_id: str) -> dict[str, Any]:
-    return _get_item(request, "documents", doc_id) or {"id": doc_id}
-
-
-@router.get("/documents/{doc_id}/assets")
-def document_assets(request: Request, doc_id: str) -> dict[str, Any]:
-    return {"assets": []}
-
+# Note pages (``/documents``) live in ``app/api/documents.py``.
 
 @router.post("/imports/chat-history")
 def import_chat_history(request: Request, body: dict[str, Any]) -> dict[str, Any]:

@@ -32,4 +32,19 @@ describe("OpenUIMessage", () => {
     expect(container.textContent).toContain("The gradient points uphill");
     expect(container.querySelector("p")).toBeTruthy();
   });
+  it("renders a program written entirely on one line", () => {
+    // The reply that reached the Dito side panel as source: three statements
+    // share a line, which the parser read as one and rendered as nothing.
+    const { container } = render(
+      <OpenUIMessage
+        content={
+          'root = Col([head, note]) head = Title("Can\'t open that", "xl") note = Text("No content to read.", "md")'
+        }
+      />,
+    );
+
+    expect(screen.getByText("Can't open that")).toBeTruthy();
+    expect(screen.getByText("No content to read.")).toBeTruthy();
+    expect(container.textContent).not.toContain("root = Col");
+  });
 });
