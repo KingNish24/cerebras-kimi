@@ -1,7 +1,7 @@
-"""Dito is a temporary notebook pairing agent with its own tools and memory.
+"""Dito is a temporary notebook pairing agent with its own tools.
 
 These tests pin the pieces that make Dito separate from the main chat:
-its narrower toolset, its page-management tools, and the per-page recall of
+its narrower toolset, its page-management tools, and its session search over
 earlier conversations.
 """
 
@@ -17,8 +17,9 @@ from app.agent.prompt import DEEPTUTOR_BASE
 from app.agent.tools import builtin_tools
 from app.agent.turn_context import set_note_context
 from app.config import Settings
-from app.services import dito_memory
+from app.services import session_search
 from app.services.documents.storage import get_co_writer_storage
+from app.store.session_store import SessionStore
 
 
 @pytest.fixture(autouse=True)
@@ -84,65 +85,76 @@ def test_note_create_and_list_manage_the_notebook(tmp_path, monkeypatch):
     assert opened.success and "body" in opened.result
 
 
-def test_dito_remembers_earlier_conversations_per_page(tmp_path, monkeypatch):
+def _session(tmp_path, question: str, answer: str, *, page_id: str = "") -> str:
+    store = SessionStore(Settings(data_dir=tmp_path))
+    preferences = {"note_document_id": page_id} if page_id else {}
+    session = store.create(preferences=preferences)
+    store.append_user_message(session, question)
+    store.append_assistant_message(
+        session, answer, events=[], turn_id="t", parent_message_id=1
+    )
+    store.save(session)
+    return session["id"]
+
+
+def test_session_search_finds_earlier_conversations(tmp_path, monkeypatch):
     monkeypatch.setenv("DT_DATA_DIR", str(tmp_path))
     page = _page()
     set_note_context(page.id, generation_kind="")
-    dito.remember_turn(
+    mine = _session(
+        tmp_path,
+        "Why does a depletion region form?",
+        "Carriers diffuse and recombine near the junction.",
         page_id=page.id,
-        session_id="session-one",
-        user_text="Why does a depletion region form?",
-        assistant_text="Carriers diffuse and recombine near the junction.",
-        session_title="PN basics",
     )
-    other = _page("MOSFET")
-    dito.remember_turn(
-        page_id=other.id,
-        session_id="session-two",
-        user_text="What is threshold voltage?",
-        assistant_text="The gate voltage that inverts the channel.",
+    other = _session(
+        tmp_path,
+        "What is threshold voltage?",
+        "The gate voltage that inverts the channel.",
     )
 
-    here = dito_memory.conversations(page_id=page.id)
-    assert [item["session_id"] for item in here] == ["session-one"]
-    rendered = dito_memory.render(here)
-    assert "depletion region" in rendered and "MOSFET" not in rendered
+    page_only = session_search.search(Settings(data_dir=tmp_path), "depletion", page_id=page.id)
+    assert [item["session_id"] for item in page_only] == [mine]
+    assert "Carriers diffuse" in session_search.render(page_only)
 
-    all_pages = dito_memory.conversations(query="threshold")
-    assert [item["session_id"] for item in all_pages] == ["session-two"]
+    found = _run(dito.session_search, query="depletion")
+    assert found.success and "Carriers diffuse" in found.result
+    assert "threshold" not in found.result
 
-    recall = _run(dito.dito_memory, query="depletion")
-    assert recall.success and "Carriers diffuse" in recall.result
-    assert "threshold" not in recall.result
+    everywhere = _run(dito.session_search, query="threshold", all_sessions=True)
+    assert everywhere.success and "inverts the channel" in everywhere.result
 
-    set_note_context(page.id, generation_kind="")
-    prompt = dito.notebook_context_block(page.id, "session-three", "", "")
-    assert "Earlier conversations on this page" in prompt
-    assert "Why does a depletion region form?" in prompt
+    all_hits = session_search.search(Settings(data_dir=tmp_path), "voltage")
+    assert [item["session_id"] for item in all_hits] == [other]
 
 
-def test_dito_memory_skips_the_current_session(tmp_path, monkeypatch):
+def test_notebook_prompt_does_not_inject_earlier_conversations(tmp_path, monkeypatch):
     monkeypatch.setenv("DT_DATA_DIR", str(tmp_path))
     page = _page()
-    dito.remember_turn(
+    _session(
+        tmp_path,
+        "earlier question about doping",
+        "earlier answer",
         page_id=page.id,
-        session_id="current",
-        user_text="earlier question",
-        assistant_text="earlier answer",
     )
     prompt = dito.notebook_context_block(page.id, "current", "", "")
     assert "earlier question" not in prompt
+    assert "PN Junction" in prompt
 
 
-def test_deleting_a_page_forgets_its_dito_memory(tmp_path, monkeypatch):
+def test_session_search_scopes_through_the_active_page(tmp_path, monkeypatch):
     monkeypatch.setenv("DT_DATA_DIR", str(tmp_path))
     page = _page()
-    dito.remember_turn(page_id=page.id, session_id="s", user_text="q", assistant_text="a")
-    assert dito_memory.conversations(page_id=page.id)
+    other = _page("MOSFET")
+    set_note_context(page.id, generation_kind="")
+    _session(tmp_path, "depletion width?", "It narrows with doping.", page_id=page.id)
+    _session(tmp_path, "threshold voltage?", "Gate inverts the channel.", page_id=other.id)
 
-    get_co_writer_storage().delete_document(page.id)
-    assert dito_memory.forget_page(page.id)
-    assert not dito_memory.conversations(page_id=page.id)
+    here = _run(dito.session_search, query="voltage")
+    assert here.success and "No matching earlier conversations" in here.result
+
+    everywhere = _run(dito.session_search, query="voltage", all_sessions=True)
+    assert everywhere.success and "inverts the channel" in everywhere.result
 
 
 def test_every_tool_named_in_a_prompt_is_registered(tmp_path, monkeypatch):

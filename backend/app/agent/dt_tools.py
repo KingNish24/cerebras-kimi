@@ -72,7 +72,6 @@ def notes(action: str, title: str = "", content: str = "", tags: str = "",
 # ---------------------------------------------------------------------------
 
 from .dito import (  # noqa: E402,F401
-    dito_memory,
     flashcards,
     note_create,
     note_list,
@@ -80,6 +79,7 @@ from .dito import (  # noqa: E402,F401
     note_read,
     note_search,
     note_suggest,
+    session_search,
 )
 
 

@@ -8,12 +8,10 @@ Dito-specific lives here:
 - :data:`DITO_SYSTEM_PROMPT` — the notebook playbook appended to DeepTutor's
   base prompt when a page is bound.
 - :func:`notebook_context_block` — the per-turn anchor: page title, selected
-  passage, the learning block being filled, and a recall of earlier Dito
-  conversations on the page.
+  passage, and the learning block being filled.
 - :func:`is_dito_turn` — whether the running turn is a notebook turn.
-- :func:`remember_turn` — persists a finished exchange to Dito's memory.
 - Dito's tools: reading the page, proposing reviewable edits, flashcards,
-  creating/listing/searching pages, and recalling earlier conversations.
+  creating/listing/searching pages, and searching earlier chat sessions.
 
 The tools are only offered while a page is bound, and every page write goes
 through the review queue as a pending suggestion.
@@ -51,8 +49,10 @@ Co-Writer page — this is not the main OpenUI chat.
 - `note_list` lists pages (optionally filtered) so you can find related notes;
   `note_search` finds pages by text. Use `note_read` on the page here, and
   `note_open` to read another page by id returned from those tools.
-- `dito_memory` recalls earlier conversations you had with this learner on
-  this page. Use it when the learner refers to something discussed before.
+- `session_search` searches earlier conversations with this learner, by
+  default the threads attached to this page. Use it when they refer to
+  something discussed before, and set all_sessions to search the whole
+  history.
 - `memory` and `learning` remain available for durable facts and progress;
   the research tools cover outside material.
 
@@ -75,7 +75,7 @@ DITO_OWN_TOOL_NAMES = (
     "note_list",
     "note_search",
     "note_open",
-    "dito_memory",
+    "session_search",
 )
 # Dito's complete toolset: its own notebook tools plus the shared tutor tools
 # it still needs while working beside a page.
@@ -88,8 +88,6 @@ DITO_TOOL_NAMES = DITO_OWN_TOOL_NAMES + (
     "review",
 )
 
-_RECALL_HEADER = "\n\n# Earlier conversations on this page\n\n"
-
 
 def is_dito_turn() -> bool:
     """True when the running turn is bound to a Co-Writer page."""
@@ -98,25 +96,8 @@ def is_dito_turn() -> bool:
     return bool(note_context()[0])
 
 
-def _recall_block(page_id: str, exclude_session: str = "") -> str:
-    """A short recap of earlier Dito conversations on this page."""
-    try:
-        from ..services import dito_memory
-
-        results = [
-            item
-            for item in dito_memory.conversations(page_id=page_id, limit=6)
-            if item.get("session_id") != exclude_session
-        ][:3]
-    except Exception:  # noqa: BLE001 - memory must never block a turn
-        return ""
-    if not results:
-        return ""
-    return _RECALL_HEADER + dito_memory.render(results)
-
-
 def notebook_context_block(page_id: str, session_id: str, block_id: str, kind: str) -> str:
-    """Page/thread anchor, generation instructions, and earlier-conversation recall."""
+    """Page/thread anchor and generation instructions for a notebook turn."""
     parts: list[str] = []
     try:
         from ..services.documents.storage import get_co_writer_storage
@@ -146,44 +127,7 @@ def notebook_context_block(page_id: str, session_id: str, block_id: str, kind: s
             "Read the page, then propose a `replace` for that block only. In your visible "
             "reply, describe only the learning material."
         )
-    anchor = ("\n\n# This notebook thread\n\n" + "\n".join(parts)) if parts else ""
-    return anchor + _recall_block(page_id, session_id)
-
-
-def remember_turn(
-    *,
-    page_id: str,
-    session_id: str,
-    block_id: str = "",
-    user_text: str = "",
-    assistant_text: str = "",
-    session_title: str = "",
-) -> None:
-    """Persist a finished exchange to the page's Dito memory (best effort)."""
-    if not page_id or not session_id:
-        return
-    page_title = ""
-    try:
-        from ..services.documents.storage import get_co_writer_storage
-
-        doc = get_co_writer_storage().load_document(page_id)
-        page_title = doc.title if doc else ""
-    except Exception:  # noqa: BLE001
-        pass
-    try:
-        from ..services import dito_memory
-
-        dito_memory.remember_turn(
-            page_id=page_id,
-            session_id=session_id,
-            block_id=block_id,
-            user_text=user_text,
-            assistant_text=assistant_text,
-            session_title=session_title,
-            page_title=page_title,
-        )
-    except Exception:  # noqa: BLE001 - memory must never fail a turn
-        pass
+    return ("\n\n# This notebook thread\n\n" + "\n".join(parts)) if parts else ""
 
 
 # ---------------------------------------------------------------------------
@@ -456,23 +400,26 @@ def note_open(page_id: str, max_chars: int = 16000) -> str:
     return f"Title: {doc.title}\n\n{body[:max_chars]}"
 
 
-@tool(mutating=False, tool_icon="🧠")
-def dito_memory(query: str = "", limit: int = 5, all_pages: bool = False) -> str:
-    """Recall earlier conversations Dito held with this learner.
+@tool(mutating=False, tool_icon="🔎")
+async def session_search(query: str, limit: int = 5, all_sessions: bool = False) -> str:
+    """Search earlier conversations for something the learner discussed.
 
-    By default only conversations on the open page are searched (the temporary
-    pairing memory). Set ``all_pages`` to search every notebook page.
+    By default the search covers the conversations attached to the open
+    notebook page. Set ``all_sessions`` to search every chat session.
 
-    :param query: Words to look for in the remembered exchanges.
-    :param limit: Maximum number of conversations to return.
-    :param all_pages: Search the whole notebook instead of just this page.
+    :param query: What to look for in earlier questions and answers.
+    :param limit: Maximum number of matching conversations to return.
+    :param all_sessions: Search the whole chat history instead of this page.
     """
-    from ..services import dito_memory as store
+    if not query.strip():
+        return "session_search needs a query."
+    from ..config import get_settings
+    from ..services import session_search as store
 
-    page_id = "" if all_pages else _bound_page()
-    results = store.conversations(page_id=page_id, query=query, limit=limit)
-    if not page_id and not results:
-        return "No earlier Dito conversations found."
+    page_id = "" if all_sessions else _bound_page()
+    results = await store.search_async(
+        get_settings(), query, limit=limit, page_id=page_id
+    )
     return store.render(results)
 
 
@@ -486,7 +433,7 @@ def dito_tools() -> list[Any]:
         note_list,
         note_search,
         note_open,
-        dito_memory,
+        session_search,
     ]
 
 
@@ -494,7 +441,6 @@ __all__ = [
     "DITO_OWN_TOOL_NAMES",
     "DITO_SYSTEM_PROMPT",
     "DITO_TOOL_NAMES",
-    "dito_memory",
     "dito_tools",
     "flashcards",
     "is_dito_turn",
@@ -505,5 +451,5 @@ __all__ = [
     "note_search",
     "note_suggest",
     "notebook_context_block",
-    "remember_turn",
+    "session_search",
 ]

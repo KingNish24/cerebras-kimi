@@ -438,10 +438,6 @@ def delete_document(doc_id: str) -> dict[str, bool]:
     if not storage.doc_exists(page_id):
         raise HTTPException(status_code=404, detail="Page not found")
     deleted = storage.delete_document(page_id)
-    if deleted:
-        from ..services import dito_memory
-
-        dito_memory.forget_page(page_id)
     return {"deleted": deleted}
 
 
