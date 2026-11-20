@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch } from "@/shared/api/client";
 import {
@@ -188,7 +188,7 @@ export function EpubDocumentView({
   headingJump,
   onError,
 }: EpubDocumentViewProps) {
-  const { t } = useTranslation();
+  
   const hostRef = useRef<HTMLDivElement | null>(null);
   const bookRef = useRef<EpubBook | null>(null);
   const renditionRef = useRef<EpubRendition | null>(null);
@@ -463,7 +463,7 @@ export function EpubDocumentView({
           apiFetch(renderMaterialUrl(materialId), { cache: "no-store" }),
           getReadingPosition(materialId).catch(() => null),
         ]);
-        if (!response.ok) throw new Error(t("Could not load this section."));
+        if (!response.ok) throw new Error("Could not load this section.");
         const bytes = await response.arrayBuffer();
         if (cancelled) return;
         const createBook = module.default as unknown as (
@@ -522,7 +522,7 @@ export function EpubDocumentView({
         const message =
           error instanceof Error
             ? error.message
-            : t("Could not load this section.");
+            : "Could not load this section.";
         setLoadError(message);
         errorRef.current?.(message);
         setLoading(false);
@@ -546,7 +546,7 @@ export function EpubDocumentView({
       bookRef.current = null;
       host.replaceChildren();
     };
-  }, [materialId, unitCount, onSelection, t, turnPage]);
+  }, [materialId, unitCount, onSelection, turnPage]);
 
   useEffect(() => {
     const rendition = renditionRef.current;
@@ -704,7 +704,7 @@ export function EpubDocumentView({
                 : `calc(${preferences.lineWidth * 2}ch + 6rem)`,
             fontSize: `${preferences.fontSize}px`,
           }}
-          aria-label={t("Immersive reading")}
+          aria-label={"Immersive reading"}
         />
         {loading && (
           <div
@@ -712,7 +712,7 @@ export function EpubDocumentView({
             style={surface}
           >
             <Loader2 size={15} className="animate-spin" />
-            {t("Opening document…")}
+            {"Opening document…"}
           </div>
         )}
         {!loading && loadError && (
@@ -729,7 +729,7 @@ export function EpubDocumentView({
               type="button"
               onClick={() => turnPage("previous")}
               className="absolute left-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-current/20 bg-[color-mix(in_srgb,currentColor_8%,transparent)] text-inherit shadow-sm backdrop-blur transition hover:bg-[color-mix(in_srgb,currentColor_14%,transparent)]"
-              aria-label={t("Previous")}
+              aria-label={"Previous"}
             >
               <ChevronLeft size={19} />
             </button>
@@ -737,7 +737,7 @@ export function EpubDocumentView({
               type="button"
               onClick={() => turnPage("next")}
               className="absolute right-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-current/20 bg-[color-mix(in_srgb,currentColor_8%,transparent)] text-inherit shadow-sm backdrop-blur transition hover:bg-[color-mix(in_srgb,currentColor_14%,transparent)]"
-              aria-label={t("Next")}
+              aria-label={"Next"}
             >
               <ChevronRight size={19} />
             </button>

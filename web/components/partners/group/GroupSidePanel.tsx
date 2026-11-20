@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import { AssistantActivity } from "@/features/chat/trace";
@@ -52,7 +52,7 @@ export default function GroupSidePanel({
   onTabChange: (tab: PanelTab) => void;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const labelFor = useSeatKindLabel();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -99,19 +99,19 @@ export default function GroupSidePanel({
             active={tab === "reasoning"}
             onClick={() => onTabChange("reasoning")}
           >
-            {t("Reasoning steps")}
+            {"Reasoning"}
           </TabButton>
           <TabButton
             active={tab === "context"}
             onClick={() => onTabChange("context")}
           >
-            {t("Shared context")}
+            {"Shared context"}
           </TabButton>
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label={t("Close")}
+          aria-label={"Close"}
           className="shrink-0 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           <X size={15} />
@@ -121,7 +121,7 @@ export default function GroupSidePanel({
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto p-3">
         {tab === "reasoning" ? (
           traced.length === 0 ? (
-            <Empty>{t("No reasoning to show yet")}</Empty>
+            <Empty>{"No reasoning to show yet"}</Empty>
           ) : (
             <div className="space-y-2.5">
               {traced.map(({ round, seat }) => {
@@ -156,7 +156,7 @@ export default function GroupSidePanel({
                       </span>
                       {(() => {
                         const label = round.followup
-                          ? t("Follow-up")
+                          ? "Follow-up"
                           : labelFor(seat.message?.kind);
                         return label ? (
                           <span className="shrink-0 text-[9.5px] text-[var(--muted-foreground)]">
@@ -179,11 +179,11 @@ export default function GroupSidePanel({
             </div>
           )
         ) : entries.length === 0 ? (
-          <Empty>{t("Nothing shared yet")}</Empty>
+          <Empty>{"Nothing shared yet"}</Empty>
         ) : (
           <div className="space-y-2">
             <p className="px-0.5 pb-1 text-[10px] leading-relaxed text-[var(--muted-foreground)]">
-              {t("Visible to every Partner in this group")}
+              {"Visible to every Partner in this group"}
             </p>
             {entries.map((entry) => (
               <div

@@ -9,7 +9,7 @@ import {
   Repeat2,
   type LucideIcon,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { formatTime } from '../model/dates'
 import type { CalendarItem } from '../model/items'
 
@@ -20,11 +20,10 @@ const TASK_ICONS: Record<string, LucideIcon> = {
 }
 
 export function itemTitle(
-  item: CalendarItem,
-  t: (key: string, options?: Record<string, unknown>) => string
+  item: CalendarItem
 ): string {
-  if (item.kind === 'review') return t('{{count}} reviews due', { count: item.count })
-  return item.title || t('(No title)')
+  if (item.kind === 'review') return `${item.count} reviews due`
+  return item.title || "(No title)"
 }
 
 export function itemIcon(item: CalendarItem): LucideIcon | null {
@@ -67,7 +66,7 @@ export const ItemChip = forwardRef<
   },
   ref
 ) {
-  const { t, i18n } = useTranslation()
+  
   const Icon = itemIcon(item)
   const done = item.kind === 'task' && item.card.status === 'done'
   return (
@@ -94,9 +93,9 @@ export const ItemChip = forwardRef<
           className: 'dt-cal-chip-icon',
         })}
       {variant === 'line' && showTime && !item.allDay && (
-        <span className="dt-cal-chip-time">{formatTime(item.start, i18n.language)}</span>
+        <span className="dt-cal-chip-time">{formatTime(item.start, "en")}</span>
       )}
-      <span className="dt-cal-chip-title">{itemTitle(item, t)}</span>
+      <span className="dt-cal-chip-title">{itemTitle(item)}</span>
     </button>
   )
 })

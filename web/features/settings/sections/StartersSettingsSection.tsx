@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "@/shared/router/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
 import ChatResponseTimeoutSection from "@/components/settings/ChatResponseTimeoutSection";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -25,7 +25,7 @@ type StarterSettingsPayload = {
 };
 
 export default function StarterSettingsPage() {
-  const { t } = useTranslation();
+  
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [payload, setPayload] = useState<StarterSettingsPayload | null>(null);
@@ -48,7 +48,7 @@ export default function StarterSettingsPage() {
           throw new Error(
             "detail" in data && data.detail
               ? String(data.detail)
-              : t("Failed to load starter settings."),
+              : "Failed to load starter settings.",
           );
         }
         if (cancelled) return;
@@ -72,7 +72,7 @@ export default function StarterSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [draftRevision, pendingExtensionPayload, t]);
+  }, [draftRevision, pendingExtensionPayload]);
 
   const dirty = useMemo(
     () =>
@@ -107,7 +107,7 @@ export default function StarterSettingsPage() {
         throw new Error(
           "detail" in data && data.detail
             ? String(data.detail)
-            : t("Failed to save starter settings."),
+            : "Failed to save starter settings.",
         );
       }
       const next = data as StarterSettingsPayload;
@@ -117,7 +117,7 @@ export default function StarterSettingsPage() {
       setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     registerExtension("chat-starters", { dirty, save, payload: draft });
@@ -129,10 +129,8 @@ export default function StarterSettingsPage() {
   return (
     <div>
       <SettingsPageHeader
-        title={t("Conversation")}
-        description={t(
-          "Manage home suggestions and how long DeepTutor waits for replies.",
-        )}
+        title={"Conversation"}
+        description={"Manage home suggestions and how long DeepTutor waits for replies."}
       />
 
       <ChatResponseTimeoutSection />
@@ -140,7 +138,7 @@ export default function StarterSettingsPage() {
       {loading && (
         <div className="flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("Loading starter settings...")}
+          {"Loading starter settings..."}
         </div>
       )}
 
@@ -152,16 +150,12 @@ export default function StarterSettingsPage() {
 
       {!loading && payload && draft && (
         <SettingSection
-          title={t("Starting points")}
-          description={t(
-            "Your consolidated memory is always included. This controls how much raw recent activity goes with it — conversations, practice questions, searches, documents, in one list ordered by time.",
-          )}
+          title={"Starting points"}
+          description={"Your consolidated memory is always included. This controls how much raw recent activity goes with it — conversations, practice questions, searches, documents, in one list ordered by time."}
         >
           <SettingRow
-            title={t("Recent activities")}
-            description={t(
-              "More gives the model a longer view of what you have touched; fewer keeps it focused on this week. Takes effect the next time the lines are regenerated.",
-            )}
+            title={"Recent activities"}
+            description={"More gives the model a longer view of what you have touched; fewer keeps it focused on this week. Takes effect the next time the lines are regenerated."}
             control={
               <input
                 className={`${inputClass} w-28`}
@@ -183,12 +177,10 @@ export default function StarterSettingsPage() {
       )}
 
       {!loading && payload && draft && (
-        <SettingSection title={t("Composer")}>
+        <SettingSection title={"Composer"}>
           <SettingRow
-            title={t("Suggest my next message")}
-            description={t(
-              "After each reply, the input box shows a guess at what you might type next; Tab accepts it. Turn this off when practicing in chat — the likeliest next message to a question is its answer.",
-            )}
+            title={"Suggest my next message"}
+            description={"After each reply, the input box shows a guess at what you might type next; Tab accepts it. Turn this off when practicing in chat — the likeliest next message to a question is its answer."}
             control={
               <Toggle
                 checked={draft.ask_hint_enabled}
@@ -205,12 +197,12 @@ export default function StarterSettingsPage() {
 
       {!loading && payload && (
         <p className="mt-5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-          {t("These lines are written by the active model unless you pin one.")}{" "}
+          {"These lines are written by the active model unless you pin one."}{" "}
           <Link
             href="/settings/task-models"
             className="inline-flex items-center gap-1 text-[var(--foreground)] underline-offset-2 hover:underline"
           >
-            {t("Task models")}
+            {"Task models"}
             <ArrowUpRight className="h-3 w-3" />
           </Link>
         </p>

@@ -18,7 +18,7 @@ import {
   Underline,
   Wand2,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import NoteAiEdit from '../NoteAiEdit'
 import type { NotesEditor } from './schema'
@@ -63,7 +63,7 @@ export default function NoteFormattingToolbar({
   onProposeAiEdit,
   onAnnotatePage,
 }: NoteFormattingToolbarProps) {
-  const { t } = useTranslation()
+  
   const activeStyles = useActiveStyles(editor)
   const [panel, setPanel] = useState<'link' | 'ai' | 'color' | 'edit' | null>(null)
   const [linkUrl, setLinkUrl] = useState('')
@@ -95,14 +95,14 @@ export default function NoteFormattingToolbar({
         onClick={() => setPanel(panel === 'ai' ? null : 'ai')}
       >
         <Sparkles size={14} />
-        {t('Ask Dito')}
+        {"Ask Dito"}
         <ChevronDown size={12} className="opacity-60" />
       </button>
       <button
         className={`dt-note-toolbar-ai ${panel === 'edit' ? 'is-open' : ''}`}
         aria-haspopup="dialog"
         aria-expanded={panel === 'edit'}
-        aria-label={t('Edit with AI')}
+        aria-label={"Edit with AI"}
         onMouseDown={keep}
         onClick={() => {
           if (panel === 'edit') {
@@ -114,13 +114,13 @@ export default function NoteFormattingToolbar({
         }}
       >
         <Wand2 size={14} />
-        {t('Edit with AI')}
+        {"Edit with AI"}
       </button>
       <span className="dt-note-toolbar-sep" aria-hidden />
       {STYLE_BUTTONS.map(([style, Icon, label]) => (
-        <Tooltip key={style} label={t(label)}>
+        <Tooltip key={style} label={(label)}>
           <button
-            aria-label={t(label)}
+            aria-label={(label)}
             aria-pressed={!!activeStyles[style]}
             onMouseDown={keep}
             onClick={() => editor.toggleStyles({ [style]: true })}
@@ -129,9 +129,9 @@ export default function NoteFormattingToolbar({
           </button>
         </Tooltip>
       ))}
-      <Tooltip label={t('Link')}>
+      <Tooltip label={"Link"}>
         <button
-          aria-label={t('Link')}
+          aria-label={"Link"}
           aria-expanded={panel === 'link'}
           onMouseDown={keep}
           onClick={() => setPanel(panel === 'link' ? null : 'link')}
@@ -139,9 +139,9 @@ export default function NoteFormattingToolbar({
           <LinkIcon size={15} />
         </button>
       </Tooltip>
-      <Tooltip label={t('Text color')}>
+      <Tooltip label={"Text color"}>
         <button
-          aria-label={t('Text color')}
+          aria-label={"Text color"}
           aria-haspopup="menu"
           aria-expanded={panel === 'color'}
           onMouseDown={keep}
@@ -162,11 +162,11 @@ export default function NoteFormattingToolbar({
               onMouseDown={keep}
               onClick={() => {
                 setPanel(null)
-                onAI(t(prompt))
+                onAI((prompt))
               }}
             >
               <Icon size={14} />
-              {t(label)}
+              {(label)}
             </button>
           ))}
           <div className="dt-note-toolbar-divider" />
@@ -179,7 +179,7 @@ export default function NoteFormattingToolbar({
             }}
           >
             <Sparkles size={14} />
-            {t('Ask about the selection…')}
+            {"Ask about the selection…"}
           </button>
         </div>
       )}
@@ -200,7 +200,7 @@ export default function NoteFormattingToolbar({
               <span className="dt-note-color-glyph" data-color={c}>
                 A
               </span>
-              {t(name)}
+              {(name)}
             </button>
           ))}
         </div>
@@ -229,7 +229,7 @@ export default function NoteFormattingToolbar({
           onSubmit={e => {
             e.preventDefault()
             if (!/^(https?:\/\/|mailto:|\/(?!\/)|#)/i.test(linkUrl.trim())) {
-              setLinkError(t('Enter a valid link'))
+              setLinkError("Enter a valid link")
               return
             }
             editor.createLink(linkUrl.trim())
@@ -239,8 +239,8 @@ export default function NoteFormattingToolbar({
         >
           <input
             autoFocus
-            aria-label={t('Link URL')}
-            placeholder={t('Paste a link…')}
+            aria-label={"Link URL"}
+            placeholder={"Paste a link…"}
             value={linkUrl}
             onChange={e => setLinkUrl(e.target.value)}
             onKeyDown={e => {
@@ -250,7 +250,7 @@ export default function NoteFormattingToolbar({
               }
             }}
           />
-          <button type="submit">{t('Apply')}</button>
+          <button type="submit">{"Apply"}</button>
           {linkError && <p role="alert">{linkError}</p>}
         </form>
       )}

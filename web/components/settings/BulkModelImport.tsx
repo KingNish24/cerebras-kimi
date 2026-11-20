@@ -2,7 +2,7 @@
 
 import type { ApiFormat } from "@/lib/model-catalog-types";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { useSettings, type ServiceName } from "@/features/settings/store/SettingsStore";
 import { providerProbeInput, updateProvider, type ProviderSource } from "@/lib/provider-registry";
 import { RegistryProbe, registryButton, registryPrimary } from "./RegistryControls";
@@ -34,7 +34,7 @@ export function BulkModelImport(props: Props) {
 function ImportForm({ source, service, existingModels, onImport, input }: Props & {
   input: ReturnType<typeof providerProbeInput>;
 }) {
-  const { t } = useTranslation();
+  
   const { mutateCatalog } = useSettings();
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
@@ -63,11 +63,11 @@ function ImportForm({ source, service, existingModels, onImport, input }: Props 
       />
       {discovery?.status === "connected" && (
         <fieldset className="min-w-0 space-y-3">
-          <legend className="text-[13px] font-medium">{t("settings.modelImport.title")}</legend>
+          <legend className="text-[13px] font-medium">{"Import models for this service"}</legend>
           <input
             type="search"
-            aria-label={t("Search models…")}
-            placeholder={t("Search models…")}
+            aria-label={"Search models…"}
+            placeholder={"Search models…"}
             className={inputClass}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -76,10 +76,10 @@ function ImportForm({ source, service, existingModels, onImport, input }: Props 
             <button type="button" className={registryButton}
               disabled={!selectable.some((id) => !selected.includes(id))}
               onClick={() => setPicked([...new Set([...selected, ...selectable])])}>
-              {t("settings.modelImport.selectFiltered")}
+              {"Select all matching models"}
             </button>
             <button type="button" className={registryButton} disabled={!selected.length}
-              onClick={() => setPicked([])}>{t("settings.modelImport.clear")}</button>
+              onClick={() => setPicked([])}>{"Clear selection"}</button>
           </div>
           <div className="max-h-60 overflow-y-auto rounded-lg border border-[var(--border)] p-2">
             {filtered.map((id) => (
@@ -88,19 +88,19 @@ function ImportForm({ source, service, existingModels, onImport, input }: Props 
                   checked={existing.has(id) || selected.includes(id)}
                   onChange={(event) => setPicked(event.target.checked ? [...selected, id] : selected.filter((value) => value !== id))} />
                 <span className="min-w-0 flex-1 break-all">{id}</span>
-                {existing.has(id) && <span className="text-[var(--muted-foreground)]">{t("Added")}</span>}
+                {existing.has(id) && <span className="text-[var(--muted-foreground)]">{"Added"}</span>}
               </label>
             ))}
-            {!filtered.length && <p className="p-2 text-[13px] text-[var(--muted-foreground)]">{t("No matching models")}</p>}
+            {!filtered.length && <p className="p-2 text-[13px] text-[var(--muted-foreground)]">{"No matching models"}</p>}
           </div>
           {candidates.some((model) => !model.services?.length) && (
-            <p className="text-[13px] text-[var(--muted-foreground)]">{t("settings.modelImport.unverified")}</p>
+            <p className="text-[13px] text-[var(--muted-foreground)]">{"Some models do not declare their type. Test them before using them for this service."}</p>
           )}
-          <p className="text-[13px] text-[var(--muted-foreground)]">{t("settings.modelImport.draftHint")}</p>
+          <p className="text-[13px] text-[var(--muted-foreground)]">{"Models are added to your draft. Apply changes to save them; the default model stays the same."}</p>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className={registryPrimary} disabled={!selected.length}
-              onClick={() => onImport(selected)}>{t("Add selected models")}</button>
-            <span role="status" className="text-[13px]">{t("settings.modelImport.selected", { count: selected.length })}</span>
+              onClick={() => onImport(selected)}>{"Add selected models"}</button>
+            <span role="status" className="text-[13px]">{`Selected: ${selected.length}`}</span>
           </div>
         </fieldset>
       )}

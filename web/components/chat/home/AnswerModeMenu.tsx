@@ -3,7 +3,7 @@
 import Link from "@/shared/router/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowUpRight, Bot, MessageCircle, Minus, Plus, UserRound, Users } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { agentGlyph, agentKindLabel } from "@/components/agents/agent-icons";
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import { listPersonas, type PersonaInfo } from "@/lib/personas-api";
@@ -101,7 +101,7 @@ export default function AnswerModeMenu({
   onOpenChange,
   placement,
 }: AnswerModeProps & { placement: TrayPlacement }) {
-  const { t } = useTranslation();
+  
   const chosen = answerers?.value ?? "";
   const kind = chosen.slice(0, Math.max(0, chosen.indexOf(":")));
   const id = kind ? chosen.slice(kind.length + 1) : "";
@@ -109,7 +109,7 @@ export default function AnswerModeMenu({
   const agent = kind === "subagent" ? answerers?.agents.find((item) => item.name === id) : undefined;
   // The trigger names whoever answers; a voice only when DeepTutor does.
   let icon: ReactNode = <UserRound size={14} strokeWidth={1.7} className="shrink-0" />;
-  let value = persona?.value || t("Default");
+  let value = persona?.value || "Default";
   if (partner || kind === "partner") {
     icon = partner ? <PartnerFace partner={partner} size={16} /> : icon;
     value = partner?.name ?? id;
@@ -120,7 +120,7 @@ export default function AnswerModeMenu({
   return (
     <TrayMenu
       icon={icon}
-      label={t("Preferences")}
+      label={"Preferences"}
       value={value}
       active={Boolean(chosen || persona?.value)}
       placement={placement}
@@ -138,7 +138,7 @@ function AnswerList({
   answerers,
   close,
 }: Pick<AnswerModeProps, "persona" | "answerers"> & { close: () => void }) {
-  const { t } = useTranslation();
+  
   const [personas, setPersonas] = useState<PersonaInfo[]>([]);
   const [query, setQuery] = useState("");
   const wantsPersonas = Boolean(persona);
@@ -171,12 +171,12 @@ function AnswerList({
   return (
     <>
       {total >= SEARCH_FROM && (
-        <TraySearch value={query} onChange={setQuery} placeholder={t("composer.tray.searchAnswer")} />
+        <TraySearch value={query} onChange={setQuery} placeholder={"Search styles, subagents, partners"} />
       )}
-      <TrayList label={t("Preferences")}>
+      <TrayList label={"Preferences"}>
         {persona && (
-          <TraySection title={t("Response style")}>
-            {matches(t("Default")) && (
+          <TraySection title={"Response style"}>
+            {matches("Default") && (
               <TrayOption
                 selected={!persona.value}
                 onSelect={() => {
@@ -184,8 +184,8 @@ function AnswerList({
                   close();
                 }}
                 leading={<PlainVoiceIcon size={16} strokeWidth={1.6} />}
-                title={t("Default")}
-                meta={t("No persona — the assistant's standard behavior")}
+                title={"Default"}
+                meta={"No persona — the assistant's standard behavior"}
               />
             )}
             {styleRows.map((item) => (
@@ -204,14 +204,14 @@ function AnswerList({
           </TraySection>
         )}
         {answerers && (
-          <TraySection title={t("composer.tray.whoAnswers")} hint={t("composer.tray.whoAnswersHint")}>
+          <TraySection title={"Who answers"} hint={"The message goes to them; they answer"}>
             {matches("DeepTutor") && (
               <TrayOption
                 selected={!answerers.value}
                 onSelect={() => pick(null)}
                 leading={<MessageCircle size={14} strokeWidth={1.7} />}
-                title={t("composer.tray.deeptutor")}
-                meta={t("composer.tray.deeptutorAnswers")}
+                title={"DeepTutor"}
+                meta={"Answers as usual"}
               />
             )}
             {partnerRows.map((item) => (
@@ -234,25 +234,25 @@ function AnswerList({
                 meta={agentKindLabel(item.kind) || undefined}
               />
             ))}
-            {answerers.loading && <p className="dt-tray-empty">{t("Loading...")}</p>}
+            {answerers.loading && <p className="dt-tray-empty">{"Loading..."}</p>}
             {answerers.error && !answerers.loading && (
               <p role="alert" className="dt-tray-empty">
-                {t("Could not load partners")}
+                {"Could not load partners"}
               </p>
             )}
             {!answerers.loading && !needle && !partnerRows.length && !agentRows.length && (
-              <p className="dt-tray-empty">{t("composer.tray.noHandOff")}</p>
+              <p className="dt-tray-empty">{"No subagents or partners to hand this to yet"}</p>
             )}
           </TraySection>
         )}
         {needle && !styleRows.length && !partnerRows.length && !agentRows.length && (
-          <p className="dt-tray-empty">{t("navigation.noResults")}</p>
+          <p className="dt-tray-empty">{"No matching records"}</p>
         )}
       </TrayList>
       <TrayFoot>
         {reuse.length > 0 && <TrayReuse kinds={reuse} />}
         <Link href="/personalization" prefetch={false} onClick={close}>
-          {t("navigation.personalization")}
+          {"Personalization"}
           <ArrowUpRight size={13} strokeWidth={1.9} />
         </Link>
       </TrayFoot>
@@ -274,7 +274,7 @@ export function PartnerLinkMenu({
   agents,
   placement,
 }: PartnerLinkProps & { placement: TrayPlacement }) {
-  const { t } = useTranslation();
+  
   const partner = partners?.options.find((item) => item.partner_id === partners.selected);
   const group = groups?.options.find((item) => item.group_id === groups.selected);
   const agent = agents?.options.find((item) => item.name === agents.selected);
@@ -292,7 +292,7 @@ export function PartnerLinkMenu({
   return (
     <TrayMenu
       icon={icon}
-      label={t("Partners")}
+      label={"Partners"}
       value={value}
       active={Boolean(value)}
       placement={placement}
@@ -309,7 +309,7 @@ function PartnerLinkList({
   agents,
   close,
 }: PartnerLinkProps & { close: () => void }) {
-  const { t } = useTranslation();
+  
   const reuse: ResourceKind[] = [
     ...(partners ? (["partner"] as const) : []),
     ...(groups ? (["partner_group"] as const) : []),
@@ -320,9 +320,9 @@ function PartnerLinkList({
   const failed = Boolean(partners?.error || groups?.error);
   return (
     <>
-      <TrayList label={t("Partners")}>
+      <TrayList label={"Partners"}>
         {partners && partners.options.length > 0 && (
-          <TraySection title={t("Ask partner")} hint={t("composer.tray.askPartnerHint")}>
+          <TraySection title={"Ask partner"} hint={"DeepTutor asks them, then answers"}>
             {partners.options.map((item) => {
               const chosen = partners.selected === item.partner_id;
               return (
@@ -342,7 +342,7 @@ function PartnerLinkList({
           </TraySection>
         )}
         {groups && groups.options.length > 0 && (
-          <TraySection title={t("Organize partner discussion")}>
+          <TraySection title={"Organize partner discussion"}>
             {groups.options.map((item) => {
               const chosen = groups.selected === item.group_id;
               return (
@@ -355,14 +355,14 @@ function PartnerLinkList({
                   }}
                   leading={item.emoji ? <span className="text-[13px]">{item.emoji}</span> : <Users size={14} strokeWidth={1.7} />}
                   title={item.name}
-                  meta={item.members.map((member) => member.name).join(" · ") || t("Organize partner discussion")}
+                  meta={item.members.map((member) => member.name).join(" · ") || "Organize partner discussion"}
                 />
               );
             })}
           </TraySection>
         )}
         {agents && agents.options.length > 0 && (
-          <TraySection title={t("Ask subagent")} hint={t("composer.tray.askAgentHint")}>
+          <TraySection title={"Ask subagent"} hint={"DeepTutor puts questions to it, then answers"}>
             {agents.options.map((item) => {
               const chosen = agents.selected === item.name;
               return (
@@ -386,23 +386,23 @@ function PartnerLinkList({
             })}
           </TraySection>
         )}
-        {loading && <p className="dt-tray-empty">{t("Loading...")}</p>}
+        {loading && <p className="dt-tray-empty">{"Loading..."}</p>}
         {failed && !loading && (
           <p role="alert" className="dt-tray-empty">
-            {t("Could not load partners")}
+            {"Could not load partners"}
           </p>
         )}
-        {nothing && !loading && !failed && <p className="dt-tray-empty">{t("No partners yet")}</p>}
+        {nothing && !loading && !failed && <p className="dt-tray-empty">{"No partners yet"}</p>}
       </TrayList>
       <TrayFoot>
         {reuse.length > 0 && <TrayReuse kinds={reuse} />}
         <span className="dt-tray-foot-end">
           <Link href="/partners/groups/new" prefetch={false} onClick={close}>
             <Plus size={13} strokeWidth={1.9} />
-            {t("Create a Partner Group")}
+            {"Create a Partner Group"}
           </Link>
           <Link href="/partners" prefetch={false} onClick={close}>
-            {t("Partners")}
+            {"Partners"}
             <ArrowUpRight size={13} strokeWidth={1.9} />
           </Link>
         </span>
@@ -413,15 +413,15 @@ function PartnerLinkList({
 
 /** How many times DeepTutor may ask the chosen agent this turn. */
 function Budget({ value, onChange }: { value: number | null; onChange: (value: number) => void }) {
-  const { t } = useTranslation();
+  
   const current = value ?? BUDGET_MIN;
   return (
     <div className="dt-tray-budget">
-      <span>{t("Max rounds DeepTutor may ask")}</span>
+      <span>{"Max rounds DeepTutor may ask"}</span>
       <span className="flex items-center gap-1">
         <button
           type="button"
-          aria-label={t("Fewer rounds")}
+          aria-label={"Fewer rounds"}
           disabled={current <= BUDGET_MIN}
           onClick={() => onChange(Math.max(BUDGET_MIN, current - 1))}
         >
@@ -430,7 +430,7 @@ function Budget({ value, onChange }: { value: number | null; onChange: (value: n
         <span className="dt-tray-budget-value">{value ?? "–"}</span>
         <button
           type="button"
-          aria-label={t("More rounds")}
+          aria-label={"More rounds"}
           disabled={current >= BUDGET_MAX}
           onClick={() => onChange(Math.min(BUDGET_MAX, current + 1))}
         >

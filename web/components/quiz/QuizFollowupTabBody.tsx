@@ -29,7 +29,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import dynamic from "@/shared/router/dynamic";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import { ACTIVITY_TILE } from "@/components/chat/home/SessionActivityPanel";
@@ -84,7 +84,7 @@ export default function QuizFollowupTabBody({
   onResponderChange,
   onThreadSessionBound,
 }: QuizFollowupTabBodyProps) {
-  const { t } = useTranslation();
+  
   const controller = useQuizFollowupController();
   const thread = useFollowupThread(context.questionKey);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
@@ -185,16 +185,16 @@ export default function QuizFollowupTabBody({
           {sideChat ? (
             // Beside a draft there is no conversation yet to be about.
             sideChat.parentSessionId ? (
-            <PinnedCard icon={MessagesSquare} label={t("About this conversation")}>
+            <PinnedCard icon={MessagesSquare} label={"About this conversation"}>
               <div className="truncate text-[13px] font-medium text-[var(--foreground)]">
-                {sideChat.parentTitle || t("This conversation")}
+                {sideChat.parentTitle || "This conversation"}
               </div>
             </PinnedCard>
             ) : null
           ) : (
             <PinnedCard
               icon={HelpCircle}
-              label={[t("Question"), context.question.question_type]
+              label={["Question", context.question.question_type]
                 .filter(Boolean)
                 .join(" · ")}
             >
@@ -208,7 +208,7 @@ export default function QuizFollowupTabBody({
           )}
 
           {!sideChat && (
-            <PinnedCard icon={PenLine} label={t("Your Answer")}>
+            <PinnedCard icon={PenLine} label={"Your Answer"}>
               {context.userAnswer ? (
                 <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
                   <MarkdownRenderer
@@ -223,7 +223,7 @@ export default function QuizFollowupTabBody({
                 </div>
               ) : context.answerImages.length === 0 ? (
                 <div className="text-[12.5px] italic text-[var(--muted-foreground)]">
-                  {t("No answer recorded.")}
+                  {"No answer recorded."}
                 </div>
               ) : null}
               {context.answerImages.length > 0 && (
@@ -256,7 +256,7 @@ export default function QuizFollowupTabBody({
           )}
 
           {!sideChat && context.aiJudgment && (
-            <PinnedCard icon={Sparkles} label={t("AI Judgment")} tone="primary">
+            <PinnedCard icon={Sparkles} label={"AI Judgment"} tone="primary">
               <div className="text-[12.5px] leading-relaxed text-[var(--foreground)]">
                 <MarkdownRenderer
                   content={context.aiJudgment}
@@ -272,16 +272,16 @@ export default function QuizFollowupTabBody({
               // the right thing — the composer already says what to type.
               <p className="px-1 text-[12px] leading-[1.6] text-[var(--muted-foreground)]">
                 {!responder
-                  ? t("Ask why an answer was marked, for another explanation, or for a similar question to try.")
+                  ? "Ask why an answer was marked, for another explanation, or for a similar question to try."
                   : !sideChat?.parentSessionId && responder.kind !== "partner" && responder.kind !== "subagent"
                     ? responder.kind === "partner_group"
-                      ? t("Dito brings {{name}} into the discussion here, beside the conversation.", { name: responderName })
-                      : t("A conversation with Dito beside the main one. Nothing asked here is added to it.")
+                      ? `Dito brings ${responderName} into the discussion here, beside the conversation.`
+                      : "A conversation with Dito beside the main one. Nothing asked here is added to it."
                   : responder.kind === "dito"
-                    ? t("Dito has read the whole conversation. Nothing asked here is added to it.")
+                    ? "Dito has read the whole conversation. Nothing asked here is added to it."
                     : responder.kind === "partner_group"
-                      ? t("Dito has read the whole conversation and brings {{name}} into the discussion. Nothing asked here is added to it.", { name: responderName })
-                      : t("{{name}} answers here, in its own session, from what you send — quote a passage to ask about it. Nothing asked here is added to the conversation.", { name: responderName })}
+                      ? `Dito has read the whole conversation and brings ${responderName} into the discussion. Nothing asked here is added to it.`
+                      : `${responderName} answers here, in its own session, from what you send — quote a passage to ask about it. Nothing asked here is added to the conversation.`}
               </p>
             ) : (
               visibleMessages.map((message, index) => {

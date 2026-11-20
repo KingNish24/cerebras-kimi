@@ -1,7 +1,7 @@
 "use client";
 
 import { RefreshCw, ServerCog } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   Button,
   InlineAlert,
@@ -31,12 +31,12 @@ export function RuntimeHealthCard({
   showDetails = false,
   compact = false,
 }: RuntimeHealthCardProps) {
-  const { t } = useTranslation();
+  
   const label = {
-    healthy: t("Healthy"),
-    degraded: t("Degraded"),
-    recovering: t("Recovering"),
-    unavailable: t("Unavailable"),
+    healthy: "Healthy",
+    degraded: "Degraded",
+    recovering: "Recovering",
+    unavailable: "Unavailable",
   }[snapshot.health];
 
   if (snapshot.loading && !snapshot.data) {
@@ -51,7 +51,7 @@ export function RuntimeHealthCard({
     return (
       <div className="flex items-center gap-2">
         <span className="text-[13px] font-medium text-foreground">
-          {t("Turn runtime")}
+          {"Turn runtime"}
         </span>
         <StatusChip tone={tone[snapshot.health]}>{label}</StatusChip>
       </div>
@@ -75,12 +75,12 @@ export function RuntimeHealthCard({
                 id="runtime-health-title"
                 className="text-sm font-semibold text-foreground"
               >
-                {t("Turn runtime")}
+                {"Turn runtime"}
               </h2>
               <StatusChip tone={tone[snapshot.health]}>{label}</StatusChip>
             </div>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              {healthDescription(snapshot.health, t)}
+              {healthDescription(snapshot.health)}
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export function RuntimeHealthCard({
             loading={snapshot.loading}
             icon={<RefreshCw aria-hidden className="h-4 w-4" />}
           >
-            {t("Refresh")}
+            {"Refresh"}
           </Button>
         ) : null}
       </div>
@@ -100,42 +100,42 @@ export function RuntimeHealthCard({
       {snapshot.error ? (
         <InlineAlert tone={status ? "warning" : "danger"} className="mt-4">
           {status
-            ? t("The latest refresh failed. Showing the last safe snapshot.")
-            : t("Runtime health could not be loaded.")}
+            ? "The latest refresh failed. Showing the last safe snapshot."
+            : "Runtime health could not be loaded."}
         </InlineAlert>
       ) : null}
 
       {status && showDetails ? (
         <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-border pt-4 md:grid-cols-4">
-          <Metric label={t("Workers")} value={String(status.workerCount)} />
+          <Metric label={"Workers"} value={String(status.workerCount)} />
           <Metric
-            label={t("Coordination")}
+            label={"Coordination"}
             value={
-              status.coordinationMode === "redis" ? "Redis" : t("In process")
+              status.coordinationMode === "redis" ? "Redis" : "In process"
             }
           />
           <Metric
-            label={t("Active owner turns")}
+            label={"Active owner turns"}
             value={String(status.ownerTurnCount)}
           />
           <Metric
-            label={t("Recovery backlog")}
+            label={"Recovery backlog"}
             value={String(status.recoveryBacklog)}
           />
           <Metric
-            label={t("Redis")}
-            value={redisLabel(status.redisStatus, t)}
+            label={"Redis"}
+            value={redisLabel(status.redisStatus)}
           />
           <Metric
-            label={t("Leader")}
+            label={"Leader"}
             value={
               status.leaderHealthy === false
-                ? t("Unhealthy")
-                : status.leaderId || t("Not applicable")
+                ? "Unhealthy"
+                : status.leaderId || "Not applicable"
             }
           />
-          <Metric label={t("Protocol")} value={status.protocolVersion} />
-          <Metric label={t("Worker ID")} value={status.workerId} />
+          <Metric label={"Protocol"} value={status.protocolVersion} />
+          <Metric label={"Worker ID"} value={status.workerId} />
         </dl>
       ) : null}
     </section>
@@ -158,19 +158,18 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function redisLabel(
   status: "ok" | "unavailable" | "not_configured",
-  t: (key: string) => string,
 ) {
-  if (status === "ok") return t("Connected");
-  if (status === "unavailable") return t("Unavailable");
-  return t("Not configured");
+  if (status === "ok") return "Connected";
+  if (status === "unavailable") return "Unavailable";
+  return "Not configured";
 }
 
-function healthDescription(health: RuntimeHealth, t: (key: string) => string) {
+function healthDescription(health: RuntimeHealth) {
   if (health === "healthy")
-    return t("Turn ownership and recovery services are operating normally.");
+    return "Turn ownership and recovery services are operating normally.";
   if (health === "recovering")
-    return t("The runtime is reconciling interrupted work.");
+    return "The runtime is reconciling interrupted work.";
   if (health === "degraded")
-    return t("Turn coordination needs operator attention.");
-  return t("The runtime status endpoint is not available.");
+    return "Turn coordination needs operator attention.";
+  return "The runtime status endpoint is not available.";
 }

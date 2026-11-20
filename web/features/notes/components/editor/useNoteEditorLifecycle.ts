@@ -10,7 +10,7 @@ import {
   type ChangeEvent,
 } from 'react'
 import { closeHistory } from '@tiptap/pm/history'
-import { useTranslation } from 'react-i18next'
+
 import { autoMarkPage } from '@/lib/note-ai'
 import { noteRequest, type NoteBlock, type NotePage } from '@/lib/notes-api'
 import { notify } from '@/lib/notifications'
@@ -42,7 +42,7 @@ export default function useNoteEditorLifecycle({
   onFocusBlock,
   onRefreshSuggestions,
 }: UseNoteEditorLifecycleOptions) {
-  const { t } = useTranslation()
+  
   const theme = useSyncExternalStore<'light' | 'dark'>(
     subscribeToThemeChanges,
     () => (document.documentElement.classList.contains('dark') ? 'dark' : 'light'),
@@ -238,20 +238,20 @@ export default function useNoteEditorLifecycle({
           explanation: 'Dito',
         })
         onRefreshSuggestions?.()
-        notify(t('Suggested an edit below your selection'))
+        notify("Suggested an edit below your selection")
       } catch (err) {
-        notify(err instanceof Error ? err.message : t('Could not suggest the edit.'), {
+        notify(err instanceof Error ? err.message : "Could not suggest the edit.", {
           tone: 'error',
         })
       }
     },
-    [editor, onRefreshSuggestions, page.id, t]
+    [editor, onRefreshSuggestions, page.id]
   )
 
   const annotatePage = useCallback(async () => {
     const text = await editor.blocksToMarkdownLossy(editor.document)
     if (!text.trim()) {
-      notify(t('Add some content before annotating.'), { tone: 'error' })
+      notify("Add some content before annotating.", { tone: 'error' })
       return false
     }
     try {
@@ -259,13 +259,13 @@ export default function useNoteEditorLifecycle({
       const blocks = parseMarkdown(marked)
       if (!blocks.length) return false
       editor.replaceBlocks(editor.document, blocks as never)
-      notify(t('Annotated the page'))
+      notify("Annotated the page")
       return true
     } catch (err) {
-      notify(err instanceof Error ? err.message : t('Annotation failed.'), { tone: 'error' })
+      notify(err instanceof Error ? err.message : "Annotation failed.", { tone: 'error' })
       return false
     }
-  }, [editor, parseMarkdown, t])
+  }, [editor, parseMarkdown])
 
   const handleFileUpload = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
@@ -301,13 +301,13 @@ export default function useNoteEditorLifecycle({
         activeNoteUploads.delete(id)
         if (editor.getBlock(id)?.type === 'noteUpload')
           editor.updateBlock(id, {
-            props: { error: t(err instanceof Error ? err.message : 'Upload failed') },
+            props: { error: (err instanceof Error ? err.message : 'Upload failed') },
           })
       } finally {
         activeNoteUploads.delete(id)
       }
     },
-    [editor, t]
+    [editor]
   )
 
   return {

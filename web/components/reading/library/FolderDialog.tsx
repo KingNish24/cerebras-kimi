@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useId, useState, type FormEvent } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   createReadingWorkspace,
@@ -27,7 +27,7 @@ export function FolderDialog({
   onClose: () => void;
   onSaved: (collection: ReadingWorkspace) => void;
 }) {
-  const { t } = useTranslation();
+  
   const headingId = useId();
   const [title, setTitle] = useState(collection?.title ?? "");
   const [color, setColor] = useState(collection?.color ?? "");
@@ -49,7 +49,7 @@ export function FolderDialog({
     if (working) return;
     setWorking(true);
     setError("");
-    const name = title.trim() || t("Untitled collection");
+    const name = title.trim() || "Untitled collection";
     const saved = (
       collection
         ? updateReadingWorkspace(collection.workspace_id, { title: name, color })
@@ -58,7 +58,7 @@ export function FolderDialog({
     void saved
       .catch((caught) =>
         setError(
-          caught instanceof Error ? caught.message : t("Could not save."),
+          caught instanceof Error ? caught.message : "Could not save.",
         ),
       )
       .finally(() => setWorking(false));
@@ -79,7 +79,7 @@ export function FolderDialog({
         className="w-full max-w-[380px] rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg dark:bg-[var(--popover)]"
       >
         <h2 id={headingId} className="font-serif text-[17px] font-semibold">
-          {collection ? t("Edit collection") : t("New collection")}
+          {collection ? "Edit collection" : "New collection"}
         </h2>
 
         <div className="mt-4 flex items-center gap-3">
@@ -94,25 +94,25 @@ export function FolderDialog({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             maxLength={300}
-            placeholder={t("Untitled collection")}
-            aria-label={t("Collection name")}
+            placeholder={"Untitled collection"}
+            aria-label={"Collection name"}
             className="h-9 min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-[13px] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)]"
           />
         </div>
 
         <fieldset className="mt-4">
           <legend className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
-            {t("Color")}
+            {"Color"}
           </legend>
           <div className="mt-2 flex flex-wrap gap-2">
             {FOLDER_COLORS.map((row) => {
               const selected = row.key === color;
               return (
-                <Tooltip key={row.key || "default"} label={t(row.label)}>
+                <Tooltip key={row.key || "default"} label={(row.label)}>
                   <button
                     type="button"
                     onClick={() => setColor(row.key)}
-                    aria-label={t(row.label)}
+                    aria-label={(row.label)}
                     aria-pressed={selected}
                     className="size-6 rounded-full transition hover:scale-110"
                     style={{
@@ -140,7 +140,7 @@ export function FolderDialog({
             onClick={onClose}
             className="h-8 rounded-lg px-3 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="submit"
@@ -148,7 +148,7 @@ export function FolderDialog({
             className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 text-[12px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
-            {collection ? t("Save") : t("Create")}
+            {collection ? "Save" : "Create"}
           </button>
         </div>
       </form>

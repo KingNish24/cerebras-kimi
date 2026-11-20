@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { browserStorage } from '@/shared/storage'
 import { usePathname, useRouter } from '@/shared/router/navigation'
 import { ArrowLeft, Menu } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import SettingsNav from './SettingsNav'
 import { SettingsToolbar } from './SettingsToolbar'
 import { SettingsLoadStatusBanner } from './SettingsLoadStatusBanner'
@@ -14,7 +14,7 @@ import Modal from '@/components/common/Modal'
 import { useSettings } from '@/features/settings/store/SettingsStore'
 
 export default function SettingsMain({ children }: { children: React.ReactNode }) {
-  const { t } = useTranslation()
+  
   const pathname = usePathname()
   const router = useRouter()
   const { hasUnsavedChanges, saveDraft, saving, applying, toast, setActiveSection } = useSettings()
@@ -52,7 +52,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
       className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-foreground outline-none transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-40"
     >
       <ArrowLeft size={16} strokeWidth={1.7} />
-      {t('Back to app')}
+      {"Back to app"}
     </button>
   )
 
@@ -70,7 +70,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
           {returnButton}
           <button
             type="button"
-            aria-label={t('Settings sections')}
+            aria-label={"Settings sections"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(true)}
             className="rounded-md p-2 hover:bg-accent"
@@ -93,7 +93,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
       <Modal
         isOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        title={t('Settings')}
+        title={"Settings"}
         width="sm"
       >
         <div className="flex h-[70dvh] flex-col pt-3">
@@ -105,7 +105,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
         onClose={() => {
           if (!saving) setLeaving(false)
         }}
-        title={t('Keep your changes?')}
+        title={"Keep your changes?"}
         width="sm"
       >
         <div className="space-y-5 p-5">
@@ -115,9 +115,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
             </p>
           )}
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              'Save a draft before leaving. You can return and apply it later; your current settings will keep working.'
-            )}
+            {"Save a draft before leaving. You can return and apply it later; your current settings will keep working."}
           </p>
           <div className="flex flex-wrap justify-end gap-2">
             <button
@@ -126,7 +124,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
               onClick={() => setLeaving(false)}
               className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
             >
-              {t('Keep editing')}
+              {"Keep editing"}
             </button>
             <button
               type="button"
@@ -139,7 +137,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
               }}
               className="rounded-lg bg-[var(--foreground)] px-3 py-2 text-sm text-[var(--background)] disabled:opacity-40"
             >
-              {t('Save draft and return')}
+              {"Save draft and return"}
             </button>
           </div>
           <button
@@ -148,7 +146,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
             onClick={returnToApp}
             className="text-xs text-[var(--muted-foreground)] underline underline-offset-4"
           >
-            {t('Leave without saving')}
+            {"Leave without saving"}
           </button>
         </div>
       </Modal>

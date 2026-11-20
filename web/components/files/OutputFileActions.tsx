@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Copy, FolderOpen } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { apiFetch } from '@/shared/api/client'
 import { formatBytes } from '@/lib/doc-attachments'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -27,7 +27,7 @@ async function request(path: string, init?: RequestInit) {
 export function OutputFileActions({ url, kind }: { url: string; kind: 'render' | 'generated' }) {
   const render = kind === 'render'
   const [removed, setRemoved] = useState(false)
-  const { t } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const [storage, setStorage] = useState<RenderStorage | null>(null)
   const [busy, setBusy] = useState(false)
@@ -53,7 +53,7 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
       setStorage(result)
       return result
     } catch (cause) {
-      setError(cause instanceof Error ? t(cause.message) : t('Unable to load file storage.'))
+      setError(cause instanceof Error ? (cause.message) : "Unable to load file storage.")
       return null
     } finally {
       setBusy(false)
@@ -72,13 +72,13 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
       })
       if (render) {
         setStorage({ ...storage, ...result })
-        setMessage(t('Freed {{size}}. Final output is kept.', { size: formatBytes(result.freed_bytes) }))
+        setMessage(`Freed ${formatBytes(result.freed_bytes)}. Final output is kept.`)
       } else {
         setRemoved(true)
-        setMessage(t('Workspace file removed. The chat attachment is still available.'))
+        setMessage("Workspace file removed. The chat attachment is still available.")
       }
     } catch (cause) {
-      setError(cause instanceof Error ? t(cause.message) : t('Unable to clean render files.'))
+      setError(cause instanceof Error ? (cause.message) : "Unable to clean render files.")
     } finally {
       setConfirm(false)
       setBusy(false)
@@ -99,11 +99,11 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
         }}
       >
         <FolderOpen size={14} />
-        {t('Output files')}
+        {"Output files"}
       </button>
       {open ? (
         <div className="mt-2 space-y-2 rounded-lg border border-[var(--border)] p-3">
-          {busy && !storage ? <p role="status">{t('Loading file storage…')}</p> : null}
+          {busy && !storage ? <p role="status">{"Loading file storage…"}</p> : null}
           {error ? (
             <p role="alert" className="text-red-600">
               {error}
@@ -113,9 +113,9 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
           {storage ? (
             <>
               <label className="block">
-                {t('Saved file path')} · {formatBytes(storage.file_bytes)}
+                {"Saved file path"} · {formatBytes(storage.file_bytes)}
                 <input
-                  aria-label={t('Saved file path')}
+                  aria-label={"Saved file path"}
                   readOnly
                   value={storage.file_path}
                   className="mt-1 w-full rounded border border-[var(--border)] bg-[var(--background)] p-2 font-mono text-[11px]"
@@ -128,14 +128,14 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(storage.file_path)
-                      setMessage(t('File path copied.'))
+                      setMessage("File path copied.")
                     } catch {
-                      setError(t('Copy failed. Select and copy the path above.'))
+                      setError("Copy failed. Select and copy the path above.")
                     }
                   }}
                 >
                   <Copy size={12} />
-                  {t('Copy file path')}
+                  {"Copy file path"}
                 </button>
                 {storage.can_reveal && !removed ? (
                   <button
@@ -148,26 +148,23 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
                       try {
                         await request(endpoint(render ? 'reveal' : 'reveal-generated-output'), { method: 'POST' })
                       } catch {
-                        setError(t('Unable to reveal this file.'))
+                        setError("Unable to reveal this file.")
                       } finally {
                         setBusy(false)
                       }
                     }}
                   >
-                    {t('Show in file manager')}
+                    {"Show in file manager"}
                   </button>
                 ) : null}
               </div>
               {render && <p>
-                {t('Render files: {{count}} files · {{size}}', {
-                  count: storage.cache_files ?? 0,
-                  size: formatBytes(storage.cache_bytes ?? 0),
-                })}
+                {`Render files: ${storage.cache_files ?? 0} files · ${formatBytes(storage.cache_bytes ?? 0)}`}
               </p>}
               <p className="text-[var(--muted-foreground)]">
                 {render
-                  ? t('Cleanup keeps the final output, source code, and chat playback.')
-                  : t('Removing the workspace copy keeps the chat attachment available.')}
+                  ? "Cleanup keeps the final output, source code, and chat playback."
+                  : "Removing the workspace copy keeps the chat attachment available."}
               </p>
               {!removed && <button
                 type="button"
@@ -183,32 +180,29 @@ export function OutputFileActions({ url, kind }: { url: string; kind: 'render' |
                   if (preview && (preview.cache_files ?? 0) > 0) setConfirm(true)
                 }}
               >
-                {render ? t('Clean render files') : t('Remove workspace file')}
+                {render ? "Clean render files" : "Remove workspace file"}
               </button>}
             </>
           ) : !busy ? (
             <button type="button" className={buttonClass} onClick={() => void load()}>
-              {t('Retry')}
+              {"Retry"}
             </button>
           ) : null}
         </div>
       ) : null}
       <ConfirmDialog
         open={confirm}
-        title={render ? t('Clean render files?') : t('Remove generated file?')}
-        confirmLabel={render ? t('Clean render files') : t('Remove workspace file')}
+        title={render ? "Clean render files?" : "Remove generated file?"}
+        confirmLabel={render ? "Clean render files" : "Remove workspace file"}
         tone="danger"
         busy={busy}
         onCancel={() => setConfirm(false)}
         onConfirm={() => void clean()}
       >
         {render ? <>
-          <p>{t('Remove {{count}} render files and free {{size}}?', {
-            count: storage?.cache_files ?? 0,
-            size: formatBytes(storage?.cache_bytes ?? 0),
-          })}</p>
-          <p className="mt-2">{t('Cleanup keeps the final output, source code, and chat playback.')}</p>
-        </> : <p>{t('Remove the original generated file from the workspace? The chat attachment stays available.')}</p>}
+          <p>{`Remove ${storage?.cache_files ?? 0} render files and free ${formatBytes(storage?.cache_bytes ?? 0)}?`}</p>
+          <p className="mt-2">{"Cleanup keeps the final output, source code, and chat playback."}</p>
+        </> : <p>{"Remove the original generated file from the workspace? The chat attachment stays available."}</p>}
       </ConfirmDialog>
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FolderSync } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Modal from "@/components/common/Modal";
 
 interface LinkFolderModalProps {
@@ -16,7 +16,7 @@ export default function LinkFolderModal({
   onClose,
   onSubmit,
 }: LinkFolderModalProps) {
-  const { t } = useTranslation();
+  
   const [folderPath, setFolderPath] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +31,7 @@ export default function LinkFolderModal({
   const handleSubmit = async () => {
     const value = folderPath.trim();
     if (!value) {
-      setError(t("Folder path is required."));
+      setError("Folder path is required.");
       return;
     }
 
@@ -51,7 +51,7 @@ export default function LinkFolderModal({
     <Modal
       isOpen={isOpen}
       onClose={submitting ? () => undefined : onClose}
-      title={t("Link a local folder")}
+      title={"Link a local folder"}
       titleIcon={<FolderSync className="h-4 w-4" />}
       width="sm"
       footer={
@@ -62,7 +62,7 @@ export default function LinkFolderModal({
             disabled={submitting}
             className="rounded-md px-3 py-2 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-50"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="submit"
@@ -76,7 +76,7 @@ export default function LinkFolderModal({
                 aria-hidden="true"
               />
             )}
-            {submitting ? t("Linking…") : t("Link folder")}
+            {submitting ? "Linking…" : "Link folder"}
           </button>
         </div>
       }
@@ -95,7 +95,7 @@ export default function LinkFolderModal({
             htmlFor="linked-folder-path"
             className="mb-1.5 block text-[12px] font-medium text-[var(--foreground)]"
           >
-            {t("Folder path")}
+            {"Folder path"}
           </label>
           <input
             id="linked-folder-path"
@@ -108,9 +108,9 @@ export default function LinkFolderModal({
               if (error) setError(null);
             }}
             onBlur={() => {
-              if (!folderPath.trim()) setError(t("Folder path is required."));
+              if (!folderPath.trim()) setError("Folder path is required.");
             }}
-            placeholder={t("e.g. /Users/name/Documents or ~/notes")}
+            placeholder={"e.g. /Users/name/Documents or ~/notes"}
             aria-invalid={Boolean(error)}
             aria-describedby={`linked-folder-help${error ? " linked-folder-error" : ""}`}
             className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12px] text-[var(--foreground)] outline-none transition-colors placeholder:font-sans placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
@@ -119,9 +119,7 @@ export default function LinkFolderModal({
             id="linked-folder-help"
             className="mt-1.5 text-[11px] leading-relaxed text-[var(--muted-foreground)]"
           >
-            {t(
-              "Use a folder path on the machine running DeepTutor. Linking records the source; files are not imported until you click Sync now.",
-            )}
+            {"Use a folder path on the machine running DeepTutor. Linking records the source; files are not imported until you click Sync now."}
           </p>
           {error && (
             <p

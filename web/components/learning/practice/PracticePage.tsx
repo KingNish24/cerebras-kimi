@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { ArrowRight, CalendarCheck, Check, ClipboardList, FileUp, Loader2 } from "lucide-react";
 import { QuestionBankSection } from "@/components/space/question-bank";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
@@ -22,7 +22,7 @@ export function PracticePage({ mode = "practice" }: { mode?: "practice" | "libra
 }
 
 function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "library"; initialImport: boolean }) {
-  const { t } = useTranslation();
+  
   const libraryOnly = mode === "library";
   const pageRoute = libraryOnly ? questionBankRoute : practiceRoute;
   const router = useRouter();
@@ -82,7 +82,7 @@ function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "l
       const queue = await getPracticeQueue();
       if (queue.length) setSession(queue.map(item => item.entry.id));
       else {
-        setNotice(t("You are caught up. Come back when your next reviews are due."));
+        setNotice("You are caught up. Come back when your next reviews are due.");
         void refresh();
       }
     } catch (err) {
@@ -109,13 +109,13 @@ function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "l
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted"
           >
             <FileUp size={16} />
-            {t("Import questions")}
+            {"Import questions"}
           </button>
         )
       }
     >
       {session ? (
-        <PracticeSession ids={session} onClose={closeSession} backLabel={libraryOnly ? t("Back to library") : undefined} />
+        <PracticeSession ids={session} onClose={closeSession} backLabel={libraryOnly ? "Back to library" : undefined} />
       ) : (
         <>
           {notice && (
@@ -154,28 +154,23 @@ function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "l
                   </div>
                   <div>
                     <h2 id="practice-today" className="text-base font-semibold">
-                      {t("Today's review")}
+                      {"Today's review"}
                     </h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {summary
                         ? summary.due > 0
-                          ? t("{{count}} questions are ready to revisit.", { count: summary.due })
-                          : t("You are caught up. Come back when your next reviews are due.")
-                        : t("Loading…")}
+                          ? `${summary.due} questions are ready to revisit.`
+                          : "You are caught up. Come back when your next reviews are due."
+                        : "Loading…"}
                     </p>
                     {summary && (
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {t("{{done}} reviewed today · {{overdue}} overdue", {
-                          done: summary.reviewed_today,
-                          overdue: summary.overdue,
-                        })}
+                        {`${summary.reviewed_today} reviewed today · ${summary.overdue} overdue`}
                         {summary.due === 0 && summary.next_due_at && (
                           <>
                             {" "}
                             ·{" "}
-                            {t("Next review: {{date}}", {
-                              date: new Date(summary.next_due_at * 1000).toLocaleDateString(),
-                            })}
+                            {`Next review: ${new Date(summary.next_due_at * 1000).toLocaleDateString()}`}
                           </>
                         )}
                       </p>
@@ -193,19 +188,17 @@ function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "l
                   ) : (
                     <ArrowRight size={16} />
                   )}
-                  {t("Start today's review")}
+                  {"Start today's review"}
                 </button>
               </div>
               <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
-                {t(
-                  "New mistakes return the next day. Reviews adapt to your recall; overdue questions come first. Work in sets of up to 20."
-                )}
+                {"New mistakes return the next day. Reviews adapt to your recall; overdue questions come first. Work in sets of up to 20."}
               </p>
             </section>
           )}
           <div
             role="tablist"
-            aria-label={t("Practice collections")}
+            aria-label={"Practice collections"}
             className="mb-5 flex gap-5 border-b border-border"
           >
             {(["bank", "mistakes"] as const).map(view => (
@@ -228,7 +221,7 @@ function PracticeCollectionPage({ mode, initialImport }: { mode: "practice" | "l
                 onClick={() => switchTab(view)}
                 className={`border-b-2 px-1 pb-3 text-sm ${tab === view ? "border-primary font-semibold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               >
-                {view === "bank" ? t("Question Bank") : t("Mistakes")}
+                {view === "bank" ? "Question Bank" : "Mistakes"}
                 <span className="ml-2 text-xs tabular-nums text-muted-foreground">
                   {summary ? (view === "bank" ? summary.total : summary.mistakes) : "—"}
                 </span>
@@ -262,14 +255,14 @@ function PracticePageShell({
   action: ReactNode;
   children: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   if (libraryOnly) {
     // SpaceMain supplies the Learning Space breadcrumb and page scroll container.
     return (
       <>
         <SpaceSectionHeader
-          title={t("Question Bank")}
-          description={t("Questions from every source, together with your own imports.")}
+          title={"Question Bank"}
+          description={"Questions from every source, together with your own imports."}
           action={action}
         />
         {children}
@@ -278,8 +271,8 @@ function PracticePageShell({
   }
   return (
     <LearningShell
-      title={t("Practice")}
-      subtitle={t("Collect what you learn. Practice what matters. Remember it for longer.")}
+      title={"Practice"}
+      subtitle={"Collect what you learn. Practice what matters. Remember it for longer."}
       action={action}
     >
       {children}

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { Check, MessageSquare, Sparkles, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import type { NoteSuggestion } from '@/lib/notes-api'
 import type { BlockNoteEditor } from '@blocknote/core'
 import NoteSuggestionContent from './NoteSuggestionContent'
@@ -36,7 +36,7 @@ export default function NoteInlineReviews({
   onContinueResearch?: (suggestion: NoteSuggestion) => void
   onDiscuss: (suggestion: NoteSuggestion) => void
 }) {
-  const { t } = useTranslation()
+  
   const tiptap = editor._tiptapEditor
   const subscribe = useCallback((notify: () => void) => {
     tiptap.on('transaction', notify)
@@ -113,23 +113,21 @@ export default function NoteInlineReviews({
     const missing = !!s.block_id && !reviewPosition(doc, s.block_id).target
     const keepChildren = keepsChildren(s)
     return createPortal(
-      <article aria-label={t('Suggested edit')} tabIndex={-1} className="dt-note-review-card">
+      <article aria-label={"Suggested edit"} tabIndex={-1} className="dt-note-review-card">
         <header>
           <span>
             <Sparkles size={15} />
-            {t(
-              {
+            {({
                 replace: 'Suggested replacement',
                 insert: 'Suggested addition',
                 delete: 'Suggested deletion',
                 comment: 'Comment',
-              }[s.operation]
-            )}
+              }[s.operation])}
           </span>
           <div>
             <button className="dt-note-button" disabled={busy} onClick={() => onReview(s, false)}>
               <X size={14} />
-              {t('Dismiss suggestion')}
+              {"Dismiss suggestion"}
             </button>
             <button
               className="dt-note-button dt-note-review-accept"
@@ -137,19 +135,13 @@ export default function NoteInlineReviews({
               onClick={() => (researchOutline(s) ? onContinueResearch?.(s) : onReview(s, true))}
             >
               <Check size={14} />
-              {t(
-                researchOutline(s)
-                  ? 'Research this outline'
-                  : s.operation === 'comment'
-                    ? 'Resolve'
-                    : 'Accept'
-              )}
+              {(researchOutline(s) ? 'Research this outline' : s.operation === 'comment' ? 'Resolve' : 'Accept')}
             </button>
           </div>
         </header>
         {missing && (
           <p role="status" className="dt-note-review-error">
-            {t('The original block was removed. Restore it to review this suggestion, or dismiss it.')}
+            {"The original block was removed. Restore it to review this suggestion, or dismiss it."}
           </p>
         )}
         {errors[s.id] && (
@@ -159,21 +151,21 @@ export default function NoteInlineReviews({
         )}
         {s.explanation && (
           <details className="dt-note-review-reason">
-            <summary>{t('Why this change')}</summary>
+            <summary>{"Why this change"}</summary>
             <p>{s.explanation}</p>
           </details>
         )}
         {s.operation === 'delete' ? (
-          <p>{t('Accept to remove the highlighted block.')}</p>
+          <p>{"Accept to remove the highlighted block."}</p>
         ) : (
           <div className="dt-note-review-content">
             <NoteSuggestionContent blocks={s.blocks} markdown={s.markdown} />
-            {keepChildren && <p className="text-xs text-[var(--muted-foreground)]">{t('Nested blocks will be kept, including your latest edits.')}</p>}
+            {keepChildren && <p className="text-xs text-[var(--muted-foreground)]">{"Nested blocks will be kept, including your latest edits."}</p>}
           </div>
         )}
         <button className="dt-note-button" disabled={busy} onClick={() => onDiscuss(s)}>
           <MessageSquare size={14} />
-          {t('Discuss')}
+          {"Discuss"}
         </button>
       </article>,
       host,

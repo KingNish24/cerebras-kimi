@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { KeyRound } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { normalizeInternalReturnPath } from "@/shared/auth/return-url";
 import {
   completeSessionHandoff,
@@ -13,7 +13,7 @@ import {
 function HandoffPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { t } = useTranslation();
+  
   const next = normalizeInternalReturnPath(searchParams.get("next"));
   const [manualCode, setManualCode] = useState("");
   const [status, setStatus] = useState<"idle" | "working" | "error">("idle");
@@ -55,12 +55,12 @@ function HandoffPageContent() {
         <div className="flex items-center gap-2.5">
           <KeyRound size={18} className="text-[var(--primary)]" />
           <h1 className="text-lg font-semibold text-[var(--foreground)]">
-            {t("Public device sign-in")}
+            {"Public device sign-in"}
           </h1>
         </div>
         {status === "working" ? (
           <p className="mt-4 text-sm text-[var(--muted-foreground)]">
-            {t("Completing sign-in…")}
+            {"Completing sign-in…"}
           </p>
         ) : (
           <form
@@ -74,7 +74,7 @@ function HandoffPageContent() {
               htmlFor="handoff-code"
               className="block text-sm font-medium text-[var(--foreground)]"
             >
-              {t("Pairing code")}
+              {"Pairing code"}
             </label>
             <input
               id="handoff-code"
@@ -88,7 +88,7 @@ function HandoffPageContent() {
               type="submit"
               className="w-full rounded-lg bg-[var(--primary)] px-3.5 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
             >
-              {t("Continue")}
+              {"Continue"}
             </button>
           </form>
         )}

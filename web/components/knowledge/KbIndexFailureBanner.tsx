@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "@/shared/router/link";
 import { AlertTriangle, Settings } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   resolveKnowledgeIndexFailure,
   type KnowledgeBase,
@@ -18,7 +18,7 @@ export default function KbIndexFailureBanner({
   kb,
   action,
 }: KbIndexFailureBannerProps) {
-  const { t } = useTranslation();
+  
   const failure = resolveKnowledgeIndexFailure(kb);
   if (!failure) return null;
 
@@ -28,9 +28,7 @@ export default function KbIndexFailureBanner({
         <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span className="break-words">
           {failure.message ||
-            t(
-              "Indexing failed. Review the error details, update the configuration if needed, then retry.",
-            )}
+            "Indexing failed. Review the error details, update the configuration if needed, then retry."}
         </span>
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -40,7 +38,7 @@ export default function KbIndexFailureBanner({
             className="inline-flex items-center gap-1.5 rounded-md border border-red-300 bg-red-100 px-2 py-1 text-[11.5px] font-medium text-red-800 transition-colors hover:bg-red-200 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
           >
             <Settings className="h-3 w-3" />
-            {t("Open model settings")}
+            {"Open model settings"}
           </Link>
         )}
         {action}

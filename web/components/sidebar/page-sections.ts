@@ -56,46 +56,46 @@ export function pageSections({
     !allowedSurfaces || allowedSurfaces.includes(kind === 'mastery' || kind === 'practice' ? 'chat' : kind)
   const shelf = (groups: DashboardGroup[]) =>
     visibleGroups(groups, isAvailable).flatMap(group =>
-      group.items.map(item => ({ href: item.href, label: zh ? item.title.zh : t(item.title.en), icon: item.icon }))
+      group.items.map(item => ({ href: item.href, label: zh ? item.title.zh : (item.title.en), icon: item.icon }))
     )
   const sections: PageSection[] = [
     {
       id: 'home',
-      label: t('navigation.home'),
+      label: "Home",
       icon: HomeShelfIcon,
       pages: [
-        { href: '/chat', label: t('Chat'), icon: MessageCircle },
-        { href: '/calendar', label: t('Calendar'), icon: CalendarDays, account: true },
-        { href: '/co-writer', label: t('Co-Writer'), icon: PenLine },
+        { href: '/chat', label: "Chat", icon: MessageCircle },
+        { href: '/calendar', label: "Calendar", icon: CalendarDays, account: true },
+        { href: '/co-writer', label: "Notebook", icon: PenLine },
       ].filter(page => navVisibleUnderPolicy(page.href, allowedSurfaces)),
     },
     {
       id: 'learning',
-      label: t('navigation.learning'),
+      label: "Learning",
       icon: LearningShelfIcon,
       pages: [
-        { href: '/learning/new', label: t('navigation.createLearning'), icon: Plus },
-        { href: '/learning', label: t('navigation.allLearning'), icon: LayoutGrid },
+        { href: '/learning/new', label: "New learning activity", icon: Plus },
+        { href: '/learning', label: "All learning", icon: LayoutGrid },
         ...LEARNING_SURFACES.filter(surface => surfaceAllowed(surface.kind)).map(surface => ({
           href: surface.href,
-          label: t(surface.title),
+          label: (surface.title),
           icon: surface.icon,
         })),
       ],
     },
     {
       id: 'resources',
-      label: t('navigation.resources'),
+      label: "Resources",
       icon: ResourcesShelfIcon,
-      pages: [{ href: '/space', label: t('navigation.allResources'), icon: ResourcesShelfIcon }, ...shelf(DASHBOARD_GROUPS)],
+      pages: [{ href: '/space', label: "All resources", icon: ResourcesShelfIcon }, ...shelf(DASHBOARD_GROUPS)],
     },
     {
       id: 'personalization',
-      label: t('navigation.personalization'),
+      label: "Personalization",
       icon: PersonalizationShelfIcon,
       account: true,
       pages: [
-        { href: '/personalization', label: t('navigation.allPersonalization'), icon: PersonalizationShelfIcon },
+        { href: '/personalization', label: "All personalization", icon: PersonalizationShelfIcon },
         ...shelf(PERSONALIZATION_GROUPS).filter(page => page.href !== '/agents' || navVisibleUnderPolicy(page.href, allowedSurfaces)),
       ],
     },

@@ -4,7 +4,7 @@ import { browserStorage } from "@/shared/storage";
 
 import { useCallback, useState } from "react";
 import { Archive, ChevronDown, ChevronUp, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 const STORAGE_KEY = "dt:memory:banner-dismissed";
 
@@ -17,7 +17,7 @@ export default function MemoryArchivedBanner({
   latestBackup,
   variant = "compact",
 }: MemoryArchivedBannerProps) {
-  const { t } = useTranslation();
+  
   const [dismissed, setDismissed] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return browserStorage.readRaw("local", STORAGE_KEY);
@@ -40,19 +40,16 @@ export default function MemoryArchivedBanner({
         <Archive className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
         <div>
           <p className="font-medium text-[var(--foreground)]">
-            {t("Your v1 memory was archived")}
+            {"Your v1 memory was archived"}
           </p>
           <p className="mt-0.5 text-[var(--muted-foreground)]">
-            {t(
-              "Stored at memory/backup/{{name}}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.",
-              { name: latestBackup },
-            )}
+            {`Stored at memory/backup/${latestBackup}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.`}
           </p>
         </div>
         <button
           type="button"
           onClick={dismiss}
-          aria-label={t("Dismiss")}
+          aria-label={"Dismiss"}
           className="absolute right-2 top-2 rounded-md p-1.5 text-[var(--muted-foreground)] transition hover:bg-[var(--background)] hover:text-[var(--foreground)]"
         >
           <X className="h-3.5 w-3.5" />
@@ -70,7 +67,7 @@ export default function MemoryArchivedBanner({
       >
         <span className="flex items-center gap-2 text-[var(--muted-foreground)]">
           <Archive className="h-3.5 w-3.5" />
-          {t("Your v1 memory was archived")}
+          {"Your v1 memory was archived"}
         </span>
         {expanded ? (
           <ChevronUp className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
@@ -80,14 +77,11 @@ export default function MemoryArchivedBanner({
       </button>
       {expanded && (
         <div className="relative border-t border-[var(--border)] px-4 py-3 pr-10 text-[var(--muted-foreground)]">
-          {t(
-            "Stored at memory/backup/{{name}}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.",
-            { name: latestBackup },
-          )}
+          {`Stored at memory/backup/${latestBackup}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.`}
           <button
             type="button"
             onClick={dismiss}
-            aria-label={t("Dismiss")}
+            aria-label={"Dismiss"}
             className="absolute right-2 top-2 rounded-md p-1 text-[var(--muted-foreground)] transition hover:bg-[var(--background)] hover:text-[var(--foreground)]"
           >
             <X className="h-3 w-3" />

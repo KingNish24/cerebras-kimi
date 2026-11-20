@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import {
@@ -37,12 +37,12 @@ export function ModeSwitch({
   disabled?: boolean;
   className?: string;
 }) {
-  const { t } = useTranslation();
+  
 
   return (
     <div
       role="group"
-      aria-label={t("Conversation mode")}
+      aria-label={"Conversation mode"}
       className={`flex items-center gap-0.5 rounded-lg bg-[var(--muted)]/60 p-0.5 ${className}`}
     >
       {MASTERY_MODES.map((candidate) => {
@@ -52,8 +52,8 @@ export function ModeSwitch({
             key={candidate}
             label={
               disabled
-                ? t("Wait for the tutor to finish before changing mode")
-                : t(MASTERY_MODE_LABELS[candidate])
+                ? "Wait for the tutor to finish before changing mode"
+                : (MASTERY_MODE_LABELS[candidate])
             }
           >
             <button
@@ -75,7 +75,7 @@ export function ModeSwitch({
                     : "border-[var(--muted-foreground)]/45"
                 }`}
               />
-              {t(MASTERY_MODE_LABELS[candidate])}
+              {(MASTERY_MODE_LABELS[candidate])}
             </button>
           </Tooltip>
         );

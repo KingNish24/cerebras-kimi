@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 
 import { useVoiceAutoplayPreference } from "@/hooks/useVoiceAutoplay";
 import { useVoiceMathSpeakPreference } from "@/hooks/useVoiceMathSpeak";
@@ -50,34 +50,30 @@ function PlaybackToggle({
 }
 
 export function VoicePlaybackPrefs() {
-  const { t } = useTranslation();
+  
   const autoplay = useVoiceAutoplayPreference();
   const mathSpeak = useVoiceMathSpeakPreference();
   return (
     <section className="mb-8">
       <div className="mb-3">
         <h2 className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
-          {t("Playback")}
+          {"Playback"}
         </h2>
         <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-          {t("How spoken replies behave in chat.")}
+          {"How spoken replies behave in chat."}
         </p>
       </div>
       <div className="space-y-3">
         <PlaybackToggle
-          label={t("Auto-play replies")}
-          description={t(
-            "Read each assistant reply aloud automatically. You can also toggle this per conversation from the speaker button.",
-          )}
+          label={"Auto-play replies"}
+          description={"Read each assistant reply aloud automatically. You can also toggle this per conversation from the speaker button."}
           value={autoplay.value}
           loading={autoplay.loading}
           onChange={autoplay.setValue}
         />
         <PlaybackToggle
-          label={t("Math speak")}
-          description={t(
-            "Read LaTeX as words — fractions, powers, and Greek letters. Turn this off to keep formulas closer to the written math. Dollar signs are never spoken.",
-          )}
+          label={"Math speak"}
+          description={"Read LaTeX as words — fractions, powers, and Greek letters. Turn this off to keep formulas closer to the written math. Dollar signs are never spoken."}
           value={mathSpeak.value}
           loading={mathSpeak.loading}
           onChange={mathSpeak.setValue}

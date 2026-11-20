@@ -15,7 +15,7 @@ import {
   Minus,
   Search,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import type { SelectedHistorySession } from "@/components/chat/HistorySessionPicker";
@@ -77,10 +77,10 @@ export default function MyAgentsPicker({
   onClose,
   onApply,
 }: MyAgentsPickerProps) {
-  const { t, i18n } = useTranslation();
+  
   // Backend writes the English sentinel "New conversation" until the LLM title
   // lands; mirror SessionList with a localized "New chat" label.
-  const placeholderLabel = t("New chat");
+  const placeholderLabel = "New chat";
   const formatRowTitle = useCallback(
     (title: string) => displaySessionTitle(title, placeholderLabel),
     [placeholderLabel],
@@ -175,12 +175,12 @@ export default function MyAgentsPicker({
         groupKey: `${meta.source}:${unit}`,
         groupKind: isCodex ? "date" : "project",
         groupLabel: isCodex
-          ? formatDay(unit, i18n.language)
+          ? formatDay(unit, "en")
           : projectLabel(unit),
       });
     }
     return out;
-  }, [sessions, ownerKeyById, i18n.language]);
+  }, [sessions, ownerKeyById, "en"]);
 
   const labelForKey = useMemo(() => {
     const byAgent = new Map(agents.map((a) => [a.id, a.name]));
@@ -189,9 +189,9 @@ export default function MyAgentsPicker({
         const src = key.slice(UNGROUPED_PREFIX.length) as ImportSource;
         return SOURCE_LABEL[src] ?? src;
       }
-      return byAgent.get(key) ?? t("Untitled conversation");
+      return byAgent.get(key) ?? "Untitled conversation";
     };
-  }, [agents, t]);
+  }, [agents]);
 
   // Filter chips — every owner with at least one conversation. Named import
   // agents first (registry order), then ungrouped
@@ -320,10 +320,8 @@ export default function MyAgentsPicker({
           resourceKind="my_agents"
           icon={Bot}
           titleId="agents-picker-title"
-          title={t("Select agent conversations")}
-          subtitle={t(
-            "Pick an agent, then choose the conversations to bring in.",
-          )}
+          title={"Select agent conversations"}
+          subtitle={"Pick an agent, then choose the conversations to bring in."}
           onClose={onClose}
         />
 
@@ -332,7 +330,7 @@ export default function MyAgentsPicker({
           {chips.length > 0 && (
             <div className="mb-3 flex flex-wrap items-center gap-1.5">
               <Chip
-                label={t("All")}
+                label={"All"}
                 active={activeAgent === ALL}
                 onClick={() => setActiveAgent(ALL)}
               />
@@ -354,7 +352,7 @@ export default function MyAgentsPicker({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search conversations by title or last message")}
+                placeholder={"Search conversations by title or last message"}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
               />
             </div>
@@ -363,7 +361,7 @@ export default function MyAgentsPicker({
               disabled={!selectedIds.length}
               className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
             >
-              {t("Clear")}
+              {"Clear"}
             </button>
           </div>
 
@@ -404,7 +402,7 @@ export default function MyAgentsPicker({
                         <TriCheck
                           state={checkState}
                           onClick={() => toggleGroup(group)}
-                          label={t("Select")}
+                          label={"Select"}
                         />
                         <button
                           type="button"
@@ -433,7 +431,7 @@ export default function MyAgentsPicker({
                         <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
                           {selectedInGroup > 0
                             ? `${selectedInGroup}/${ids.length}`
-                            : t("{{count}} chats", { count: ids.length })}
+                            : `${ids.length} chats`}
                         </span>
                       </div>
 
@@ -479,15 +477,15 @@ export default function MyAgentsPicker({
                                       </p>
                                     ) : null}
                                     <div className="mt-2 text-[11px] text-[var(--muted-foreground)]/85">
-                                      {row.messageCount} {t("messages")}
+                                      {row.messageCount} {"messages"}
                                     </div>
                                   </div>
                                 </button>
-                                <Tooltip label={t("Preview")} side="top">
+                                <Tooltip label={"Preview"} side="top">
                                   <button
                                     type="button"
                                     onClick={() => void openPreview(row)}
-                                    aria-label={t("Preview")}
+                                    aria-label={"Preview"}
                                     className="mr-3 mt-3 shrink-0 rounded-lg border border-transparent p-1.5 text-[var(--muted-foreground)] opacity-0 transition-all hover:border-[var(--border)] hover:text-[var(--foreground)] focus:opacity-100 group-hover/row:opacity-100"
                                   >
                                     <Eye size={15} />
@@ -504,7 +502,7 @@ export default function MyAgentsPicker({
               </div>
             ) : (
               <div className="px-6 py-14 text-center text-[13px] text-[var(--muted-foreground)]">
-                {t("No imported conversations found.")}
+                {"No imported conversations found."}
               </div>
             )}
           </div>
@@ -512,15 +510,15 @@ export default function MyAgentsPicker({
           <div className="mt-4 flex items-center justify-between gap-3">
             <div className="text-[12px] text-[var(--muted-foreground)]">
               {selectedIds.length === 1
-                ? t("1 conversation selected")
-                : t("{{n}} conversations selected", { n: selectedIds.length })}
+                ? "1 conversation selected"
+                : `${selectedIds.length} conversations selected`}
             </div>
             <button
               onClick={handleApply}
               disabled={!selectedIds.length}
               className="btn-primary rounded-xl bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("Use Selected ({{n}})", { n: selectedIds.length })}
+              {`Use Selected (${selectedIds.length})`}
             </button>
           </div>
         </div>
@@ -572,8 +570,8 @@ function PreviewPane({
   onBack: () => void;
   onToggleSelect: () => void;
 }) {
-  const { t } = useTranslation();
-  const placeholderLabel = t("New chat");
+  
+  const placeholderLabel = "New chat";
   const { row, messages, loading } = preview;
   const visible = (messages ?? []).filter(
     (m) => (m.content || "").trim() && m.role !== "system",
@@ -584,7 +582,7 @@ function PreviewPane({
         <button
           type="button"
           onClick={onBack}
-          aria-label={t("Back")}
+          aria-label={"Back"}
           className="shrink-0 rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
         >
           <ArrowLeft size={16} />
@@ -594,7 +592,7 @@ function PreviewPane({
             {displaySessionTitle(row.title, placeholderLabel)}
           </div>
           <div className="text-[11px] text-[var(--muted-foreground)]">
-            {row.messageCount || visible.length} {t("messages")}
+            {row.messageCount || visible.length} {"messages"}
           </div>
         </div>
         <button
@@ -607,7 +605,7 @@ function PreviewPane({
           }`}
         >
           {selected ? <Check size={13} /> : null}
-          {selected ? t("Selected") : t("Select")}
+          {selected ? "Selected" : "Select"}
         </button>
       </div>
 
@@ -620,7 +618,7 @@ function PreviewPane({
           {visible.map((m) => (
             <div key={m.id}>
               <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
-                {m.role === "user" ? t("You") : t("Assistant")}
+                {m.role === "user" ? "You" : "Assistant"}
               </div>
               <div className="whitespace-pre-wrap break-words rounded-xl border border-[var(--border)]/60 bg-[var(--background)]/40 px-3 py-2 text-[12.5px] leading-relaxed text-[var(--foreground)]">
                 {m.content}
@@ -630,7 +628,7 @@ function PreviewPane({
         </div>
       ) : (
         <div className="px-6 py-14 text-center text-[13px] text-[var(--muted-foreground)]">
-          {t("This conversation has no readable messages.")}
+          {"This conversation has no readable messages."}
         </div>
       )}
     </div>

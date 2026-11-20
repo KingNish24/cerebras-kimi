@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "@/shared/router/navigation";
 import Link from "@/shared/router/link";
-import { useTranslation } from "react-i18next";
+
 import { register, checkIsFirstUser, fetchAuthStatus } from "@/lib/auth";
 
 export default function RegisterPage() {
-  const { t } = useTranslation();
+  
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -36,7 +36,7 @@ export default function RegisterPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError(t("Passwords do not match"));
+      setError("Passwords do not match");
       return;
     }
 
@@ -46,7 +46,7 @@ export default function RegisterPage() {
     if (result.ok) {
       router.replace("/login?registered=1");
     } else {
-      setError(result.error ?? t("Registration failed"));
+      setError(result.error ?? "Registration failed");
       setLoading(false);
     }
   }
@@ -59,17 +59,15 @@ export default function RegisterPage() {
           DeepTutor
         </h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-          {t("Create your account")}
+          {"Create your account"}
         </p>
       </div>
 
       {/* First-user notice */}
       {!checkingFirst && isFirst && (
         <div className="mb-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-600 dark:text-blue-400">
-          <strong>{t("First user:")}</strong>{" "}
-          {t(
-            "You will be granted admin privileges and can manage other users from the admin dashboard.",
-          )}
+          <strong>{"First user:"}</strong>{" "}
+          {"You will be granted admin privileges and can manage other users from the admin dashboard."}
         </div>
       )}
 
@@ -82,7 +80,7 @@ export default function RegisterPage() {
               htmlFor="username"
               className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
             >
-              {t("Email or username")}
+              {"Email or username"}
             </label>
             <input
               id="username"
@@ -106,7 +104,7 @@ export default function RegisterPage() {
               htmlFor="password"
               className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
             >
-              {t("Password")}
+              {"Password"}
             </label>
             <input
               id="password"
@@ -123,7 +121,7 @@ export default function RegisterPage() {
               placeholder="••••••••"
             />
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {t("At least 8 characters")}
+              {"At least 8 characters"}
             </p>
           </div>
 
@@ -133,7 +131,7 @@ export default function RegisterPage() {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
             >
-              {t("Confirm password")}
+              {"Confirm password"}
             </label>
             <input
               id="confirmPassword"
@@ -168,23 +166,23 @@ export default function RegisterPage() {
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-opacity"
           >
-            {loading ? t("Creating account…") : t("Create account")}
+            {loading ? "Creating account…" : "Create account"}
           </button>
         </form>
       </div>
 
       <p className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
-        {t("Already have an account?")}{" "}
+        {"Already have an account?"}{" "}
         <Link
           href="/login"
           className="text-[var(--primary)] hover:underline font-medium"
         >
-          {t("Sign in")}
+          {"Sign in"}
         </Link>
       </p>
 
       <p className="mt-3 text-center text-xs text-[var(--muted-foreground)]">
-        {t("DeepTutor · Agent-Native Learning")}
+        {"DeepTutor · Agent-Native Learning"}
       </p>
     </div>
   );

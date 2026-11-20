@@ -10,7 +10,7 @@ import {
   Users,
   Waypoints,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -54,7 +54,7 @@ export default function PartnerSeat({
   peers?: PartnerGroupMember[];
   onAskPeer?: (targetId: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [copied, setCopied] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
 
@@ -104,7 +104,7 @@ export default function PartnerSeat({
           {working ? (
             <span className="inline-flex items-center gap-1 text-[10.5px] text-[var(--muted-foreground)]">
               <Loader2 size={9} className="animate-spin" />
-              {seat.status === "waiting" ? t("Waiting…") : t("Thinking…")}
+              {seat.status === "waiting" ? "Waiting…" : "Thinking…"}
             </span>
           ) : null}
           {onOpenTrace && seat.events.length ? (
@@ -114,14 +114,14 @@ export default function PartnerSeat({
               className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[10.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <Waypoints size={10} />
-              {t("Reasoning steps")}
+              {"Reasoning"}
             </button>
           ) : null}
         </div>
 
         {seat.status === "error" ? (
           <p className="rounded-xl border border-red-500/25 bg-red-500/[0.04] px-3.5 py-2.5 text-[12px] text-red-500">
-            {body || t("This Partner could not answer.")}
+            {body || "This Partner could not answer."}
           </p>
         ) : body ? (
           <div
@@ -144,17 +144,17 @@ export default function PartnerSeat({
               className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               {copied ? <Check size={11} /> : <Copy size={11} />}
-              {copied ? t("Copied") : t("Copy")}
+              {copied ? "Copied" : "Copy"}
             </button>
             {onQuote ? (
-              <Tooltip label={t("Quote this in a reply")}>
+              <Tooltip label={"Quote this in a reply"}>
                 <button
                   type="button"
                   onClick={() => onQuote(member, body)}
                   className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <CornerUpRight size={11} />
-                  {t("Follow up")}
+                  {"Follow up"}
                 </button>
               </Tooltip>
             ) : null}
@@ -166,7 +166,7 @@ export default function PartnerSeat({
                   className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <Users size={11} />
-                  {t("Ask a peer")}
+                  {"Ask a peer"}
                 </button>
                 {askOpen ? (
                   <div
@@ -174,7 +174,7 @@ export default function PartnerSeat({
                     onMouseLeave={() => setAskOpen(false)}
                   >
                     <div className="px-2.5 pb-1 pt-0.5 text-[9.5px] text-[var(--muted-foreground)]">
-                      {t("Who should respond to {{name}}?", { name })}
+                      {`Who should respond to ${name}?`}
                     </div>
                     {peers.map((peer) => (
                       <button

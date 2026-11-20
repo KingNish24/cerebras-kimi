@@ -3,12 +3,12 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { PageContainer } from "@/components/layout/FeaturePage";
 import { Loader2, Save, Undo2, Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useSettings } from "@/features/settings/store/SettingsStore";
 
 /** A single, explicit save surface, visible only when there is work to do. */
 export function SettingsToolbar() {
-  const { t } = useTranslation();
+  
   const {
     draftState,
     saving,
@@ -37,11 +37,11 @@ export function SettingsToolbar() {
         <div className="min-w-0" role="status">
           <p className="text-[13px] font-medium">
             {draftState === "saved"
-              ? t("Draft not applied yet")
-              : t("Unsaved changes")}
+              ? "Draft not applied yet"
+              : "Unsaved changes"}
           </p>
           <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
-            {toast || t("Applies pending changes across all settings pages.")}
+            {toast || "Applies pending changes across all settings pages."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -52,9 +52,9 @@ export function SettingsToolbar() {
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)] disabled:opacity-40"
           >
             <Undo2 size={14} />
-            {t("Discard")}
+            {"Discard"}
           </button>
-          <Tooltip label={t("Store these changes without putting them into effect.")} side="top">
+          <Tooltip label={"Store these changes without putting them into effect."} side="top">
             <button
               type="button"
               onClick={() => void saveDraft()}
@@ -66,7 +66,7 @@ export function SettingsToolbar() {
               ) : (
                 <Save size={14} />
               )}
-              {t("Save draft")}
+              {"Save draft"}
             </button>
           </Tooltip>
           <button
@@ -80,7 +80,7 @@ export function SettingsToolbar() {
             ) : (
               <Check size={14} />
             )}
-            {t("Apply changes")}
+            {"Apply changes"}
           </button>
         </div>
       </PageContainer>

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "@/shared/router/link";
 import { ArrowUpRight, Check, Loader2, RefreshCcw } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import ProviderIcon from "@/components/common/ProviderIcon";
 import { settingsAnchorHref } from "@/features/settings/navigation/settings-nav";
@@ -121,7 +121,7 @@ export default function SettingsReadinessPanel({
 }: {
   enabled: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const { catalog, diagnosticsResults, draftState } = useSettings();
   const [snapshot, setSnapshot] = useState<SettingsReadinessSnapshot | null>(
     null,
@@ -178,7 +178,7 @@ export default function SettingsReadinessPanel({
       items.push({
         key: row.id,
         severity,
-        label: t(row.label),
+        label: (row.label),
         detail: detailText(t, row.detail_code),
         href: row.href,
       });
@@ -190,11 +190,11 @@ export default function SettingsReadinessPanel({
       items.push({
         key: "draft",
         severity: "warning",
-        label: t("readiness.attention.draft"),
+        label: "Unapplied changes",
         detail:
           draftState === "saved"
-            ? t("readiness.attention.draftSaved")
-            : t("readiness.attention.draftUnsaved"),
+            ? "a saved draft is waiting to be applied"
+            : "changes have not been saved anywhere yet",
         href: settingsAnchorHref("llm"),
       });
     }
@@ -204,30 +204,26 @@ export default function SettingsReadinessPanel({
       items.push({
         key: `${notice.code}:${notice.row_id}`,
         severity: "suggestion",
-        label: row ? t(row.label) : t(`readiness.section.${notice.section}`),
+        label: row ? (row.label) : t(`readiness.section.${notice.section}`),
         detail: detailText(t, notice.code),
         href: row?.href ?? null,
       });
     }
     return items;
-  }, [rows, snapshot, draftState, t]);
+  }, [rows, snapshot, draftState]);
   // Render unconditionally: read-only users still benefit from seeing the
   // readiness state, just without the interactive controls they cannot use.
   const summary = snapshot
     ? [
-        t("readiness.summary.ready", { n: snapshot.summary.enabled_verified }),
+        `${snapshot.summary.enabled_verified} ready`,
         snapshot.summary.available_disabled > 0 &&
-          t("readiness.summary.available", {
-            n: snapshot.summary.available_disabled,
-          }),
+          `${snapshot.summary.available_disabled} can be turned on`,
         snapshot.summary.unavailable + snapshot.summary.not_selected > 0 &&
-          t("readiness.summary.idle", {
-            n: snapshot.summary.unavailable + snapshot.summary.not_selected,
-          }),
+          `${snapshot.summary.unavailable + snapshot.summary.not_selected} not set up`,
       ]
         .filter(Boolean)
         .join(" · ")
-    : t("readiness.blurb");
+    : "What can actually run with the current settings.";
 
   return (
     <section className="mt-8" aria-labelledby="capability-readiness-title">
@@ -237,7 +233,7 @@ export default function SettingsReadinessPanel({
             id="capability-readiness-title"
             className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]"
           >
-            {t("readiness.title")}
+            {"Readiness"}
           </h2>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
             {summary}
@@ -247,7 +243,7 @@ export default function SettingsReadinessPanel({
           type="button"
           onClick={() => void refresh()}
           disabled={loading || !enabled}
-          aria-label={t("readiness.refresh")}
+          aria-label={"Refresh"}
           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
         >
           {loading ? (
@@ -255,21 +251,21 @@ export default function SettingsReadinessPanel({
           ) : (
             <RefreshCcw className="h-3 w-3" />
           )}
-          {t("readiness.refresh")}
+          {"Refresh"}
         </button>
       </header>
 
       <div className="border-t border-[var(--border)]/60">
         {error && (
           <p role="alert" className="py-3 text-[12.5px] text-amber-600">
-            {t("readiness.error")}
+            {"Readiness could not be loaded."}
           </p>
         )}
 
         {!snapshot && !error && (
           <p className="flex items-center gap-2 py-3 text-[12.5px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {t("readiness.loading")}
+            {"Checking what is ready…"}
           </p>
         )}
 
@@ -279,12 +275,12 @@ export default function SettingsReadinessPanel({
                 here and in its own group reads as a summary rather than as
                 the same line printed twice. */}
             <h3 className="pt-3 pb-1 text-[12px] font-medium text-[var(--muted-foreground)]">
-              {t("readiness.attention.title")}
+              {"Needs attention"}
             </h3>
             {attention.length === 0 ? (
               <p className="flex items-center gap-2 border-t border-[var(--border)]/50 py-2.5 text-[12.5px] text-[var(--muted-foreground)]">
                 <Check className="h-3.5 w-3.5 text-emerald-500" />
-                {t("readiness.attention.none")}
+                {"Nothing needs attention."}
               </p>
             ) : (
               <ul className="border-t border-[var(--border)]/50">
@@ -311,7 +307,7 @@ export default function SettingsReadinessPanel({
                         href={item.href}
                         className="inline-flex items-center gap-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                       >
-                        {t("readiness.attention.open")}
+                        {"Open"}
                         <ArrowUpRight className="h-3 w-3" />
                       </Link>
                     )}
@@ -347,7 +343,7 @@ function ReadinessGroup({
   section: string;
   rows: PanelRow[];
 }) {
-  const { t } = useTranslation();
+  
   const prominent = rows.filter(isProminentReadinessRow);
   const folded = rows.filter((row) => !isProminentReadinessRow(row));
   const ready = rows.filter((row) => row.state === "enabled_verified").length;
@@ -360,7 +356,7 @@ function ReadinessGroup({
         </h3>
         {ready > 0 && (
           <span className="text-[11px] text-[var(--muted-foreground)] opacity-70">
-            {t("readiness.group.ready", { n: ready })}
+            {`${ready} ready`}
           </span>
         )}
       </div>
@@ -374,7 +370,7 @@ function ReadinessGroup({
         // way. Native disclosure — no state, no animation, keyboard-operable.
         <details className="group">
           <summary className="cursor-pointer list-none py-2 text-[11.5px] text-[var(--muted-foreground)] transition-colors marker:content-none hover:text-[var(--foreground)]">
-            {t("readiness.group.folded", { n: folded.length })}
+            {`${folded.length} not in use`}
           </summary>
           <ul className="border-t border-[var(--border)]/50 pb-1">
             {folded.map((row) => (
@@ -388,10 +384,10 @@ function ReadinessGroup({
 }
 
 function ReadinessRow({ row }: { row: PanelRow }) {
-  const { t } = useTranslation();
+  
   const severity = readinessRowSeverity(row);
   const detail = row.state === "enabled_verified" ? "" : detailText(t, row.detail_code);
-  const label = t(row.label);
+  const label = (row.label);
 
   return (
     <li className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-[var(--border)]/40 py-2">

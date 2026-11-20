@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Bot, Check, ChevronDown } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useLingerExpand } from "@/hooks/use-linger-expand";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -37,7 +37,7 @@ function ModelOptionRow({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const { t } = useTranslation();
+  
   // Official model ID as the primary label (what gets sent to the API),
   // per design. The user-given nickname and profile live in the tooltip.
   const modelLabel = option.model || option.model_name;
@@ -77,7 +77,7 @@ function ModelOptionRow({
       </span>
       {option.is_active_default && (
         <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Default")}
+          {"Default"}
         </span>
       )}
       <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--muted-foreground)]">
@@ -134,7 +134,7 @@ export default function ModelSelector({
   onChange: (selection: LLMSelection | null) => void;
   onRefresh?: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const {
@@ -171,31 +171,31 @@ export default function ModelSelector({
     linger();
   });
 
-  const defaultLabel = systemDefaultLabel || t("System default");
+  const defaultLabel = systemDefaultLabel || "System default";
   const defaultDetail =
-    systemDefaultDetail || t("Use the active default model from Settings");
+    systemDefaultDetail || "Use the active default model from Settings";
   const canRefresh = error && Boolean(onRefresh);
   const disabled =
     loading ||
     (!canRefresh && (error || (options.length === 0 && !allowSystemDefault)));
   const label = loading
-    ? t("Loading models")
+    ? "Loading models"
     : error
       ? canRefresh
-        ? t("Refresh models")
-        : t("Models unavailable")
+        ? "Refresh models"
+        : "Models unavailable"
       : allowSystemDefault && !selectedSelection
         ? defaultLabel
         : selectedOption?.model ||
           selectedOption?.model_name ||
-          t("Select model");
+          "Select model";
   const menuPlacementClass =
     placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5";
 
   return (
     <div ref={rootRef} className="relative">
       {/* The model name shares the composer selectors' spring and hover delay. */}
-      <Tooltip label={canRefresh ? t("Refresh models") : label} suppressed={open} side="top">
+      <Tooltip label={canRefresh ? "Refresh models" : label} suppressed={open} side="top">
         <button
           type="button"
           disabled={disabled}
@@ -207,7 +207,7 @@ export default function ModelSelector({
             }
             setOpen((current) => !current);
           }}
-          aria-label={canRefresh ? t("Refresh models") : t("Select model")}
+          aria-label={canRefresh ? "Refresh models" : "Select model"}
           aria-expanded={open}
           {...lingerProps}
           className={`inline-flex h-8 shrink-0 items-center rounded-lg px-2 text-[14px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${

@@ -14,7 +14,7 @@ import {
   RefreshCcw,
   Trash2,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import type { NoteBlock } from '@/lib/notes-api'
 import Tooltip from '@/shared/ui/Tooltip'
 import { learningGenerationConfig } from '../../model/learning-kinds'
@@ -99,7 +99,7 @@ function applyTableAction(
 }
 
 export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
-  const { t } = useTranslation()
+  
   const handleRoot = useRef<HTMLDivElement>(null)
   const menu = useExtension(SideMenuExtension)
   const block = useExtensionState(SideMenuExtension, { selector: state => state?.block })
@@ -164,9 +164,9 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
 
   return (
     <div ref={handleRoot} className="dt-note-handle">
-      <Tooltip label={t('Add below · Option-click to add above')}>
+      <Tooltip label={"Add below · Option-click to add above"}>
         <button
-          aria-label={t('Add block')}
+          aria-label={"Add block"}
           onClick={e => {
             const [next] = editor.insertBlocks(
               [{ type: 'paragraph' }],
@@ -180,9 +180,9 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
           <Plus size={16} />
         </button>
       </Tooltip>
-      <Tooltip label={t('Drag or open block menu')}>
+      <Tooltip label={"Drag or open block menu"}>
         <button
-          aria-label={t('Drag or open block menu')}
+          aria-label={"Drag or open block menu"}
           className="dt-note-drag-handle"
           onPointerDown={event => drag.start(event, block.id)}
           onPointerMove={drag.move}
@@ -225,7 +225,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
               }}
             >
               <RefreshCcw size={14} />
-              {t('Regenerate…')}
+              {"Regenerate…"}
             </button>
           )}
           {(['up', 'down'] as const).map(direction => (
@@ -240,7 +240,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
               }}
             >
               {direction === 'up' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
-              {t(direction === 'up' ? 'Move up' : 'Move down')}
+              {(direction === 'up' ? 'Move up' : 'Move down')}
             </button>
           ))}
           {(['nest', 'unnest'] as const).map(action => (
@@ -276,7 +276,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
             }}
           >
             <Copy size={14} />
-            {t('Duplicate')}
+            {"Duplicate"}
           </button>
           <button
             onClick={() => {
@@ -285,7 +285,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
             }}
           >
             <Trash2 size={14} />
-            {t('Delete')}
+            {"Delete"}
           </button>
           {block.type === 'table' &&
             TABLE_ACTIONS.map(action => (
@@ -296,7 +296,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
                   closeMenu()
                 }}
               >
-                {t(action)}
+                {(action)}
               </button>
             ))}
           {block.type === 'codeBlock' && (
@@ -319,7 +319,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
                 closeMenu()
               }}
             >
-              {t('Run code')}
+              {"Run code"}
             </button>
           )}
           {editor.schema.blockSchema[block.type as keyof typeof schema.blockSchema].content ===
@@ -332,7 +332,7 @@ export default function NoteEditorHandles({ editor }: { editor: NotesEditor }) {
                   closeMenu()
                 }}
               >
-                {t(label)}
+                {(label)}
               </button>
             ))}
         </div>

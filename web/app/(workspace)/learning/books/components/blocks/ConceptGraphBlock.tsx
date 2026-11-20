@@ -2,7 +2,7 @@
 
 import Link from "@/shared/router/link";
 import { Compass } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import { renderConceptGraphMermaid } from "@/lib/concept-graph";
@@ -60,7 +60,7 @@ export default function ConceptGraphBlock({
   currentPageId: _currentPageId,
   language: _language,
 }: ConceptGraphBlockProps) {
-  const { t } = useTranslation();
+  
   const code =
     (block.payload?.code as
       | { language?: string; content?: string }
@@ -87,20 +87,8 @@ export default function ConceptGraphBlock({
           <Compass className="h-3.5 w-3.5" />
           <span>
             {isChapterMap
-              ? t(
-                  "Chapter map · {{chapters}} chapters · {{dependencies}} dependencies",
-                  {
-                    chapters: chapterNodes.length,
-                    dependencies: edgeCount,
-                  },
-                )
-              : t(
-                  "Concept map · {{concepts}} concepts · {{relations}} relations",
-                  {
-                    concepts: nodeCount,
-                    relations: edgeCount,
-                  },
-                )}
+              ? `Chapter map · ${chapterNodes.length} chapters · ${edgeCount} dependencies`
+              : `Concept map · ${nodeCount} concepts · ${edgeCount} relations`}
           </span>
         </header>
         <div className="max-h-[60vh] overflow-auto">
@@ -110,12 +98,12 @@ export default function ConceptGraphBlock({
 
       <aside className="rounded-2xl bg-[rgb(var(--dt-ink,55_53_47)/0.028)] p-3">
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t("Chapter index")}
+          {"Chapter index"}
         </h3>
         <ol className="space-y-1.5">
           {index.chapters.length === 0 && (
             <li className="text-xs italic text-[var(--muted-foreground)]">
-              {t("(No chapters yet)")}
+              {"(No chapters yet)"}
             </li>
           )}
           {index.chapters.map((chapter, idx) => {

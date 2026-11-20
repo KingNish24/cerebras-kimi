@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
@@ -36,7 +36,7 @@ interface MemorySettingsDTO {
 }
 
 export default function MemorySettingsPage() {
-  const { t } = useTranslation();
+  
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function MemorySettingsPage() {
   if (error)
     return (
       <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-        {t("Failed to load settings.")} {error}
+        {"Failed to load settings."} {error}
       </p>
     );
 
@@ -126,28 +126,24 @@ export default function MemorySettingsPage() {
   return (
     <div data-tour="tour-memory">
       <SettingsPageHeader
-        title={t("Memory")}
-        description={t(
-          "Tune the chunk-based consolidator: how many LLM rounds per Update / Audit / Dedup, how aggressively to chunk, and how strictly to validate references.",
-        )}
+        title={"Memory"}
+        description={"Tune the chunk-based consolidator: how many LLM rounds per Update / Audit / Dedup, how aggressively to chunk, and how strictly to validate references."}
       />
       <SettingSection
-        title={t("Update mode")}
-        description={t(
-          "Default LLM rounds for chunk-based incremental fact extraction. Per-doc overrides live in the workbench.",
-        )}
+        title={"Update mode"}
+        description={"Default LLM rounds for chunk-based incremental fact extraction. Per-doc overrides live in the workbench."}
       >
         <NumberRow
-          label={t("L2 budget (per surface)")}
-          help={t("Maximum chunks the chunker emits for an L2 update.")}
+          label={"L2 budget (per surface)"}
+          help={"Maximum chunks the chunker emits for an L2 update."}
           value={settings.update.l2_budget}
           onChange={(n) => patch("update", { l2_budget: n })}
           min={1}
           max={200}
         />
         <NumberRow
-          label={t("L3 budget (per slot)")}
-          help={t("Maximum chunks for an L3 update across the 7 L2 docs.")}
+          label={"L3 budget (per slot)"}
+          help={"Maximum chunks for an L3 update across the 7 L2 docs."}
           value={settings.update.l3_budget}
           onChange={(n) => patch("update", { l3_budget: n })}
           min={1}
@@ -156,20 +152,18 @@ export default function MemorySettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Audit mode")}
-        description={t(
-          "Default LLM rounds for line-level edits against raw evidence.",
-        )}
+        title={"Audit mode"}
+        description={"Default LLM rounds for line-level edits against raw evidence."}
       >
         <NumberRow
-          label={t("L2 budget (per surface)")}
+          label={"L2 budget (per surface)"}
           value={settings.audit.l2_budget}
           onChange={(n) => patch("audit", { l2_budget: n })}
           min={1}
           max={200}
         />
         <NumberRow
-          label={t("L3 budget (per slot)")}
+          label={"L3 budget (per slot)"}
           value={settings.audit.l3_budget}
           onChange={(n) => patch("audit", { l3_budget: n })}
           min={1}
@@ -178,55 +172,51 @@ export default function MemorySettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Dedup")}
-        description={t(
-          "Iterative dedup over the full doc. Stops early when an iteration emits zero edits.",
-        )}
+        title={"Dedup"}
+        description={"Iterative dedup over the full doc. Stops early when an iteration emits zero edits."}
       >
         <NumberRow
-          label={t("Iterations")}
+          label={"Iterations"}
           value={settings.dedup.iterations}
           onChange={(n) => patch("dedup", { iterations: n })}
           min={1}
           max={20}
         />
         <ToggleRow
-          label={t("Run dedup automatically after Update")}
+          label={"Run dedup automatically after Update"}
           value={settings.dedup.auto_after_update}
           onChange={(v) => patch("dedup", { auto_after_update: v })}
         />
       </SettingSection>
 
       <SettingSection
-        title={t("Merge footnotes")}
-        description={t(
-          "No-LLM consolidation: collapse duplicate ref rows into one footnote each, then renumber. Idempotent, safe to run any time.",
-        )}
+        title={"Merge footnotes"}
+        description={"No-LLM consolidation: collapse duplicate ref rows into one footnote each, then renumber. Idempotent, safe to run any time."}
       >
         <ToggleRow
-          label={t("Merge automatically after Update")}
+          label={"Merge automatically after Update"}
           value={settings.merge.auto_after_update}
           onChange={(v) => patch("merge", { auto_after_update: v })}
         />
         <ToggleRow
-          label={t("Merge automatically after Audit")}
+          label={"Merge automatically after Audit"}
           value={settings.merge.auto_after_audit}
           onChange={(v) => patch("merge", { auto_after_audit: v })}
         />
         <ToggleRow
-          label={t("Merge automatically after Dedup")}
+          label={"Merge automatically after Dedup"}
           value={settings.merge.auto_after_dedup}
           onChange={(v) => patch("merge", { auto_after_dedup: v })}
         />
       </SettingSection>
 
       <SettingSection
-        title={t("Chunking")}
-        description={t("Lower-level knobs that shape how content is split.")}
+        title={"Chunking"}
+        description={"Lower-level knobs that shape how content is split."}
       >
         <NumberRow
-          label={t("Overlap ratio")}
-          help={t("Fraction of chunk size carried into the next chunk. 0–0.5.")}
+          label={"Overlap ratio"}
+          help={"Fraction of chunk size carried into the next chunk. 0–0.5."}
           value={settings.chunking.overlap_ratio}
           onChange={(n) => patch("chunking", { overlap_ratio: n })}
           min={0}
@@ -235,20 +225,20 @@ export default function MemorySettingsPage() {
           isFloat
         />
         <SelectRow
-          label={t("Boundary")}
-          help={t("Where the chunker prefers to cut.")}
+          label={"Boundary"}
+          help={"Where the chunker prefers to cut."}
           value={settings.chunking.boundary}
           options={[
-            { value: "paragraph", label: t("Paragraph") },
-            { value: "sentence", label: t("Sentence") },
+            { value: "paragraph", label: "Paragraph" },
+            { value: "sentence", label: "Sentence" },
           ]}
           onChange={(v) =>
             patch("chunking", { boundary: v as "paragraph" | "sentence" })
           }
         />
         <NumberRow
-          label={t("Min chunk chars")}
-          help={t("Floor for individual chunk size.")}
+          label={"Min chunk chars"}
+          help={"Floor for individual chunk size."}
           value={settings.chunking.min_chunk_chars}
           onChange={(n) => patch("chunking", { min_chunk_chars: n })}
           min={200}
@@ -256,8 +246,8 @@ export default function MemorySettingsPage() {
           step={100}
         />
         <NumberRow
-          label={t("Max chunk chars")}
-          help={t("Ceiling for individual chunk size.")}
+          label={"Max chunk chars"}
+          help={"Ceiling for individual chunk size."}
           value={settings.chunking.max_chunk_chars}
           onChange={(n) => patch("chunking", { max_chunk_chars: n })}
           min={200}
@@ -267,22 +257,18 @@ export default function MemorySettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("References")}
-        description={t(
-          "How strictly facts must cite the chunk they were extracted from.",
-        )}
+        title={"References"}
+        description={"How strictly facts must cite the chunk they were extracted from."}
       >
         <ToggleRow
-          label={t("Require ref on every fact")}
-          help={t("Drops facts that come back without a ref.")}
+          label={"Require ref on every fact"}
+          help={"Drops facts that come back without a ref."}
           value={settings.reference.enforce_required}
           onChange={(v) => patch("reference", { enforce_required: v })}
         />
         <ToggleRow
-          label={t("Drop invalid refs (vs reject the whole fact)")}
-          help={t(
-            "On: keep the fact, drop only out-of-pool refs. Off: any bad ref rejects the fact.",
-          )}
+          label={"Drop invalid refs (vs reject the whole fact)"}
+          help={"On: keep the fact, drop only out-of-pool refs. Off: any bad ref rejects the fact."}
           value={settings.reference.drop_invalid_refs}
           onChange={(v) => patch("reference", { drop_invalid_refs: v })}
         />

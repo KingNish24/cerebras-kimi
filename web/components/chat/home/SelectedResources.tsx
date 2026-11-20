@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, m as motion, useReducedMotion } from "framer-motion";
 import { Pin, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useResourceReuse, ResourceReuseControl } from "./ResourceReuse";
 import type { ContextTreeItem } from "./ContextReferenceTree";
 import type { ResourceKind } from "@/lib/resource-reuse";
@@ -26,7 +26,7 @@ export default function SelectedResources({
 }: {
   items: ContextTreeItem[];
 }) {
-  const { t } = useTranslation();
+  
   const reuse = useResourceReuse();
   const reduced = useReducedMotion();
   const [expanded, setExpanded] = useState(false);
@@ -34,7 +34,7 @@ export default function SelectedResources({
   if (!items.length) return null;
   const visible = expanded ? items : items.slice(0, 4);
   return (
-    <div className="px-3 pt-2.5 pb-1" aria-label={t("Selected resources")}>
+    <div className="px-3 pt-2.5 pb-1" aria-label={"Selected resources"}>
       <div className="flex flex-wrap gap-1.5">
         <AnimatePresence initial={false}>
           {visible.map((item) => {
@@ -71,24 +71,24 @@ export default function SelectedResources({
                   )}
                   <span className="truncate">{item.label}</span>
                 </button>
-                <Tooltip label={t(repeat ? "Every turn" : "This turn only")} side="top">
+                <Tooltip label={(repeat ? "Every turn" : "This turn only")} side="top">
                   <span
                     role="img"
-                    aria-label={t(repeat ? "Every turn" : "This turn only")}
+                    aria-label={(repeat ? "Every turn" : "This turn only")}
                     className="shrink-0 text-[var(--muted-foreground)]"
                   >
                     {repeat ? (
                       <Pin size={11} aria-hidden="true" />
                     ) : (
-                      <span className="text-[10px]">{t("This turn only")}</span>
+                      <span className="text-[10px]">{"This turn only"}</span>
                     )}
                   </span>
                 </Tooltip>
                 {item.onRemove && (
-                  <Tooltip label={`${t("Remove")} ${item.label}`} side="top">
+                  <Tooltip label={`${"Remove"} ${item.label}`} side="top">
                     <button
                       type="button"
-                      aria-label={`${t("Remove")} ${item.label}`}
+                      aria-label={`${"Remove"} ${item.label}`}
                       onClick={item.onRemove}
                       className="rounded p-0.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
@@ -106,7 +106,7 @@ export default function SelectedResources({
             onClick={() => setExpanded(!expanded)}
             className="rounded-lg px-2 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {expanded ? t("Collapse") : `+${items.length - 4}`}
+            {expanded ? "Collapse" : `+${items.length - 4}`}
           </button>
         )}
         {items.some((item) => item.key.startsWith("file-")) && (
@@ -115,7 +115,7 @@ export default function SelectedResources({
             onClick={() => setEditFiles(!editFiles)}
             className="rounded-lg px-2 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Attachment options")}
+            {"Attachment options"}
           </button>
         )}
       </div>

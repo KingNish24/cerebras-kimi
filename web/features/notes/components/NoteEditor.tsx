@@ -11,7 +11,7 @@ import {
   useCreateBlockNote,
 } from '@blocknote/react'
 import '@blocknote/core/style.css'
-import { useTranslation } from 'react-i18next'
+
 import type { NoteBlock } from '@/lib/notes-api'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { noteMediaAccept } from '../model/media'
@@ -49,7 +49,7 @@ export default function NoteEditor({
   onFocusBlock,
   onRefreshSuggestions,
 }: NoteEditorProps) {
-  const { t, i18n } = useTranslation()
+  
 
   const editor = useCreateBlockNote(
     {
@@ -57,12 +57,12 @@ export default function NoteEditor({
       tables: { headers: true },
       extensions: [noteInputRules],
       dictionary: (() => {
-        const base = i18n.language.startsWith('zh') ? zh : en
+        const base = "en".startsWith('zh') ? zh : en
         return {
           ...base,
           placeholders: {
             ...base.placeholders,
-            default: t('Write, press / to insert, or Space to ask Dito'),
+            default: "Write, press / to insert, or Space to ask Dito",
           },
         }
       })(),
@@ -82,7 +82,7 @@ export default function NoteEditor({
         })
         if (!res.ok) {
           const error = await res.json().catch(() => ({}))
-          throw new Error(t(error.detail || 'Upload failed'))
+          throw new Error((error.detail || 'Upload failed'))
         }
         return (await res.json()).url as string
       },
@@ -270,7 +270,7 @@ export default function NoteEditor({
                 ? pageItems(query)
                 : [
                     {
-                      title: t('Reference a source'),
+                      title: "Reference a source",
                       preview: 'source' as const,
                       onItemClick: () =>
                         container.current?.dispatchEvent(
@@ -278,7 +278,7 @@ export default function NoteEditor({
                         ),
                     },
                     {
-                      title: t('Insert favorite'),
+                      title: "Insert favorite",
                       preview: 'favorite' as const,
                       onItemClick: () =>
                         container.current?.dispatchEvent(

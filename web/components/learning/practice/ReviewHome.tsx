@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from '@/shared/router/link'
-import { useTranslation } from 'react-i18next'
+
 import { ArrowRight, Check, ChevronDown, FileUp, Loader2, Library } from 'lucide-react'
 import {
   getPracticeQueue,
@@ -17,7 +17,7 @@ import { PracticeImport } from './PracticeImport'
 import { PracticeInsights } from './PracticeInsights'
 
 export function ReviewHome() {
-  const { t } = useTranslation()
+  
   const [summary, setSummary] = useState<PracticeSummary | null>(null)
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
@@ -62,7 +62,7 @@ export function ReviewHome() {
           }))
         )
       else {
-        setNotice(t('You are caught up. Come back when your next reviews are due.'))
+        setNotice("You are caught up. Come back when your next reviews are due.")
         void refresh()
       }
     } catch (err) {
@@ -78,8 +78,8 @@ export function ReviewHome() {
   }
   return (
     <LearningShell
-      title={t('Practice')}
-      subtitle={t('A little recall today. Remember more tomorrow.')}
+      title={"Practice"}
+      subtitle={"A little recall today. Remember more tomorrow."}
       action={
         !session && (
           <button
@@ -88,7 +88,7 @@ export function ReviewHome() {
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm hover:bg-muted"
           >
             <FileUp size={15} />
-            {t('Import questions')}
+            {"Import questions"}
           </button>
         )
       }
@@ -124,7 +124,7 @@ export function ReviewHome() {
           >
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-4">
               <h2 id="review-today" className="text-sm font-semibold">
-                {t("Today's review")}
+                {"Today's review"}
               </h2>
             </div>
             <div className="flex flex-col justify-between gap-6 px-6 py-8 sm:flex-row sm:items-center sm:px-8">
@@ -133,12 +133,10 @@ export function ReviewHome() {
                   <span className="text-5xl font-semibold tracking-tight tabular-nums">
                     {summary?.due ?? '—'}
                   </span>
-                  <span className="text-sm text-muted-foreground">{t('Ready to review')}</span>
+                  <span className="text-sm text-muted-foreground">{"Ready to review"}</span>
                 </div>
                 <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-                  {t(
-                    'Mastered questions leave this round and return when your next review is due.'
-                  )}
+                  {"Mastered questions leave this round and return when your next review is due."}
                 </p>
               </div>
               <button
@@ -152,7 +150,7 @@ export function ReviewHome() {
                 ) : (
                   <ArrowRight size={16} />
                 )}
-                {t("Start today's review")}
+                {"Start today's review"}
               </button>
             </div>
             <div className="grid grid-cols-3 divide-x divide-border border-t border-border bg-muted/20 px-2 py-4">
@@ -163,25 +161,25 @@ export function ReviewHome() {
               ].map(([label, count]) => (
                 <div key={String(label)} className="px-4 text-center">
                   <span className="block text-lg font-medium tabular-nums">{count ?? '—'}</span>
-                  <span className="text-xs text-muted-foreground">{t(String(label))}</span>
+                  <span className="text-xs text-muted-foreground">{(String(label))}</span>
                 </div>
               ))}
             </div>
           </section>
           <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
-            <p>{t('Recall first, then check. Forgotten questions come back in this round.')}</p>
+            <p>{"Recall first, then check. Forgotten questions come back in this round."}</p>
             <Link
               href="/space/questions"
               className="inline-flex items-center gap-1.5 text-foreground hover:underline"
             >
               <Library size={14} />
-              {t('Manage question bank')}
+              {"Manage question bank"}
               <ArrowRight size={13} />
             </Link>
           </div>
           <details className="group rounded-xl border border-border">
             <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-medium">
-              {t('Practice analytics')}
+              {"Practice analytics"}
               <ChevronDown size={16} className="transition group-open:rotate-180" />
             </summary>
             <div className="px-4 pb-4">

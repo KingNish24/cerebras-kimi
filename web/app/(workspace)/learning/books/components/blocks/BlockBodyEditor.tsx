@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 export interface BlockBodyEditorProps {
   initialValue: string;
@@ -22,7 +22,7 @@ export default function BlockBodyEditor({
   onSave,
   onCancel,
 }: BlockBodyEditorProps) {
-  const { t } = useTranslation();
+  
   const [draft, setDraft] = useState(initialValue);
   const [saving, setSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -69,7 +69,7 @@ export default function BlockBodyEditor({
       />
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] text-[var(--muted-foreground)]">
-          {t("Markdown supported. ⌘/Ctrl + Enter to save, Esc to cancel.")}
+          {"Markdown supported. ⌘/Ctrl + Enter to save, Esc to cancel."}
         </span>
         <div className="flex items-center gap-1.5">
           <button
@@ -79,7 +79,7 @@ export default function BlockBodyEditor({
             className="inline-flex items-center gap-1 rounded-md bg-[rgb(var(--dt-ink,55_53_47)/0.05)] px-2 py-1 transition-colors hover:bg-[rgb(var(--dt-ink,55_53_47)/0.085)] text-[11px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
             <X className="h-3 w-3" />
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -92,7 +92,7 @@ export default function BlockBodyEditor({
             ) : (
               <Check className="h-3 w-3" />
             )}
-            {t("Save")}
+            {"Save"}
           </button>
         </div>
       </div>

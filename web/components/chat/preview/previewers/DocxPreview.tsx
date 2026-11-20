@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useBinarySource } from "./useBinarySource";
 
 const MIN_FIT_SCALE = 0.5;
@@ -39,7 +39,7 @@ function fitRenderedDocx(viewport: HTMLElement, host: HTMLElement) {
  * paginate flowing text by page height like a word processor.
  */
 export default function DocxPreview({ url }: { url: string }) {
-  const { t } = useTranslation();
+  
   const src = useBinarySource(url);
   const viewportRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -114,14 +114,14 @@ export default function DocxPreview({ url }: { url: string }) {
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <div className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 size={14} className="animate-spin" />
-            <span>{t("Loading preview…")}</span>
+            <span>{"Loading preview…"}</span>
           </div>
         </div>
       )}
       {failed ? (
         <div className="flex h-full flex-col items-center justify-center gap-2 px-8 text-center text-[12px] text-[var(--muted-foreground)]">
           <AlertCircle size={18} strokeWidth={1.7} className="opacity-70" />
-          <p>{t("Couldn't render this document — use Download to open it.")}</p>
+          <p>{"Couldn't render this document — use Download to open it."}</p>
         </div>
       ) : (
         // docx-preview injects its own page-shaped layout (white pages on a

@@ -3,7 +3,7 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { LogOut } from "lucide-react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { logout } from "@/lib/auth";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 
@@ -13,7 +13,7 @@ interface LogoutButtonProps {
 
 export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const { enabled } = useAuthStatus();
 
   if (!enabled) return null;
@@ -25,11 +25,11 @@ export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
 
   if (collapsed) {
     return (
-      <Tooltip label={t("Sign out")} side="top">
+      <Tooltip label={"Sign out"} side="top">
         <button
           onClick={handleLogout}
           className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)]/50 hover:text-red-500"
-          aria-label={t("Sign out")}
+          aria-label={"Sign out"}
         >
           <LogOut size={16} strokeWidth={1.5} />
         </button>
@@ -43,7 +43,7 @@ export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
       className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)]/50 hover:text-red-500"
     >
       <LogOut size={16} strokeWidth={1.5} />
-      <span>{t("Sign out")}</span>
+      <span>{"Sign out"}</span>
     </button>
   );
 }

@@ -20,7 +20,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type {
   SessionOrganizationPatch,
@@ -122,7 +122,7 @@ export function SessionActionsMenuItems({
   /** Caller-specific actions, just above delete. */
   footer?: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const archived = Boolean(session.preferences?.archived);
   const pinned = Boolean(session.preferences?.pinned);
   // Same reading as ``sessionWorkspaceId``: the store a row was read from
@@ -141,17 +141,17 @@ export function SessionActionsMenuItems({
     <>
       <SessionMenuItem
         icon={renaming ? Check : Pencil}
-        label={t("Rename chat")}
+        label={"Rename chat"}
         onClick={act(onRename)}
       />
       <SessionMenuItem
         icon={pinned ? PinOff : Pin}
-        label={pinned ? t("Unpin") : t("Pin")}
+        label={pinned ? "Unpin" : "Pin"}
         onClick={act(() => onOrganize({ pinned: !pinned }))}
       />
       <SessionMenuItem
         icon={archived ? ArchiveRestore : Archive}
-        label={archived ? t("Restore from archive") : t("Archive")}
+        label={archived ? "Restore from archive" : "Archive"}
         onClick={act(() => onOrganize({ archived: !archived }))}
       />
       {extra}
@@ -164,10 +164,10 @@ export function SessionActionsMenuItems({
       ) ? (
         <>
           <SessionMenuDivider />
-          <SessionMenuCaption>{t("Move to workspace")}</SessionMenuCaption>
+          <SessionMenuCaption>{"Move to workspace"}</SessionMenuCaption>
           <SessionMenuItem
             icon={FolderOpen}
-            label={t("General workspace")}
+            label={"General workspace"}
             disabled={moving || running}
             checked={!workspaceId}
             onClick={act(() => onMoveWorkspace(null))}
@@ -202,7 +202,7 @@ export function SessionActionsMenuItems({
       <SessionMenuDivider />
       <SessionMenuItem
         icon={Trash2}
-        label={t("Delete chat")}
+        label={"Delete chat"}
         danger
         onClick={act(onDelete)}
       />

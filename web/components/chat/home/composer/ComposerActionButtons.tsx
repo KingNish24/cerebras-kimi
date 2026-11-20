@@ -1,5 +1,5 @@
 import { ArrowUp, Loader2, Mic, Square } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { LLMSelection } from "@/features/chat/model/protocol";
 import type { LLMOption } from "@/lib/llm-options";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -62,7 +62,7 @@ export function ComposerActionButtons({
   sendLabel,
   onSendButtonClick,
 }: ComposerActionButtonsProps) {
-  const { t } = useTranslation();
+  
 
   return (
     <div className={styles.actions}>
@@ -92,8 +92,8 @@ export function ComposerActionButtons({
         <Tooltip
           label={
             recorderState === "recording"
-              ? t("Stop recording")
-              : t("Record voice")
+              ? "Stop recording"
+              : "Record voice"
           }
           description={recorderError || undefined}
           side="top"
@@ -109,8 +109,8 @@ export function ComposerActionButtons({
             }`}
             aria-label={
               recorderState === "recording"
-                ? t("Stop recording")
-                : t("Record voice")
+                ? "Stop recording"
+                : "Record voice"
             }
           >
             {recorderState === "recording" && (
@@ -133,11 +133,11 @@ export function ComposerActionButtons({
           ring moves to the perimeter, where it can spin without
           fighting the square for the same space. */}
       {queuing && hasIntent ? (
-        <Tooltip label={t("Stop generating")} side="top">
+        <Tooltip label={"Stop generating"} side="top">
           <button
             type="button"
             onClick={onCancelStreaming}
-            aria-label={t("Stop generating")}
+            aria-label={"Stop generating"}
             className="relative ml-1 inline-grid h-8 w-8 shrink-0 place-items-center rounded-full text-[var(--muted-foreground)] ring-1 ring-inset ring-[var(--border)] transition-colors hover:text-[var(--foreground)] active:scale-95"
           >
             <span className="pointer-events-none absolute -inset-[3px] rounded-full border-2 border-[color-mix(in_srgb,var(--primary)_15%,transparent)] border-t-[var(--primary)] animate-spin" />

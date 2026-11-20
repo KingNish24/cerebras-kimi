@@ -1,7 +1,7 @@
 "use client";
 
 import type { AnnotationItem, NormalisedRect } from "@/lib/reading-api";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 /** Ink for each palette colour, tuned to stay readable over black-on-white text. */
@@ -43,7 +43,7 @@ export function AnnotationLayer({
   flashRects,
   onAnnotationClick,
 }: AnnotationLayerProps) {
-  const { t } = useTranslation();
+  
   return (
     <div className="pointer-events-none absolute inset-0">
       {annotations.map((annotation) =>
@@ -55,13 +55,7 @@ export function AnnotationLayer({
           const label =
             annotation.note ||
             annotation.quote ||
-            t(
-              annotation.kind === "citation"
-                ? "Citation"
-                : isUnderline
-                  ? "Underline"
-                  : "Highlight",
-            );
+            (annotation.kind === "citation" ? "Citation" : isUnderline ? "Underline" : "Highlight");
           return (
             <span
               key={`${annotation.annotation_id}-${index}`}

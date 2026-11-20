@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type {
   PartnerGroupMember,
@@ -43,7 +43,7 @@ interface RoundProps {
  */
 export default function GroupRound(props: RoundProps) {
   const { round, progress, members, onSummarize } = props;
-  const { t } = useTranslation();
+  
 
   if (round.followup) return <FollowupRound {...props} />;
 
@@ -76,8 +76,8 @@ export default function GroupRound(props: RoundProps) {
         <div className="flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
           <span>
             {progress.clash
-              ? t("Clash round · {{done}} of {{total}}", progress)
-              : t("{{done}} of {{total}} answered", progress)}
+              ? `Clash round · {{done}} of {{total}}`
+              : `{{done}} of {{total}} answered`}
           </span>
           <span className="h-px flex-1 bg-[var(--border)]" />
         </div>
@@ -97,7 +97,7 @@ export default function GroupRound(props: RoundProps) {
       {round.stopped ? (
         <div className="flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
           <span className="h-px flex-1 bg-[var(--border)]" />
-          <span>{t("You stopped this round")}</span>
+          <span>{"You stopped this round"}</span>
           <span className="h-px flex-1 bg-[var(--border)]" />
         </div>
       ) : null}
@@ -113,7 +113,7 @@ export default function GroupRound(props: RoundProps) {
  */
 function FollowupRound(props: RoundProps) {
   const { round, members } = props;
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(true);
 
   const invocation = round.seats.find((seat) => seat.message?.invocation)
@@ -145,8 +145,8 @@ function FollowupRound(props: RoundProps) {
         />
         <span className="truncate">
           {requester && target
-            ? t("{{requester}} asked {{target}}", { requester, target })
-            : t("Follow-up discussion")}
+            ? `${requester} asked ${target}`
+            : "Follow-up discussion"}
         </span>
         <span className="h-px flex-1 bg-[var(--border)]" />
       </button>

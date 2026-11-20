@@ -85,7 +85,6 @@ function languageName(target: string, uiLanguage: string): string {
 export function passagePrompts(
   passage: string,
   uiLanguage: string,
-  t: TFunction,
 ): PassagePrompt[] {
   const target = languageName(
     translationTarget(passage, uiLanguage),
@@ -94,22 +93,18 @@ export function passagePrompts(
   return [
     {
       key: "explain",
-      label: t("Explain"),
-      message: t("Explain this passage"),
+      label: "Explain",
+      message: "Explain this passage",
     },
     {
       key: "translate",
-      label: t("Translate"),
-      message: t("Translate this passage into {{language}}", {
-        language: target,
-      }),
+      label: "Translate",
+      message: `Translate this passage into ${target}`,
     },
     {
       key: "guide",
-      label: t("Guide me"),
-      message: t(
-        "Guide me through this passage step by step, without giving the answer away",
-      ),
+      label: "Guide me",
+      message: "Guide me through this passage step by step, without giving the answer away",
     },
   ];
 }

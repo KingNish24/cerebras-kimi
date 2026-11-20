@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "@/shared/router/link";
 import { usePathname } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus, type AuthStatus } from "@/lib/auth";
 import { UserAvatar } from "@/components/UserAvatar";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -14,7 +14,7 @@ interface ProfileLinkProps {
 
 export function ProfileLink({ collapsed = false }: ProfileLinkProps) {
   const pathname = usePathname();
-  const { t } = useTranslation();
+  
   const [status, setStatus] = useState<AuthStatus | null>(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function ProfileLink({ collapsed = false }: ProfileLinkProps) {
 
   if (collapsed) {
     return (
-      <Tooltip label={`${t("My profile")} — ${status.username}`} side="right">
+      <Tooltip label={`${"My profile"} — ${status.username}`} side="right">
         <Link
           href="/profile"
           className={`rounded-lg p-2 transition-colors
@@ -49,7 +49,7 @@ export function ProfileLink({ collapsed = false }: ProfileLinkProps) {
                 ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                 : "text-[var(--muted-foreground)] hover:bg-[var(--background)]/50 hover:text-[var(--foreground)]"
             }`}
-          aria-label={t("My profile")}
+          aria-label={"My profile"}
         >
           {avatar}
         </Link>
@@ -58,7 +58,7 @@ export function ProfileLink({ collapsed = false }: ProfileLinkProps) {
   }
 
   return (
-    <Tooltip label={t("My profile")} as="div" className="w-full" side="right">
+    <Tooltip label={"My profile"} as="div" className="w-full" side="right">
       <Link
         href="/profile"
         className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] transition-colors

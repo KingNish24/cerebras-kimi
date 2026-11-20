@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 import { formatTurnDuration, getTurnDurationSeconds } from "@/lib/trace-timing";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import { ActivityHeader } from "@/components/activity";
@@ -120,7 +120,6 @@ function getResearchTopicIndex(meta: TraceMetadata): number | null {
 
 function getDeepResearchStatusLabel(
   events: StreamEvent[],
-  t: (key: string, opts?: Record<string, unknown>) => string,
   isStreaming: boolean,
 ) {
   if (!isStreaming) return null;
@@ -133,41 +132,41 @@ function getDeepResearchStatusLabel(
     const key = String(meta.research_status_key || "");
 
     if (key === "decompose_target" || event.stage === "decomposing") {
-      return t("Decomposing Target");
+      return "Decomposing Target";
     }
 
     if (key === "research_topic" || event.stage === "researching") {
       const topicIndex = getResearchTopicIndex(meta);
       return topicIndex
-        ? t("Researching Topic #{{n}}", { n: topicIndex })
-        : t("Researching Topic");
+        ? `Researching Topic #${topicIndex}`
+        : "Researching Topic";
     }
 
-    if (key === "report_intro") return t("Reporting Intro");
-    if (key === "report_outline") return t("Reporting Outline");
-    if (key === "report_conclusion") return t("Reporting Conclusion");
+    if (key === "report_intro") return "Reporting Intro";
+    if (key === "report_outline") return "Reporting Outline";
+    if (key === "report_conclusion") return "Reporting Conclusion";
     if (key === "report_section") {
       const sectionIndex = parsePositiveInt(meta.section_index);
       return sectionIndex
-        ? t("Reporting Section #{{n}}", { n: sectionIndex })
-        : t("Reporting Section");
+        ? `Reporting Section #${sectionIndex}`
+        : "Reporting Section";
     }
 
     if (event.stage === "reporting") {
       const label = String(meta.label || "").toLowerCase();
       if (label.includes("intro") || label.includes("引言")) {
-        return t("Reporting Intro");
+        return "Reporting Intro";
       }
       if (label.includes("conclusion") || label.includes("结论")) {
-        return t("Reporting Conclusion");
+        return "Reporting Conclusion";
       }
       if (label.includes("section") || label.includes("章节")) {
         const sectionIndex = parsePositiveInt(meta.section_index);
         return sectionIndex
-          ? t("Reporting Section #{{n}}", { n: sectionIndex })
-          : t("Reporting Section");
+          ? `Reporting Section #${sectionIndex}`
+          : "Reporting Section";
       }
-      return t("Reporting");
+      return "Reporting";
     }
   }
 
@@ -180,7 +179,6 @@ function getDeepResearchStatusLabel(
 // bails as soon as a later (answer-phase) activity is seen.
 function getExploreContextStatusLabel(
   events: StreamEvent[],
-  t: (key: string, opts?: Record<string, unknown>) => string,
   isStreaming: boolean,
 ) {
   if (!isStreaming) return null;
@@ -193,7 +191,7 @@ function getExploreContextStatusLabel(
     // read_source tool calls it fires (stage="context_exploration") — keeps the
     // status on the explore verb, so it doesn't flicker to "Tool Calling…".
     if (kind === "context_exploration" || stage === "context_exploration") {
-      return t("Exploring your context…");
+      return "Exploring your context…";
     }
     // The answer loop has taken over — let the normal mode label win.
     if (
@@ -210,7 +208,6 @@ function getExploreContextStatusLabel(
 
 function getReasoningProgressStatusLabel(
   events: StreamEvent[],
-  t: (key: string, opts?: Record<string, unknown>) => string,
   isStreaming: boolean,
 ) {
   if (!isStreaming) return null;
@@ -218,7 +215,7 @@ function getReasoningProgressStatusLabel(
     const event = events[idx];
     const meta = getTraceMeta(event);
     if (meta.trace_kind === "reasoning_progress") {
-      return t("Still reasoning before acting…");
+      return "Still reasoning before acting…";
     }
     if (
       meta.trace_kind === "call_status" &&
@@ -271,7 +268,7 @@ export function StreamingStatus({
   // icons fighting on one line.
   showMark?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const hasFinalContent = Boolean(content && content.trim().length > 0);
   const [nowSeconds, setNowSeconds] = useState(() => Date.now() / 1000);
   useEffect(() => {
@@ -299,25 +296,25 @@ export function StreamingStatus({
   );
 
   const name = agentName?.trim() || "DeepTutor";
-  let modeLabel = t("{{name}} Reasoning…", { name });
-  if (mode === "tool_using") modeLabel = t("Tool Calling…");
-  else if (mode === "planning") modeLabel = t("{{name}} Planning…", { name });
+  let modeLabel = `${name} Reasoning…`;
+  if (mode === "tool_using") modeLabel = "Tool Calling…";
+  else if (mode === "planning") modeLabel = `${name} Planning…`;
   // ``responding`` remains a useful transport/trace distinction, but it is
   // not a second user-facing phase. Keep the one continuous activity surface
   // the conversation already established instead of adding a competing
   // "Responding…" label beside the composer.
   else if (mode === "responding")
-    modeLabel = t("{{name}} Exploring…", { name });
-  else if (mode === "exploring") modeLabel = t("{{name}} Exploring…", { name });
-  else if (mode === "quizzing") modeLabel = t("{{name}} Quizzing…", { name });
+    modeLabel = `${name} Exploring…`;
+  else if (mode === "exploring") modeLabel = `${name} Exploring…`;
+  else if (mode === "quizzing") modeLabel = `${name} Quizzing…`;
   else if (mode === "reflecting")
-    modeLabel = t("{{name}} Reflecting…", { name });
-  else if (mode === "responded") modeLabel = t("DeepTutor responded.");
+    modeLabel = `${name} Reflecting…`;
+  else if (mode === "responded") modeLabel = "Done";
 
   const label =
-    getExploreContextStatusLabel(events, t, Boolean(isStreaming)) ??
-    getDeepResearchStatusLabel(events, t, Boolean(isStreaming)) ??
-    getReasoningProgressStatusLabel(events, t, Boolean(isStreaming)) ??
+    getExploreContextStatusLabel(events, Boolean(isStreaming)) ??
+    getDeepResearchStatusLabel(events, Boolean(isStreaming)) ??
+    getReasoningProgressStatusLabel(events, Boolean(isStreaming)) ??
     modeLabel;
 
   // Single turn-level clock. Ticks every second while the turn is in
@@ -339,12 +336,12 @@ export function StreamingStatus({
     // answered". DeepTutor's own phase words do not apply to someone else.
     const doing =
       mode === "responded"
-        ? t("trace.answerer.done")
+        ? "answered"
         : mode === "tool_using"
-          ? t("trace.answerer.tools")
+          ? "is using tools…"
           : hasFinalContent
-            ? t("trace.answerer.answering")
-            : t("trace.answerer.thinking");
+            ? "is answering…"
+            : "is thinking…";
     return (
       <ActivityHeader
         orb={MODE_TO_ORB[mode]}

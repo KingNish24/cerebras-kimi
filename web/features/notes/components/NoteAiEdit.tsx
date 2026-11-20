@@ -2,7 +2,7 @@
 
 import { Loader2, Sparkles, Wand2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { AI_EDIT_MODES, streamSelectionEdit, type AiEditMode } from '@/lib/note-ai'
 
 /**
@@ -25,7 +25,7 @@ export default function NoteAiEdit({
   annotating: boolean
   onCancel: () => void
 }) {
-  const { t } = useTranslation()
+  
   const [mode, setMode] = useState<AiEditMode>('rewrite')
   const [instruction, setInstruction] = useState('')
   const [running, setRunning] = useState(false)
@@ -38,7 +38,7 @@ export default function NoteAiEdit({
   const run = async () => {
     if (running) return
     if (mode === 'none' && !instruction.trim()) {
-      setError(t('Describe what to change, or pick Rewrite, Shorten or Expand.'))
+      setError("Describe what to change, or pick Rewrite, Shorten or Expand.")
       return
     }
     setRunning(true)
@@ -55,13 +55,13 @@ export default function NoteAiEdit({
       })
       const text = edited.trim()
       if (!text) {
-        setError(t('The model returned nothing to insert.'))
+        setError("The model returned nothing to insert.")
         return
       }
       onApply(text)
     } catch (err) {
       if (controller.current.signal.aborted) return
-      setError(err instanceof Error ? err.message : t('The edit failed.'))
+      setError(err instanceof Error ? err.message : "The edit failed.")
     } finally {
       setRunning(false)
     }
@@ -71,17 +71,17 @@ export default function NoteAiEdit({
     <div
       className="dt-note-toolbar-panel dt-note-ai-panel"
       role="dialog"
-      aria-label={t('Edit with AI')}
+      aria-label={"Edit with AI"}
       onMouseDown={event => event.stopPropagation()}
     >
       <div className="dt-note-ai-head">
         <span>
           <Wand2 size={14} />
-          {t('Edit with AI')}
+          {"Edit with AI"}
         </span>
         <button
           type="button"
-          aria-label={t('Close')}
+          aria-label={"Close"}
           className="dt-note-ai-close"
           onMouseDown={event => event.preventDefault()}
           onClick={onCancel}
@@ -90,7 +90,7 @@ export default function NoteAiEdit({
         </button>
       </div>
 
-      <div className="dt-note-ai-modes" role="group" aria-label={t('What to do')}>
+      <div className="dt-note-ai-modes" role="group" aria-label={"What to do"}>
         {AI_EDIT_MODES.map(option => (
           <button
             key={option.mode}
@@ -100,7 +100,7 @@ export default function NoteAiEdit({
             onMouseDown={event => event.preventDefault()}
             onClick={() => setMode(option.mode)}
           >
-            {t(option.label)}
+            {(option.label)}
           </button>
         ))}
         <button
@@ -110,17 +110,17 @@ export default function NoteAiEdit({
           onMouseDown={event => event.preventDefault()}
           onClick={() => setMode('none')}
         >
-          {t('Custom')}
+          {"Custom"}
         </button>
       </div>
 
       <input
         className="dt-note-ai-instruction"
-        aria-label={t('How should it change?')}
+        aria-label={"How should it change?"}
         placeholder={
           mode === 'none'
-            ? t('Describe the change, e.g. “explain like I’m new to this”')
-            : t('Optional: add a detail to include')
+            ? "Describe the change, e.g. “explain like I’m new to this”"
+            : "Optional: add a detail to include"
         }
         value={instruction}
         onChange={event => setInstruction(event.target.value)}
@@ -151,7 +151,7 @@ export default function NoteAiEdit({
           onClick={onAnnotate}
         >
           {annotating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
-          {t('Annotate page')}
+          {"Annotate page"}
         </button>
         <button
           type="button"
@@ -161,7 +161,7 @@ export default function NoteAiEdit({
           onClick={() => void run()}
         >
           {running ? <Loader2 size={13} className="animate-spin" /> : <Wand2 size={13} />}
-          {running ? t('Editing…') : t('Suggest edit')}
+          {running ? "Editing…" : "Suggest edit"}
         </button>
       </div>
     </div>

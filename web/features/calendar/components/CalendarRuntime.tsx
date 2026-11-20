@@ -3,7 +3,7 @@
 import { useModules } from '@/hooks/useModules'
 import { browserStorage } from '@/shared/storage'
 import { useEffect, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { notify } from '@/lib/notifications'
 import { recentCronReports } from '@/lib/cron-api'
@@ -13,7 +13,7 @@ import { browserTimeZone, formatTime } from '../model/dates'
 
 /** Reminders work anywhere in the signed-in app while a tab is open. */
 export default function CalendarRuntime({ children }: { children: ReactNode }) {
-  const { t, i18n } = useTranslation()
+  
   const { loading, learningPolicy, enabled: authEnabled, authenticated } = useAuthStatus()
   const { modules } = useModules()
   const enabled =
@@ -59,7 +59,7 @@ export default function CalendarRuntime({ children }: { children: ReactNode }) {
           notify(report.text || report.name, { durationMs: 15000 })
           if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
             try {
-              const notification = new Notification(report.name || t('Reminder'), {
+              const notification = new Notification(report.name || "Reminder", {
                 body: report.text,
                 tag: report.id,
               })
@@ -86,7 +86,7 @@ export default function CalendarRuntime({ children }: { children: ReactNode }) {
       clearInterval(timer)
       window.removeEventListener('focus', focus)
     }
-  }, [enabled, t])
+  }, [enabled])
   useEffect(() => {
     if (!enabled) return
     const controller = new AbortController()
@@ -127,10 +127,10 @@ export default function CalendarRuntime({ children }: { children: ReactNode }) {
               try {
                 browserStorage.writeRaw('local', key, JSON.stringify(seen))
               } catch {}
-              const title = occurrence.title || t('(No title)')
+              const title = occurrence.title || "(No title)"
               const message = occurrence.all_day
                 ? title
-                : `${title} · ${formatTime(new Date(start), i18n.language)}`
+                : `${title} · ${formatTime(new Date(start), "en")}`
               notify(message, { durationMs: 15000 })
               if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
                 try {
@@ -162,6 +162,6 @@ export default function CalendarRuntime({ children }: { children: ReactNode }) {
       clearInterval(timer)
       window.removeEventListener('focus', focus)
     }
-  }, [revision, t, i18n.language, enabled])
+  }, [revision, "en", enabled])
   return children
 }

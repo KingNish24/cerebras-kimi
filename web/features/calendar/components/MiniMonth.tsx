@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import {
   addMonths,
@@ -30,8 +30,8 @@ export function MiniMonth({
   onPick: (day: Date) => void
 }) {
   const narrow = daysBetween(range[0], range[1]) <= 7
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const [shown, setShown] = useState(() => startOfMonth(cursor))
   const [followed, setFollowed] = useState(dateKey(startOfMonth(cursor)))
   // Follow the main view when it leaves the month on display.
@@ -46,20 +46,20 @@ export function MiniMonth({
     <div className="dt-cal-mini">
       <div className="dt-cal-mini-head">
         <span className="dt-cal-mini-title">{formatMonthTitle(shown, locale)}</span>
-        <Tooltip label={t('Previous month')}>
+        <Tooltip label={"Previous month"}>
           <button
             type="button"
-            aria-label={t('Previous month')}
+            aria-label={"Previous month"}
             className="dt-cal-icon-button"
             onClick={() => setShown(month => addMonths(month, -1))}
           >
             <ChevronLeft size={15} strokeWidth={1.8} />
           </button>
         </Tooltip>
-        <Tooltip label={t('Next month')}>
+        <Tooltip label={"Next month"}>
           <button
             type="button"
-            aria-label={t('Next month')}
+            aria-label={"Next month"}
             className="dt-cal-icon-button"
             onClick={() => setShown(month => addMonths(month, 1))}
           >

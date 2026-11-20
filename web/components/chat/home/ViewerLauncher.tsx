@@ -32,7 +32,7 @@ import {
   NotebookPen,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   ACTIVITY_LABEL,
@@ -98,7 +98,7 @@ export default function ViewerLauncher({
   closedTabs,
   onReopenTab,
 }: ViewerLauncherProps) {
-  const { t } = useTranslation();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
@@ -117,13 +117,13 @@ export default function ViewerLauncher({
       <AddressBar onOpenUrl={onOpenUrl} />
 
       <section>
-        <h2 className={ACTIVITY_LABEL}>{t("Tools")}</h2>
+        <h2 className={ACTIVITY_LABEL}>{"Tools"}</h2>
         <div className="grid grid-cols-2 gap-1.5">
           <SideChatTile
             description={
               sideChatAboutConversation
-                ? t("A side chat about this conversation. Nothing asked there is added to it.")
-                : t("A conversation of its own, beside this one.")
+                ? "A side chat about this conversation. Nothing asked there is added to it."
+                : "A conversation of its own, beside this one."
             }
             aboutConversation={sideChatAboutConversation}
             agents={sideChatAgents}
@@ -132,20 +132,20 @@ export default function ViewerLauncher({
           />
           <ToolTile
             icon={NotebookPen}
-            label={t("Markdown note")}
-            description={t("A scratch page kept with this conversation.")}
+            label={"Note"}
+            description={"A scratch page kept with this conversation."}
             onClick={onOpenMarkdownNote}
           />
           <ToolTile
             icon={FileUp}
-            label={t("Open a local file")}
-            description={t("Preview a PDF, image, video, document or code file.")}
+            label={"Open a local file"}
+            description={"Preview a PDF, image, video, document or code file."}
             onClick={() => fileInputRef.current?.click()}
           />
           <ToolTile
             icon={Compass}
-            label={t("GeoGebra board")}
-            description={t("A blank board for drawing figures and graphing functions.")}
+            label={"GeoGebra board"}
+            description={"A blank board for drawing figures and graphing functions."}
             onClick={onOpenGeogebraBoard}
           />
         </div>
@@ -153,7 +153,7 @@ export default function ViewerLauncher({
 
       {hasConversationItems ? (
         <section>
-          <h2 className={ACTIVITY_LABEL}>{t("This conversation")}</h2>
+          <h2 className={ACTIVITY_LABEL}>{"This conversation"}</h2>
           <ul className={`${ACTIVITY_TILE} p-1`}>
             {threads.map((thread) => (
               <li key={thread.id}>
@@ -200,7 +200,7 @@ export default function ViewerLauncher({
                     {tab.label}
                   </span>
                   <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
-                    {t("Recently closed")}
+                    {"Recently closed"}
                   </span>
                 </button>
               </li>
@@ -210,9 +210,7 @@ export default function ViewerLauncher({
       ) : null}
 
       <p className="px-1.5 text-[11.5px] leading-[1.65] text-[var(--muted-foreground)]">
-        {t(
-          "Quiz follow-ups, subagent runs, figures, and the files and links in a reply open here on their own. Select text in a reply to ask Dito, a partner or an agent about just that passage.",
-        )}
+        {"Quiz follow-ups, subagent runs, figures, and the files and links in a reply open here on their own. Select text in a reply to ask Dito, a partner or an agent about just that passage."}
       </p>
 
       <input
@@ -228,7 +226,7 @@ export default function ViewerLauncher({
 }
 
 function AddressBar({ onOpenUrl }: { onOpenUrl: (url: string) => void }) {
-  const { t } = useTranslation();
+  
   const [value, setValue] = useState("");
 
   const submit = () => {
@@ -256,15 +254,15 @@ function AddressBar({ onOpenUrl }: { onOpenUrl: (url: string) => void }) {
         type="text"
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        aria-label={t("Open URL")}
-        placeholder={t("Enter a web address")}
+        aria-label={"Open URL"}
+        placeholder={"Enter a web address"}
         autoFocus
         className="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--foreground)] outline-none placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)]"
       />
       <button
         type="submit"
         disabled={!value.trim()}
-        aria-label={t("Open URL")}
+        aria-label={"Open URL"}
         className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--primary)] text-[var(--primary-foreground)] transition-[opacity,background-color] hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] disabled:bg-transparent disabled:text-[var(--muted-foreground)] disabled:opacity-50"
       >
         <ArrowRight size={13} strokeWidth={2} />
@@ -336,7 +334,7 @@ function SideChatTile({
   shortcut?: Shortcut;
   onOpen: (responder: SideChatResponder) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -360,7 +358,7 @@ function SideChatTile({
         className={`flex min-h-11 w-full min-w-0 items-stretch rounded-xl ${ACTIVITY_TILE}`}
       >
         <Tooltip
-          label={t("Ask Dito")}
+          label={"Ask Dito"}
           description={description}
           shortcut={shortcut}
           as="div"
@@ -377,12 +375,12 @@ function SideChatTile({
               aria-hidden="true"
               className="shrink-0 text-[var(--muted-foreground)]"
             />
-            <span className="min-w-0 flex-1 truncate">{t("Ask Dito")}</span>
+            <span className="min-w-0 flex-1 truncate">{"Ask Dito"}</span>
           </button>
         </Tooltip>
         <button
           type="button"
-          aria-label={t("Ask someone else")}
+          aria-label={"Ask someone else"}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((value) => !value)}

@@ -2,7 +2,7 @@
 
 import { MoreHorizontal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   type WorkspaceMenuHost,
@@ -49,7 +49,7 @@ export function WorkspaceMenu({
   collection: WorkspaceMenuItem[];
   sections: WorkspaceMenuSections;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -63,19 +63,19 @@ export function WorkspaceMenu({
   }, [open]);
 
   const groups: Array<[string, string, WorkspaceMenuItem[] | undefined]> = [
-    ["collection", t("Collection"), collection],
-    ["material", t("Document"), sections.material],
-    ["conversation", t("Conversation"), sections.conversation],
+    ["collection", "Collection", collection],
+    ["material", "Document", sections.material],
+    ["conversation", "Conversation", sections.conversation],
   ];
 
   return (
     <div className="relative">
-      <Tooltip label={t("More")} suppressed={open}>
+      <Tooltip label={"More"} suppressed={open}>
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
           className="flex size-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
-          aria-label={t("More")}
+          aria-label={"More"}
           aria-haspopup="menu"
           aria-expanded={open}
         >
@@ -87,7 +87,7 @@ export function WorkspaceMenu({
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
           <div
             role="menu"
-            aria-label={t("More")}
+            aria-label={"More"}
             className="absolute right-0 top-8 z-40 max-h-[calc(100vh-4rem)] w-64 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)] p-1 text-[12px] shadow-md dark:bg-[var(--popover)]"
           >
             {groups.map(([key, heading, items], index) => {

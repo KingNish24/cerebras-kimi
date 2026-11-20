@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import type {
   IndexingLLMSelection,
   LightRagRoleModel,
@@ -128,7 +128,7 @@ export default function LightRagRoleModelsEditor({
   disabled?: boolean;
   onChange: (value: LightRagRoleModels) => void;
 }) {
-  const { t } = useTranslation();
+  
   const baseOption = options.find(
     (option) =>
       option.profile_id === models?.base.profile_id &&
@@ -157,9 +157,9 @@ export default function LightRagRoleModelsEditor({
         />
         {baseOption && (
           <p className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Currently effective")}: {baseOption.provider_label || baseOption.profile_name} ·{" "}
+            {"Currently effective"}: {baseOption.provider_label || baseOption.profile_name} ·{" "}
             {baseOption.model_name} ·{" "}
-            {models?.base.reasoning_effort || t("Auto")}
+            {models?.base.reasoning_effort || "Auto"}
           </p>
         )}
       </div>
@@ -192,12 +192,12 @@ export default function LightRagRoleModelsEditor({
                 {role.toUpperCase()}
               </legend>
               <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(ROLE_DESCRIPTIONS[role])}
+                {(ROLE_DESCRIPTIONS[role])}
               </p>
               <label className="block text-xs font-medium">
-                {t("Model")}
+                {"Model"}
                 <select
-                  aria-label={`${role.toUpperCase()} ${t("Model")}`}
+                  aria-label={`${role.toUpperCase()} ${"Model"}`}
                   value={selectionKey}
                   className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] p-2"
                   onChange={(event) => {
@@ -228,7 +228,7 @@ export default function LightRagRoleModelsEditor({
                 >
                   {role === "vlm" && (
                     <option value="disabled">
-                      {t("Image analysis disabled")}
+                      {"Image analysis disabled"}
                     </option>
                   )}
                   <option
@@ -237,7 +237,7 @@ export default function LightRagRoleModelsEditor({
                       role === "vlm" && baseOption?.supports_vision !== true
                     }
                   >
-                    {t("Inherit LightRAG base model")} ·{" "}
+                    {"Inherit LightRAG base model"} ·{" "}
                     {options.find(
                       (option) =>
                         option.profile_id === models.base.profile_id &&
@@ -252,7 +252,7 @@ export default function LightRagRoleModelsEditor({
                         option.model_id === value.selection?.model_id,
                     ) && (
                       <option value={selectionKey} disabled>
-                        {t("Unavailable model")} · {value.selection.model_id}
+                        {"Unavailable model"} · {value.selection.model_id}
                       </option>
                     )}
                   {roleOptions.map((option) => (
@@ -303,9 +303,9 @@ export default function LightRagRoleModelsEditor({
               )}
               {effectiveOption && value.mode !== "disabled" && (
                 <p className="text-[11px] text-[var(--muted-foreground)]">
-                  {t("Currently effective")}: {effectiveOption.provider_label || effectiveOption.profile_name} ·{" "}
+                  {"Currently effective"}: {effectiveOption.provider_label || effectiveOption.profile_name} ·{" "}
                   {effectiveOption.model_name} ·{" "}
-                  {effective?.reasoning_effort || t("Auto")}
+                  {effective?.reasoning_effort || "Auto"}
                 </p>
               )}
               {role === "vlm" &&
@@ -317,19 +317,19 @@ export default function LightRagRoleModelsEditor({
                     option.supports_vision,
                 ) && (
                   <p className="text-xs text-red-600">
-                    {t("The selected VLM model does not support image inputs.")}
+                    {"The selected VLM model does not support image inputs."}
                   </p>
                 )}
               {value.mode !== "disabled" && (
                 <details className="rounded-lg border border-[var(--border)] px-3 py-2">
                   <summary className="cursor-pointer text-xs font-medium">
-                    {t("Advanced")}
+                    {"Advanced"}
                   </summary>
                   <div className="mt-3 grid grid-cols-2 gap-3">
                   <label className="text-xs">
-                    {t("Concurrent LLM calls")}
+                    {"Concurrent LLM calls"}
                     <input
-                      aria-label={`${role.toUpperCase()} ${t("Concurrent LLM calls")}`}
+                      aria-label={`${role.toUpperCase()} ${"Concurrent LLM calls"}`}
                       type="number"
                       min={1}
                       max={32}
@@ -341,9 +341,9 @@ export default function LightRagRoleModelsEditor({
                     />
                   </label>
                   <label className="text-xs">
-                    {t("Timeout (seconds)")}
+                    {"Timeout (seconds)"}
                     <input
-                      aria-label={`${role.toUpperCase()} ${t("Timeout (seconds)")}`}
+                      aria-label={`${role.toUpperCase()} ${"Timeout (seconds)"}`}
                       type="number"
                       min={1}
                       max={3600}

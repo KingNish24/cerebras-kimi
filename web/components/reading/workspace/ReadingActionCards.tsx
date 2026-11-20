@@ -9,7 +9,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { ExtensionResult, type QuizHelpContext } from "@/components/reading/ReadingExtensionBar";
 import {
@@ -79,7 +79,7 @@ function ActionCard({
   onRetry: () => void;
   onFollowUp: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const ref = useRef<HTMLElement | null>(null);
   // Quiz answers are saved from inside the card; a failed save belongs to the
   // card it happened in, not to a banner somewhere else on the page.
@@ -104,11 +104,11 @@ function ActionCard({
         <h3 className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[var(--foreground)]">
           {title}
         </h3>
-        <Tooltip label={t("Dismiss")}>
+        <Tooltip label={"Dismiss"}>
           <button
             type="button"
             onClick={onDismiss}
-            aria-label={t("Dismiss")}
+            aria-label={"Dismiss"}
             className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
             <X size={12} />
@@ -125,7 +125,7 @@ function ActionCard({
           <div role="status" className="space-y-2">
             <p className="flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
               <Loader2 size={12} className="animate-spin" />
-              {t("Working on it…")}
+              {"Working on it…"}
             </p>
             <div className="h-2 w-11/12 animate-pulse rounded bg-[var(--muted)]" />
             <div className="h-2 w-8/12 animate-pulse rounded bg-[var(--muted)]" />
@@ -143,7 +143,7 @@ function ActionCard({
             locator={card.locator}
             helpContext={helpContext}
             sessionId={sessionId}
-            closeLabel={t("Dismiss")}
+            closeLabel={"Dismiss"}
             onClose={onDismiss}
             onError={setInnerError}
           />
@@ -157,11 +157,11 @@ function ActionCard({
       {card.status !== "running" ? (
         <footer className="flex items-center gap-1 px-2 pb-1.5 pt-0.5">
           {card.status === "error" ? (
-            <CardButton icon={RotateCcw} label={t("Try again")} onClick={onRetry} />
+            <CardButton icon={RotateCcw} label={"Try again"} onClick={onRetry} />
           ) : null}
           <CardButton
             icon={MessageSquareQuote}
-            label={t("Ask a follow-up")}
+            label={"Ask a follow-up"}
             onClick={onFollowUp}
           />
         </footer>

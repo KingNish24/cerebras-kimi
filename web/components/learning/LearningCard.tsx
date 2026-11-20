@@ -2,7 +2,7 @@
 
 import Link from '@/shared/router/link'
 import type { ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { ProgressRing } from '@/components/space/learning/ProgressRing'
 import { formatRelativeTime } from '@/lib/relative-time'
 
@@ -22,7 +22,7 @@ export function LearningCardContent({
   updatedAt,
   progress,
 }: LearningCardContentProps) {
-  const { i18n } = useTranslation()
+  
   return (
     <>
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--muted)] text-[var(--muted-foreground)]">
@@ -41,7 +41,7 @@ export function LearningCardContent({
             dateTime={new Date(updatedAt * 1000).toISOString()}
             className="text-[11px] text-[var(--muted-foreground)]"
           >
-            {formatRelativeTime(updatedAt, i18n.language)}
+            {formatRelativeTime(updatedAt, "en")}
           </time>
         )}
       </div>

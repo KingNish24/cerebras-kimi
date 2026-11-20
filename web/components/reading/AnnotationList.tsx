@@ -9,7 +9,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import {
   ANNOTATION_SWATCH,
@@ -41,7 +41,7 @@ export function AnnotationList({
   onSelect,
   onDelete,
 }: AnnotationListProps) {
-  const { t } = useTranslation();
+  
   const [view, setView] = useState<"annotations" | "citations">("annotations");
 
   const visibleAnnotations = useMemo(
@@ -68,19 +68,19 @@ export function AnnotationList({
     <div className="flex h-full min-h-0 flex-col">
       <div
         role="tablist"
-        aria-label={t("Saved reading marks")}
+        aria-label={"Saved reading marks"}
         className="grid shrink-0 grid-cols-2 gap-1 border-b border-[var(--border)] p-2"
       >
         <ViewTab
           active={view === "annotations"}
           icon={Highlighter}
-          label={t("Annotations")}
+          label={"Annotations"}
           onClick={() => setView("annotations")}
         />
         <ViewTab
           active={view === "citations"}
           icon={Bookmark}
-          label={t("Citations")}
+          label={"Citations"}
           onClick={() => setView("citations")}
         />
       </div>
@@ -89,16 +89,10 @@ export function AnnotationList({
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <Sparkles size={18} className="text-[color-mix(in_srgb,var(--muted-foreground)_60%,transparent)]" />
           <p className="text-[12px] font-medium text-[var(--foreground)]">
-            {t(
-              view === "citations" ? "No citations yet" : "No annotations yet",
-            )}
+            {(view === "citations" ? "No citations yet" : "No annotations yet")}
           </p>
           <p className="max-w-[220px] text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              view === "citations"
-                ? "Select text in the document to save a citation."
-                : "Select text in the document to highlight it or attach a note.",
-            )}
+            {(view === "citations" ? "Select text in the document to save a citation." : "Select text in the document to highlight it or attach a note.")}
           </p>
         </div>
       ) : (
@@ -106,7 +100,7 @@ export function AnnotationList({
           {groups.map(([locator, rows]) => (
             <section key={locator} className="mb-3 last:mb-1">
               <h4 className="sticky top-0 z-10 mb-1 bg-[color-mix(in_srgb,var(--background)_95%,transparent)] px-1 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--muted-foreground)] backdrop-blur">
-                {t(unitLabel(unit))} {locator}
+                {(unitLabel(unit))} {locator}
               </h4>
               <ul className="space-y-1">
                 {rows.map((annotation) => (
@@ -151,38 +145,38 @@ export function AnnotationList({
                         {annotation.author === "assistant" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--primary)]">
                             <Bot size={9} />
-                            {t("AI")}
+                            {"AI"}
                           </span>
                         )}
                         {annotation.kind === "underline" && (
                           <span className="text-[10px] text-[var(--muted-foreground)]">
-                            {t("Underline")}
+                            {"Underline"}
                           </span>
                         )}
                         {annotation.kind === "citation" && (
                           <span className="inline-flex items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
                             <Bookmark size={9} />
-                            {t("Citation")}
+                            {"Citation"}
                           </span>
                         )}
                         {annotation.resolution === "unresolved" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--destructive)]">
                             <AlertCircle size={9} />
-                            {t("Not found")}
+                            {"Not found"}
                           </span>
                         )}
                         {annotation.resolution === "ambiguous" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--warning,oklch(0.78_0.16_70))_10%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--warning,oklch(0.62_0.16_45))]">
                             <AlertCircle size={9} />
-                            {t("Ambiguous")}
+                            {"Ambiguous"}
                           </span>
                         )}
                       </div>
                       <span className="absolute right-1.5 top-1.5 opacity-0 transition focus-within:opacity-100 group-hover/anno:opacity-100">
-                        <Tooltip label={t("Delete annotation")}>
+                        <Tooltip label={"Delete annotation"}>
                           <button
                             type="button"
-                            aria-label={t("Delete annotation")}
+                            aria-label={"Delete annotation"}
                             onClick={(event) => {
                               event.stopPropagation();
                               onDelete(annotation);

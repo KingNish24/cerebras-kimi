@@ -10,15 +10,12 @@ import type { TFunction } from "i18next";
  */
 export function readingFailureMessage(
   material: { error_code?: string; error_detail?: string },
-  t: TFunction,
 ): string {
   if (material.error_code === "stt_not_configured") {
-    return t(
-      "Audio and video need a speech-to-text model. Choose one in Settings → Voice, then retry.",
-    );
+    return "Audio and video need a speech-to-text model. Choose one in Settings → Voice, then retry.";
   }
   if (material.error_code === "media_source_missing") {
-    return t("The stored file is gone. Upload it again.");
+    return "The stored file is gone. Upload it again.";
   }
   return material.error_detail || "";
 }

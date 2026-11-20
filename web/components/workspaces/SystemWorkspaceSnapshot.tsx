@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import Link from '@/shared/router/link'
 import { RefreshCw } from 'lucide-react'
 import {
@@ -10,7 +10,7 @@ import {
 } from '@/lib/workspaces-api'
 
 export function SystemWorkspaceSnapshot() {
-  const { t, i18n } = useTranslation()
+  
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -35,7 +35,7 @@ export function SystemWorkspaceSnapshot() {
           className="inline-flex items-center gap-1.5 hover:underline disabled:opacity-50"
         >
           <RefreshCw size={13} className={busy ? 'animate-spin' : ''} />
-          {t('View / refresh configuration snapshot')}
+          {"View / refresh configuration snapshot"}
         </button>
       </div>
       {error && (
@@ -46,7 +46,7 @@ export function SystemWorkspaceSnapshot() {
       {snapshot && (
         <div className="mt-4 space-y-3 text-xs">
           <p className="text-[var(--muted-foreground)]">
-            {t('Snapshot updated {{time}}', { time: new Date(snapshot.generated_at).toLocaleString(i18n.language) })}
+            {`Snapshot updated ${new Date(snapshot.generated_at).toLocaleString(i18n.language)}`}
           </p>
           {Object.entries(snapshot.models).map(([service, settings]) => (
             <div key={service} className="rounded-lg bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] p-3">
@@ -61,7 +61,7 @@ export function SystemWorkspaceSnapshot() {
                       {model.name || model.model}
                       {model.id === settings.active_model_id &&
                       profile.id === settings.active_profile_id
-                        ? ` · ${t('Active')}`
+                        ? ` · ${"Active"}`
                         : ''}
                     </span>
                     <span className="text-[var(--muted-foreground)]">
@@ -72,25 +72,25 @@ export function SystemWorkspaceSnapshot() {
               )}
               {settings.profiles.every(profile => !profile.models.length) && (
                 <span className="text-[var(--muted-foreground)]">
-                  {t('No models configured')}
+                  {"No models configured"}
                 </span>
               )}
             </div>
           ))}
           {snapshot.mcp.length > 0 && (
             <div className="rounded-lg bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] p-3">
-              <p className="mb-2 font-medium">{t('MCP')}</p>
+              <p className="mb-2 font-medium">{"MCP"}</p>
               {snapshot.mcp.map((server, index) => (
                 <p key={`${server.name}:${index}`} className="py-1">
                   {server.name} · {server.transport} ·{' '}
-                  {server.enabled ? t('Enabled') : t('Disabled')}
+                  {server.enabled ? "Enabled" : "Disabled"}
                 </p>
               ))}
             </div>
           )}
           {!Object.keys(snapshot.models).length && !snapshot.mcp.length && (
             <p>
-              {t('No models or MCP servers configured yet.')}
+              {"No models or MCP servers configured yet."}
             </p>
           )}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   CheckCircle2,
   ChevronDown,
@@ -29,7 +29,7 @@ function CheckRow({
   label: string;
   detail: string;
 }) {
-  const { t } = useTranslation();
+  
   const Icon = ok ? CheckCircle2 : optional ? CircleSlash : XCircle;
   const tone = ok
     ? "text-emerald-600 dark:text-emerald-400"
@@ -40,15 +40,15 @@ function CheckRow({
     <li className="flex items-start gap-2">
       <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${tone}`} />
       <div className="min-w-0">
-        <span className="text-[12px] text-[var(--foreground)]">{t(label)}</span>
+        <span className="text-[12px] text-[var(--foreground)]">{(label)}</span>
         {optional && (
           <span className="ml-1.5 text-[10px] text-[var(--muted-foreground)]">
-            ({t("optional")})
+            ({"optional"})
           </span>
         )}
         {detail && (
           <div className="text-[11px] leading-snug text-[var(--muted-foreground)]">
-            {t(detail)}
+            {(detail)}
           </div>
         )}
       </div>
@@ -67,7 +67,7 @@ export function EnvRequirements({
   defaultOpen: boolean;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(defaultOpen);
   const [report, setReport] = useState<EnginePreflight | null>(null);
   const [checking, setChecking] = useState(false);
@@ -94,7 +94,7 @@ export function EnvRequirements({
       >
         <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
           <ShieldCheck className="h-3.5 w-3.5" />
-          {t("Requirements & environment")}
+          {"Requirements & environment"}
         </span>
         <ChevronDown
           className={`h-4 w-4 text-[var(--muted-foreground)] transition-transform ${
@@ -106,7 +106,7 @@ export function EnvRequirements({
         <div className="mt-3 space-y-3 rounded-2xl border border-[var(--border)] p-4">
           {prereq && (
             <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-              {t(prereq)}
+              {(prereq)}
             </p>
           )}
           {installHint && <CopyableCommand command={installHint} />}
@@ -122,7 +122,7 @@ export function EnvRequirements({
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              {t("Check environment")}
+              {"Check environment"}
             </button>
             {report && (
               <span
@@ -132,7 +132,7 @@ export function EnvRequirements({
                     : "text-amber-600 dark:text-amber-400"
                 }`}
               >
-                {report.ok ? t("Ready to use") : t("Not ready")}
+                {report.ok ? "Ready to use" : "Not ready"}
               </span>
             )}
           </div>

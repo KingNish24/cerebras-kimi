@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 import { ActivityFold, FoldCaret } from "@/components/activity";
 import AssistantResponse from "@/components/common/AssistantResponse";
 import { LearningText } from "@/components/common/LearningText";
@@ -144,7 +144,7 @@ export function ProcessFold({
   settled: boolean;
   children: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const [userOpen, setUserOpen] = useState<boolean | null>(null);
   const open = userOpen ?? !settled;
   const toolCalls = countProcessToolCalls(segments);
@@ -162,8 +162,8 @@ export function ProcessFold({
         className="group/act flex items-center gap-2 text-left text-[12px] font-medium text-[var(--muted-foreground)]/55 transition-colors hover:text-[var(--foreground)]"
       >
         {toolCalls > 0
-          ? t("{{count}} tool calls", { count: toolCalls })
-          : t("Working notes")}
+          ? `${toolCalls} tool calls`
+          : "Working notes"}
         <FoldCaret open={open} />
       </button>
       <ActivityFold open={open}>
@@ -181,11 +181,11 @@ export function ProcessFold({
  * below was written knowing it.
  */
 export function SentMidTurn({ messages }: { messages: string[] }) {
-  const { t } = useTranslation();
+  
   return (
     <div data-sent-mid-turn="true" className="my-3 flex flex-col items-end gap-1">
       <span className="pr-1 text-[11px] text-[var(--muted-foreground)]">
-        {t("You, while it worked")}
+        {"You, while it worked"}
       </span>
       {messages.map((text, index) => (
         <div

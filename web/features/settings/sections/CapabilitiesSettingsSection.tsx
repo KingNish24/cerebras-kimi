@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
@@ -87,7 +87,7 @@ function isValidCapabilitiesDTO(
 }
 
 export default function CapabilitiesSettingsPage() {
-  const { t } = useTranslation();
+  
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [settings, setSettings] = useState<CapabilitiesSettingsDTO | null>(
@@ -102,19 +102,14 @@ export default function CapabilitiesSettingsPage() {
       const res = await apiFetch(apiUrl(EXTENSION_ENDPOINTS.capabilities));
       if (!res.ok) {
         setLoadError(
-          t(
-            "Failed to load capability settings (HTTP {{status}}). Make sure the backend is running the latest build — the /api/capabilities/settings endpoint was added in this release.",
-            { status: res.status },
-          ),
+          `Failed to load capability settings (HTTP ${res.status}). Make sure the backend is running the latest build — the /api/capabilities/settings endpoint was added in this release.`,
         );
         return;
       }
       const data: unknown = await res.json();
       if (!isValidCapabilitiesDTO(data)) {
         setLoadError(
-          t(
-            "The backend returned an unexpected payload for /api/capabilities/settings. Restart the backend to pick up the latest schema.",
-          ),
+          "The backend returned an unexpected payload for /api/capabilities/settings. Restart the backend to pick up the latest schema.",
         );
         return;
       }
@@ -128,10 +123,10 @@ export default function CapabilitiesSettingsPage() {
       setLoadError(
         err instanceof Error
           ? err.message
-          : t("Failed to load capability settings."),
+          : "Failed to load capability settings.",
       );
     }
-  }, [pendingExtensionPayload, t]);
+  }, [pendingExtensionPayload]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -160,18 +155,16 @@ export default function CapabilitiesSettingsPage() {
     });
     if (!res.ok) {
       throw new Error(
-        t("Failed to save capability settings (HTTP {{status}})", {
-          status: res.status,
-        }),
+        `Failed to save capability settings (HTTP ${res.status})`,
       );
     }
     const data: unknown = await res.json();
     if (!isValidCapabilitiesDTO(data)) {
-      throw new Error(t("Backend returned an unexpected payload after save."));
+      throw new Error("Backend returned an unexpected payload after save.");
     }
     setSettings(data);
     setServerSnapshot(data);
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     registerExtension("capabilities", { dirty, save, payload: settings });
@@ -271,7 +264,7 @@ export default function CapabilitiesSettingsPage() {
       <div className="grid h-[60vh] place-items-center px-6">
         <div className="max-w-xl rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 text-[13px] text-[var(--muted-foreground)]">
           <div className="mb-2 font-medium text-[var(--foreground)]">
-            {t("Couldn't load capability settings")}
+            {"Couldn't load capability settings"}
           </div>
           <div>{loadError}</div>
           <button
@@ -279,7 +272,7 @@ export default function CapabilitiesSettingsPage() {
             onClick={() => void load()}
             className="mt-3 rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-[12px] hover:bg-[var(--muted)]"
           >
-            {t("Retry")}
+            {"Retry"}
           </button>
         </div>
       </div>
@@ -297,19 +290,17 @@ export default function CapabilitiesSettingsPage() {
   return (
     <div data-tour="tour-capabilities">
       <SettingsPageHeader
-        title={t("Capabilities")}
-        description={t("Per-capability LLM parameters and runtime knobs.")}
+        title={"Capabilities"}
+        description={"Per-capability LLM parameters and runtime knobs."}
       />
 
       <SettingSection
-        title={t("Chat")}
-        description={t(
-          "Exploring agent loop followed by a respond stage. Stage budgets cap max_tokens per LLM round.",
-        )}
+        title={"Chat"}
+        description={"Exploring agent loop followed by a respond stage. Stage budgets cap max_tokens per LLM round."}
       >
         <NumberRow
-          label={t("Temperature")}
-          help={t("Sampling temperature shared across every chat stage.")}
+          label={"Temperature"}
+          help={"Sampling temperature shared across every chat stage."}
           value={settings.chat.temperature}
           onChange={(n) => patchChat("temperature", n)}
           min={0}
@@ -318,18 +309,16 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max rounds")}
-          help={t(
-            "Hard cap on exploring-loop LLM rounds per turn. A round without tool calls ends the loop early.",
-          )}
+          label={"Max rounds"}
+          help={"Hard cap on exploring-loop LLM rounds per turn. A round without tool calls ends the loop early."}
           value={settings.chat.max_rounds}
           onChange={(n) => patchChat("max_rounds", n)}
           min={1}
           max={50}
         />
         <NumberRow
-          label={t("Exploring (max tokens)")}
-          help={t("Budget per exploring-loop round (notes + tool calls).")}
+          label={"Exploring (max tokens)"}
+          help={"Budget per exploring-loop round (notes + tool calls)."}
           value={settings.chat.stage_budgets.exploring}
           onChange={(n) => patchStageBudget("exploring", n)}
           min={256}
@@ -337,8 +326,8 @@ export default function CapabilitiesSettingsPage() {
           step={100}
         />
         <NumberRow
-          label={t("Responding (max tokens)")}
-          help={t("Budget for the final user-facing response.")}
+          label={"Responding (max tokens)"}
+          help={"Budget for the final user-facing response."}
           value={settings.chat.stage_budgets.responding}
           onChange={(n) => patchStageBudget("responding", n)}
           min={256}
@@ -348,13 +337,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Solve")}
-        description={t(
-          "Deep solve runs as one agent loop with a plan / finish-step / replan spine.",
-        )}
+        title={"Solve"}
+        description={"Deep solve runs as one agent loop with a plan / finish-step / replan spine."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.solve.temperature}
           onChange={(n) => patchSimple("solve", { temperature: n })}
           min={0}
@@ -363,7 +350,7 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
+          label={"Max tokens"}
           value={settings.solve.max_tokens}
           onChange={(n) => patchSimple("solve", { max_tokens: n })}
           min={256}
@@ -371,20 +358,16 @@ export default function CapabilitiesSettingsPage() {
           step={100}
         />
         <NumberRow
-          label={t("Max rounds")}
-          help={t(
-            "Total LLM-round budget for one solve turn (plan, tool calls and finishing all count).",
-          )}
+          label={"Max rounds"}
+          help={"Total LLM-round budget for one solve turn (plan, tool calls and finishing all count)."}
           value={settings.solve.max_rounds}
           onChange={(n) => patchSolveExtras({ max_rounds: n })}
           min={1}
           max={50}
         />
         <NumberRow
-          label={t("Max replans")}
-          help={t(
-            "How many times the planner may revise the plan within one turn.",
-          )}
+          label={"Max replans"}
+          help={"How many times the planner may revise the plan within one turn."}
           value={settings.solve.max_replans}
           onChange={(n) => patchSolveExtras({ max_replans: n })}
           min={0}
@@ -393,11 +376,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Question")}
-        description={t("Deep question (quiz) generation pipeline.")}
+        title={"Question"}
+        description={"Deep question (quiz) generation pipeline."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.question.temperature}
           onChange={(n) => patchQuestion({ temperature: n })}
           min={0}
@@ -406,7 +389,7 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
+          label={"Max tokens"}
           value={settings.question.max_tokens}
           onChange={(n) => patchQuestion({ max_tokens: n })}
           min={256}
@@ -414,21 +397,21 @@ export default function CapabilitiesSettingsPage() {
           step={100}
         />
         <NumberRow
-          label={t("Explore max iterations")}
-          help={t("Cap on the explore loop before planning.")}
+          label={"Explore max iterations"}
+          help={"Cap on the explore loop before planning."}
           value={settings.question.exploring.max_iterations}
           onChange={(n) => patchExploring({ max_iterations: n })}
           min={1}
           max={50}
         />
         <ToggleRow
-          label={t("Tool summarizer enabled")}
-          help={t("Summarize long tool outputs to keep the prompt budget low.")}
+          label={"Tool summarizer enabled"}
+          help={"Summarize long tool outputs to keep the prompt budget low."}
           value={settings.question.exploring.tool_summarizer.enabled}
           onChange={(v) => patchExploringSummarizer({ enabled: v })}
         />
         <NumberRow
-          label={t("Tool summarizer (max tokens)")}
+          label={"Tool summarizer (max tokens)"}
           value={settings.question.exploring.tool_summarizer.max_tokens}
           onChange={(n) => patchExploringSummarizer({ max_tokens: n })}
           min={128}
@@ -438,13 +421,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Research")}
-        description={t(
-          "Deep research pipeline. Iteration count is controlled per request via the depth selector (quick / standard / deep / manual) in the chat input, not here.",
-        )}
+        title={"Research"}
+        description={"Deep research pipeline. Iteration count is controlled per request via the depth selector (quick / standard / deep / manual) in the chat input, not here."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.research.temperature}
           onChange={(n) => patchResearch({ temperature: n })}
           min={0}
@@ -453,7 +434,7 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
+          label={"Max tokens"}
           value={settings.research.max_tokens}
           onChange={(n) => patchResearch({ max_tokens: n })}
           min={256}
@@ -461,23 +442,23 @@ export default function CapabilitiesSettingsPage() {
           step={100}
         />
         <NumberRow
-          label={t("Tool timeout (s)")}
-          help={t("Per-tool wall-clock timeout for the researching phase.")}
+          label={"Tool timeout (s)"}
+          help={"Per-tool wall-clock timeout for the researching phase."}
           value={settings.research.researching.tool_timeout}
           onChange={(n) => patchResearching({ tool_timeout: n })}
           min={1}
           max={600}
         />
         <NumberRow
-          label={t("Tool max retries")}
+          label={"Tool max retries"}
           value={settings.research.researching.tool_max_retries}
           onChange={(n) => patchResearching({ tool_max_retries: n })}
           min={0}
           max={10}
         />
         <NumberRow
-          label={t("Paper search years limit")}
-          help={t("How far back paper search will scan.")}
+          label={"Paper search years limit"}
+          help={"How far back paper search will scan."}
           value={settings.research.researching.paper_search_years_limit}
           onChange={(n) => patchResearching({ paper_search_years_limit: n })}
           min={1}
@@ -486,11 +467,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Math animator")}
-        description={t("Manim animation / image generation pipeline.")}
+        title={"Math animator"}
+        description={"Manim animation / image generation pipeline."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.math_animator.temperature}
           onChange={(n) => patchSimple("math_animator", { temperature: n })}
           min={0}
@@ -499,7 +480,7 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
+          label={"Max tokens"}
           value={settings.math_animator.max_tokens}
           onChange={(n) => patchSimple("math_animator", { max_tokens: n })}
           min={256}
@@ -509,11 +490,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Visualize")}
-        description={t("SVG / chart / diagram generation loop.")}
+        title={"Visualize"}
+        description={"SVG / chart / diagram generation loop."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.visualize.temperature}
           onChange={(n) => patchSimple("visualize", { temperature: n })}
           min={0}
@@ -522,10 +503,8 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
-          help={t(
-            "A reasoning model can spend most of this on internal reasoning; raise it if a canvas comes back empty.",
-          )}
+          label={"Max tokens"}
+          help={"A reasoning model can spend most of this on internal reasoning; raise it if a canvas comes back empty."}
           value={settings.visualize.max_tokens}
           onChange={(n) => patchSimple("visualize", { max_tokens: n })}
           min={256}
@@ -535,11 +514,11 @@ export default function CapabilitiesSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Co-writer")}
-        description={t("Selection edit / inline rewrite agent.")}
+        title={"Co-writer"}
+        description={"Selection edit / inline rewrite agent."}
       >
         <NumberRow
-          label={t("Temperature")}
+          label={"Temperature"}
           value={settings.co_writer.temperature}
           onChange={(n) => patchSimple("co_writer", { temperature: n })}
           min={0}
@@ -548,7 +527,7 @@ export default function CapabilitiesSettingsPage() {
           isFloat
         />
         <NumberRow
-          label={t("Max tokens")}
+          label={"Max tokens"}
           value={settings.co_writer.max_tokens}
           onChange={(n) => patchSimple("co_writer", { max_tokens: n })}
           min={256}

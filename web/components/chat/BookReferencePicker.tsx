@@ -9,7 +9,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import { bookApi } from "@/lib/book-api";
@@ -57,7 +57,7 @@ export default function BookReferencePicker({
   onClose,
   onApply,
 }: BookReferencePickerProps) {
-  const { t } = useTranslation();
+  
   const [books, setBooks] = useState<Book[]>([]);
   const [details, setDetails] = useState<Record<string, BookDetail>>({});
   const [activeBookId, setActiveBookId] = useState<string | null>(null);
@@ -134,11 +134,11 @@ export default function BookReferencePicker({
   const togglePage = (book: Book, page: Page, chapter: Chapter | null) => {
     const nextPage: SelectedBookPage = {
       bookId: book.id,
-      bookTitle: book.title || t("Untitled book"),
+      bookTitle: book.title || "Untitled book",
       pageId: page.id,
-      pageTitle: page.title || t("Untitled chapter"),
+      pageTitle: page.title || "Untitled chapter",
       chapterId: chapter?.id || page.chapter_id,
-      chapterTitle: chapter?.title || page.title || t("Untitled chapter"),
+      chapterTitle: chapter?.title || page.title || "Untitled chapter",
     };
     setSelected((prev) => {
       const existing = prev.find((ref) => ref.bookId === book.id);
@@ -163,7 +163,7 @@ export default function BookReferencePicker({
         ...prev,
         {
           bookId: book.id,
-          bookTitle: book.title || t("Untitled book"),
+          bookTitle: book.title || "Untitled book",
           pages: [nextPage],
         },
       ];
@@ -192,17 +192,17 @@ export default function BookReferencePicker({
               )
               .map((page) => ({
                 bookId: book.id,
-                bookTitle: book.title || t("Untitled book"),
+                bookTitle: book.title || "Untitled book",
                 pageId: page.id,
-                pageTitle: page.title || t("Untitled chapter"),
+                pageTitle: page.title || "Untitled chapter",
                 chapterId: chapter?.id || page.chapter_id,
                 chapterTitle:
-                  chapter?.title || page.title || t("Untitled chapter"),
+                  chapter?.title || page.title || "Untitled chapter",
               })),
           ];
       const nextRef = {
         bookId: book.id,
-        bookTitle: book.title || t("Untitled book"),
+        bookTitle: book.title || "Untitled book",
         pages: remaining,
       };
       const others = prev.filter((ref) => ref.bookId !== book.id);
@@ -228,10 +228,8 @@ export default function BookReferencePicker({
           resourceKind="books"
           icon={BookOpen}
           titleId="book-picker-title"
-          title={t("Select Book Chapters")}
-          subtitle={t(
-            "Choose generated book chapters to ground the next answer.",
-          )}
+          title={"Select Book Chapters"}
+          subtitle={"Choose generated book chapters to ground the next answer."}
           onClose={onClose}
         />
 
@@ -242,7 +240,7 @@ export default function BookReferencePicker({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search books")}
+                placeholder={"Search books"}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
               />
             </div>
@@ -271,10 +269,10 @@ export default function BookReferencePicker({
                         <BookOpen className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
-                            {book.title || t("Untitled book")}
+                            {book.title || "Untitled book"}
                           </span>
                           <span className="mt-0.5 block text-[11px] text-[var(--muted-foreground)]">
-                            {book.page_count || 0} {t("chapters")}
+                            {book.page_count || 0} {"chapters"}
                           </span>
                         </span>
                         {selectedPages > 0 && (
@@ -289,7 +287,7 @@ export default function BookReferencePicker({
                 </div>
               ) : (
                 <div className="px-5 py-12 text-center text-[13px] text-[var(--muted-foreground)]">
-                  {t("No books found.")}
+                  {"No books found."}
                 </div>
               )}
             </div>
@@ -298,7 +296,7 @@ export default function BookReferencePicker({
           <section className="min-h-0 overflow-y-auto p-5">
             {!activeBook ? (
               <div className="flex h-full items-center justify-center text-sm text-[var(--muted-foreground)]">
-                {t("Select a book to view chapters.")}
+                {"Select a book to view chapters."}
               </div>
             ) : loadingDetail && !activeDetail ? (
               <div className="flex h-full items-center justify-center">
@@ -308,7 +306,7 @@ export default function BookReferencePicker({
               <div className="space-y-4">
                 <div>
                   <h3 className="text-base font-semibold text-[var(--foreground)]">
-                    {activeBook.title || t("Untitled book")}
+                    {activeBook.title || "Untitled book"}
                   </h3>
                   {activeBook.description && (
                     <p className="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">
@@ -349,10 +347,10 @@ export default function BookReferencePicker({
                           <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
                             {chapter?.title ||
                               firstPage?.title ||
-                              t("Unassigned pages")}
+                              "Unassigned pages"}
                           </span>
                           <span className="text-[11px] text-[var(--muted-foreground)]">
-                            {pages.length} {t("pages")}
+                            {pages.length} {"pages"}
                           </span>
                           {!showPageRows &&
                           firstPage?.learning_objectives?.length ? (
@@ -391,7 +389,7 @@ export default function BookReferencePicker({
                                 </span>
                                 <span className="min-w-0 flex-1">
                                   <span className="block text-[13px] font-medium text-[var(--foreground)]">
-                                    {page.title || t("Untitled chapter")}
+                                    {page.title || "Untitled chapter"}
                                   </span>
                                   {page.learning_objectives?.length ? (
                                     <span className="mt-1 line-clamp-2 text-[12px] leading-5 text-[var(--muted-foreground)]">
@@ -415,15 +413,15 @@ export default function BookReferencePicker({
         <div className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-4">
           <div className="text-sm text-[var(--muted-foreground)]">
             {selectedCount
-              ? t("{{count}} chapters selected", { count: selectedCount })
-              : t("No chapters selected")}
+              ? `${selectedCount} chapters selected`
+              : "No chapters selected"}
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelected([])}
               className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
-              {t("Clear")}
+              {"Clear"}
             </button>
             <button
               onClick={() => {
@@ -432,7 +430,7 @@ export default function BookReferencePicker({
               }}
               className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
             >
-              {t("Apply")}
+              {"Apply"}
             </button>
           </div>
         </div>

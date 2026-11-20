@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2, Plus, RotateCcw, Trash2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { Dialog } from '@/shared/ui/Dialog'
 import { usePageCustomization } from '@/context/PageCustomizationContext'
 import {
@@ -75,7 +75,7 @@ export default function PageCustomizeDialog({
   learningKinds?: string[]
   onClose: () => void
 }) {
-  const { t } = useTranslation()
+  
   const capabilityLabel = useCapabilityLabel()
   const { save, loading, error: loadError, reload } = usePageCustomization()
   const [draft, setDraft] = useState(() => structuredClone(initial))
@@ -106,10 +106,10 @@ export default function PageCustomizeDialog({
   return (
     <Dialog
       open
-      title={t('customize.title')}
-      description={t('customize.description')}
+      title={"Customize page"}
+      description={"Choose what appears here. Your learning history and installed modules stay intact."}
       onClose={onClose}
-      closeLabel={t('Close')}
+      closeLabel={"Close"}
       size="lg"
       busy={saving}
       footer={
@@ -126,7 +126,7 @@ export default function PageCustomizeDialog({
             }
           >
             <RotateCcw size={14} />
-            {t('customize.reset')}
+            {"Restore defaults"}
           </button>
           <div className="flex gap-2">
             <button
@@ -135,7 +135,7 @@ export default function PageCustomizeDialog({
               className={`${actionClass} hover:bg-muted`}
               onClick={onClose}
             >
-              {t('Cancel')}
+              {"Cancel"}
             </button>
             <button
               type="button"
@@ -144,7 +144,7 @@ export default function PageCustomizeDialog({
               className={`${actionClass} bg-primary text-primary-foreground hover:opacity-90`}
             >
               {saving && <Loader2 size={14} className="animate-spin" />}
-              {t(saving ? 'Saving...' : 'Save')}
+              {(saving ? 'Saving...' : 'Save')}
             </button>
           </div>
         </div>
@@ -155,10 +155,10 @@ export default function PageCustomizeDialog({
           role="alert"
           className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive"
         >
-          {t('customize.saveError')}
+          {"Could not save your changes. Your draft is still here; please retry."}
           {loadError && (
             <button type="button" className="ml-2 underline" onClick={reload}>
-              {t('Retry')}
+              {"Retry"}
             </button>
           )}
         </div>
@@ -174,7 +174,7 @@ export default function PageCustomizeDialog({
               <div
                 className="mb-5 flex gap-1 rounded-xl bg-muted/60 p-1"
                 role="group"
-                aria-label={t('customize.sections')}
+                aria-label={"Customization sections"}
               >
                 {(['controls', 'starters'] as const).map(item => (
                   <button
@@ -220,7 +220,7 @@ export default function PageCustomizeDialog({
                   <div
                     className="mb-4 flex flex-wrap gap-2"
                     role="group"
-                    aria-label={t('customize.starters')}
+                    aria-label={"Starting prompts"}
                   >
                     {STARTER_GROUPS.map(key => (
                       <button
@@ -243,10 +243,10 @@ export default function PageCustomizeDialog({
                         <div className="mb-2 flex items-start gap-2">
                           <label className="min-w-0 flex-1">
                             <span className="mb-1.5 block text-xs text-muted-foreground">
-                              {t('customize.promptLabel')}
+                              {"Display title"}
                             </span>
                             <input
-                              aria-label={`${t('customize.promptLabel')} ${index + 1}`}
+                              aria-label={`${"Display title"} ${index + 1}`}
                               value={row.label}
                               maxLength={160}
                               className={inputClass}
@@ -261,7 +261,7 @@ export default function PageCustomizeDialog({
                           </label>
                           <button
                             type="button"
-                            aria-label={`${t('customize.removePrompt')} ${index + 1}`}
+                            aria-label={`${"Remove prompt"} ${index + 1}`}
                             onClick={() => updatePrompts(prompts.filter((_, i) => i !== index))}
                             className="mt-6 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                           >
@@ -270,10 +270,10 @@ export default function PageCustomizeDialog({
                         </div>
                         <label>
                           <span className="mb-1.5 block text-xs text-muted-foreground">
-                            {t('customize.promptText')}
+                            {"Prompt inserted into the input"}
                           </span>
                           <textarea
-                            aria-label={`${t('customize.promptText')} ${index + 1}`}
+                            aria-label={`${"Prompt inserted into the input"} ${index + 1}`}
                             value={row.prompt}
                             maxLength={4000}
                             rows={3}
@@ -291,7 +291,7 @@ export default function PageCustomizeDialog({
                     ))}
                     {!prompts.length && (
                       <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        {t('customize.emptyPrompts')}
+                        {"This category is hidden until you add a prompt."}
                       </p>
                     )}
                   </div>
@@ -303,7 +303,7 @@ export default function PageCustomizeDialog({
                       className={`${actionClass} border border-border hover:bg-muted`}
                     >
                       <Plus size={14} />
-                      {t('customize.addPrompt')}
+                      {"Add prompt"}
                     </button>
                     <button
                       type="button"
@@ -316,12 +316,12 @@ export default function PageCustomizeDialog({
                         })
                       }
                     >
-                      {t('customize.resetGroup')}
+                      {"Restore this category"}
                     </button>
                   </div>
                   {invalid && (
                     <p role="status" className="mt-2 text-xs text-muted-foreground">
-                      {t('customize.requiredPrompts')}
+                      {"Give every prompt a title and content before saving."}
                     </p>
                   )}
                 </>
@@ -330,15 +330,15 @@ export default function PageCustomizeDialog({
           ) : (
             <div className="space-y-2">
               <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                {t('customize.learningHint')}
+                {"Choose the learning methods shown on this page. Hidden methods can be added back at any time."}
               </p>
               {LEARNING_SURFACES.filter(
                 surface => !learningKinds || learningKinds.includes(surface.kind)
               ).map(surface => (
                 <ChoiceRow
                   key={surface.kind}
-                  label={t(surface.title)}
-                  description={t(surface.description)}
+                  label={(surface.title)}
+                  description={(surface.description)}
                   checked={!draft.learning.hidden_features.includes(surface.kind)}
                   onChange={() =>
                     setDraft(previous => ({

@@ -8,7 +8,7 @@ import {
   taskFailureMessage,
   type ProgressInfo,
 } from "@/lib/knowledge-helpers";
-import { useTranslation } from "react-i18next";
+
 
 export type TaskKind = "create" | "upload" | "sync" | "reindex" | "retry";
 
@@ -38,7 +38,7 @@ export function taskStateAfterProgress(
 ): TaskState {
   const taskId = expectedTaskId || progress.task_id;
   if (taskId && current.taskId !== taskId) return current;
-  const logs = appendTaskLog(current.logs, progressMessage(progress, t));
+  const logs = appendTaskLog(current.logs, progressMessage(progress));
   if (progress.stage === "completed") {
     return { ...current, logs, executing: false, error: null };
   }
@@ -47,7 +47,7 @@ export function taskStateAfterProgress(
       ...current,
       logs,
       executing: false,
-      error: progress.error || progressMessage(progress, t) || "Task failed",
+      error: progress.error || progressMessage(progress) || "Task failed",
       errorCode: progress.error_code,
       retryable: progress.retryable,
     };
@@ -70,7 +70,7 @@ interface UseKnowledgeProgressOptions {
 export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
   // Progress lines arrive as English templates plus values; this hook is the
   // first place that knows the viewer's language.
-  const { t } = useTranslation();
+  
   const onCompleteRef = useRef(options?.onComplete);
   const onTaskSettledRef = useRef(options?.onTaskSettled);
   useEffect(() => {
@@ -257,7 +257,7 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
         }, delay);
       };
     },
-    [closeSocket, closeSource, setProgress, t],
+    [closeSocket, closeSource, setProgress],
   );
 
   useEffect(() => {
@@ -339,7 +339,7 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
           // "Embedding batches: N/M" stream into the log box live (not only at
           // completion). Dedupe against the last line: process_log may already
           // have emitted the same message via _task_log.
-          const line = progressMessage(payload, t);
+          const line = progressMessage(payload);
           if (line) {
             setTasksByKb((prev) => {
               const current = prev[kbName];
@@ -440,7 +440,7 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
         // authoritative terminal-state fallback while SSE reconnects.
       };
     },
-    [closeSource, setProgress, t],
+    [closeSource, setProgress],
   );
 
   const startTask = useCallback(
@@ -474,11 +474,11 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
         : taskId.startsWith("kb_reindex_")
           ? "reindex"
           : "upload";
-      const message = progressMessage(snapshot, t);
+      const message = progressMessage(snapshot);
       openTaskStream(kbName, taskId, kind, label, message ? [message] : []);
       subscribeWs(kbName, taskId);
     },
-    [openTaskStream, setProgress, subscribeWs, t],
+    [openTaskStream, setProgress, subscribeWs],
   );
 
   useEffect(() => {

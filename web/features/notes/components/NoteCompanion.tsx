@@ -17,7 +17,7 @@ import './note-companion.css'
 import Link from '@/shared/router/link'
 import { usePathname } from '@/shared/router/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import {
   ArrowUp,
   Check,
@@ -175,9 +175,9 @@ export default function NoteCompanion(props: NoteCompanionProps) {
 }
 
 function EmbeddedNotice({ pageId, onClose }: NoteCompanionProps) {
-  const { t } = useTranslation()
+  
   return (
-    <aside className="dt-note-companion" aria-label={t('Dito')}>
+    <aside className="dt-note-companion" aria-label={"Dito"}>
       <header className="dt-note-companion-head">
         <Sparkles
           size={15}
@@ -185,15 +185,15 @@ function EmbeddedNotice({ pageId, onClose }: NoteCompanionProps) {
           className="shrink-0 text-[var(--primary)]"
           aria-hidden
         />
-        <h2 className="flex-1">{t('Dito')}</h2>
-        <button className="dt-note-icon-button" aria-label={t('Close')} onClick={onClose}>
+        <h2 className="flex-1">{"Dito"}</h2>
+        <button className="dt-note-icon-button" aria-label={"Close"} onClick={onClose}>
           <X size={16} strokeWidth={1.7} />
         </button>
       </header>
       <div className="dt-note-companion-welcome">
-        <p>{t('Dito works beside the page in the notebook, so this conversation stays yours.')}</p>
+        <p>{"Dito works beside the page in the notebook, so this conversation stays yours."}</p>
         <Link className="dt-note-companion-link" href={`/co-writer/${encodeURIComponent(pageId)}`}>
-          {t('Open in the notebook')} →
+          {"Open in the notebook"} →
         </Link>
       </div>
     </aside>
@@ -220,7 +220,7 @@ function ThreadPanel({
   onSuggestions,
   onClose,
 }: NoteCompanionProps) {
-  const { t } = useTranslation()
+  
   const {
     state,
     submitUserReply,
@@ -254,45 +254,45 @@ function ThreadPanel({
         block_id: anchorText === null ? '' : thread.blockId,
         markdown: message.content,
         blocks: block ? [block] : undefined,
-        explanation: t('Dito'),
+        explanation: "Dito",
       })
         .then(() => {
           onSuggestions()
-          notify(t('Added below the line for your review'))
+          notify("Added below the line for your review")
         })
         .catch(e => setError(String(e)))
     },
-    [anchorText, onSuggestions, pageId, t, thread.blockId]
+    [anchorText, onSuggestions, pageId, thread.blockId]
   )
   const saveAsSubpage = useCallback(
     async (message: MessageItem) => {
       try {
         const block = resultBlock(message)
-        const doc = await createNote(t('Research notes'), pageId, message.content)
+        const doc = await createNote("Research notes", pageId, message.content)
         if (block) await saveNote(doc.id, { blocks: [block], expected_revision: doc.revision })
         setSavedPage(doc.id)
       } catch (err) {
         setError(String(err))
       }
     },
-    [pageId, t]
+    [pageId]
   )
   const replyActions = useCallback(
     (message: MessageItem) => (
       <>
         <RoughActionButton
           icon={FilePlus2}
-          label={t('Insert below the line')}
+          label={"Insert below the line"}
           onClick={() => insertHere(message)}
         />
         <RoughActionButton
           icon={Files}
-          label={t('Save as subpage')}
+          label={"Save as subpage"}
           onClick={() => void saveAsSubpage(message)}
         />
       </>
     ),
-    [insertHere, saveAsSubpage, t]
+    [insertHere, saveAsSubpage]
   )
 
   const submit = useCallback(
@@ -308,15 +308,15 @@ function ThreadPanel({
         void submitUserReply({ text: content })
           .then(sent => {
             if (sent) return
-            notify(t(REPLY_SENT_AS_NEW_MESSAGE))
+            notify((REPLY_SENT_AS_NEW_MESSAGE))
             onSend(content)
           })
-          .catch(() => notify(t(COMMAND_CONFIRMATION_FAILED), { tone: 'error' }))
+          .catch(() => notify((COMMAND_CONFIRMATION_FAILED), { tone: 'error' }))
         return
       }
       onSend(content)
     },
-    [awaitingUserReply, onMake, onSend, submitUserReply, t]
+    [awaitingUserReply, onMake, onSend, submitUserReply]
   )
 
   /* ── Transcript scrolling: /chat's pin-to-bottom ──────────────────── */
@@ -343,13 +343,13 @@ function ThreadPanel({
   const focusText = focus ? blockText(focus) : null
   const focusTarget =
     focus && focusText !== null
-      ? { label: focusText || t('Empty line'), kind: blockKind(focus) }
+      ? { label: focusText || "Empty line", kind: blockKind(focus) }
       : null
   // Opened from a block's "Regenerate…": the first make is that block again.
   const [make, setMake] = useState<string | null>(thread.regenerate?.kind ?? null)
   const [again, setAgain] = useState(Boolean(thread.regenerate))
   return (
-    <aside className="dt-note-companion" aria-label={t('Dito')}>
+    <aside className="dt-note-companion" aria-label={"Dito"}>
       <header className="dt-note-companion-head">
         <Sparkles
           size={15}
@@ -358,13 +358,13 @@ function ThreadPanel({
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate">{current?.title || t('Dito')}</h2>
+          <h2 className="truncate">{current?.title || "Dito"}</h2>
           <p>
             {streaming
-              ? t('Working…')
+              ? "Working…"
               : current
                 ? relativeTime(current.updated_at, state.language || 'en')
-                : t('New conversation')}
+                : "New conversation"}
           </p>
         </div>
         <ThreadSwitcher
@@ -373,18 +373,18 @@ function ThreadPanel({
           blockText={blockText}
           onSelect={onSelect}
         />
-        <Tooltip label={t('New conversation at this line')} side="bottom">
+        <Tooltip label={"New conversation at this line"} side="bottom">
           <button
             className="dt-note-icon-button"
-            aria-label={t('New conversation at this line')}
+            aria-label={"New conversation at this line"}
             disabled={!messages.length}
             onClick={onNewHere}
           >
             <Plus size={16} strokeWidth={1.7} />
           </button>
         </Tooltip>
-        <Tooltip label={t('Fold into the page')} side="bottom">
-          <button className="dt-note-icon-button" aria-label={t('Close')} onClick={onClose}>
+        <Tooltip label={"Fold into the page"} side="bottom">
+          <button className="dt-note-icon-button" aria-label={"Close"} onClick={onClose}>
             <X size={16} strokeWidth={1.7} />
           </button>
         </Tooltip>
@@ -398,8 +398,8 @@ function ThreadPanel({
         <BlockIcon kind={thread.quote ? null : anchorKind} />
         <span>
           {anchorText === null
-            ? t('The line this was about has been deleted')
-            : quote || t('Empty line')}
+            ? "The line this was about has been deleted"
+            : quote || "Empty line"}
         </span>
       </button>
       <div
@@ -448,13 +448,13 @@ function ThreadPanel({
           <div className="dt-note-companion-welcome">
             <div className="dt-note-starters">
               {starters.map(({ label, prompt, Icon }) => (
-                <button key={label} disabled={!bound} onClick={() => submit(t(prompt), null)}>
+                <button key={label} disabled={!bound} onClick={() => submit((prompt), null)}>
                   <Icon size={15} strokeWidth={1.7} />
-                  {t(label)}
+                  {(label)}
                 </button>
               ))}
             </div>
-            <p className="dt-note-make-title">{t('Make something here')}</p>
+            <p className="dt-note-make-title">{"Make something here"}</p>
             <div className="dt-note-make-chips">
               {MAKE_KINDS.slice(0, 6).map(kind => (
                 <button
@@ -466,7 +466,7 @@ function ThreadPanel({
                   }}
                 >
                   <kind.Icon size={13} strokeWidth={1.8} />
-                  {t(kind.label)}
+                  {(kind.label)}
                 </button>
               ))}
             </div>
@@ -474,7 +474,7 @@ function ThreadPanel({
         )}
         {savedPage && (
           <Link className="dt-note-companion-link" href={`/co-writer/${savedPage}`}>
-            {t('Open saved subpage')} →
+            {"Open saved subpage"} →
           </Link>
         )}
         {error && (
@@ -537,7 +537,7 @@ function ThreadSwitcher({
   blockText: (blockId: string) => string | null
   onSelect: (sessionId: string) => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const menu = useMenuPopover<HTMLDivElement>(open, value => {
@@ -559,7 +559,7 @@ function ThreadSwitcher({
   // inside the panel whatever sits to the button's right.
   return (
     <div ref={menu}>
-      <Tooltip label={t('Conversations on this page')} side="bottom" suppressed={open}>
+      <Tooltip label={"Conversations on this page"} side="bottom" suppressed={open}>
         <button
           className="dt-note-thread-switch"
           aria-haspopup="dialog"
@@ -574,14 +574,14 @@ function ThreadSwitcher({
         <div
           className="dt-popover dt-note-thread-list"
           role="dialog"
-          aria-label={t('Conversations on this page')}
+          aria-label={"Conversations on this page"}
         >
           <label className="dt-note-thread-search">
             <Search size={13} strokeWidth={1.8} aria-hidden />
             <input
               autoFocus
               value={query}
-              placeholder={t('Search conversations on this page…')}
+              placeholder={"Search conversations on this page…"}
               onChange={e => setQuery(e.target.value)}
             />
           </label>
@@ -602,19 +602,17 @@ function ThreadSwitcher({
                   <span className="dt-note-thread-row-head">
                     <span className="dt-note-orb is-static" data-state={thread.state} aria-hidden />
                     <strong>{thread.label}</strong>
-                    <time>{relativeTime(thread.updated_at, i18n.language)}</time>
+                    <time>{relativeTime(thread.updated_at, "en")}</time>
                   </span>
                   <span className="dt-note-thread-row-line">
-                    {line === null ? t('Deleted line') : thread.quote || line || t('Empty line')}
+                    {line === null ? "Deleted line" : thread.quote || line || "Empty line"}
                   </span>
                 </button>
               )
             })}
             {!rows.length && (
               <p className="dt-note-menu-empty">
-                {t(
-                  threads.length ? 'No matching conversations' : 'No conversations on this page yet'
-                )}
+                {(threads.length ? 'No matching conversations' : 'No conversations on this page yet')}
               </p>
             )}
           </div>
@@ -661,7 +659,7 @@ function ThreadComposer({
   onSubmit: (content: string, make: string | null) => void
   onStop: () => void
 }) {
-  const { t } = useTranslation()
+  
   const [text, setText] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -726,9 +724,9 @@ function ThreadComposer({
           >
             <BlockIcon kind={focus.kind} />
             <span className="dt-note-composer-focus-label">{focus.label}</span>
-            <span className="dt-note-composer-focus-cta">{t('Ask about this')}</span>
+            <span className="dt-note-composer-focus-cta">{"Ask about this"}</span>
           </button>
-          <button aria-label={t('Dismiss')} onClick={onDismissFocus}>
+          <button aria-label={"Dismiss"} onClick={onDismissFocus}>
             <X size={12} strokeWidth={2} />
           </button>
         </div>
@@ -738,10 +736,10 @@ function ThreadComposer({
           <target.Icon size={13} strokeWidth={1.8} aria-hidden />
           <span>
             {again
-              ? t('Regenerate this {{kind}}', { kind: t(target.label) })
-              : t('Make a {{kind}} below this line', { kind: t(target.label) })}
+              ? `Regenerate this ${(target.label)}`
+              : `Make a ${(target.label)} below this line`}
           </span>
-          <button aria-label={t('Cancel')} onClick={() => onMake(null)}>
+          <button aria-label={"Cancel"} onClick={() => onMake(null)}>
             <X size={12} strokeWidth={2} />
           </button>
         </div>
@@ -751,18 +749,8 @@ function ThreadComposer({
         rows={1}
         value={text}
         disabled={disabled}
-        aria-label={t('Message Dito')}
-        placeholder={t(
-          target
-            ? target.placeholder
-            : awaitingUserReply
-              ? 'Answer Dito…'
-              : hasQuote
-                ? 'Ask about the selection, or say how to change it…'
-                : aboutCard
-                  ? 'Ask about this block, or say how to change it…'
-                  : 'Ask about this line, or tell Dito what to write…'
-        )}
+        aria-label={"Message Dito"}
+        placeholder={(target ? target.placeholder : awaitingUserReply ? 'Answer Dito…' : hasQuote ? 'Ask about the selection, or say how to change it…' : aboutCard ? 'Ask about this block, or say how to change it…' : 'Ask about this line, or tell Dito what to write…')}
         onChange={e => setText(e.target.value)}
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -783,11 +771,11 @@ function ThreadComposer({
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <WandSparkles size={14} strokeWidth={1.8} />
-            {t('Make')}
+            {"Make"}
           </button>
           {menuOpen && (
             <div className="dt-popover dt-note-kind-menu is-up" role="menu">
-              <p className="dt-note-kind-menu-title">{t('Make below this line')}</p>
+              <p className="dt-note-kind-menu-title">{"Make below this line"}</p>
               {MAKE_KINDS.map(kind => (
                 <button
                   key={kind.kind}
@@ -800,7 +788,7 @@ function ThreadComposer({
                   }}
                 >
                   <kind.Icon size={14} strokeWidth={1.8} />
-                  <span className="flex-1">{t(kind.label)}</span>
+                  <span className="flex-1">{(kind.label)}</span>
                   {make === kind.kind && <Check size={13} />}
                 </button>
               ))}
@@ -821,10 +809,10 @@ function ThreadComposer({
           }}
         />
         {streaming && !awaitingUserReply ? (
-          <Tooltip label={t('Stop')}>
+          <Tooltip label={"Stop"}>
             <button
               className="dt-note-composer-send is-stop"
-              aria-label={t('Stop')}
+              aria-label={"Stop"}
               onClick={onStop}
             >
               <Square size={11} fill="currentColor" />
@@ -833,7 +821,7 @@ function ThreadComposer({
         ) : (
           <button
             className="dt-note-composer-send"
-            aria-label={t(make ? 'Make' : 'Send')}
+            aria-label={(make ? 'Make' : 'Send')}
             disabled={!canSend}
             onClick={submit}
           >

@@ -3,7 +3,7 @@
 import { Check, ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { formatRelativeTime } from "@/lib/relative-time";
 import { formatDay } from "@/shared/lib/date";
 import type { SelectGroup, SelectionUnit } from "@/lib/chat-import";
@@ -36,7 +36,7 @@ export default function ScopePicker({
   onClearAll,
   lang,
 }: ScopePickerProps) {
-  const { t } = useTranslation();
+  
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const totalSessions = groups.reduce((n, g) => n + g.sessions.length, 0);
   const selectedSessions = groups.reduce(
@@ -58,17 +58,11 @@ export default function ScopePicker({
       <div className="flex items-center justify-between gap-3">
         <span className="text-[11.5px] text-[var(--muted-foreground)]">
           {unit === "dates"
-            ? t("{{days}} days · {{sessions}} conversations", {
-                days: groups.length,
-                sessions: totalSessions,
-              })
-            : t("{{projects}} projects · {{sessions}} conversations", {
-                projects: groups.length,
-                sessions: totalSessions,
-              })}
+            ? `${groups.length} days · ${totalSessions} conversations`
+            : `${groups.length} projects · ${totalSessions} conversations`}
           {selectedSessions > 0 ? (
             <span className="ml-1.5 font-medium text-[var(--foreground)]">
-              · {t("{{count}} selected", { count: selectedSessions })}
+              · {`${selectedSessions} selected`}
             </span>
           ) : null}
         </span>
@@ -78,14 +72,14 @@ export default function ScopePicker({
             onClick={onSelectAll}
             className="rounded-md px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)]"
           >
-            {t("Select all")}
+            {"Select all"}
           </button>
           <button
             type="button"
             onClick={onClearAll}
             className="rounded-md px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)]"
           >
-            {t("Clear")}
+            {"Clear"}
           </button>
         </div>
       </div>
@@ -107,7 +101,7 @@ export default function ScopePicker({
                 <button
                   type="button"
                   onClick={() => onToggle(group.key)}
-                  aria-label={t("Select")}
+                  aria-label={"Select"}
                   aria-pressed={checked}
                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
                     checked
@@ -151,7 +145,7 @@ export default function ScopePicker({
                   </span>
                 </button>
                 <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
-                  {t("{{count}} chats", { count: group.sessions.length })}
+                  {`${group.sessions.length} chats`}
                 </span>
               </div>
 
@@ -163,7 +157,7 @@ export default function ScopePicker({
                       className="flex items-center gap-2.5 px-3 py-2 pl-9"
                     >
                       <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--muted-foreground)]">
-                        {session.provisionalTitle || t("Untitled conversation")}
+                        {session.provisionalTitle || "Untitled conversation"}
                       </span>
                       <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]/70">
                         {formatRelativeTime(session.lastModified / 1000, lang)}

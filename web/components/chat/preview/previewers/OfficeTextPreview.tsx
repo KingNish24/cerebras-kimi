@@ -1,7 +1,7 @@
 "use client";
 
 import { Info, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import FallbackPreview from "./FallbackPreview";
 import { useTextSource } from "./useTextSource";
 
@@ -20,7 +20,7 @@ export default function OfficeTextPreview({
   extractedTextUrl?: string | null;
   url: string | null;
 }) {
-  const { t } = useTranslation();
+  
   const state = useTextSource(
     extractedText ? null : extractedTextUrl || null,
     extractedText,
@@ -34,7 +34,7 @@ export default function OfficeTextPreview({
     return (
       <div className="flex h-full items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
         <Loader2 size={14} className="animate-spin" />
-        <span>{t("Loading preview…")}</span>
+        <span>{"Loading preview…"}</span>
       </div>
     );
   }
@@ -48,9 +48,7 @@ export default function OfficeTextPreview({
       <div className="flex items-start gap-2 border-b border-[var(--border)] bg-[var(--muted)]/40 px-5 py-2.5 text-[11px] text-[var(--muted-foreground)]">
         <Info size={13} strokeWidth={1.6} className="mt-px shrink-0" />
         <p>
-          {t(
-            "Showing extracted text — the same content the assistant reads. Download the original to see full formatting.",
-          )}
+          {"Showing extracted text — the same content the assistant reads. Download the original to see full formatting."}
         </p>
       </div>
       <div className="flex-1 overflow-y-auto px-6 py-5">

@@ -7,7 +7,7 @@ import {
 import type { ResourceKind } from "@/lib/resource-reuse";
 
 import { X, type LucideIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 /**
  * Shared header for the fullscreen context pickers (History, Books, Memory,
@@ -42,7 +42,7 @@ export default function PickerHeader({
   trailing?: React.ReactNode;
   resourceKind?: ResourceKind;
 }) {
-  const { t } = useTranslation();
+  
   const reuse = useResourceReuse();
   return (
     <div className="flex items-start gap-3.5 border-b border-[var(--border)] px-5 py-4">
@@ -69,7 +69,7 @@ export default function PickerHeader({
       <button
         onClick={onClose}
         className="-mr-1 -mt-1 shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-        aria-label={t("Close")}
+        aria-label={"Close"}
       >
         <X size={18} />
       </button>

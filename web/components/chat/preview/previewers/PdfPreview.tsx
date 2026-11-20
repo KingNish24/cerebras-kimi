@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { FilePreviewSource } from "../previewerFor";
 
 /**
@@ -20,7 +20,7 @@ export default function PdfPreview({
   url: string;
   filename: FilePreviewSource["filename"];
 }) {
-  const { t } = useTranslation();
+  
   const [loading, setLoading] = useState(true);
 
   return (
@@ -29,7 +29,7 @@ export default function PdfPreview({
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <div className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 size={14} className="animate-spin" />
-            <span>{t("Loading preview…")}</span>
+            <span>{"Loading preview…"}</span>
           </div>
         </div>
       )}

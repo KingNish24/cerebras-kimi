@@ -12,7 +12,7 @@ import {
   Search,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import OrganizedSessionList from "@/components/sessions/OrganizedSessionList";
 import ArchivedConversations from "@/components/space/ArchivedConversations";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
@@ -59,7 +59,7 @@ export default function ChatHistorySection({
   description,
 }: ChatHistorySectionProps = {}) {
   const basePath = "/chat";
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const { activeSessionId, setActiveSessionId } = useAppShell();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -197,7 +197,7 @@ export default function ChatHistorySection({
 
   const handleDelete = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm("Permanently delete this chat and its tutor threads? This cannot be undone.")) return;
       await deleteSession(
         sessionId,
         sessionWorkspaceId(
@@ -213,7 +213,7 @@ export default function ChatHistorySection({
       );
       setSearchVersion((version) => version + 1);
     },
-    [activeSessionId, filteredSessions, setActiveSessionId, t],
+    [activeSessionId, filteredSessions, setActiveSessionId],
   );
 
   // The archived view is built from the same filtered set as the list, so the
@@ -268,12 +268,10 @@ export default function ChatHistorySection({
   );
 
   const HeaderIcon = icon ?? History;
-  const headerTitle = title ?? t("Chat History");
+  const headerTitle = title ?? "Chat History";
   const headerDescription =
     description ??
-    t(
-      "Browse, rename, delete, and reopen previous conversations from your learning space.",
-    );
+    "Browse, rename, delete, and reopen previous conversations from your learning space.";
 
   return (
     <div className="space-y-6">
@@ -282,7 +280,7 @@ export default function ChatHistorySection({
         description={headerDescription}
         meta={
           <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
-            {sessions.length} {t("conversations")}
+            {sessions.length} {"conversations"}
           </span>
         }
         action={
@@ -297,7 +295,7 @@ export default function ChatHistorySection({
             ) : (
               <RefreshCw className="h-3 w-3" />
             )}
-            {t("Refresh")}
+            {"Refresh"}
           </button>
         }
       />
@@ -310,13 +308,13 @@ export default function ChatHistorySection({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               maxLength={200}
-              placeholder={t("Search chat history...")}
+              placeholder={"Search chat history..."}
               className="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/55"
             />
           </label>
           <div className={`mt-2 ${pageGridClass(2)}`}>
             <label className="sr-only" htmlFor="history-kind-filter">
-              {t("Filter by conversation type")}
+              {"Filter by conversation type"}
             </label>
             <select
               id="history-kind-filter"
@@ -324,12 +322,12 @@ export default function ChatHistorySection({
               onChange={(event) => setKindFilter(event.target.value)}
               className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
             >
-              <option value="all">{t("All conversation types")}</option>
-              <option value="chat">{t("Main conversations")}</option>
-              <option value="selection_tutor">{t("Tutor threads")}</option>
+              <option value="all">{"All conversation types"}</option>
+              <option value="chat">{"Main conversations"}</option>
+              <option value="selection_tutor">{"Tutor threads"}</option>
             </select>
             <label className="sr-only" htmlFor="history-archive-filter">
-              {t("Filter by archive status")}
+              {"Filter by archive status"}
             </label>
             <select
               id="history-archive-filter"
@@ -337,9 +335,9 @@ export default function ChatHistorySection({
               onChange={(event) => setArchiveFilter(event.target.value)}
               className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
             >
-              <option value="active">{t("Active")}</option>
-              <option value="archived">{t("Archived")}</option>
-              <option value="all">{t("Active and archived")}</option>
+              <option value="active">{"Active"}</option>
+              <option value="archived">{"Archived"}</option>
+              <option value="all">{"Active and archived"}</option>
             </select>
           </div>
         </div>
@@ -356,14 +354,14 @@ export default function ChatHistorySection({
             </div>
           ) : searchError ? (
             <div role="alert" className="flex items-center justify-between gap-3 px-2 py-4 text-[12.5px] text-[var(--muted-foreground)]">
-              <p>{t("Could not search chat history. Try again.")}</p>
+              <p>{"Could not search chat history. Try again."}</p>
               <button
                 type="button"
                 onClick={() => setSearchVersion((version) => version + 1)}
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
               >
                 <RefreshCw size={13} strokeWidth={1.8} />
-                {t("Retry")}
+                {"Retry"}
               </button>
             </div>
           ) : archiveFilter === "archived" ? (

@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { OutlineItem } from "@/lib/research-types";
 
 type OutlineStatus = "editing" | "researching" | "done" | "failed";
@@ -28,7 +28,7 @@ export default function ResearchOutlineEditor({
   onConfirm,
   status: externalStatus,
 }: ResearchOutlineEditorProps) {
-  const { t } = useTranslation();
+  
   const [items, setItems] = useState<OutlineItem[]>(initialOutline);
   const [localConfirmed, setLocalConfirmed] = useState(false);
   // Auto-collapse once the research is underway / done, but let the user
@@ -83,11 +83,11 @@ export default function ResearchOutlineEditor({
     : items;
 
   const statusLabel = (() => {
-    if (externalStatus === "done") return t("Research Complete");
+    if (externalStatus === "done") return "Research Complete";
     if (externalStatus === "failed")
-      return t("Research failed. You can retry.");
+      return "Research failed. You can retry.";
     if (externalStatus === "researching" || localConfirmed)
-      return t("Researching");
+      return "Researching";
     return null;
   })();
 
@@ -123,11 +123,11 @@ export default function ResearchOutlineEditor({
               />
             )}
             <h3 className="text-[13px] font-semibold text-[var(--foreground)]">
-              {t("Research Outline")}
+              {"Research Outline"}
             </h3>
             {displayCollapsed && validItems.length > 0 && (
               <span className="text-[11px] text-[var(--muted-foreground)]/45">
-                · {validItems.length} {t("sub-topics")}
+                · {validItems.length} {"sub-topics"}
               </span>
             )}
           </div>
@@ -148,9 +148,7 @@ export default function ResearchOutlineEditor({
         </div>
         {!locked && !collapsed && (
           <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]/60">
-            {t(
-              "Review and edit the sub-topics below, then start the research. You can also type in the chat to regenerate the outline.",
-            )}
+            {"Review and edit the sub-topics below, then start the research. You can also type in the chat to regenerate the outline."}
           </p>
         )}
       </button>
@@ -185,7 +183,7 @@ export default function ResearchOutlineEditor({
                         onChange={(e) =>
                           updateItem(index, "title", e.target.value)
                         }
-                        placeholder={t("Sub-topic title...")}
+                        placeholder={"Sub-topic title..."}
                         className="w-full bg-transparent text-[12px] font-medium leading-snug text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/30"
                       />
                       <textarea
@@ -193,7 +191,7 @@ export default function ResearchOutlineEditor({
                         onChange={(e) =>
                           updateItem(index, "overview", e.target.value)
                         }
-                        placeholder={t("Research direction and focus...")}
+                        placeholder={"Research direction and focus..."}
                         rows={1}
                         className="w-full resize-none bg-transparent text-[11px] leading-snug text-[var(--muted-foreground)]/70 outline-none placeholder:text-[var(--muted-foreground)]/25"
                         style={
@@ -224,7 +222,7 @@ export default function ResearchOutlineEditor({
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)]/50 transition-colors hover:bg-[var(--muted-foreground)]/5 hover:text-[var(--muted-foreground)]/70"
               >
                 <Plus size={12} />
-                {t("Add sub-topic")}
+                {"Add sub-topic"}
               </button>
               <button
                 type="button"
@@ -233,11 +231,7 @@ export default function ResearchOutlineEditor({
                 className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[11px] font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-40"
               >
                 <Play size={11} />
-                {t(
-                  externalStatus === "failed"
-                    ? "Retry Research"
-                    : "Start Research",
-                )}
+                {(externalStatus === "failed" ? "Retry Research" : "Start Research")}
               </button>
             </div>
           )}

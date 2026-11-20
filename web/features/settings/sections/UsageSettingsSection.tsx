@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
 import { useRouter, useSearchParams } from '@/shared/router/navigation'
-import { useTranslation } from 'react-i18next'
+
 import { SettingsPageHeader } from '@/components/settings/shared'
 import { fetchUsageStatistics, usageYear, type UsageStatistics } from '@/lib/usage-statistics'
 import UsageActivity from '../components/UsageActivity'
 import { isApiError } from '@/shared/api/errors'
 
 export default function UsageSettingsSection() {
-  const { t, i18n } = useTranslation()
+  
   const router = useRouter()
   const search = useSearchParams()
   const currentYear = new Date().getFullYear()
@@ -48,7 +48,7 @@ export default function UsageSettingsSection() {
     query.set('year', String(next))
     router.push(`/settings/usage?${query}`, { scroll: false })
   }
-  const n = (value?: number | null) => (value == null ? '—' : value.toLocaleString(i18n.language))
+  const n = (value?: number | null) => (value == null ? '—' : value.toLocaleString("en"))
   const percent = (value?: number | null) => (value == null ? '—' : `${(value * 100).toFixed(1)}%`)
   const visible = data?.year === year ? data : null
   const stats = visible?.totals
@@ -57,14 +57,14 @@ export default function UsageSettingsSection() {
   return (
     <div>
       <SettingsPageHeader
-        title={t('Usage statistics')}
-        description={t('Model usage across conversations, personalized learning, and background tasks.')}
+        title={"Usage statistics"}
+        description={"Model usage across conversations, personalized learning, and background tasks."}
       />
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="inline-flex items-center gap-3 rounded-lg border border-[var(--border)] px-1 py-1">
           <button
             type="button"
-            aria-label={t('Previous year')}
+            aria-label={"Previous year"}
             disabled={year <= 1970}
             onClick={() => changeYear(year - 1)}
             className="rounded-md p-1.5 hover:bg-[var(--muted)] disabled:opacity-30"
@@ -74,7 +74,7 @@ export default function UsageSettingsSection() {
           <span className="min-w-12 text-center text-sm font-medium tabular-nums">{year}</span>
           <button
             type="button"
-            aria-label={t('Next year')}
+            aria-label={"Next year"}
             disabled={year >= currentYear}
             onClick={() => changeYear(year + 1)}
             className="rounded-md p-1.5 hover:bg-[var(--muted)] disabled:opacity-30"
@@ -84,7 +84,7 @@ export default function UsageSettingsSection() {
         </div>
         <button
           type="button"
-          aria-label={t('Refresh usage')}
+          aria-label={"Refresh usage"}
           disabled={loading}
           onClick={() => setRevision(value => value + 1)}
           className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-40"
@@ -98,31 +98,31 @@ export default function UsageSettingsSection() {
           className="mb-5 flex items-center justify-between rounded-lg bg-[var(--destructive)]/5 px-3 py-2 text-xs text-[var(--destructive)]"
         >
           <span>
-            {t('Unable to load usage statistics.')}
-            {snapshot?.error && <span className="mt-1 block break-words">{t(snapshot.error)}</span>}
+            {"Unable to load usage statistics."}
+            {snapshot?.error && <span className="mt-1 block break-words">{(snapshot.error)}</span>}
           </span>
           <button
             type="button"
             onClick={() => setRevision(value => value + 1)}
             className="px-2 py-1 font-medium"
           >
-            {t('Retry')}
+            {"Retry"}
           </button>
         </div>
       )}
       {loading && !visible && (
         <div role="status" className="py-16 text-center text-sm text-[var(--muted-foreground)]">
-          {t('Loading usage…')}
+          {"Loading usage…"}
         </div>
       )}
       {visible && (
         <div className="space-y-6" aria-busy={loading}>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
             {[
-              [t('Total tokens'), visible.tracked_turns ? n(stats?.total_tokens) : '—'],
-              [t('Input tokens'), visible.tracked_turns ? n(stats?.prompt_tokens) : '—'],
-              [t('Output tokens'), visible.tracked_turns ? n(stats?.completion_tokens) : '—'],
-              [t('Cache hit rate'), percent(stats?.cache_hit_rate)],
+              ["Total tokens", visible.tracked_turns ? n(stats?.total_tokens) : '—'],
+              ["Input tokens", visible.tracked_turns ? n(stats?.prompt_tokens) : '—'],
+              ["Output tokens", visible.tracked_turns ? n(stats?.completion_tokens) : '—'],
+              ["Cache hit rate", percent(stats?.cache_hit_rate)],
             ].map(([label, value]) => (
               <div key={label}>
                 <dt className="mb-1.5 text-xs text-[var(--muted-foreground)]">{label}</dt>
@@ -137,14 +137,11 @@ export default function UsageSettingsSection() {
             activeDays={visible.active_days}
             turns={visible.turns}
           />
-          <section aria-label={t('Usage by model')}>
+          <section aria-label={"Usage by model"}>
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="text-sm font-medium">{t('Usage by model')}</h2>
+              <h2 className="text-sm font-medium">{"Usage by model"}</h2>
               <span className="text-xs text-[var(--muted-foreground)]">
-                {t('{{calls}} LLM calls · {{sessions}} sessions', {
-                  calls: n(stats?.total_calls),
-                  sessions: n(visible.sessions),
-                })}
+                {`${n(stats?.total_calls)} LLM calls · ${n(visible.sessions)} sessions`}
               </span>
             </div>
             {models.length ? (
@@ -153,14 +150,14 @@ export default function UsageSettingsSection() {
                   <thead>
                     <tr className="border-b border-[var(--border)] bg-[var(--muted)]/40 text-[11px] text-[var(--muted-foreground)]">
                       {[
-                        t('Model'),
-                        t('Total tokens'),
-                        t('Input tokens'),
-                        t('Output tokens'),
-                        t('Cache hit rate'),
-                        t('LLM calls'),
-                        t('TTFT'),
-                        t('TPS'),
+                        "Model",
+                        "Total tokens",
+                        "Input tokens",
+                        "Output tokens",
+                        "Cache hit rate",
+                        "LLM calls",
+                        "TTFT",
+                        "TPS",
                       ].map((label, index) => (
                         <th
                           key={label}
@@ -199,12 +196,12 @@ export default function UsageSettingsSection() {
                         <td className="whitespace-nowrap px-3 py-3 text-right">
                           {model.ttft_seconds == null
                             ? '—'
-                            : t('{{value}} s', { value: model.ttft_seconds.toFixed(2) })}
+                            : `${model.ttft_seconds.toFixed(2)} s`}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right">
                           {model.tokens_per_second == null
                             ? '—'
-                            : t('{{value}} tok/s', { value: model.tokens_per_second.toFixed(1) })}
+                            : `${model.tokens_per_second.toFixed(1)} tok/s`}
                         </td>
                       </tr>
                     ))}
@@ -213,12 +210,12 @@ export default function UsageSettingsSection() {
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[var(--border)] px-5 py-10 text-center text-sm text-[var(--muted-foreground)]">
-                {t('No recorded model usage for this year.')}
+                {"No recorded model usage for this year."}
               </div>
             )}
             {historical.length > 0 && (
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted-foreground)]">
-                <span>{t('Historical usage without recoverable model details')}</span>
+                <span>{"Historical usage without recoverable model details"}</span>
                 <span className="tabular-nums">{n(historical.reduce((sum, model) => sum + model.total_tokens, 0))} tokens</span>
               </div>
             )}

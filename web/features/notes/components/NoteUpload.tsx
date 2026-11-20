@@ -2,7 +2,7 @@
 
 import { createReactBlockSpec } from '@blocknote/react'
 import { FileUp, LoaderCircle } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 
 // Only live requests count as uploading. A saved placeholder reopened after a
 // tab closes offers retry instead of displaying an endless spinner.
@@ -15,7 +15,7 @@ export const noteUpload = createReactBlockSpec(
   },
   {
     render: function UploadBlock({ block }) {
-      const { t } = useTranslation()
+      
       const pending = activeNoteUploads.has(block.id)
       return (
         <div className="dt-note-upload" contentEditable={false} aria-busy={pending}>
@@ -27,8 +27,8 @@ export const noteUpload = createReactBlockSpec(
               role={block.props.error ? 'alert' : 'status'}
             >
               {pending
-                ? t('Uploading…')
-                : block.props.error || t('Choose the file again to finish uploading.')}
+                ? "Uploading…"
+                : block.props.error || "Choose the file again to finish uploading."}
             </p>
           </div>
           {!pending && (
@@ -43,7 +43,7 @@ export const noteUpload = createReactBlockSpec(
                 )
               }
             >
-              {t('Choose file')}
+              {"Choose file"}
             </button>
           )}
         </div>

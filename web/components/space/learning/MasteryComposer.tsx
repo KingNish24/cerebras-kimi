@@ -21,7 +21,7 @@
 
 import { useCallback, useRef } from "react";
 import { COMMAND_CONFIRMATION_FAILED } from "@/features/chat/transport/command-delivery";
-import { useTranslation } from "react-i18next";
+
 
 import StandaloneComposer, {
   type StandaloneComposerSubmission,
@@ -71,7 +71,7 @@ export function MasteryComposer({
   // Pins the turn to the tutor loop; returns no capabilities to offer.
   useWorkspaceChatActions({ pinnedCapability: MASTERY_CAPABILITY_VALUE });
   const contextBudget = useContextBudget(state.messages);
-  const { t } = useTranslation();
+  
   const fallbackInputRef = useRef<((text: string) => void) | null>(null);
   const replyInputRef = prefillInputRef ?? fallbackInputRef;
 
@@ -118,17 +118,17 @@ export function MasteryComposer({
       if (awaitingUserReply && submission.content.trim()) {
         void submitUserReply({ text: submission.content }).then((sent) => {
           if (sent) return;
-          notify(t(REPLY_SENT_AS_NEW_MESSAGE));
+          notify((REPLY_SENT_AS_NEW_MESSAGE));
           sendAsNewMessage();
         }).catch(() => {
-          notify(t(COMMAND_CONFIRMATION_FAILED), { tone: "error" });
+          notify((COMMAND_CONFIRMATION_FAILED), { tone: "error" });
           replyInputRef.current?.(submission.content);
         });
         return;
       }
       sendAsNewMessage();
     },
-    [awaitingUserReply, disabled, sendMessage, submitUserReply, replyInputRef, t],
+    [awaitingUserReply, disabled, sendMessage, submitUserReply, replyInputRef],
   );
 
   return (

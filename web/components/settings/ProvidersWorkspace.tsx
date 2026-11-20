@@ -6,7 +6,7 @@ import { stageRegistryAction, type RegistryEdit } from "@/lib/provider-registry"
 import { useEffect, useRef, useState } from "react";
 import Link from "@/shared/router/link";
 import { ArrowRight, Cable, Plus, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { formatConfiguredProviderName, formatProviderLabel } from "@/lib/provider-branding";
 import ProviderIcon from "@/components/common/ProviderIcon";
 import { randomUuid } from "@/lib/random-uuid";
@@ -46,8 +46,8 @@ import {
 } from "./WorkspaceShell";
 
 export function ProvidersWorkspace() {
-  const { t, i18n } = useTranslation();
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? "en";
+  
+  const uiLanguage = "en" ?? "en" ?? "en";
   const {
     catalog,
     draft,
@@ -168,7 +168,7 @@ export function ProvidersWorkspace() {
   if (!catalogEditable)
     return (
       <p className="text-sm text-[var(--muted-foreground)]">
-        {t("Only administrators can manage providers.")}
+        {"Only administrators can manage providers."}
       </p>
     );
   const savedIds = new Set(providerRegistry(catalog).map((p) => p.id));
@@ -210,21 +210,21 @@ export function ProvidersWorkspace() {
                 className={`${registryButton} w-full py-2`}
               >
                 <Plus size={14} />
-                {t("Add provider")}
+                {"Add provider"}
               </button>
             }
             search={{
-              label: t("Find provider"),
+              label: "Find provider",
               value: query,
               onChange: setQuery,
-              placeholder: t("Search by name"),
+              placeholder: "Search by name",
             }}
             empty={
               filtered.length
                 ? undefined
                 : sources.length
-                  ? t("No providers match your search.")
-                  : t("Add your first provider to start configuring models.")
+                  ? "No providers match your search."
+                  : "Add your first provider to start configuring models."
             }
           >
             {filtered.map((p) => {
@@ -249,13 +249,11 @@ export function ProvidersWorkspace() {
                     </span>
                   </span>
                   <span className="mt-1 block pl-[24px] text-[12px] text-[var(--muted-foreground)]">
-                    {t("{{count}} configured models", {
-                      count: providerUsage(draft, p),
-                    })}
-                    {!savedIds.has(p.id) && ` · ${t("Not saved")}`}
+                    {`${providerUsage(draft, p)} configured models`}
+                    {!savedIds.has(p.id) && ` · ${"Not saved"}`}
                   </span>
                   <span className="mt-2 flex flex-wrap gap-1 pl-6">
-                    {PROVIDER_SERVICES.filter(service => providerServiceSupport(p, service, connectionTargets, providers).enabled).map(service => <span key={service} className="rounded bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">{t(SERVICE_TITLES[service])}</span>)}
+                    {PROVIDER_SERVICES.filter(service => providerServiceSupport(p, service, connectionTargets, providers).enabled).map(service => <span key={service} className="rounded bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">{(SERVICE_TITLES[service])}</span>)}
                   </span>
                 </button>
               );
@@ -268,24 +266,24 @@ export function ProvidersWorkspace() {
               <CodexOAuthCard />
             ) : source && connection ? (
               <section
-                aria-label={t("Provider settings")}
+                aria-label={"Provider settings"}
                 // `border-[var(--primary)]/35` compiled to no rule at all, so
                 // this pane was drawing preflight's default grey border.
                 className="min-w-0 overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--primary)_35%,var(--border))]"
               >
                 <header className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--primary)_4%,var(--background))] px-4 py-5 sm:px-6">
                   <p className="mb-1 text-[12px] font-medium text-[var(--primary)]">
-                    {t("Configuring provider")}
+                    {"Configuring provider"}
                   </p>
                   <EditableRegistryName
                     key={source.id}
                     name={connection.name}
-                    label={t("Rename provider")}
+                    label={"Rename provider"}
                     onChange={(name) => change("name", name)}
                   />
                   <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
                     {optionLabel(source.provider)}
-                    {!saved && ` · ${t("Not saved")}`}
+                    {!saved && ` · ${"Not saved"}`}
                   </p>
                 </header>
                 <div className="space-y-6 p-4 sm:p-6">
@@ -300,7 +298,7 @@ export function ProvidersWorkspace() {
                       <div className="grid gap-x-5 gap-y-4 lg:grid-cols-2">
                         <div className="space-y-2">
                           <RegistryField
-                            label={t("Provider URL")}
+                            label={"Provider URL"}
                             value={connection.base_url}
                             onChange={(v) => change("base_url", v)}
                             placeholder={
@@ -308,9 +306,7 @@ export function ProvidersWorkspace() {
                             }
                           />
                           <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                            {t(
-                              "Leave blank to use the provider default. Enter a custom URL for a gateway or private deployment.",
-                            )}
+                            {"Leave blank to use the provider default. Enter a custom URL for a gateway or private deployment."}
                           </p>
                         </div>
                         {option?.requires_api_key !== false && (
@@ -320,9 +316,7 @@ export function ProvidersWorkspace() {
                                 (key: string, index: number) => (
                                   <RegistryField
                                     key={index}
-                                    label={t("API key {{number}}", {
-                                      number: index + 1,
-                                    })}
+                                    label={`API key ${index + 1}`}
                                     value={key}
                                     type="password"
                                     onChange={(value) => {
@@ -335,7 +329,7 @@ export function ProvidersWorkspace() {
                               )
                             ) : (
                               <RegistryField
-                                label={t(source.provider === "volcengine_speech" && connection.app_id ? "Speech access token" : "API key")}
+                                label={(source.provider === "volcengine_speech" && connection.app_id ? "Speech access token" : "API key")}
                                 value={connection.api_key}
                                 type="password"
                                 onChange={(value) => change("api_key", value)}
@@ -346,10 +340,10 @@ export function ProvidersWorkspace() {
                       </div>
                       {source.provider === "volcengine_speech" && (
                         <div className="space-y-2">
-                          <RegistryField label={t("Speech App ID (legacy console only)")}
+                          <RegistryField label={"Speech App ID (legacy console only)"}
                             value={connection.app_id ?? ""} onChange={v => change("app_id", v)} />
                           <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                            {t("Use the Speech console API key. For the legacy console, enter App ID and put the access token in the key field. Ark keys are separate.")}
+                            {"Use the Speech console API key. For the legacy console, enter App ID and put the access token in the key field. Ark keys are separate."}
                           </p>
                         </div>
                       )}
@@ -359,19 +353,19 @@ export function ProvidersWorkspace() {
                       <ProviderServices key={source.id} source={source} onChange={value => change("service_overrides", value)} />
                       <details className={`p-3.5 ${subPanelClass}`}>
                         <summary className="cursor-pointer select-none rounded text-[13px] font-medium marker:text-[var(--muted-foreground)]">
-                          {t("Advanced connection settings")}
+                          {"Advanced connection settings"}
                         </summary>
                         <div className="mt-4 grid gap-4 sm:grid-cols-2">
                           {source.provider !== "volcengine_speech" && <>
                           <RegistryField
-                            label={t("API version")}
+                            label={"API version"}
                             value={connection.api_version || ""}
                             onChange={(v) => change("api_version", v)}
                           />
                           </>}
                           <div className="sm:col-span-2">
                             <RegistryField
-                              label={t("Extra headers (JSON)")}
+                              label={"Extra headers (JSON)"}
                               value={stringifyExtraHeaders(
                                 connection.extra_headers,
                               )}
@@ -380,7 +374,7 @@ export function ProvidersWorkspace() {
                           </div>
                           {source.service === "search" && (
                             <RegistryField
-                              label={t("Proxy")}
+                              label={"Proxy"}
                               value={connection.proxy || ""}
                               onChange={(v) => change("proxy", v)}
                             />
@@ -401,15 +395,15 @@ export function ProvidersWorkspace() {
 
                       <Tooltip label={
                         providerUsage(draft, source)
-                          ? t("Change or remove the models using this provider first.")
-                          : t("Remove provider")
+                          ? "Change or remove the models using this provider first."
+                          : "Remove provider"
                       } side="top">
                       <button
                         type="button"
                         disabled={
                           applying || providerUsage(draft, source) > 0 || managed
                         }
-                        aria-label={t("Remove provider")}
+                        aria-label={"Remove provider"}
                         onClick={async () => {
                           await stageRegistry({ kind: "provider", ref: source.ref, delete: true });
                           setSelected(null);
@@ -418,7 +412,7 @@ export function ProvidersWorkspace() {
                         className={`${registryDanger} ml-auto`}
                       >
                         <Trash2 size={13} />
-                        {t("Remove provider")}
+                        {"Remove provider"}
                       </button>
                     </Tooltip>
                   </div>
@@ -439,7 +433,7 @@ export function ProvidersWorkspace() {
                           href={`/settings/${path}?provider=${encodeURIComponent(source.id)}`}
                           className="inline-flex items-center gap-1 rounded-lg border border-[color-mix(in_srgb,var(--border)_80%,transparent)] px-2.5 py-1.5 text-[13px] text-[var(--muted-foreground)] transition-[background-color,border-color,color] duration-150 hover:border-[color-mix(in_srgb,var(--foreground)_20%,var(--border))] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                         >
-                          {t(label)}
+                          {(label)}
                           <ArrowRight size={12} />
                         </Link>
                       ))}
@@ -450,10 +444,8 @@ export function ProvidersWorkspace() {
             ) : (
               <WorkspaceDetailEmpty
                 icon={<Cable size={17} />}
-                title={t("Nothing selected")}
-                hint={t(
-                  "Select a provider to edit its connection. Models are managed on their own pages.",
-                )}
+                title={"Nothing selected"}
+                hint={"Select a provider to edit its connection. Models are managed on their own pages."}
               />
             )}
           </div>

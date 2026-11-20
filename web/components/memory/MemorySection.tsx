@@ -25,7 +25,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { knowledgeBaseRoute, notebookRoute } from "@/lib/resource-routes";
 import { bookRoute } from "@/lib/learning-routes";
@@ -265,7 +265,7 @@ function MemorySection({
   forcedTab,
   hideHeader = false,
 }: MemorySectionProps = {}) {
-  const { t, i18n } = useTranslation();
+  
   const [tab, setTab] = useState<Tab>(forcedTab ?? "L2");
   const [overview, setOverview] = useState<OverviewResponse | null>(null);
   const [selected, setSelected] = useState<{
@@ -357,20 +357,20 @@ function MemorySection({
       );
       setContent(editorValue);
       setEditing(false);
-      setToast(t("Saved"));
+      setToast("Saved");
       void loadOverview();
     } catch (e) {
       setToast(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setBusy(false);
     }
-  }, [editorValue, loadOverview, selected, t]);
+  }, [editorValue, loadOverview, selected]);
 
   const runUpdate = useCallback(async () => {
     if (!selected) return;
     if (selected.layer === "L3" && selected.key === "preferences") {
       setToast(
-        t("Preferences is written by the chat assistant, not consolidated."),
+        "Preferences is written by the chat assistant, not consolidated.",
       );
       return;
     }
@@ -382,7 +382,7 @@ function MemorySection({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ language: i18n.language || "en" }),
+          body: JSON.stringify({ language: "en" || "en" }),
         },
       );
       const reader = res.body?.getReader();
@@ -418,7 +418,7 @@ function MemorySection({
     } finally {
       setBusy(false);
     }
-  }, [i18n.language, loadDoc, loadOverview, selected, t]);
+  }, ["en", loadDoc, loadOverview, selected]);
 
   // Clicking a `<surface>:<entity_id>` ref inside an L2/L3 doc opens
   // the L1 tab focused on that entity.
@@ -450,10 +450,8 @@ function MemorySection({
     <div className="space-y-6">
       {!hideHeader && (
         <SpaceSectionHeader
-          title={t("Memory")}
-          description={t(
-            "L1 mirrors your workspace, L2 summarises per-surface content, L3 is cross-surface knowledge.",
-          )}
+          title={"Memory"}
+          description={"L1 mirrors your workspace, L2 summarises per-surface content, L3 is cross-surface knowledge."}
           meta={
             toast ? (
               <span className="rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-2 py-0.5 text-[10.5px] font-medium text-[var(--primary)]">
@@ -469,19 +467,16 @@ function MemorySection({
           <Archive className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
           <div>
             <p className="font-medium text-[var(--foreground)]">
-              {t("Your v1 memory was archived")}
+              {"Your v1 memory was archived"}
             </p>
             <p className="mt-0.5 text-[var(--muted-foreground)]">
-              {t(
-                "Stored at memory/backup/{{name}}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.",
-                { name: latestBackup },
-              )}
+              {`Stored at memory/backup/${latestBackup}. v2 starts fresh — interact with DeepTutor and click Update on each doc to build memory.`}
             </p>
           </div>
           <button
             type="button"
             onClick={dismissArchivedBanner}
-            aria-label={t("Dismiss")}
+            aria-label={"Dismiss"}
             className="absolute right-2 top-2 rounded-md p-1.5 text-[var(--muted-foreground)] transition hover:bg-[var(--background)] hover:text-[var(--foreground)]"
           >
             <X className="h-3.5 w-3.5" />
@@ -517,9 +512,7 @@ function MemorySection({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
           <div className="space-y-4">
             <DocList
-              title={t(
-                tab === "L2" ? "L2 · Per-surface" : "L3 · Cross-surface",
-              )}
+              title={(tab === "L2" ? "L2 · Per-surface" : "L3 · Cross-surface")}
               rows={tab === "L2" ? l2Rows : l3Rows}
               selected={selected}
               onSelect={loadDoc}
@@ -535,7 +528,7 @@ function MemorySection({
               <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-center">
                 <Brain className="mb-3 h-5 w-5 text-[var(--muted-foreground)]" />
                 <p className="text-[14px] text-[var(--foreground)]">
-                  {t("Pick a document to view or update")}
+                  {"Pick a document to view or update"}
                 </p>
               </div>
             ) : (
@@ -586,22 +579,20 @@ function TabStrip({ tab, onChange, l2Count, l3Count, t }: TabStripProps) {
     [
       {
         key: "L1",
-        label: t("L1 · Workspace"),
-        hint: t(
-          "Live snapshot of your workspace — one entry per real artifact.",
-        ),
+        label: "L1 · Workspace",
+        hint: "Live snapshot of your workspace — one entry per real artifact.",
       },
       {
         key: "L2",
-        label: t("L2 · Per-surface"),
+        label: "L2 · Per-surface",
         count: l2Count,
-        hint: t("Per-surface summaries consolidated from L1 content."),
+        hint: "Per-surface summaries consolidated from L1 content.",
       },
       {
         key: "L3",
-        label: t("L3 · Cross-surface"),
+        label: "L3 · Cross-surface",
         count: l3Count,
-        hint: t("Cross-surface knowledge consolidated from L2."),
+        hint: "Cross-surface knowledge consolidated from L2.",
       },
     ];
   return (
@@ -784,8 +775,8 @@ export function L1View({
       const newChanges: ChangeEntryDTO[] = data?.changes || [];
       onToast(
         newChanges.length > 0
-          ? t("Refreshed: {{n}} changes", { n: newChanges.length })
-          : t("Refreshed: no changes"),
+          ? `Refreshed: ${newChanges.length} changes`
+          : "Refreshed: no changes",
       );
       await loadSnapshot();
       await loadChanges();
@@ -794,7 +785,7 @@ export function L1View({
     } finally {
       setRefreshing(false);
     }
-  }, [surface, loadSnapshot, loadChanges, onToast, t]);
+  }, [surface, loadSnapshot, loadChanges, onToast]);
 
   return (
     <div className="space-y-3" ref={containerRef}>
@@ -815,9 +806,7 @@ export function L1View({
           <div className="ml-auto flex items-center gap-2">
             {pendingCount > 0 && (
               <Tooltip
-                label={t(
-                  "Workspace changed since last refresh. Click Refresh to commit these to the changes log.",
-                )}
+                label={"Workspace changed since last refresh. Click Refresh to commit these to the changes log."}
                 side="top"
               >
                 <span
@@ -825,11 +814,11 @@ export function L1View({
                   tabIndex={0}
                   className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
                 >
-                  {t("{{n}} pending", { n: pendingCount })}
+                  {`${pendingCount} pending`}
                 </span>
               </Tooltip>
             )}
-            <Tooltip label={t("Re-scan workspace and record any changes")} side="top">
+            <Tooltip label={"Re-scan workspace and record any changes"} side="top">
               <button
                 onClick={() => void onRefresh()}
                 disabled={refreshing}
@@ -840,7 +829,7 @@ export function L1View({
                 ) : (
                   <RefreshCw className="h-3 w-3" />
                 )}
-                {t("Refresh")}
+                {"Refresh"}
               </button>
             </Tooltip>
           </div>
@@ -853,9 +842,7 @@ export function L1View({
           <div className="flex items-center gap-2">
             {pendingCount > 0 && (
               <Tooltip
-                label={t(
-                  "Workspace changed since last refresh. Click Refresh to commit these to the changes log.",
-                )}
+                label={"Workspace changed since last refresh. Click Refresh to commit these to the changes log."}
                 side="top"
               >
                 <span
@@ -863,11 +850,11 @@ export function L1View({
                   tabIndex={0}
                   className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
                 >
-                  {t("{{n}} pending", { n: pendingCount })}
+                  {`${pendingCount} pending`}
                 </span>
               </Tooltip>
             )}
-            <Tooltip label={t("Re-scan workspace and record any changes")} side="top">
+            <Tooltip label={"Re-scan workspace and record any changes"} side="top">
               <button
                 onClick={() => void onRefresh()}
                 disabled={refreshing}
@@ -878,7 +865,7 @@ export function L1View({
                 ) : (
                   <RefreshCw className="h-3 w-3" />
                 )}
-                {t("Refresh")}
+                {"Refresh"}
               </button>
             </Tooltip>
           </div>
@@ -949,9 +936,9 @@ interface ModeStripProps {
 
 function ModeStrip({ mode, setMode, surface, t }: ModeStripProps) {
   const tabs: Array<{ key: L1Mode; label: string; hidden?: boolean }> = [
-    { key: "snapshot", label: t("Snapshot") },
-    { key: "changes", label: t("Changes") },
-    { key: "queries", label: t("Queries"), hidden: surface !== "kb" },
+    { key: "snapshot", label: "Snapshot" },
+    { key: "changes", label: "Changes" },
+    { key: "queries", label: "Queries", hidden: surface !== "kb" },
   ];
   return (
     <div className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border)] bg-[var(--card)] p-0.5 text-[12px]">
@@ -1003,13 +990,11 @@ function SnapshotList({
     <>
       <div className="flex items-baseline justify-between text-[11.5px] text-[var(--muted-foreground)]">
         <span>
-          {t("{{n}} entities", { n: entities.length })}
+          {`${entities.length} entities`}
           {snapshot?.last_refresh && (
             <>
               {" · "}
-              {t("last refresh {{ts}}", {
-                ts: formatTimestamp(snapshot.last_refresh, ""),
-              })}
+              {`last refresh ${formatTimestamp(snapshot.last_refresh, "")}`}
             </>
           )}
         </span>
@@ -1018,7 +1003,7 @@ function SnapshotList({
             onClick={onClearFocus}
             className="text-[var(--primary)] hover:underline"
           >
-            {t("Clear focus")}
+            {"Clear focus"}
           </button>
         )}
       </div>
@@ -1028,7 +1013,7 @@ function SnapshotList({
         </div>
       ) : entities.length === 0 ? (
         <p className="rounded-xl border border-[var(--border)] px-4 py-10 text-center text-[13px] text-[var(--muted-foreground)]">
-          {t("Nothing in workspace yet.")}
+          {"Nothing in workspace yet."}
         </p>
       ) : (
         <ol className="rounded-xl border border-[var(--border)]">
@@ -1112,7 +1097,7 @@ function EntityRow({ surface, ent, focused, pendingKind, t }: EntityRowProps) {
       data-entity-ref={ref}
     >
       {url ? (
-        <Tooltip label={t("Open in {{label}}", { label: meta.label })} as="div" side="top">
+        <Tooltip label={`Open in ${meta.label}`} as="div" side="top">
           <Link href={url} className={`${rowClass} border-b-0`}>
             {inner}
           </Link>
@@ -1135,21 +1120,21 @@ function PendingBadge({
 }) {
   const map = {
     added: {
-      label: t("new"),
+      label: "new",
       cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
     },
     modified: {
-      label: t("modified"),
+      label: "modified",
       cls: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
     },
     removed: {
-      label: t("removed"),
+      label: "removed",
       cls: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300",
     },
   } as const;
   const cfg = map[kind];
   return (
-    <Tooltip label={t("Pending — not yet committed to changes log")} side="top">
+    <Tooltip label={"Pending — not yet committed to changes log"} side="top">
       <span
         role="note"
         tabIndex={0}
@@ -1182,7 +1167,7 @@ function ChangesList({ loading, changes, pending, t }: ChangesListProps) {
   if (!hasAny) {
     return (
       <p className="rounded-xl border border-[var(--border)] px-4 py-10 text-center text-[13px] text-[var(--muted-foreground)]">
-        {t("No changes recorded yet. Run Refresh to capture the baseline.")}
+        {"No changes recorded yet. Run Refresh to capture the baseline."}
       </p>
     );
   }
@@ -1192,11 +1177,9 @@ function ChangesList({ loading, changes, pending, t }: ChangesListProps) {
         <div className="rounded-xl border border-amber-500/40 bg-amber-500/5">
           <div className="flex items-center justify-between border-b border-amber-500/30 px-4 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">
             <span>
-              {t("Pending — {{n}} change(s) since last refresh", {
-                n: pending.length,
-              })}
+              {`Pending — ${pending.length} change(s) since last refresh`}
             </span>
-            <span className="opacity-70">{t("Click Refresh to commit")}</span>
+            <span className="opacity-70">{"Click Refresh to commit"}</span>
           </div>
           <ol>
             {pending.map((c, i) => (
@@ -1268,7 +1251,7 @@ function KbQueriesList({ loading, queries, t }: KbQueriesListProps) {
   if (queries.length === 0) {
     return (
       <p className="rounded-xl border border-[var(--border)] px-4 py-10 text-center text-[13px] text-[var(--muted-foreground)]">
-        {t("No RAG queries recorded yet.")}
+        {"No RAG queries recorded yet."}
       </p>
     );
   }
@@ -1311,7 +1294,7 @@ interface DocListProps {
 }
 
 function DocList({ title, rows, selected, onSelect }: DocListProps) {
-  const { t } = useTranslation();
+  
   return (
     <div className="rounded-xl border border-[var(--border)]">
       <div className="border-b border-[var(--border)] px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
@@ -1337,7 +1320,7 @@ function DocList({ title, rows, selected, onSelect }: DocListProps) {
                 </span>
                 <span className="ml-2 text-[11px] text-[var(--muted-foreground)]">
                   {row.entry_count} ·{" "}
-                  {formatTimestamp(row.updated_at, t("not built"))}
+                  {formatTimestamp(row.updated_at, "not built")}
                 </span>
               </button>
             </li>
@@ -1393,7 +1376,7 @@ function DocPane({
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <Pencil className="h-3 w-3" />
-            {editing ? t("Cancel") : t("Edit")}
+            {editing ? "Cancel" : "Edit"}
           </button>
           {editing && (
             <button
@@ -1406,7 +1389,7 @@ function DocPane({
               ) : (
                 <Save className="h-3 w-3" />
               )}
-              {t("Save")}
+              {"Save"}
             </button>
           )}
           {!isPrefs && (
@@ -1420,7 +1403,7 @@ function DocPane({
               ) : (
                 <RefreshCw className="h-3 w-3" />
               )}
-              {t("Update")}
+              {"Update"}
             </button>
           )}
         </div>
@@ -1444,12 +1427,8 @@ function DocPane({
         ) : (
           <p className="text-[13px] text-[var(--muted-foreground)]">
             {isPrefs
-              ? t(
-                  "Preferences are written when you explicitly tell the chat assistant your preferences (style, language, format).",
-                )
-              : t(
-                  "Empty. Click Update to consolidate from the current snapshot.",
-                )}
+              ? "Preferences are written when you explicitly tell the chat assistant your preferences (style, language, format)."
+              : "Empty. Click Update to consolidate from the current snapshot."}
           </p>
         )}
       </div>
@@ -1468,7 +1447,7 @@ function StreamPanel({ stages, onDismiss, t }: StreamPanelProps) {
     <div className="rounded-xl border border-[var(--border)]">
       <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-2">
         <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Update progress")}
+          {"Update progress"}
         </span>
         <button
           onClick={onDismiss}
@@ -1490,7 +1469,7 @@ function StreamPanel({ stages, onDismiss, t }: StreamPanelProps) {
             </span>
             {typeof s.count === "number" && (
               <span className="ml-2 text-[var(--muted-foreground)]">
-                {t("Count: {{count}}", { count: s.count })}
+                {`Count: ${s.count}`}
               </span>
             )}
             {s.delta && (
@@ -1505,17 +1484,17 @@ function StreamPanel({ stages, onDismiss, t }: StreamPanelProps) {
             )}
             {s.args && Object.keys(s.args).length > 0 && (
               <div className="mt-1 text-[var(--muted-foreground)]">
-                {t("Arguments")}: {JSON.stringify(s.args)}
+                {"Arguments"}: {JSON.stringify(s.args)}
               </div>
             )}
             {s.ops && (
               <div className="mt-1 text-[var(--muted-foreground)]">
-                {t("Operations: {{count}}", { count: s.ops.length })}
+                {`Operations: ${s.ops.length}`}
               </div>
             )}
             {typeof s.ops_emitted === "number" && (
               <div className="mt-1 text-[var(--muted-foreground)]">
-                {t("Emitted operations: {{count}} · Turns: {{turns}}", { count: s.ops_emitted, turns: s.turns_used ?? "?" })}
+                {`Emitted operations: ${s.ops_emitted} · Turns: ${s.turns_used ?? "?"}`}
                 {s.tools_used
                   ? ` · ${Object.entries(s.tools_used)
                       .map(([k, v]) => `${k}=${v}`)
@@ -1525,7 +1504,7 @@ function StreamPanel({ stages, onDismiss, t }: StreamPanelProps) {
             )}
             {s.report && (
               <div className="mt-1 text-[var(--muted-foreground)]">
-                {t("Accepted")}: {s.report.accepted ? t("Yes") : t("No")}
+                {"Accepted"}: {s.report.accepted ? "Yes" : "No"}
                 {s.report.reason ? ` · ${s.report.reason}` : ""}
               </div>
             )}

@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { activityCalendar, type DailyUsage } from '@/lib/usage-statistics'
 
 const colors = [
@@ -23,7 +23,7 @@ export default function UsageActivity({
   activeDays: number
   turns: number
 }) {
-  const { t, i18n } = useTranslation()
+  
   const { weeks, dates, offset } = useMemo(() => activityCalendar(days, year), [days, year])
   const [selected, setSelected] = useState<DailyUsage | null>(null)
   const [focused, setFocused] = useState(0)
@@ -31,17 +31,13 @@ export default function UsageActivity({
   const max = Math.max(1, ...dates.map(day => day.turns))
   const today = new Intl.DateTimeFormat('en-CA').format(new Date())
   const dayLabel = (day: DailyUsage) =>
-    t('{{date}} · {{turns}} activities · {{tokens}} tokens', {
-      date: day.date,
-      turns: day.turns.toLocaleString(i18n.language),
-      tokens: day.tracked_turns ? day.total_tokens.toLocaleString(i18n.language) : '—',
-    })
+    `${day.date} · ${day.turns.toLocaleString(i18n.language)} activities · ${day.tracked_turns ? day.total_tokens.toLocaleString(i18n.language) : '—'} tokens`
   const months = dates.flatMap((day, index) =>
     day.date.endsWith('-01')
       ? [
           {
             week: Math.floor((index + offset) / 7),
-            label: new Date(`${day.date}T12:00:00Z`).toLocaleDateString(i18n.language, {
+            label: new Date(`${day.date}T12:00:00Z`).toLocaleDateString("en", {
               month: 'short',
               timeZone: 'UTC',
             }),
@@ -52,15 +48,12 @@ export default function UsageActivity({
   return (
     <section
       className="rounded-xl border border-[var(--border)] p-4 sm:p-5"
-      aria-label={t('Usage activity')}
+      aria-label={"Usage activity"}
     >
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-medium">{t('Usage activity')}</h2>
+        <h2 className="text-sm font-medium">{"Usage activity"}</h2>
         <span className="text-xs text-[var(--muted-foreground)]">
-          {t('{{days}} active days · {{turns}} activities', {
-            days: activeDays,
-            turns: turns.toLocaleString(i18n.language),
-          })}
+          {`${activeDays} active days · ${turns.toLocaleString(i18n.language)} activities`}
         </span>
       </div>
       <div className="overflow-x-auto pb-2" ref={grid}>
@@ -80,7 +73,7 @@ export default function UsageActivity({
               {Array.from({ length: 7 }, (_, i) => (
                 <span key={i}>
                   {[0, 2, 4].includes(i)
-                    ? t(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i])
+                    ? (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i])
                     : ''}
                 </span>
               ))}
@@ -88,7 +81,7 @@ export default function UsageActivity({
             <div
               className="flex gap-[3px]"
               role="group"
-              aria-label={t('Daily usage activity')}
+              aria-label={"Daily usage activity"}
             >
               {weeks.map((week, w) => (
                 <div key={w} className="grid grid-rows-7 gap-[3px]">
@@ -150,14 +143,14 @@ export default function UsageActivity({
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[10px] text-[var(--muted-foreground)]">
         <p className="min-h-4" aria-live="polite">
-          {selected ? dayLabel(selected) : t('Daily activity')}
+          {selected ? dayLabel(selected) : "Daily activity"}
         </p>
         <div className="flex items-center gap-1.5">
-          <span>{t('Less activity')}</span>
+          <span>{"Less activity"}</span>
           {colors.map(color => (
             <span key={color} className={`h-[10px] w-[10px] rounded-[2px] ${color}`} />
           ))}
-          <span>{t('More activity')}</span>
+          <span>{"More activity"}</span>
         </div>
       </div>
     </section>

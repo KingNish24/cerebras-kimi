@@ -8,7 +8,7 @@ import { randomUuid } from '@/lib/random-uuid'
 import { learningLibrary } from '@/lib/learning-library'
 import { useCreateRequest, requestedLearningCreation } from '@/components/learning/create-request'
 import { bookRoute } from "@/lib/learning-routes";
-import { useTranslation } from 'react-i18next'
+
 
 import { BookApiError, bookApi, type BookWsEvent } from '@/lib/book-api'
 import { bookErrorMessage } from '@/lib/book-errors'
@@ -98,12 +98,12 @@ export default function BookPage() {
 }
 
 function BookLoadingText() {
-  const { t } = useTranslation()
-  return <>{t('Loading…')}</>
+  
+  return <>{"Loading…"}</>
 }
 
 function BookPageInner() {
-  const { t } = useTranslation()
+  
   const router = useRouter()
   const routeParams = useParams<{ bookId?: string; pageId?: string }>()
   const requestedBookId = routeParams.bookId?.trim() || null
@@ -185,15 +185,15 @@ function BookPageInner() {
             // Keep the original conflict as the actionable error.
           }
         }
-        const reason = bookErrorMessage(err, t)
-        notify(t('{{action}} failed: {{reason}}', { action, reason }), {
+        const reason = bookErrorMessage(err)
+        notify(`${action} failed: ${reason}`, {
           tone: 'error',
           durationMs: 8000,
         })
         console.error(`${action} failed:`, err)
       }
     },
-    [selectedBookId, t]
+    [selectedBookId]
   )
 
   const refreshBooks = useCallback(async () => {
@@ -204,11 +204,11 @@ function BookPageInner() {
       setCanCreateBook(data.can_create)
       setBooksError(null)
     } catch {
-      setBooksError(t('Failed to load books'))
+      setBooksError("Failed to load books")
     } finally {
       setLoadingBooks(false)
     }
-  }, [t])
+  }, [])
 
   /**
    * Load a book without its block payloads.
@@ -264,7 +264,7 @@ function BookPageInner() {
         setLearningCaptures(captures)
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
-        notify(t('Could not load learning captures: {{message}}', { message: msg }), {
+        notify(`Could not load learning captures: ${msg}`, {
           tone: 'error',
           durationMs: 6000,
         })
@@ -273,7 +273,7 @@ function BookPageInner() {
         setLoadingLearningCaptures(false)
       }
     },
-    [t]
+    []
   )
 
   // Debounced per page, so a burst of block events costs one fetch.
@@ -478,16 +478,13 @@ function BookPageInner() {
     void handleSelectBook(requestedBookId, requestedPageId).catch(err => {
       if (lastDeepLinkedBookId.current !== requestedBookId) return
       notify(
-        t('{{action}} failed: {{reason}}', {
-          action: t('Open book'),
-          reason: bookErrorMessage(err, t),
-        }),
+        `${"Open book"} failed: ${bookErrorMessage(err)}`,
         { tone: 'error', durationMs: 8000 }
       )
       console.error('Open book failed:', err)
       void handleSelectBook(null)
     })
-  }, [requestedBookId, requestedPageId, selectedBookId, handleSelectBook, t])
+  }, [requestedBookId, requestedPageId, selectedBookId, handleSelectBook])
 
   useEffect(() => {
     if (view !== 'reader' || !selectedBookId) {
@@ -518,8 +515,8 @@ function BookPageInner() {
       await loadBookDetail(detail.book.id)
       await refreshBooks()
     } catch (err) {
-      const msg = bookErrorMessage(err, t)
-      notify(t('Could not resume: {{message}}', { message: msg }), {
+      const msg = bookErrorMessage(err)
+      notify(`Could not resume: ${msg}`, {
         tone: 'error',
         durationMs: 8000,
       })
@@ -537,8 +534,8 @@ function BookPageInner() {
       await loadBookDetail(detail.book.id)
       await refreshBooks()
     } catch (err) {
-      const msg = bookErrorMessage(err, t)
-      notify(t('Could not pause: {{message}}', { message: msg }), {
+      const msg = bookErrorMessage(err)
+      notify(`Could not pause: ${msg}`, {
         tone: 'error',
         durationMs: 8000,
       })
@@ -666,8 +663,8 @@ function BookPageInner() {
           await run()
         }
       } catch (err) {
-        const msg = bookErrorMessage(err, t)
-        notify(t('Compile failed: {{message}}', { message: msg }), {
+        const msg = bookErrorMessage(err)
+        notify(`Compile failed: ${msg}`, {
           tone: 'error',
           durationMs: 8000,
         })
@@ -677,7 +674,7 @@ function BookPageInner() {
         setCompilingPageId(current => (current === pageId ? null : current))
       }
     },
-    [selectedBookId, canEditBook, currentRevision, applyBookRevision, mergePage, loadBookDetail, t]
+    [selectedBookId, canEditBook, currentRevision, applyBookRevision, mergePage, loadBookDetail]
   )
 
   const handleSelectPage = useCallback(
@@ -754,7 +751,7 @@ function BookPageInner() {
       await hydratePage(pageId)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      notify(t('Could not save your edit: {{message}}', { message: msg }), {
+      notify(`Could not save your edit: ${msg}`, {
         tone: 'error',
         durationMs: 8000,
       })
@@ -789,7 +786,7 @@ function BookPageInner() {
       applyBookRevision(book_revision)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      notify(t('Regenerate block failed: {{message}}', { message: msg }), {
+      notify(`Regenerate block failed: ${msg}`, {
         tone: 'error',
         durationMs: 8000,
       })
@@ -932,7 +929,7 @@ function BookPageInner() {
       await hydratePage(pageId)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      notify(t('Could not add extra practice: {{message}}', { message: msg }), {
+      notify(`Could not add extra practice: ${msg}`, {
         tone: 'error',
         durationMs: 8000,
       })
@@ -981,7 +978,7 @@ function BookPageInner() {
       status: 'approved',
     })
     applyCapturePatch(result.capture)
-    notify(t('Capture approved'), {
+    notify("Capture approved", {
       tone: 'success',
       durationMs: 3000,
     })
@@ -993,7 +990,7 @@ function BookPageInner() {
       status: 'rejected',
     })
     applyCapturePatch(result.capture)
-    notify(t('Capture rejected'), {
+    notify("Capture rejected", {
       tone: 'info',
       durationMs: 3000,
     })
@@ -1030,8 +1027,8 @@ function BookPageInner() {
       {/* 「书 / this book」: the book switches to the others from the bar. */}
       {requestedBookId && openBook && (
         <div className="flex min-w-0 shrink-0 items-center">
-          <BookCrumb id={openBook.id} label={openBook.title || t('Untitled book')} />
-          {detail?.spine && canEditBook && <button className="ml-auto mr-4 text-sm" onClick={() => setStructureOpen(true)}>{t('Edit book structure')}</button>}
+          <BookCrumb id={openBook.id} label={openBook.title || "Untitled book"} />
+          {detail?.spine && canEditBook && <button className="ml-auto mr-4 text-sm" onClick={() => setStructureOpen(true)}>{"Edit book structure"}</button>}
         </div>
       )}
       <div className="flex min-h-0 min-w-0 flex-1">
@@ -1100,7 +1097,7 @@ function BookPageInner() {
           {displayView === 'creator' && (
             <div className="h-full overflow-y-auto [scrollbar-gutter:stable]">
               <BookCreator
-                back={<button type="button" onClick={() => void handleSelectBook(null)} className="dt-section-back inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft size={14} />{t('All books')}</button>}
+                back={<button type="button" onClick={() => void handleSelectBook(null)} className="dt-section-back inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft size={14} />{"All books"}</button>}
                 book={pendingBook}
                 onCreate={handleCreate}
                 loading={creating}
@@ -1157,12 +1154,8 @@ function BookPageInner() {
               {detail?.book.source === 'shared' && (
                 <div className="mx-6 mt-3 rounded-lg border border-sky-300/60 bg-sky-50 px-3 py-2 text-xs text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-100">
                   {canEditBook
-                    ? t(
-                        'Shared book: content edits affect everyone who can access it. Reading progress and captures remain private to you.'
-                      )
-                    : t(
-                        'Shared book (read only): your reading progress, bookmarks and captures remain private to you.'
-                      )}
+                    ? "Shared book: content edits affect everyone who can access it. Reading progress and captures remain private to you."
+                    : "Shared book (read only): your reading progress, bookmarks and captures remain private to you."}
                 </div>
               )}
               {/* The reader owns the height that is left; the capture inbox
@@ -1240,7 +1233,7 @@ function BookPageInner() {
 
           {displayView === 'spine' && !detail?.spine && (
             <div className="flex h-full items-center justify-center text-[var(--muted-foreground)]">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('Loading spine…')}
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {"Loading spine…"}
             </div>
           )}
           </div>
@@ -1252,7 +1245,7 @@ function BookPageInner() {
             className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] shadow-lg hover:opacity-90"
           >
             <MessageSquare className="h-4 w-4" />
-            {t('Chat')}
+            {"Chat"}
           </button>
         )}
 

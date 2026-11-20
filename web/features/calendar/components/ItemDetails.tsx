@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import HeaderActionButton from '@/features/chat/components/HeaderActionButton'
 import type { TaskCard } from '@/lib/task-board-api'
 import { formatDate, formatTime, fromDateKey } from '../model/dates'
@@ -91,27 +91,27 @@ export function EventDetails({
   onClose: () => void
   onCompleteTask: (task: TaskCard) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const { occurrence } = item
   const calendar = calendars.find(entry => entry.id === occurrence.calendar_id)
   return (
     <div className="dt-cal-detail">
       <Head
         color={item.color}
-        title={itemTitle(item, t)}
+        title={itemTitle(item)}
         sub={describeWhen(item.start, item.end, item.allDay, locale)}
         actions={
           <>
-            <HeaderActionButton icon={Pencil} label={t('Edit event')} onClick={onEdit} />
-            <HeaderActionButton icon={Copy} label={t('Duplicate')} onClick={onDuplicate} />
-            <HeaderActionButton icon={Trash2} label={t('Delete event')} onClick={onDelete} />
-            <HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />
+            <HeaderActionButton icon={Pencil} label={"Edit event"} onClick={onEdit} />
+            <HeaderActionButton icon={Copy} label={"Duplicate"} onClick={onDuplicate} />
+            <HeaderActionButton icon={Trash2} label={"Delete event"} onClick={onDelete} />
+            <HeaderActionButton icon={X} label={"Close"} onClick={onClose} />
           </>
         }
       />
       {occurrence.rrule && (
-        <Row icon={Repeat}>{describeRule(occurrence.rrule, item.start, locale, t)}</Row>
+        <Row icon={Repeat}>{describeRule(occurrence.rrule, item.start, locale)}</Row>
       )}
       {occurrence.location && <Row icon={MapPin}>{occurrence.location}</Row>}
       {occurrence.task_id && (
@@ -119,8 +119,8 @@ export function EventDetails({
           <div className="flex items-center gap-2">
             <span className="min-w-0 flex-1 truncate">
               {task
-                ? t('Time block for “{{task}}”', { task: task.title })
-                : t('Time block for a task in another workspace')}
+                ? `Time block for “${task.title}”`
+                : "Time block for a task in another workspace"}
             </span>
             {task && task.status !== 'done' && (
               <button
@@ -128,7 +128,7 @@ export function EventDetails({
                 className="dt-cal-text-button"
                 onClick={() => onCompleteTask(task)}
               >
-                {t('Mark done')}
+                {"Mark done"}
               </button>
             )}
           </div>
@@ -142,7 +142,7 @@ export function EventDetails({
       {occurrence.reminders.length > 0 && (
         <Row icon={Bell}>
           {occurrence.reminders
-            .map(minutes => describeReminder(minutes, occurrence.all_day, locale, t))
+            .map(minutes => describeReminder(minutes, occurrence.all_day, locale))
             .join(' · ')}
         </Row>
       )}
@@ -154,11 +154,11 @@ export function EventDetails({
               className="dt-cal-chip-dot"
               style={{ '--ev': calendar.color } as CSSProperties}
             />
-            {calendarName(calendar, t)}
+            {calendarName(calendar)}
           </span>
         </Row>
       )}
-      {occurrence.source === 'dito' && <Row icon={Sparkles}>{t('Scheduled by Dito')}</Row>}
+      {occurrence.source === 'dito' && <Row icon={Sparkles}>{"Scheduled by Dito"}</Row>}
     </div>
   )
 }
@@ -178,9 +178,9 @@ export function TaskDetails({
   sessionIds?: string[]
   onSchedule: () => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const { card } = item
-  const status = { todo: t('kanban.todo'), doing: t('kanban.doing'), done: t('kanban.done') }[
+  const status = { todo: "To do", doing: "In progress", done: "Done" }[
     card.status
   ]
   return (
@@ -188,8 +188,8 @@ export function TaskDetails({
       <Head
         color={item.color}
         title={card.title}
-        sub={`${status} · ${t('Due {{date}}', { date: formatDate(fromDateKey(card.due_date!), i18n.language, { month: 'short', day: 'numeric', weekday: 'short' }) })}`}
-        actions={<HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />}
+        sub={`${status} · ${`Due ${formatDate(fromDateKey(card.due_date!), i18n.language, { month: 'short', day: 'numeric', weekday: 'short' })}`}`}
+        actions={<HeaderActionButton icon={X} label={"Close"} onClick={onClose} />}
       />
       {card.note && (
         <Row icon={Text}>
@@ -197,32 +197,32 @@ export function TaskDetails({
         </Row>
       )}
       {sessionIds.length > 0 && (
-        <nav aria-label={t('Linked conversations')} className="dt-cal-detail-links">
+        <nav aria-label={"Linked conversations"} className="dt-cal-detail-links">
           {sessionIds.map((id, index) => (
             <Link
               className="dt-cal-text-button mr-3"
               key={id}
               href={`/chat/${encodeURIComponent(id)}`}
             >
-              {t('Conversation {{number}}', { number: index + 1 })}
+              {`Conversation ${index + 1}`}
             </Link>
           ))}
         </nav>
       )}
       <div className="dt-cal-detail-buttons">
         <button type="button" className="dt-cal-text-button" onClick={onToggleDone}>
-          {card.status === 'done' ? t('Reopen') : t('Mark done')}
+          {card.status === 'done' ? "Reopen" : "Mark done"}
         </button>
         {card.status !== 'done' && (
           <button type="button" className="dt-cal-text-button" onClick={onSchedule}>
-            {t('Block out time')}
+            {"Block out time"}
           </button>
         )}
         <button type="button" className="dt-cal-text-button" onClick={onClearDate}>
-          {t('Remove due date')}
+          {"Remove due date"}
         </button>
         <Link href="/kanban" prefetch={false} className="dt-cal-text-button">
-          {t('Open board')}
+          {"Open board"}
           <ArrowUpRight aria-hidden size={12} />
         </Link>
       </div>
@@ -231,19 +231,19 @@ export function TaskDetails({
 }
 
 export function ReviewDetails({ item, onClose }: { item: ReviewItem; onClose: () => void }) {
-  const { t, i18n } = useTranslation()
+  
   const { day } = item
   return (
     <div className="dt-cal-detail">
       <Head
         color={item.color}
-        title={itemTitle(item, t)}
-        sub={formatDate(fromDateKey(day.date), i18n.language, {
+        title={itemTitle(item)}
+        sub={formatDate(fromDateKey(day.date), "en", {
           month: 'long',
           day: 'numeric',
           weekday: 'short',
         })}
-        actions={<HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />}
+        actions={<HeaderActionButton icon={X} label={"Close"} onClick={onClose} />}
       />
       <ul className="dt-cal-detail-links">
         {day.paths.map(path => (
@@ -259,7 +259,7 @@ export function ReviewDetails({ item, onClose }: { item: ReviewItem; onClose: ()
           <li>
             <Link href="/learning/practice" prefetch={false}>
               <CircleCheck aria-hidden size={14} strokeWidth={1.8} />
-              <span className="min-w-0 flex-1 truncate">{t('Question bank review')}</span>
+              <span className="min-w-0 flex-1 truncate">{"Question bank review"}</span>
               <span className="dt-cal-count">{day.practice}</span>
             </Link>
           </li>
@@ -278,22 +278,22 @@ export function AutomationDetails({
   onClose: () => void
   onCancel: () => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const [confirming, setConfirming] = useState(false)
   const { run } = item
   const schedule =
     run.kind === 'at'
-      ? t('Once')
+      ? "Once"
       : run.kind === 'every' && run.every_seconds
-        ? describeEvery(run.every_seconds, t)
-        : t('On the schedule {{expr}}', { expr: run.expr ?? '' })
+        ? describeEvery(run.every_seconds)
+        : `On the schedule ${run.expr ?? ''}`
   return (
     <div className="dt-cal-detail">
       <Head
         color={item.color}
-        title={itemTitle(item, t)}
-        sub={`${formatDate(item.start, i18n.language, { month: 'short', day: 'numeric', weekday: 'short' })} · ${formatTime(item.start, i18n.language)}`}
-        actions={<HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />}
+        title={itemTitle(item)}
+        sub={`${formatDate(item.start, "en", { month: 'short', day: 'numeric', weekday: 'short' })} · ${formatTime(item.start, "en")}`}
+        actions={<HeaderActionButton icon={X} label={"Close"} onClick={onClose} />}
       />
       <Row icon={CalendarClock}>{schedule}</Row>
       {run.message && run.message !== run.name && (
@@ -302,7 +302,7 @@ export function AutomationDetails({
         </Row>
       )}
       <p className="dt-cal-detail-hint">
-        {t('Dito set this up in a conversation and runs it at that time.')}
+        {"Dito set this up in a conversation and runs it at that time."}
       </p>
       <div className="dt-cal-detail-buttons">
         {run.session_id && (
@@ -312,16 +312,16 @@ export function AutomationDetails({
             className="dt-cal-text-button"
           >
             <MessageSquare aria-hidden size={13} />
-            {t('Open conversation')}
+            {"Open conversation"}
           </Link>
         )}
         {confirming ? (
           <button type="button" className="dt-cal-text-button dt-cal-danger" onClick={onCancel}>
-            {t('Stop it for good')}
+            {"Stop it for good"}
           </button>
         ) : (
           <button type="button" className="dt-cal-text-button" onClick={() => setConfirming(true)}>
-            {t('Stop this automation')}
+            {"Stop this automation"}
           </button>
         )}
       </div>
@@ -330,14 +330,14 @@ export function AutomationDetails({
 }
 
 export function FootprintDetails({ day, onClose }: { day: FootprintDay; onClose: () => void }) {
-  const { t, i18n } = useTranslation()
+  
   return (
     <div className="dt-cal-detail">
       <Head
         color="#787774"
-        title={t('Footprints')}
-        sub={`${formatDate(fromDateKey(day.date), i18n.language, { month: 'long', day: 'numeric', weekday: 'short' })} · ${footprintSummary(day, t)}`}
-        actions={<HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />}
+        title={"Footprints"}
+        sub={`${formatDate(fromDateKey(day.date), "en", { month: 'long', day: 'numeric', weekday: 'short' })} · ${footprintSummary(day)}`}
+        actions={<HeaderActionButton icon={X} label={"Close"} onClick={onClose} />}
       />
       {day.sessions.length > 0 && (
         <ul className="dt-cal-detail-links">
@@ -346,14 +346,14 @@ export function FootprintDetails({ day, onClose }: { day: FootprintDay; onClose:
               <Link href={`/chat/${encodeURIComponent(session.id)}`} prefetch={false}>
                 <MessageSquare aria-hidden size={14} strokeWidth={1.8} />
                 <span className="min-w-0 flex-1 truncate">
-                  {session.title || t('Untitled conversation')}
+                  {session.title || "Untitled conversation"}
                 </span>
               </Link>
             </li>
           ))}
         </ul>
       )}
-      {!day.sessions.length && <Row icon={Footprints}>{footprintSummary(day, t)}</Row>}
+      {!day.sessions.length && <Row icon={Footprints}>{footprintSummary(day)}</Row>}
     </div>
   )
 }
@@ -372,14 +372,14 @@ export function DayList({
   onClose: () => void
   renderChip: (item: CalendarItem, onClick: (element: HTMLElement) => void) => ReactNode
 }) {
-  const { t, i18n } = useTranslation()
+  
   return (
     <div className="dt-cal-detail">
       <div className="dt-cal-detail-actions">
-        <HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />
+        <HeaderActionButton icon={X} label={"Close"} onClick={onClose} />
       </div>
       <p className="dt-cal-daylist-title">
-        {formatDate(day, i18n.language, { weekday: 'long', month: 'long', day: 'numeric' })}
+        {formatDate(day, "en", { weekday: 'long', month: 'long', day: 'numeric' })}
       </p>
       <div className="dt-cal-daylist">
         {items.map(item => (

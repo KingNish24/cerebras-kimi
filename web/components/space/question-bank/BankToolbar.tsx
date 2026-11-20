@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import {
   ArrowDownWideNarrow,
   Loader2,
@@ -47,7 +47,7 @@ export default function BankToolbar({
   onToggleManager,
   onFiltersChange,
 }: BankToolbarProps) {
-  const { t } = useTranslation();
+  
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -56,18 +56,18 @@ export default function BankToolbar({
         <input
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder={t("Search questions and answers…")}
+          placeholder={"Search questions and answers…"}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-1.5 pl-8 pr-8 text-[12.5px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)]/50"
         />
         {refreshing ? (
           <Loader2 className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-[var(--muted-foreground)]" />
         ) : search ? (
           <span className="absolute right-2.5 top-1/2 -translate-y-1/2">
-            <Tooltip label={t("Clear")}>
+            <Tooltip label={"Clear"}>
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                aria-label={t("Clear")}
+                aria-label={"Clear"}
                 className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
               >
                 <X className="h-3.5 w-3.5" />
@@ -77,7 +77,7 @@ export default function BankToolbar({
         ) : null}
       </div>
 
-      <Tooltip label={t("Toggle sort order")}>
+      <Tooltip label={"Toggle sort order"}>
         <button
           type="button"
           onClick={() => onSortChange(sort === "recent" ? "oldest" : "recent")}
@@ -86,7 +86,7 @@ export default function BankToolbar({
           <ArrowDownWideNarrow
             className={`h-3.5 w-3.5 transition-transform ${sort === "oldest" ? "rotate-180" : ""}`}
           />
-          {sort === "recent" ? t("Newest first") : t("Oldest first")}
+          {sort === "recent" ? "Newest first" : "Oldest first"}
         </button>
       </Tooltip>
 
@@ -99,16 +99,16 @@ export default function BankToolbar({
             materialId: "",
           })
         }
-        aria-label={t("Source")}
+        aria-label={"Source"}
         className="h-[34px] rounded-lg border border-[var(--border)] bg-[var(--card)] px-2 text-[12px] text-[var(--foreground)] outline-none"
       >
-        <option value="">{t("All Sources")}</option>
-        <option value="deep_question">{t("Deep Question")}</option>
-        <option value="mastery_path">{t("Mastery Path")}</option>
-        <option value="immersive_reading">{t("Immersive Reading")}</option>
-        <option value="book">{t("Book")}</option>
-        <option value="partner_chat">{t("Partner Chat")}</option>
-        <option value="import">{t("Imported")}</option>
+        <option value="">{"All Sources"}</option>
+        <option value="deep_question">{"Deep Question"}</option>
+        <option value="mastery_path">{"Mastery Path"}</option>
+        <option value="immersive_reading">{"Immersive Reading"}</option>
+        <option value="book">{"Book"}</option>
+        <option value="partner_chat">{"Partner Chat"}</option>
+        <option value="import">{"Imported"}</option>
       </select>
 
       <select
@@ -116,11 +116,11 @@ export default function BankToolbar({
         onChange={(event) =>
           onFiltersChange({ ...filters, materialId: event.target.value })
         }
-        aria-label={t("Material")}
+        aria-label={"Material"}
         disabled={materials.length === 0}
         className="h-[34px] max-w-[180px] rounded-lg border border-[var(--border)] bg-[var(--card)] px-2 text-[12px] text-[var(--foreground)] outline-none disabled:opacity-50"
       >
-        <option value="">{t("All Materials")}</option>
+        <option value="">{"All Materials"}</option>
         {materials
           .filter((item) => !filters.source || item.source === filters.source)
           .map((item) => (
@@ -141,14 +141,14 @@ export default function BankToolbar({
             scoreTrend: event.target.value as ScoreTrend | "",
           })
         }
-        aria-label={t("Score Trend")}
+        aria-label={"Score Trend"}
         className="h-[34px] rounded-lg border border-[var(--border)] bg-[var(--card)] px-2 text-[12px] text-[var(--foreground)] outline-none"
       >
-        <option value="">{t("All Trends")}</option>
-        <option value="new">{t("First Attempt")}</option>
-        <option value="improved">{t("Improved")}</option>
-        <option value="declined">{t("Declined")}</option>
-        <option value="unchanged">{t("Unchanged")}</option>
+        <option value="">{"All Trends"}</option>
+        <option value="new">{"First Attempt"}</option>
+        <option value="improved">{"Improved"}</option>
+        <option value="declined">{"Declined"}</option>
+        <option value="unchanged">{"Unchanged"}</option>
       </select>
 
       <button
@@ -161,7 +161,7 @@ export default function BankToolbar({
         }`}
       >
         <Settings2 className="h-3.5 w-3.5" />
-        {t("Manage tags")}
+        {"Manage tags"}
       </button>
     </div>
   );

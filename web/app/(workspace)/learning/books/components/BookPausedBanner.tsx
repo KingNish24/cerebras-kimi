@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, PauseCircle, Play } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type { Book } from "@/lib/book-types";
 
@@ -23,7 +23,7 @@ export default function BookPausedBanner({
   onResume,
   resuming = false,
 }: BookPausedBannerProps) {
-  const { t } = useTranslation();
+  
   if (!book || book.status !== "paused") return null;
 
   const reason = String(book.metadata?.pause_reason || "").trim();
@@ -35,16 +35,12 @@ export default function BookPausedBanner({
         <PauseCircle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="text-[13px] font-semibold">
-            {t("Generation paused")}
+            {"Generation paused"}
           </div>
           <p className="mt-0.5 text-xs leading-relaxed opacity-90">
             {manual
-              ? t(
-                  "Generation was paused. Everything generated so far is saved, and unfinished chapters will continue only when you resume.",
-                )
-              : t(
-                  "Your model provider kept refusing requests, so the remaining chapters were left untouched rather than half-written. Everything generated so far is saved.",
-                )}
+              ? "Generation was paused. Everything generated so far is saved, and unfinished chapters will continue only when you resume."
+              : "Your model provider kept refusing requests, so the remaining chapters were left untouched rather than half-written. Everything generated so far is saved."}
           </p>
           {reason && (
             <code className="mt-1.5 block truncate rounded bg-white/50 px-1.5 py-0.5 text-[11px] dark:bg-white/10">
@@ -64,7 +60,7 @@ export default function BookPausedBanner({
             ) : (
               <Play className="h-3.5 w-3.5" />
             )}
-            {resuming ? t("Resuming…") : t("Resume generation")}
+            {resuming ? "Resuming…" : "Resume generation"}
           </button>
         )}
       </div>

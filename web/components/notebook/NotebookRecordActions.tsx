@@ -9,7 +9,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import type { NotebookSummary } from "@/lib/notebook-api";
 
@@ -39,7 +39,7 @@ export default function NotebookRecordActions({
   onDelete,
   onRelocate,
 }: NotebookRecordActionsProps) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<Panel>("root");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -79,13 +79,13 @@ export default function NotebookRecordActions({
 
   return (
     <div ref={containerRef} className="relative shrink-0">
-      <Tooltip label={t("Record actions")} side="bottom" suppressed={open}>
+      <Tooltip label={"Record actions"} side="bottom" suppressed={open}>
         <button
           type="button"
           disabled={disabled}
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label={t("Record actions")}
+          aria-label={"Record actions"}
           onClick={() => (open ? close() : setOpen(true))}
           className={`inline-flex h-7 w-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-[background-color,color,opacity,transform] duration-150 active:scale-[0.97] hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:bg-[var(--muted)] focus-visible:text-[var(--foreground)] focus-visible:outline-none disabled:opacity-30 ${
             open
@@ -106,7 +106,7 @@ export default function NotebookRecordActions({
             <div className="p-1">
               <MenuItem
                 icon={Pencil}
-                label={t("Edit favorite details")}
+                label={"Edit favorite details"}
                 onClick={() => {
                   close();
                   onEdit();
@@ -116,13 +116,13 @@ export default function NotebookRecordActions({
                 <>
                   <MenuItem
                     icon={CornerUpRight}
-                    label={t("Move to")}
+                    label={"Move to"}
                     hasSubmenu
                     onClick={() => setPanel("move")}
                   />
                   <MenuItem
                     icon={Copy}
-                    label={t("Copy to")}
+                    label={"Copy to"}
                     hasSubmenu
                     onClick={() => setPanel("copy")}
                   />
@@ -131,7 +131,7 @@ export default function NotebookRecordActions({
               <div className="my-1 h-px bg-[var(--border)]/60" />
               <MenuItem
                 icon={Trash2}
-                label={t("Delete")}
+                label={"Delete"}
                 tone="danger"
                 onClick={() => {
                   close();
@@ -147,7 +147,7 @@ export default function NotebookRecordActions({
                 className="mb-0.5 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
               >
                 <ArrowLeft size={12} />
-                {panel === "move" ? t("Move to") : t("Copy to")}
+                {panel === "move" ? "Move to" : "Copy to"}
               </button>
               <div className="max-h-[220px] overflow-y-auto">
                 {targets.map((notebook) => (

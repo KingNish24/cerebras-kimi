@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   addReadingWorkspaceMaterial,
@@ -58,7 +58,7 @@ const GRID =
   "lg:grid-cols-[32px_minmax(0,1fr)_104px_minmax(0,236px)_72px_28px]";
 
 export function MaterialLibraryPage() {
-  const { t, i18n } = useTranslation();
+  
   const [materials, setMaterials] = useState<ReadingLibraryMaterial[]>([]);
   const [counts, setCounts] = useState<ReadingLibraryCounts | null>(null);
   const [collections, setCollections] = useState<ReadingWorkspace[]>([]);
@@ -98,12 +98,12 @@ export function MaterialLibraryPage() {
       setError(
         caught instanceof Error
           ? caught.message
-          : t("Could not load your library.")
+          : "Could not load your library."
       );
     } finally {
       setLoading(false);
     }
-  }, [t, router]);
+  }, [router]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 140);
@@ -136,7 +136,7 @@ export function MaterialLibraryPage() {
       view="materials"
       materialCount={tally.all}
       collectionCount={collections.length}
-      actionLabel={t("Upload material")}
+      actionLabel={"Upload material"}
       onAction={() => setShowUpload(true)}
     >
       <div className="mt-5 flex flex-col gap-3 border-b border-[var(--border)] pb-3 sm:flex-row sm:items-center">
@@ -148,14 +148,14 @@ export function MaterialLibraryPage() {
           <input
             value={search}
             onChange={event => setSearch(event.target.value)}
-            placeholder={t("Search by title, file name or link")}
+            placeholder={"Search by title, file name or link"}
             className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[var(--muted-foreground)]"
           />
           {!!search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label={t("Clear")}
+              aria-label={"Clear"}
             >
               <X size={12} className="text-[var(--muted-foreground)]" />
             </button>
@@ -163,31 +163,31 @@ export function MaterialLibraryPage() {
         </label>
         <div className="flex items-center gap-2 sm:ml-auto">
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("{{count}} materials", { count: tally.all })}
+            {(tally.all === 1 ? `${tally.all} material` : `${tally.all} materials`)}
           </span>
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <FilterChip
-          label={t("All")}
+          label={"All"}
           active={filter === "all"}
           onClick={() => setFilter("all")}
         />
         <FilterChip
-          label={t("Not in a collection")}
+          label={"Not in a collection"}
           count={tally.unassigned}
           active={filter === "unassigned"}
           onClick={() => setFilter("unassigned")}
         />
         <FilterChip
-          label={t("Preparing")}
+          label={"Preparing"}
           count={tally.processing}
           active={filter === "processing"}
           onClick={() => setFilter("processing")}
         />
         <FilterChip
-          label={t("Failed")}
+          label={"Failed"}
           count={tally.failed}
           active={filter === "failed"}
           onClick={() => setFilter("failed")}
@@ -202,10 +202,10 @@ export function MaterialLibraryPage() {
         className={`${GRID} mt-5 border-b border-[var(--border)] pb-2 text-[10.5px] text-[var(--muted-foreground)]`}
       >
         <span />
-        <span className="min-w-0">{t("reading.column.material")}</span>
-        <span className="hidden min-w-0 lg:block">{t("Type")}</span>
-        <span className="hidden min-w-0 sm:block">{t("In collections")}</span>
-        <span className="text-right">{t("Added")}</span>
+        <span className="min-w-0">{"Material"}</span>
+        <span className="hidden min-w-0 lg:block">{"Type"}</span>
+        <span className="hidden min-w-0 sm:block">{"In collections"}</span>
+        <span className="text-right">{"Added"}</span>
         <span />
       </div>
 
@@ -218,10 +218,10 @@ export function MaterialLibraryPage() {
           <LearningEmptyState
             title={
               search
-                ? t("Nothing matches that.")
+                ? "Nothing matches that."
                 : filter === "all"
-                  ? t("Everything you upload shows up here.")
-                  : t("Nothing here yet.")
+                  ? "Everything you upload shows up here."
+                  : "Nothing here yet."
             }
           />
         )
@@ -231,7 +231,7 @@ export function MaterialLibraryPage() {
             <MaterialRow
               key={libraryItemKey(material, material.material_id)}
               material={material}
-              locale={i18n.language}
+              locale={"en"}
               menuOpen={menuFor === libraryItemKey(material, material.material_id)}
               onToggleMenu={() =>
                 setMenuFor(current =>
@@ -335,7 +335,7 @@ function MaterialRow({
   onDelete: () => void;
   onRetried: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const collections = material.collections ?? [];
   const tag = formatTag(material);
@@ -345,8 +345,8 @@ function MaterialRow({
   // has to match what the reader will actually scroll through.
   const extent = material.unit_count
     ? material.render_mode === "pdf"
-      ? t("{{count}} pages", { count: material.unit_count })
-      : t("{{count}} sections", { count: material.unit_count })
+      ? `${material.unit_count} pages`
+      : (material.unit_count === 1 ? `${material.unit_count} section` : `${material.unit_count} sections`)
     : "";
   const preparing =
     material.status === "processing" || material.status === "queued";
@@ -399,12 +399,12 @@ function MaterialRow({
             )}
             {failed && (
               <span className="shrink-0 rounded px-1.5 py-px text-[10px] text-[var(--destructive)]">
-                {t("Failed")}
+                {"Failed"}
               </span>
             )}
             {quizStars > 0 && (
               <span
-                aria-label={t("Quiz stars: {{count}}", { count: quizStars })}
+                aria-label={`Quiz stars: ${quizStars}`}
                 className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
               >
                 <Star size={11} fill="currentColor" aria-hidden="true" />
@@ -425,20 +425,20 @@ function MaterialRow({
               <span className="hidden max-w-[45%] shrink-0 truncate sm:hidden min-[420px]:inline">
                 {collections.length
                   ? collections.map(row => row.title).join("、")
-                  : t("Not in a collection")}{" "}
+                  : "Not in a collection"}{" "}
                 ·
               </span>
             )}
             <span className="min-w-0 truncate">
-              {failed && readingFailureMessage(material, t)
-                ? readingFailureMessage(material, t)
+              {failed && readingFailureMessage(material)
+                ? readingFailureMessage(material)
                 : secondary}
             </span>
           </span>
         </button>
 
         <span className="hidden min-w-0 truncate text-[11px] text-[var(--muted-foreground)] lg:block">
-          {[tag || t(sourceKindKey[material.source_kind]), duration || extent]
+          {[tag || (sourceKindKey[material.source_kind]), duration || extent]
             .filter(Boolean)
             .join(" · ")}
         </span>
@@ -473,7 +473,7 @@ function MaterialRow({
               className="flex items-center gap-1 rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[10.5px] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
             >
               <FolderPlus size={10} />
-              {t("Add to a collection")}
+              {"Add to a collection"}
             </button>
           )}
         </span>
@@ -489,7 +489,7 @@ function MaterialRow({
               }}
               className="font-semibold text-[var(--primary)]"
             >
-              {t("Retry")}
+              {"Retry"}
             </button>
           ) : (
             relativeDate(material.created_at, locale)
@@ -499,7 +499,7 @@ function MaterialRow({
         <button
           type="button"
           onClick={onToggleMenu}
-          aria-label={t("Material menu")}
+          aria-label={"Material menu"}
           className="flex size-7 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-100 transition hover:bg-[var(--muted)] sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
         >
           <MoreHorizontal size={14} />
@@ -514,7 +514,7 @@ function MaterialRow({
             className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left hover:bg-[var(--muted)]"
           >
             <FolderPlus size={12} />
-            {t("Add to a collection")}
+            {"Add to a collection"}
           </button>
           <button
             type="button"
@@ -522,7 +522,7 @@ function MaterialRow({
             className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[var(--destructive)] hover:bg-[var(--muted)]"
           >
             <Trash2 size={12} />
-            {t("Delete material")}
+            {"Delete material"}
           </button>
         </div>
       )}
@@ -541,7 +541,7 @@ function AssignDialog({
   onClose: () => void;
   onAssigned: () => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const [working, setWorking] = useState("");
   const [error, setError] = useState("");
@@ -582,7 +582,7 @@ function AssignDialog({
       <div className="flex max-h-[80vh] w-full max-w-md flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-lg dark:bg-[var(--popover)]">
         <div className="border-b border-[var(--border)] px-5 py-4">
           <h2 className="font-serif text-[17px] font-semibold">
-            {t("Add to a collection")}
+            {"Add to a collection"}
           </h2>
           <p className="mt-1 truncate text-[11px] text-[var(--muted-foreground)]">
             {material.title}
@@ -608,7 +608,7 @@ function AssignDialog({
                       setError(
                         caught instanceof Error
                           ? caught.message
-                          : t("Save failed.")
+                          : "Save failed."
                       )
                     )
                     .finally(() => setWorking(""));
@@ -620,9 +620,7 @@ function AssignDialog({
                     {collection.title}
                   </span>
                   <span className="block truncate text-[10.5px] text-[var(--muted-foreground)]">
-                    {t("{{count}} materials", {
-                      count: collection.tabs.length,
-                    })}
+                    {(collection.tabs.length === 1 ? `${collection.tabs.length} material` : `${collection.tabs.length} materials`)}
                   </span>
                 </span>
                 {working === collection.workspace_id && (
@@ -633,8 +631,8 @@ function AssignDialog({
           ) : (
             <p className="px-3 py-6 text-center text-[11.5px] text-[var(--muted-foreground)]">
               {collections.length
-                ? t("It is already in every collection you have.")
-                : t("You have no collections yet.")}
+                ? "It is already in every collection you have."
+                : "You have no collections yet."}
             </p>
           )}
         </div>
@@ -649,14 +647,14 @@ function AssignDialog({
             onClick={() => setCreating(true)}
             className="text-[11.5px] font-semibold text-[var(--primary)]"
           >
-            {t("New collection…")}
+            {"New collection…"}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
         </div>
       </div>
@@ -673,7 +671,7 @@ function DeleteMaterialDialog({
   onClose: () => void;
   onDeleted: () => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   const collections = material.collections ?? [];
@@ -682,20 +680,12 @@ function DeleteMaterialDialog({
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[var(--overlay)] p-4">
       <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg dark:bg-[var(--popover)]">
         <h2 className="font-serif text-[17px] font-semibold">
-          {t("Delete material")}
+          {"Delete material"}
         </h2>
         <p className="mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
           {collections.length
-            ? t(
-                "“{{title}}” is used by {{where}}. Deleting it removes it from those collections, along with its annotations.",
-                {
-                  title: material.title,
-                  where: collections.map(row => row.title).join("、"),
-                }
-              )
-            : t("“{{title}}” and its annotations will be deleted.", {
-                title: material.title,
-              })}
+            ? `“${material.title}” is used by ${collections.map(row => row.title).join("、")}. Deleting it removes it from those collections, along with its annotations.`
+            : `“${material.title}” and its annotations will be deleted.`}
         </p>
         {error && (
           <p className="mt-3 text-[11px] text-[var(--destructive)]">{error}</p>
@@ -706,7 +696,7 @@ function DeleteMaterialDialog({
             onClick={onClose}
             className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -720,7 +710,7 @@ function DeleteMaterialDialog({
                   setError(
                     caught instanceof Error
                       ? caught.message
-                      : t("Delete failed")
+                      : "Delete failed"
                   )
                 )
                 .finally(() => setWorking(false));
@@ -728,7 +718,7 @@ function DeleteMaterialDialog({
             className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[11.5px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
-            {t("Delete")}
+            {"Delete"}
           </button>
         </div>
       </div>

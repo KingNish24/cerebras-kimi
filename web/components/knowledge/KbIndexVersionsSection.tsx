@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useEmbeddingModels } from "@/hooks/useEmbeddingModels";
 import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 import EmbeddingModelSelector from "./EmbeddingModelSelector";
-import { useTranslation } from "react-i18next";
+
 import {
   AlertTriangle,
   CheckCircle2,
@@ -52,7 +52,7 @@ export default function KbIndexVersionsSection({
   task,
   onReindex,
 }: KbIndexVersionsSectionProps) {
-  const { t } = useTranslation();
+  
   const [submitting, setSubmitting] = useState(false);
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const [rebuildConfig, setRebuildConfig] =
@@ -193,19 +193,13 @@ export default function KbIndexVersionsSection({
           <Layers className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
           <div>
             <div className="text-[12.5px] font-medium text-[var(--foreground)]">
-              {t("Index versions")}
+              {"Index versions"}
               <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
                 {versions.length}
               </span>
             </div>
             <p className="text-[11px] text-[var(--muted-foreground)]">
-              {t(
-                pageIndexProvider
-                  ? "PageIndex versions are model-insensitive and preserve rebuild history."
-                  : isLightRag
-                    ? "Each full rebuild publishes a separate LightRAG index version."
-                    : "Each embedding configuration gets its own stored vector index.",
-              )}
+              {(pageIndexProvider ? "PageIndex versions are model-insensitive and preserve rebuild history." : isLightRag ? "Each full rebuild publishes a separate LightRAG index version." : "Each embedding configuration gets its own stored vector index.")}
             </p>
           </div>
         </div>
@@ -213,16 +207,8 @@ export default function KbIndexVersionsSection({
         {showReindexCta && (
           <Tooltip label={
               isError
-                ? t(
-                    "Retry indexing from the documents already stored in this knowledge base.",
-                  )
-                : t(
-                    isLightRag
-                      ? "Rebuild with current defaults. The previous index version is preserved until the rebuild succeeds."
-                      : pageIndexProvider
-                        ? "Rebuild this PageIndex knowledge base. Existing index versions are preserved."
-                        : "Choose an embedding model to rebuild this knowledge base. Existing index versions are preserved.",
-                  )
+                ? "Retry indexing from the documents already stored in this knowledge base."
+                : (isLightRag ? "Rebuild with current defaults. The previous index version is preserved until the rebuild succeeds." : pageIndexProvider ? "Rebuild this PageIndex knowledge base. Existing index versions are preserved." : "Choose an embedding model to rebuild this knowledge base. Existing index versions are preserved.")
             } side="top">
             <button
               type="button"
@@ -241,13 +227,13 @@ export default function KbIndexVersionsSection({
               )}
               {isReindexingHere
                 ? isError
-                  ? t("Retrying…")
-                  : t("Re-indexing…")
+                  ? "Retrying…"
+                  : "Re-indexing…"
                 : isError
-                  ? t("Retry indexing")
+                  ? "Retry indexing"
                   : isEmptyEmbeddingKb
-                    ? t("Change model")
-                    : t("Re-index")}
+                    ? "Change model"
+                    : "Re-index"}
             </button>
           </Tooltip>
         )}
@@ -260,9 +246,7 @@ export default function KbIndexVersionsSection({
           role="alert"
           className="rounded-lg border border-amber-300 p-3 text-xs text-amber-700"
         >
-          {t(
-            "The bound embedding model was deleted. Your documents and indexes are preserved. Select another model to re-index this knowledge base.",
-          )}
+          {"The bound embedding model was deleted. Your documents and indexes are preserved. Select another model to re-index this knowledge base."}
         </p>
       )}
       {kb.metadata?.embedding_status === "unconfigured" && (
@@ -270,9 +254,7 @@ export default function KbIndexVersionsSection({
           role="alert"
           className="rounded-lg border border-amber-300 p-3 text-xs text-amber-700"
         >
-          {t(
-            "The bound embedding model is not configured. Check its provider settings.",
-          )}
+          {"The bound embedding model is not configured. Check its provider settings."}
         </p>
       )}
 
@@ -281,9 +263,7 @@ export default function KbIndexVersionsSection({
           role="alert"
           className="rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300"
         >
-          {t(
-            "The pinned EXTRACT or VLM configuration is unavailable. Restore model access in Settings, or update defaults and rebuild to replace the model. Existing text retrieval does not require these indexing models.",
-          )}
+          {"The pinned EXTRACT or VLM configuration is unavailable. Restore model access in Settings, or update defaults and rebuild to replace the model. Existing text retrieval does not require these indexing models."}
         </p>
       )}
 
@@ -299,31 +279,22 @@ export default function KbIndexVersionsSection({
         !isError &&
         (needsReindex || mismatch) && (
           <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
-            {t(
-              "The active embedding configuration doesn't match any ready index version. Re-index to rebuild against the current embedding model.",
-            )}
+            {"The active embedding configuration doesn't match any ready index version. Re-index to rebuild against the current embedding model."}
           </div>
         )}
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2 text-[11.5px] text-[var(--muted-foreground)]">
         <Clock className="h-3.5 w-3.5 shrink-0" />
         <span>
-          {t("Last indexed")}:{" "}
+          {"Last indexed"}:{" "}
           <span className="font-medium text-[var(--foreground)]">
-            {lastIndexed || t("Not recorded yet")}
+            {lastIndexed || "Not recorded yet"}
           </span>
         </span>
         {typeof lastIndexedCount === "number" && (
           <span>
             ·{" "}
-            {t(
-              lastIndexedCount === 1
-                ? "{{count}} indexed doc"
-                : "{{count}} indexed docs",
-              {
-                count: lastIndexedCount,
-              },
-            )}
+            {(lastIndexedCount === 1 ? "{{count}} indexed doc" : "{{count}} indexed docs")}
           </span>
         )}
       </div>
@@ -353,14 +324,14 @@ export default function KbIndexVersionsSection({
         </ul>
       ) : (
         <div className="rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-center text-[12px] text-[var(--muted-foreground)]">
-          {t("No index versions yet.")}
+          {"No index versions yet."}
         </div>
       )}
 
       <Modal
         isOpen={modelDialogOpen}
         onClose={() => !submitting && setModelDialogOpen(false)}
-        title={t("Rebuild index with current defaults")}
+        title={"Rebuild index with current defaults"}
         width="sm"
         footer={
           <div className="flex justify-end gap-2">
@@ -370,7 +341,7 @@ export default function KbIndexVersionsSection({
               disabled={submitting}
               className="rounded-md border border-[var(--border)] px-3 py-1.5 text-[12px] text-[var(--foreground)] disabled:opacity-50"
             >
-              {t("Cancel")}
+              {"Cancel"}
             </button>
             <button
               type="button"
@@ -386,13 +357,7 @@ export default function KbIndexVersionsSection({
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-3 w-3 animate-spin" />}
-              {t(
-                isEmptyEmbeddingKb
-                  ? "Save model"
-                  : isLightRag
-                    ? "Confirm rebuild"
-                    : "Start full re-index",
-              )}
+              {(isEmptyEmbeddingKb ? "Save model" : isLightRag ? "Confirm rebuild" : "Start full re-index")}
             </button>
           </div>
         }
@@ -405,13 +370,11 @@ export default function KbIndexVersionsSection({
             />
           )}
           <p className="text-[12px] text-[var(--muted-foreground)]">
-            {t(
-              "This rebuild uses the selected embedding and the role defaults shown below. Change role models in Settings. The configuration is fixed when you confirm; the previous version is preserved if rebuilding fails.",
-            )}
+            {"This rebuild uses the selected embedding and the role defaults shown below. Change role models in Settings. The configuration is fixed when you confirm; the previous version is preserved if rebuilding fails."}
           </p>
           {configLoading && (
             <Loader2
-              aria-label={t("Loading")}
+              aria-label={"Loading..."}
               className="h-4 w-4 animate-spin"
             />
           )}
@@ -419,12 +382,12 @@ export default function KbIndexVersionsSection({
             <LightRagIndexingProvenance
               policy={rebuildConfig.indexing_policy}
               embedding={rebuildConfig.embedding}
-              title={t("Rebuild configuration")}
+              title={"Rebuild configuration"}
             />
           )}
           {dialogError && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-              {t(dialogError)}
+              {(dialogError)}
             </div>
           )}
         </div>
@@ -450,7 +413,7 @@ function IndexVersionRow({
   isRebuildActive: boolean;
   kbError: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const matchesActive =
     !!version.signature && version.signature === activeSignature;
   const lightRagState = isLightRagVersion
@@ -470,16 +433,16 @@ function IndexVersionRow({
   const isBuildingLightRagCandidate = lightRagState === "building";
 
   const title =
-    version.version || (isLegacy ? t("Legacy index") : t("Unknown"));
+    version.version || (isLegacy ? "Legacy index" : "Unknown");
 
   const created = formatKnowledgeTimestamp(version.created_at);
   const statusHint = isActive
-    ? t("Active version")
+    ? "Active version"
     : isPhantom
-      ? t("Stale (matches active config but storage is empty)")
+      ? "Stale (matches active config but storage is empty)"
       : isLegacy
-        ? t("Legacy index format")
-        : t("Inactive version");
+        ? "Legacy index format"
+        : "Inactive version";
 
   return (
     <li className="flex items-center gap-3 px-3 py-2.5">
@@ -523,27 +486,27 @@ function IndexVersionRow({
           </span>
           {isActive && (
             <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
-              {t("Active")}
+              {"Active"}
             </span>
           )}
           {isPhantom && (
             <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-              {t("Stale")}
+              {"Stale"}
             </span>
           )}
           {isLegacy && !isActive && (
             <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
-              {t("Legacy")}
+              {"Legacy"}
             </span>
           )}
           {isFailedLightRagCandidate && (
             <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-950/30 dark:text-red-300">
-              {t("Not published")}
+              {"Not published"}
             </span>
           )}
           {isBuildingLightRagCandidate && (
             <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
-              {t("Building")}
+              {"Building"}
             </span>
           )}
         </div>
@@ -551,7 +514,7 @@ function IndexVersionRow({
           {typeof version.dimension === "number" && (
             <span>
               {version.dimension}
-              {t("d")}
+              {"d"}
             </span>
           )}
           {version.binding && <span>{version.binding}</span>}
@@ -570,7 +533,7 @@ function IndexVersionRow({
           version.indexing_policy && (
             <details className="mt-2 text-[11px]">
               <summary className="cursor-pointer text-[var(--muted-foreground)]">
-                {t("Index configuration")}
+                {"Index configuration"}
               </summary>
               <LightRagIndexingProvenance
                 policy={version.indexing_policy}

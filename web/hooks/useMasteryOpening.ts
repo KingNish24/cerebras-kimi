@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+
 import { consumePendingPrompt } from "@/lib/pending-prompt";
 import {
   MASTERY_OPENING_SCOPE,
@@ -29,7 +29,7 @@ export function useMasteryOpening({
   isStreaming: boolean;
   submit: (content: string) => boolean;
 }) {
-  const { t } = useTranslation();
+  
   const openingSentRef = useRef("");
   useEffect(() => {
     if (!topicReady || hasMessages || sessionLoading || sessionError)
@@ -40,15 +40,5 @@ export function useMasteryOpening({
       masteryOpeningMessage(sessionMode, t);
     // Study mode has no automatic opening. Latch only after submitting.
     if (opening && submit(opening)) openingSentRef.current = pathId;
-  }, [
-    hasMessages,
-    pathId,
-    sessionError,
-    sessionLoading,
-    sessionMode,
-    isStreaming,
-    submit,
-    t,
-    topicReady,
-  ]);
+  }, [hasMessages, pathId, sessionError, sessionLoading, sessionMode, isStreaming, submit, topicReady]);
 }

@@ -77,13 +77,12 @@ export function StatusStripDivider() {
 
 export function formatContextWindowSource(
   source: string | undefined,
-  t: (key: string) => string,
 ): string {
-  if (source === "manual") return t("Manual");
-  if (source === "metadata") return t("Provider metadata");
-  if (source === "known_model") return t("Model catalog (models.dev)");
-  if (source === "default") return t("Conservative fallback (not detected)");
-  return t("Unset");
+  if (source === "manual") return "Manual";
+  if (source === "metadata") return "Provider metadata";
+  if (source === "known_model") return "Model catalog (models.dev)";
+  if (source === "default") return "Conservative fallback (not detected)";
+  return "Unset";
 }
 
 // One-row settings group used on simple pages (Appearance, Status etc.).

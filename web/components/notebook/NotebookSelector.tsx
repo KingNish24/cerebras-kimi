@@ -13,7 +13,7 @@ import {
   SelectedRecord,
   getTypeColor,
 } from "@/lib/notebook-selection-types";
-import { useTranslation } from "react-i18next";
+
 
 interface NotebookSelectorProps {
   notebooks: Notebook[];
@@ -52,21 +52,21 @@ export default function NotebookSelector({
   onCreateSession,
   actionLabel,
 }: NotebookSelectorProps) {
-  const { t } = useTranslation();
+  
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
       <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--card)] px-4 py-3.5">
         <h2 className="flex items-center gap-2 text-[14px] font-semibold text-[var(--foreground)]">
           <NotebookPen className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
-          {t("Select Source (Cross-Notebook)")}
+          {"Choose a favorite"}
         </h2>
         {selectedRecords.size > 0 && (
           <button
             onClick={onClearAll}
             className="rounded-md px-2 py-1 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--destructive)]"
           >
-            {t("Clear")} ({selectedRecords.size})
+            {"Clear"} ({selectedRecords.size})
           </button>
         )}
       </div>
@@ -79,9 +79,9 @@ export default function NotebookSelector({
         ) : notebooks.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-[var(--muted-foreground)]">
             <NotebookPen className="h-5 w-5 text-[var(--muted-foreground)]/60" />
-            <span>{t("No notebooks with records found")}</span>
+            <span>{"No favorites collections with records found"}</span>
             <span className="text-[11px] text-[var(--muted-foreground)]/80">
-              {t("Save a chat result first to populate a notebook.")}
+              {"Save a chat result first to populate a favorites collection."}
             </span>
           </div>
         ) : (
@@ -138,7 +138,7 @@ export default function NotebookSelector({
                         </div>
                       ) : records.length === 0 ? (
                         <div className="py-3 text-center text-[12px] text-[var(--muted-foreground)]">
-                          {t("No records")}
+                          {"No records"}
                         </div>
                       ) : (
                         <>
@@ -150,7 +150,7 @@ export default function NotebookSelector({
                               }}
                               className="text-[var(--primary)] transition-colors hover:opacity-80"
                             >
-                              {t("Select All")}
+                              {"Select All"}
                             </button>
                             <button
                               onClick={(e) => {
@@ -159,7 +159,7 @@ export default function NotebookSelector({
                               }}
                               className="text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                             >
-                              {t("Deselect")}
+                              {"Deselect"}
                             </button>
                           </div>
                           <div className="space-y-1.5">
@@ -237,10 +237,10 @@ export default function NotebookSelector({
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {t("Generating...")}
+              {"Generating..."}
             </>
           ) : (
-            (actionLabel || t("Use Selected Records ({n})")).replace(
+            (actionLabel || "Use Selected Records ({n})").replace(
               "{n}",
               String(selectedRecords.size),
             )

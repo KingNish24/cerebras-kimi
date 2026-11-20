@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -45,7 +45,7 @@ function normalizeDraft(
 }
 
 export default function AttachmentSettingsPage() {
-  const { t } = useTranslation();
+  
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [payload, setPayload] = useState<AttachmentSettingsPayload | null>(
@@ -71,7 +71,7 @@ export default function AttachmentSettingsPage() {
           throw new Error(
             "detail" in data && data.detail
               ? data.detail
-              : t("Failed to load attachment settings."),
+              : "Failed to load attachment settings.",
           );
         }
         if (cancelled) return;
@@ -93,7 +93,7 @@ export default function AttachmentSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [draftRevision, pendingExtensionPayload, t]);
+  }, [draftRevision, pendingExtensionPayload]);
 
   const dirty = useMemo(() => {
     if (!payload || !draft) return false;
@@ -129,7 +129,7 @@ export default function AttachmentSettingsPage() {
         throw new Error(
           "detail" in data && data.detail
             ? String(data.detail)
-            : t("Failed to save attachment settings."),
+            : "Failed to save attachment settings.",
         );
       }
       const next = data as AttachmentSettingsPayload;
@@ -139,7 +139,7 @@ export default function AttachmentSettingsPage() {
       setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     registerExtension("chat-attachments", { dirty, save, payload: draft });
@@ -154,16 +154,14 @@ export default function AttachmentSettingsPage() {
   return (
     <div>
       <SettingsPageHeader
-        title={t("Attachments")}
-        description={t(
-          "Upload caps and extraction budgets for files attached in chat — shared by the main chat, books, quiz follow-ups, and partners.",
-        )}
+        title={"Attachments"}
+        description={"Upload caps and extraction budgets for files attached in chat — shared by the main chat, books, quiz follow-ups, and partners."}
       />
 
       {loading && (
         <div className="flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("Loading attachment settings...")}
+          {"Loading attachment settings..."}
         </div>
       )}
 
@@ -176,14 +174,12 @@ export default function AttachmentSettingsPage() {
       {!loading && payload && draft && (
         <>
           <SettingSection
-            title={t("Size limits")}
-            description={t(
-              "After applying changes, lower limits take effect immediately. Raising limits needs a backend restart so larger uploads fit through the WebSocket transport.",
-            )}
+            title={"Size limits"}
+            description={"After applying changes, lower limits take effect immediately. Raising limits needs a backend restart so larger uploads fit through the WebSocket transport."}
           >
             <SettingRow
-              title={t("Max file size (MB)")}
-              description={t("Largest single file the composer accepts.")}
+              title={"Max file size (MB)"}
+              description={"Largest single file the composer accepts."}
               control={
                 <input
                   className={`${inputClass} w-28`}
@@ -198,10 +194,8 @@ export default function AttachmentSettingsPage() {
               }
             />
             <SettingRow
-              title={t("Max total per message (MB)")}
-              description={t(
-                "Combined size of all attachments on a single message. Never below the per-file cap.",
-              )}
+              title={"Max total per message (MB)"}
+              description={"Combined size of all attachments on a single message. Never below the per-file cap."}
               control={
                 <input
                   className={`${inputClass} w-28`}
@@ -218,16 +212,12 @@ export default function AttachmentSettingsPage() {
           </SettingSection>
 
           <SettingSection
-            title={t("Extraction budgets")}
-            description={t(
-              "Documents are converted to text and inlined into the model context. These budgets bound how much text a single file and a whole message may contribute — raise them for large documents, at the cost of context window and tokens.",
-            )}
+            title={"Extraction budgets"}
+            description={"Documents are converted to text and inlined into the model context. These budgets bound how much text a single file and a whole message may contribute — raise them for large documents, at the cost of context window and tokens."}
           >
             <SettingRow
-              title={t("Max characters per document")}
-              description={t(
-                "Text extracted beyond this from one file is truncated with a notice.",
-              )}
+              title={"Max characters per document"}
+              description={"Text extracted beyond this from one file is truncated with a notice."}
               control={
                 <input
                   className={`${inputClass} w-36`}
@@ -243,10 +233,8 @@ export default function AttachmentSettingsPage() {
               }
             />
             <SettingRow
-              title={t("Max characters per message")}
-              description={t(
-                "Total extracted text across all documents on one message.",
-              )}
+              title={"Max characters per message"}
+              description={"Total extracted text across all documents on one message."}
               control={
                 <input
                   className={`${inputClass} w-36`}
@@ -264,9 +252,7 @@ export default function AttachmentSettingsPage() {
           </SettingSection>
 
           <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Note: images are sent to the model provider as-is — provider-side size limits still apply regardless of these caps.",
-            )}
+            {"Note: images are sent to the model provider as-is — provider-side size limits still apply regardless of these caps."}
           </p>
         </>
       )}

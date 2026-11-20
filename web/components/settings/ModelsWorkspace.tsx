@@ -6,7 +6,7 @@ import { stageRegistryAction, type RegistryEdit } from "@/lib/provider-registry"
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "@/shared/router/link";
 import { Check, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { formatConfiguredProviderName } from "@/lib/provider-branding";
 import ProviderIcon from "@/components/common/ProviderIcon";
 import {
@@ -68,8 +68,8 @@ export function ModelsWorkspace({
   page: ModelPage;
   initialService?: ServiceName;
 }) {
-  const { t, i18n } = useTranslation();
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? "en";
+  
+  const uiLanguage = "en" ?? "en" ?? "en";
   const {
     draft,
     providers,
@@ -359,7 +359,7 @@ export function ModelsWorkspace({
   if (!catalogEditable)
     return (
       <p className="text-sm text-[var(--muted-foreground)]">
-        {t("Only administrators can manage models.")}
+        {"Only administrators can manage models."}
       </p>
     );
   const filtered = rows.filter(
@@ -369,19 +369,17 @@ export function ModelsWorkspace({
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
-  const addLabel = t(
-    page === "search" ? "Add search configuration" : "Add model",
-  );
+  const addLabel = (page === "search" ? "Add search configuration" : "Add model");
   return (
     <div className="space-y-5">
       {!sources.length && (
         <div className="rounded-xl border border-[var(--border)] p-5 text-sm">
-          <p>{t("Add a provider before adding models.")}</p>
+          <p>{"Add a provider before adding models."}</p>
           <Link
             href="/settings/connections"
             className="mt-3 inline-block underline underline-offset-4"
           >
-            {t("Go to providers")}
+            {"Go to providers"}
           </Link>
         </div>
       )}
@@ -402,23 +400,23 @@ export function ModelsWorkspace({
               </button>
             }
             search={{
-              label: t(page === "search" ? "settings.serviceConfig.findSearch" : "Find model"),
+              label: (page === "search" ? "settings.serviceConfig.findSearch" : "Find model"),
               value: query,
               onChange: setQuery,
-              placeholder: t(page === "search" ? "settings.serviceConfig.findSearch" : "Search by model or provider"),
+              placeholder: (page === "search" ? "settings.serviceConfig.findSearch" : "Search by model or provider"),
             }}
             filter={
               page === "voice" || page === "multimodal" ? (
                 <select
-                  aria-label={t("Filter model type")}
+                  aria-label={"Filter model type"}
                   className={`${selectClass} py-1.5 text-[13px]`}
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                 >
-                  <option value="all">{t("All model types")}</option>
+                  <option value="all">{"All model types"}</option>
                   {PAGE_SERVICES[page].map((s) => (
                     <option key={s} value={s}>
-                      {t(SERVICE_TITLES[s])}
+                      {(SERVICE_TITLES[s])}
                     </option>
                   ))}
                 </select>
@@ -428,8 +426,8 @@ export function ModelsWorkspace({
               filtered.length
                 ? undefined
                 : rows.length
-                  ? t(page === "search" ? "settings.serviceConfig.noSearchMatch" : "No models match your search.")
-                  : t(page === "search" ? "settings.serviceConfig.noSearch" : "No models configured yet.")
+                  ? (page === "search" ? "settings.serviceConfig.noSearchMatch" : "No models match your search.")
+                  : (page === "search" ? "settings.serviceConfig.noSearch" : "No models configured yet.")
             }
           >
             {filtered.map((row) => {
@@ -449,8 +447,8 @@ export function ModelsWorkspace({
                 row.model?.name ||
                 row.model?.model ||
                 row.profile.display_name ||
-                (row.model ? t("New model") : row.profile.name);
-              const providerName = provider ? formatConfiguredProviderName(provider.provider, provider.name, uiLanguage) : t("Provider unavailable");
+                (row.model ? "New model" : row.profile.name);
+              const providerName = provider ? formatConfiguredProviderName(provider.provider, provider.name, uiLanguage) : "Provider unavailable";
               const editing = !adding && row.key === selected;
               return (
                 <button
@@ -477,7 +475,7 @@ export function ModelsWorkspace({
                         className="inline-flex shrink-0 items-center gap-0.5 text-[11px] text-[var(--primary)]"
                       >
                         <Check size={13} />
-                        {t(row.service === "search" ? "settings.serviceConfig.defaultSearch" : "Default model")}
+                        {(row.service === "search" ? "settings.serviceConfig.defaultSearch" : "Default model")}
                       </span>
                     )}
                   </span>
@@ -492,7 +490,7 @@ export function ModelsWorkspace({
                   </span>
                   {(page === "voice" || page === "multimodal" || row.service === "task") && (
                     <span className="mt-1.5 ml-[23px] inline-flex rounded-md bg-[color-mix(in_srgb,var(--muted)_70%,transparent)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
-                      {t(SERVICE_TITLES[row.service])}
+                      {(SERVICE_TITLES[row.service])}
                     </span>
                   )}
                 </button>
@@ -547,10 +545,8 @@ export function ModelsWorkspace({
             ) : (
               <WorkspaceDetailEmpty
                 icon={<SlidersHorizontal size={17} />}
-                title={t("Nothing selected")}
-                hint={t(
-                  page === "search" ? "settings.serviceConfig.selectSearch" : "Select a model to view its settings and connection test.",
-                )}
+                title={"Nothing selected"}
+                hint={(page === "search" ? "settings.serviceConfig.selectSearch" : "Select a model to view its settings and connection test.")}
               />
             )}
           </div>
@@ -568,8 +564,8 @@ function ProviderOptions({
   sources: ProviderSource[];
   declared: (source: ProviderSource) => boolean;
 }) {
-  const { t, i18n } = useTranslation();
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? "en";
+  
+  const uiLanguage = "en" ?? "en" ?? "en";
   const option = (p: ProviderSource) => (
     <option key={p.id} value={p.id}>
       {formatConfiguredProviderName(p.provider, p.name, uiLanguage)}
@@ -581,11 +577,11 @@ function ProviderOptions({
   return (
     <>
       {known.length > 0 && (
-        <optgroup label={t("Supported for this model type")}>
+        <optgroup label={"Supported for this model type"}>
           {known.map(option)}
         </optgroup>
       )}
-      <optgroup label={t("Not on record — verify with the model test")}>
+      <optgroup label={"Not on record — verify with the model test"}>
         {unverified.map(option)}
       </optgroup>
     </>
@@ -628,12 +624,10 @@ function AddModelPanel({
   existingModels: string[];
   onCancel: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [custom, setCustom] = useState(false);
   const visible = sources.filter(source => declared(source) || (service !== "search" && custom && source.source.service_overrides?.[service === "task" ? "llm" : service]?.enabled !== false));
-  const title = t(
-    page === "search" ? "Add search configuration" : "Add model",
-  );
+  const title = (page === "search" ? "Add search configuration" : "Add model");
   return (
     <section aria-label={title} className={`min-w-0 p-5 ${subPanelClass}`}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -642,13 +636,13 @@ function AddModelPanel({
           href="/settings/connections"
           className="shrink-0 text-[13px] text-[var(--muted-foreground)] underline underline-offset-4 transition-colors hover:text-[var(--foreground)]"
         >
-          {t("Manage providers")}
+          {"Manage providers"}
         </Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {(page === "voice" || page === "multimodal") && (
           <label className="space-y-1.5 text-[13px] font-medium">
-            <span className="block">{t("Model type")}</span>
+            <span className="block">{"Model type"}</span>
             <select
               className={selectClass}
               value={service}
@@ -656,28 +650,28 @@ function AddModelPanel({
             >
               {PAGE_SERVICES[page].map((s) => (
                 <option key={s} value={s}>
-                  {t(SERVICE_TITLES[s])}
+                  {(SERVICE_TITLES[s])}
                 </option>
               ))}
             </select>
           </label>
         )}
         <label className="space-y-1.5 text-[13px] font-medium">
-          <span className="block">{t("Configured provider")}</span>
+          <span className="block">{"Configured provider"}</span>
           <select
-            aria-label={t("Configured provider")}
+            aria-label={"Configured provider"}
             className={selectClass}
             value={provider}
             onChange={(e) => onProvider(e.target.value)}
           >
-            <option value="">{t("Choose a provider")}</option>
+            <option value="">{"Choose a provider"}</option>
             <ProviderOptions sources={visible} declared={declared} />
           </select>
         </label>
       </div>
       {service !== "search" && sources.some(source => !declared(source)) && <label className="mt-3 flex items-center gap-2 text-[13px]">
         <input type="checkbox" checked={custom} onChange={e => { setCustom(e.target.checked); onProvider(""); }} />
-        {t("settings.serviceConfig.custom")}
+        {"Show other providers for custom integration"}
       </label>}
       {service !== "search" && visible.find((source) => source.id === provider) && (
         <BulkModelImport
@@ -693,22 +687,22 @@ function AddModelPanel({
       {service !== "search" && (
         <div className="mt-4 max-w-md">
           <RegistryModelIdField
-            label={t("Model ID")}
+            label={"Model ID"}
             value={modelId}
             options={modelOptions}
             onChange={onModelId}
-            placeholder={t("Choose a listed model or enter a model ID")}
+            placeholder={"Choose a listed model or enter a model ID"}
             required
           />
           {!modelId.trim() && (
             <p className="mt-1.5 text-[13px] text-[var(--muted-foreground)]">
-              {t("Model ID is required.")}
+              {"Model ID is required."}
             </p>
           )}
         </div>
       )}
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-        {t(service === "search" ? "settings.serviceConfig.search" : service === "videogen" ? "settings.serviceConfig.video" : "settings.serviceConfig.providers")}
+        {(service === "search" ? "settings.serviceConfig.search" : service === "videogen" ? "settings.serviceConfig.video" : "settings.serviceConfig.providers")}
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[color-mix(in_srgb,var(--border)_70%,transparent)] pt-4">
         <button
@@ -721,10 +715,10 @@ function AddModelPanel({
           onClick={onCreate}
           className={registryPrimary}
         >
-          {t("Continue")}
+          {"Continue"}
         </button>
         <button type="button" onClick={onCancel} className={registryButton}>
-          {t("Cancel")}
+          {"Cancel"}
         </button>
       </div>
     </section>
@@ -743,8 +737,8 @@ function ModelEditor({
   declared: (source: ProviderSource) => boolean;
   onRemoved: () => void;
 }) {
-  const { t, i18n } = useTranslation();
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? "en";
+  
+  const uiLanguage = "en" ?? "en" ?? "en";
   const [custom, setCustom] = useState(false);
   const {
     draft,
@@ -768,7 +762,7 @@ function ModelEditor({
     models: { id: string; services?: ServiceName[] }[];
   } | null>(null);
   const name = model
-    ? model.name || model.model || t("New model")
+    ? model.name || model.model || "New model"
     : profile.display_name || profile.name;
   const managed = Boolean(
     model?.managed_by || profile.read_only || profile.managed_by,
@@ -845,7 +839,7 @@ function ModelEditor({
 
   return (
     <section
-      aria-label={t("Model settings")}
+      aria-label={"Model settings"}
       // `border-[var(--primary)]/35` compiled to no rule at all, so this pane
       // was drawing preflight's default grey border and read as unstyled.
       className="min-w-0 overflow-clip rounded-2xl border border-[color-mix(in_srgb,var(--primary)_35%,var(--border))]"
@@ -854,20 +848,20 @@ function ModelEditor({
       <header className="sticky top-14 z-10 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--primary)_4%,var(--background))] px-4 py-5 sm:px-6 lg:top-0">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px]">
           <span className="font-medium text-[var(--primary)]">
-            {t("Currently configuring")}
+            {"Currently configuring"}
           </span>
           <span className="text-[var(--muted-foreground)]">
-            {t(SERVICE_TITLES[service])}
+            {(SERVICE_TITLES[service])}
           </span>
           {!savedModel && (
             <span className="text-[var(--muted-foreground)]">
-              · {t("Not saved")}
+              · {"Not saved"}
             </span>
           )}
         </div>
         <EditableRegistryName
           name={name}
-          label={t(service === "search" ? "settings.serviceConfig.renameSearch" : "Rename model")}
+          label={(service === "search" ? "settings.serviceConfig.renameSearch" : "Rename model")}
           onChange={(value) =>
             model ? update("name", value) : updateSearch("display_name", value)
           }
@@ -875,7 +869,7 @@ function ModelEditor({
         <div className="mt-2 flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
           <ProviderIcon provider={provider?.provider || "custom"} size={16} />
           <span className="break-all">
-            {provider ? formatConfiguredProviderName(provider.provider, provider.name, uiLanguage) : t("Provider unavailable")}
+            {provider ? formatConfiguredProviderName(provider.provider, provider.name, uiLanguage) : "Provider unavailable"}
           </span>
         </div>
         {model?.model && (
@@ -889,16 +883,16 @@ function ModelEditor({
         <div className="grid gap-x-5 gap-y-4 lg:grid-cols-2">
           <div className="space-y-2">
             <label className="block space-y-1.5 text-[13px] font-medium">
-              <span className="block">{t("Configured provider")}</span>
+              <span className="block">{"Configured provider"}</span>
               <select
-                aria-label={t("Configured provider")}
+                aria-label={"Configured provider"}
                 className={selectClass}
                 disabled={managed}
                 value={provider?.id || ""}
                 onChange={(e) => chooseProvider(e.target.value)}
               >
                 <option value="" disabled>
-                  {t("Choose a provider")}
+                  {"Choose a provider"}
                 </option>
                 {provider && !sources.some((p) => p.id === provider.id) && (
                   <option value={provider.id}>{formatConfiguredProviderName(provider.provider, provider.name, uiLanguage)}</option>
@@ -908,49 +902,43 @@ function ModelEditor({
             </label>
             {service !== "search" && sources.some(source => !declared(source) && source.id !== provider?.id) && <label className="flex items-center gap-2 text-[13px]">
               <input type="checkbox" checked={custom} disabled={managed} onChange={e => setCustom(e.target.checked)} />
-              {t("settings.serviceConfig.custom")}
+              {"Show other providers for custom integration"}
             </label>}
             {/* Why the test below matters more here: nothing vouches for this
                 pairing yet, so say what request it will actually make. */}
             {provider && !declared(provider) && (
               <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  service === "search"
-                    ? "settings.serviceConfig.unsupportedSearch"
-                    : service === "videogen" ? "settings.serviceConfig.video" : "settings.serviceConfig.providers",
-                )}
+                {(service === "search" ? "settings.serviceConfig.unsupportedSearch" : service === "videogen" ? "settings.serviceConfig.video" : "settings.serviceConfig.providers")}
               </p>
             )}
             <Link
               href={`/settings/connections${provider ? `?provider=${encodeURIComponent(provider.id)}` : ""}`}
               className="inline-block text-[13px] text-[var(--muted-foreground)] underline underline-offset-4 transition-colors hover:text-[var(--foreground)]"
             >
-              {t("Manage provider connection")}
+              {"Manage provider connection"}
             </Link>
           </div>
           {model && (
             <div className="space-y-2">
               <RegistryModelIdField
-                label={t(speechProvider === "volcengine_speech" && service === "tts" ? "Model / resource ID" : "Model ID")}
+                label={(speechProvider === "volcengine_speech" && service === "tts" ? "Model / resource ID" : "Model ID")}
                 value={model.model}
                 options={[...new Set([...(speechOptions?.models.map(m => m.id) ?? []), ...list.map((item) => item.id)])]}
                 disabled={managed}
                 onChange={(value) => update("model", value)}
-                placeholder={t("Choose a listed model or enter a model ID")}
+                placeholder={"Choose a listed model or enter a model ID"}
                 required={!managed}
                 invalid={modelIdMissing}
               />
               <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "The display name is used in chat. Double-click the name above or use the edit button to rename it.",
-                )}
+                {"The display name is used in chat. Double-click the name above or use the edit button to rename it."}
               </p>
             </div>
           )}
           {service === "search" && (
             <div className="space-y-2">
               <RegistryField
-                label={t("Maximum results")}
+                label={"Maximum results"}
                 type="number"
                 value={String(profile.max_results ?? 5)}
                 onChange={(value) =>
@@ -961,16 +949,14 @@ function ModelEditor({
                 }
               />
               <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "Search APIs use an engine configuration rather than a model ID or context window.",
-                )}
+                {"Search APIs use an engine configuration rather than a model ID or context window."}
               </p>
             </div>
           )}
         </div>
         {model && provider && !managed && service !== "search" && (
           <details open={service === "llm" || service === "task" || service === "embedding"}>
-          <summary className="mb-3 cursor-pointer text-[13px] text-[var(--muted-foreground)]">{t("settings.serviceConfig.discovery")}</summary>
+          <summary className="mb-3 cursor-pointer text-[13px] text-[var(--muted-foreground)]">{"Model discovery (optional)"}</summary>
           <RegistryProbe
             input={providerProbeInput(
               provider,
@@ -995,8 +981,8 @@ function ModelEditor({
         ) : model && <ModelParameters service={service} model={model} update={update} managed={managed} />}
         {service === "tts" && model ? <VoicePreviewPanel profileId={profile.id} modelId={model.id} maxChars={Math.min(500, speechPreset?.max_input_chars ?? 500)} /> : (service === "search" || service === "stt" || service === "imagegen" || service === "videogen") ? <ServicePreviewPanel service={service} profile={profile} model={model} /> : <ModelTestPanel service={service} profile={profile} model={model} />}
         {(service === "search" || service === "imagegen" || service === "videogen") && <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {t("settings.serviceConfig.tools")} {" "}
-          <Link href="/settings/tools" className="underline underline-offset-4">{t("settings.serviceConfig.openTools")}</Link>
+          {"After applying a default, enable the corresponding tool so chat can use this service."} {" "}
+          <Link href="/settings/tools" className="underline underline-offset-4">{"Manage chat tools"}</Link>
         </p>}
         <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-4">
 
@@ -1014,12 +1000,12 @@ function ModelEditor({
             className={registryButton}
           >
             {active && <Check size={13} />}{" "}
-            {t(active ? (service === "search" ? "settings.serviceConfig.defaultSearch" : "Default model") : "Set as default")}
+            {(active ? service === "search" ? "settings.serviceConfig.defaultSearch" : "Default model" : "Set as default")}
           </button>
-          <Tooltip label={assignedToTask ? t("Choose another background task model before removing this model.") : t(service === "search" ? "settings.serviceConfig.removeSearch" : "Remove model")} side="top">
+          <Tooltip label={assignedToTask ? "Choose another background task model before removing this model." : (service === "search" ? "settings.serviceConfig.removeSearch" : "Remove model")} side="top">
             <button
               type="button"
-              aria-label={t(service === "search" ? "settings.serviceConfig.removeSearch" : "Remove model")}
+              aria-label={(service === "search" ? "settings.serviceConfig.removeSearch" : "Remove model")}
               disabled={applying || managed || assignedToTask}
               onClick={() => void remove()}
               className={`${registryDanger} ml-auto`}
@@ -1044,7 +1030,7 @@ function ModelParameters({
   update: (field: keyof CatalogModel, value: unknown) => void;
   managed: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const contextId = useId();
   const language = service === "llm" || service === "task";
   const fields: [keyof CatalogModel, string][] =
@@ -1089,7 +1075,7 @@ function ModelParameters({
               <div className="space-y-1.5">
                 <div className="flex min-h-5 flex-wrap items-center justify-between gap-2">
                   <label htmlFor={contextId} className="text-[13px] font-medium">
-                    {t("Context length (tokens)")}
+                    {"Context length (tokens)"}
                   </label>
                   <button
                     type="button"
@@ -1100,7 +1086,7 @@ function ModelParameters({
                     }
                     className="rounded text-[13px] text-[var(--muted-foreground)] underline underline-offset-4 transition-colors hover:text-[var(--foreground)] disabled:opacity-40 disabled:hover:text-[var(--muted-foreground)]"
                   >
-                    {t("Use default")}
+                    {"Use default"}
                   </button>
                 </div>
                 <input
@@ -1113,26 +1099,24 @@ function ModelParameters({
                   }
                   disabled={managed}
                   onChange={(e) => update("context_window", e.target.value)}
-                  placeholder={t("Default")}
+                  placeholder={"Default"}
                 />
               </div>
               <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "Keep the default, enter a custom value, or use the detected value after testing. Testing does not overwrite your choice.",
-                )}
+                {"Keep the default, enter a custom value, or use the detected value after testing. Testing does not overwrite your choice."}
               </p>
             </div>
             <div className="space-y-1.5">
               <p className="flex min-h-5 items-center text-[13px] font-medium">
-                {t("Reasoning effort")}
+                {"Reasoning effort"}
               </p>
               <select
-                aria-label={t("Reasoning effort")}
+                aria-label={"Reasoning effort"}
                 className={selectClass}
                 value={model.reasoning_effort || ""}
                 onChange={(e) => update("reasoning_effort", e.target.value)}
               >
-                <option value="">{t("Default")}</option>
+                <option value="">{"Default"}</option>
                 {[
                   ...new Set([
                     ...(model.codex_supported_reasoning_levels || [
@@ -1156,21 +1140,19 @@ function ModelParameters({
           </div>
           <details className={`p-3.5 ${subPanelClass}`}>
             <summary className="cursor-pointer select-none rounded text-[13px] font-medium marker:text-[var(--muted-foreground)]">
-              {t("Model capabilities")}
+              {"Model capabilities"}
             </summary>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {(["tools", "vision", "json_output", "reasoning"] as const).map(
                 (key) => (
                   <label key={key} className="space-y-1.5 text-[13px]">
                     <span className="block">
-                      {t(
-                        {
+                      {({
                           tools: "Tool calling",
                           vision: "Vision",
                           json_output: "JSON output",
                           reasoning: "Reasoning",
-                        }[key],
-                      )}
+                        }[key])}
                     </span>
                     <select
                       className={selectClass}
@@ -1187,9 +1169,9 @@ function ModelParameters({
                         update("capabilities", capabilities);
                       }}
                     >
-                      <option value="auto">{t("Auto")}</option>
-                      <option value="true">{t("Supported")}</option>
-                      <option value="false">{t("Not supported")}</option>
+                      <option value="auto">{"Auto"}</option>
+                      <option value="true">{"Supported"}</option>
+                      <option value="false">{"Not supported"}</option>
                     </select>
                   </label>
                 ),
@@ -1203,17 +1185,17 @@ function ModelParameters({
           {fields.map(([field, label]) => (
             <RegistryField
               key={field}
-              label={t(label)}
+              label={(label)}
               value={String(model[field] ?? "")}
               onChange={(v) => update(field, v)}
-              placeholder={t("Default")}
+              placeholder={"Default"}
             />
           ))}
         </div>
       )}
       {service === "embedding" && (
         <label className="block space-y-1.5 text-[13px] font-medium">
-          <span className="block">{t("Send dimensions in embedding requests")}</span>
+          <span className="block">{"Send dimensions in embedding requests"}</span>
           <select
             className={selectClass}
             value={
@@ -1228,17 +1210,15 @@ function ModelParameters({
               )
             }
           >
-            <option value="auto">{t("Auto")}</option>
-            <option value="true">{t("Enabled")}</option>
-            <option value="false">{t("Disabled")}</option>
+            <option value="auto">{"Auto"}</option>
+            <option value="true">{"Enabled"}</option>
+            <option value="false">{"Disabled"}</option>
           </select>
         </label>
       )}
       {managed && (
         <p className="text-[13px] text-[var(--muted-foreground)]">
-          {t(
-            "This signed-in provider manages model IDs, context, and capabilities. You can rename the model and choose its reasoning effort.",
-          )}
+          {"This signed-in provider manages model IDs, context, and capabilities. You can rename the model and choose its reasoning effort."}
         </p>
       )}
     </div>

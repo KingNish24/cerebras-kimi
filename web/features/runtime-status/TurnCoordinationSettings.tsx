@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Button, Field, InlineAlert } from "@/shared/ui";
 import { validateTurnCoordination, type TurnCoordinationDraft } from "./model";
 
@@ -21,7 +21,7 @@ export function TurnCoordinationSettings({
   onChange,
   onSaveRedisUrl,
 }: TurnCoordinationSettingsProps) {
-  const { t } = useTranslation();
+  
   const [redisUrl, setRedisUrl] = useState("");
   const [savingSecret, setSavingSecret] = useState(false);
   const [secretError, setSecretError] = useState("");
@@ -39,7 +39,7 @@ export function TurnCoordinationSettings({
       setRedisUrl("");
     } catch (error) {
       setSecretError(
-        error instanceof Error ? error.message : t("Failed to save."),
+        error instanceof Error ? error.message : "Failed to save.",
       );
     } finally {
       setSavingSecret(false);
@@ -49,16 +49,16 @@ export function TurnCoordinationSettings({
   return (
     <section className="mt-6 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-semibold text-foreground">
-        {t("Turn coordination")}
+        {"Turn coordination"}
       </h2>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">
         {readOnly
-          ? t("These startup settings are shown from the active runtime.")
-          : t("Changes apply after the backend restarts.")}
+          ? "These startup settings are shown from the active runtime."
+          : "Changes apply after the backend restarts."}
       </p>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <Field label={t("Backend workers")}>
+        <Field label={"Backend workers"}>
           <input
             className={controlClass}
             type="number"
@@ -71,7 +71,7 @@ export function TurnCoordinationSettings({
             }
           />
         </Field>
-        <Field label={t("Coordination backend")}>
+        <Field label={"Coordination backend"}>
           <select
             className={controlClass}
             disabled={readOnly}
@@ -82,7 +82,7 @@ export function TurnCoordinationSettings({
               })
             }
           >
-            <option value="memory">{t("In process")}</option>
+            <option value="memory">{"In process"}</option>
             <option value="redis">Redis</option>
           </select>
         </Field>
@@ -91,15 +91,11 @@ export function TurnCoordinationSettings({
       {onSaveRedisUrl ? (
         <div className="mt-4 flex items-end gap-2">
           <Field
-            label={t("Redis URL")}
+            label={"Redis URL"}
             hint={
               redisConfigured
-                ? t(
-                    "A Redis secret is configured. Enter a new value only to replace it.",
-                  )
-                : t(
-                    "The value is encrypted at rest and is never returned by the server.",
-                  )
+                ? "A Redis secret is configured. Enter a new value only to replace it."
+                : "The value is encrypted at rest and is never returned by the server."
             }
             error={secretError || undefined}
             className="min-w-0 flex-1"
@@ -117,17 +113,17 @@ export function TurnCoordinationSettings({
             disabled={!redisUrl.trim()}
             onClick={() => void saveSecret()}
           >
-            {t("Save secret")}
+            {"Save secret"}
           </Button>
         </div>
       ) : null}
 
       <details className="mt-5 border-t border-border pt-4">
         <summary className="cursor-pointer text-sm font-medium text-foreground">
-          {t("Advanced")}
+          {"Advanced"}
         </summary>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <Field label={t("Lease TTL (seconds)")}>
+          <Field label={"Lease TTL (seconds)"}>
             <input
               className={controlClass}
               type="number"
@@ -140,7 +136,7 @@ export function TurnCoordinationSettings({
               }
             />
           </Field>
-          <Field label={t("Recovery interval (seconds)")}>
+          <Field label={"Recovery interval (seconds)"}>
             <input
               className={controlClass}
               type="number"
@@ -159,12 +155,12 @@ export function TurnCoordinationSettings({
       {errors.length ? (
         <InlineAlert
           tone="warning"
-          title={t("Check runtime settings")}
+          title={"Check runtime settings"}
           className="mt-4"
         >
           <ul className="list-disc space-y-1 pl-4">
             {errors.map((error) => (
-              <li key={error}>{t(error)}</li>
+              <li key={error}>{(error)}</li>
             ))}
           </ul>
         </InlineAlert>

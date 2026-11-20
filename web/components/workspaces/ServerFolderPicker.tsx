@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowUp, ChevronRight, Folder } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { Dialog } from '@/shared/ui/Dialog'
 import {
   browseServerFolders,
@@ -19,7 +19,7 @@ export function ServerFolderPicker({
   onClose: () => void
   onSelect: (folder: ServerFolder) => void | Promise<void>
 }) {
-  const { t } = useTranslation()
+  
   const [path, setPath] = useState('')
   const [listing, setListing] = useState<ServerFolderListing | null>(null)
   const [loading, setLoading] = useState(true)
@@ -80,12 +80,12 @@ export function ServerFolderPicker({
   return createPortal(
     <Dialog
       open
-      title={t('Choose a server folder')}
+      title={"Choose a server folder"}
       onClose={onClose}
       busy={saving}
-      closeLabel={t('Close')}
+      closeLabel={"Close"}
       size="lg"
-      description={t('Browse folders on the server and choose a project workspace.')}
+      description={"Browse folders on the server and choose a project workspace."}
       footer={
         <>
           <button
@@ -94,7 +94,7 @@ export function ServerFolderPicker({
             onClick={onClose}
             className="rounded-lg px-3 py-2 text-sm hover:bg-[var(--muted)]"
           >
-            {t('Cancel')}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -102,7 +102,7 @@ export function ServerFolderPicker({
             onClick={() => void choose()}
             className="rounded-lg bg-[var(--foreground)] px-3 py-2 text-sm text-[var(--background)] disabled:opacity-50"
           >
-            {t('Select this folder')}
+            {"Select this folder"}
           </button>
         </>
       }
@@ -113,7 +113,7 @@ export function ServerFolderPicker({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                aria-label={t('Parent folder')}
+                aria-label={"Parent folder"}
                 disabled={!listing.parent || loading || saving}
                 onClick={() => listing.parent && navigate(listing.parent)}
                 className="rounded-lg border border-[var(--border)] p-2 disabled:opacity-40"
@@ -121,7 +121,7 @@ export function ServerFolderPicker({
                 <ArrowUp size={16} />
               </button>
               <p
-                aria-label={t('Current folder')}
+                aria-label={"Current folder"}
                 className="min-w-0 flex-1 select-all break-all font-mono text-xs"
               >
                 {listing.path}
@@ -129,7 +129,7 @@ export function ServerFolderPicker({
             </div>
             {listing.roots.length > 1 && (
               <select
-                aria-label={t('Browse root')}
+                aria-label={"Browse root"}
                 disabled={saving || loading}
                 value={currentRoot?.path ?? ''}
                 onChange={event => navigate(event.target.value)}
@@ -145,8 +145,8 @@ export function ServerFolderPicker({
           </>
         )}
         <input
-          aria-label={t('Filter folders')}
-          placeholder={t('Filter folders')}
+          aria-label={"Filter folders"}
+          placeholder={"Filter folders"}
           value={filter}
           onChange={event => setFilter(event.target.value)}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
@@ -165,7 +165,7 @@ export function ServerFolderPicker({
               }}
               className="text-sm underline"
             >
-              {t('Retry')}
+              {"Retry"}
             </button>
           </div>
         )}
@@ -175,7 +175,7 @@ export function ServerFolderPicker({
         >
           {loading ? (
             <p role="status" className="p-4 text-sm text-[var(--muted-foreground)]">
-              {t('Loading folders…')}
+              {"Loading folders…"}
             </p>
           ) : (
             <>
@@ -200,14 +200,14 @@ export function ServerFolderPicker({
                 folder.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
               ) &&
                 !error && (
-                  <p className="p-4 text-sm text-[var(--muted-foreground)]">{t('No subfolders')}</p>
+                  <p className="p-4 text-sm text-[var(--muted-foreground)]">{"No subfolders"}</p>
                 )}
             </>
           )}
         </div>
         {listing?.truncated && (
           <p className="text-xs text-[var(--muted-foreground)]">
-            {t('Showing the first 500 folders. Open a subfolder to narrow the list.')}
+            {"Showing the first 500 folders. Open a subfolder to narrow the list."}
           </p>
         )}
       </div>

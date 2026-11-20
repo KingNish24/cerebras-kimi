@@ -2,7 +2,7 @@
 
 import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   DEFAULT_PDF_ZOOM,
@@ -55,7 +55,7 @@ export function PdfZoomControls({
   /** Reports pointer presence so hovering the bar does not hide it. */
   onActiveChange: (active: boolean) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -125,7 +125,7 @@ export function PdfZoomControls({
         // Marks the bar as part of the reader for the keyboard shortcuts, which
         // otherwise only look at the scroll root (a sibling of this element).
         data-pdf-zoom-controls=""
-        aria-label={t("Zoom level")}
+        aria-label={"Zoom level"}
         // Arrow keys are handled here, on the toolbar, not on the menu: when the
         // menu opens, focus is still on the trigger — a SIBLING of the menu — so
         // a handler on the menu never sees the keydown. The toolbar contains
@@ -158,7 +158,7 @@ export function PdfZoomControls({
         className="pointer-events-auto relative flex items-center gap-0.5 rounded-xl border border-[var(--border)] bg-[var(--background)] px-1.5 py-1 text-[var(--foreground)] shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
       >
         <PreferenceButton
-          label={t("Zoom out")}
+          label={"Zoom out"}
           icon={ZoomOut}
           disabled={atFloor}
           onClick={onZoomOut}
@@ -167,7 +167,7 @@ export function PdfZoomControls({
           type="button"
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label={t("Zoom level")}
+          aria-label={"Zoom level"}
           onClick={() => setOpen((value) => !value)}
           // The percentage is the only feedback a step produces for a reader who
           // cannot see the page resize, so the value is announced when it
@@ -178,19 +178,19 @@ export function PdfZoomControls({
           className="h-7 min-w-[58px] rounded-lg px-2 text-[12px] tabular-nums transition hover:bg-[color-mix(in_srgb,currentColor_10%,transparent)]"
         >
           {preference.mode === "text"
-            ? t("Fit text")
+            ? "Fit text"
             : preference.mode === "fit"
-              ? t("Fit page")
+              ? "Fit page"
               : `${effectivePercent}%`}
         </button>
         <PreferenceButton
-          label={t("Zoom in")}
+          label={"Zoom in"}
           icon={ZoomIn}
           disabled={atCeiling}
           onClick={onZoomIn}
         />
         <PreferenceButton
-          label={t("Reset zoom")}
+          label={"Reset zoom"}
           icon={RotateCcw}
           onClick={onReset}
         />
@@ -198,14 +198,14 @@ export function PdfZoomControls({
         {open && (
           <div
             role="menu"
-            aria-label={t("Zoom level")}
+            aria-label={"Zoom level"}
             ref={menuRef}
             className="absolute bottom-full left-1/2 mb-2 min-w-[132px] -translate-x-1/2 rounded-xl border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-xl"
           >
             {(
               [
-                { mode: "text", label: t("Fit text") },
-                { mode: "fit", label: t("Fit page") },
+                { mode: "text", label: "Fit text" },
+                { mode: "fit", label: "Fit page" },
               ] as const
             ).map((row) => (
               <button

@@ -17,7 +17,7 @@ import {
 } from "react";
 import { useAppShell } from "@/context/AppShellContext";
 import { ChevronsLeft, ChevronsRight, PanelLeftClose, Search, SquarePen } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useChatWorkspaces } from "@/hooks/useChatWorkspaces";
 
 import { useSidebarDrawer } from "@/components/layout/AppShell";
@@ -124,7 +124,7 @@ export function SidebarShell({
 }: SidebarShellProps) {
   const categoryNav = useCategoryNavigation();
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const { sidebarCollapsed, setSidebarCollapsed: setCollapsed } = useAppShell();
   const { isMobile } = useDevice();
   const drawer = useSidebarDrawer();
@@ -259,10 +259,10 @@ export function SidebarShell({
       onOrganizeSession ? (
         <section className="dt-navigation-section dt-session-section">
           <RecordHeader
-            title={t("navigation.chatRecords")}
+            title={"Conversations"}
             count={loadingSessions ? undefined : visibleSessions.length}
             view={chatView}
-            searchLabel={t("navigation.searchChats")}
+            searchLabel={"Search conversations"}
           />
           {loadingSessions ? (
             <SessionList
@@ -310,23 +310,23 @@ export function SidebarShell({
         ) : (
           <WorkspaceMenu compact accountSlot={renderedFooter} onNavigate={() => drawer?.close()} />
         )}
-        <Tooltip label={t("Expand sidebar")} side="right">
+        <Tooltip label={"Expand sidebar"} side="right">
           <button
             type="button"
             onClick={() => setCollapsed(false)}
             className="dt-nav-icon"
-            aria-label={t("Expand sidebar")}
+            aria-label={"Expand sidebar"}
           >
             <ChevronsRight size={17} strokeWidth={1.6} />
           </button>
         </Tooltip>
         <div aria-hidden className="dt-rail-divider" />
         {!bodySlot && (
-          <Tooltip label={t("navigation.search")} side="right" shortcut={SHORTCUTS.search}>
+          <Tooltip label={"Search"} side="right" shortcut={SHORTCUTS.search}>
             <button
               type="button"
               className="dt-nav-icon"
-              aria-label={t("navigation.search")}
+              aria-label={"Search"}
               aria-haspopup="dialog"
               onClick={() => setPaletteOpen(true)}
             >
@@ -342,8 +342,8 @@ export function SidebarShell({
 
         {footerOverride ? footerOverride(true) : (
           <div className="dt-rail-foot">
-            <Tooltip label={t("navigation.newChat")} side="right" shortcut={SHORTCUTS.newChat}>
-              <Link prefetch={false} href="/chat" onClick={handleHomeClick} aria-label={t("navigation.newChat")} className="dt-nav-icon">
+            <Tooltip label={"New conversation"} side="right" shortcut={SHORTCUTS.newChat}>
+              <Link prefetch={false} href="/chat" onClick={handleHomeClick} aria-label={"New conversation"} className="dt-nav-icon">
                 <SquarePen size={17} strokeWidth={1.6} />
               </Link>
             </Tooltip>
@@ -384,7 +384,7 @@ export function SidebarShell({
           <button
             onClick={() => setCollapsed(true)}
             className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] max-md:hidden"
-            aria-label={t("Collapse sidebar")}
+            aria-label={"Collapse sidebar"}
           >
             <PanelLeftClose size={15} />
           </button>
@@ -392,11 +392,11 @@ export function SidebarShell({
       ) : (
         <div className="dt-sidebar-header">
           <WorkspaceMenu accountSlot={renderedFooter} onNavigate={() => drawer?.close()} />
-          <Tooltip label={t("navigation.search")} side="bottom" shortcut={SHORTCUTS.search}>
+          <Tooltip label={"Search"} side="bottom" shortcut={SHORTCUTS.search}>
             <button
               type="button"
               className="dt-nav-icon dt-sidebar-search"
-              aria-label={t("navigation.search")}
+              aria-label={"Search"}
               aria-haspopup="dialog"
               onClick={() => setPaletteOpen(true)}
             >
@@ -405,12 +405,12 @@ export function SidebarShell({
           </Tooltip>
           {/* The rail is a desktop affordance; in the drawer the scrim and the
               top-bar toggle already own "make this go away". */}
-          <Tooltip label={t("Collapse sidebar")} side="bottom">
+          <Tooltip label={"Collapse sidebar"} side="bottom">
             <button
               type="button"
               onClick={() => setCollapsed(true)}
               className="dt-nav-icon max-md:hidden"
-              aria-label={t("Collapse sidebar")}
+              aria-label={"Collapse sidebar"}
             >
               <ChevronsLeft size={17} strokeWidth={1.6} />
             </button>
@@ -433,10 +433,10 @@ export function SidebarShell({
       {/* Secondary nav + footer */}
       {footerOverride ? footerOverride(false) : (
         <div className="dt-sidebar-footer">
-          <Tooltip label={t("navigation.newChat")} side="top" shortcut={SHORTCUTS.newChat} as="div" className="block w-full">
+          <Tooltip label={"New conversation"} side="top" shortcut={SHORTCUTS.newChat} as="div" className="block w-full">
             <Link prefetch={false} href="/chat" onClick={handleHomeClick} className="dt-new-conversation">
               <SquarePen size={16} strokeWidth={1.7} />
-              <span>{t("navigation.newChat")}</span>
+              <span>{"New conversation"}</span>
             </Link>
           </Tooltip>
         </div>
@@ -444,7 +444,7 @@ export function SidebarShell({
       {!isMobile && (
         <div
           role="separator"
-          aria-label={t("Resize sidebar")}
+          aria-label={"Resize sidebar"}
           aria-orientation="vertical"
           aria-valuemin={resize.min}
           aria-valuemax={resize.max}

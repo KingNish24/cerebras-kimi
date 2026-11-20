@@ -2,7 +2,7 @@
 
 import dynamic from "@/shared/router/dynamic";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { RotateCcw, Square, Volume2 } from "lucide-react";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import type { MessageTraceMetadata } from "@/features/chat/trace/memory";
@@ -209,7 +209,7 @@ export const AssistantMessage = memo(function AssistantMessage({
   /** Notebook companion renders Markdown instead of OpenUI programs. */
   renderMarkdown?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const events = useMemo(() => msg.events ?? [], [msg.events]);
   const readingMaterialId = researchRequestSnapshot?.readingMaterialId;
   const readingMaterialRevision =
@@ -497,9 +497,9 @@ export const AssistantMessage = memo(function AssistantMessage({
     if (!headerProcess) return undefined;
     const toolCalls = countProcessToolCalls(headerProcess.segments);
     return toolCalls > 0
-      ? t("{{count}} tool calls", { count: toolCalls })
+      ? `${toolCalls} tool calls`
       : undefined;
-  }, [headerProcess, t]);
+  }, [headerProcess]);
 
   // A turn handed to a partner or an agent is theirs: the header shows them.
   const answerer = useMemo(() => answererOf(events), [events]);

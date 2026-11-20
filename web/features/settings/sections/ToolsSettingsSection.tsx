@@ -5,7 +5,7 @@ import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, Lock, Search, Wrench, X } from "lucide-react";
 import Link from "@/shared/router/link";
-import { useTranslation } from "react-i18next";
+
 
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { SettingsPageHeader } from "@/components/settings/shared";
@@ -76,13 +76,13 @@ const CAPABILITY_LABELS: Record<string, { zh: string; en: string }> = {
 };
 
 export default function ToolsSettingsPage() {
-  const { t } = useTranslation();
+  
   const { language, draftRevision } = useSettings();
   const hintLanguage = language === "zh" ? "zh" : "en";
   const localizedHints = useCallback((tool: BuiltinTool): ToolHints => {
     const hints = tool.hints[language] ?? tool.hints[hintLanguage] ?? tool.hints.en;
     if (language === "en" || language === "zh" || tool.hints[language]) return hints;
-    const translate = (text: string) => text ? t(text, { defaultValue: text }) : text;
+    const translate = (text: string) => text ? (text) : text;
     return { ...hints,
       short_description: translate(hints.short_description),
       when_to_use: translate(hints.when_to_use),
@@ -91,7 +91,7 @@ export default function ToolsSettingsPage() {
       note: translate(hints.note),
       aliases: hints.aliases.map(alias => ({ ...alias, description: translate(alias.description) })),
     };
-  }, [language, hintLanguage, t]);
+  }, [language, hintLanguage]);
   const [tools, setTools] = useState<BuiltinTool[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -159,37 +159,37 @@ export default function ToolsSettingsPage() {
     if (experience.length) {
       out.push({
         key: "experience",
-        label: zh ? "体验增强" : t("Experience Enhancement"),
+        label: zh ? "体验增强" : "Experience Enhancement",
         hint: zh
           ? "用户可选；按需为 chat agent 开启或关闭。"
-          : t("User-toggleable. Switch on or off to shape the chat agent's behavior."),
+          : "User-toggleable. Switch on or off to shape the chat agent's behavior.",
         tools: experience,
       });
     }
     if (builtin.length) {
       out.push({
         key: "builtin",
-        label: zh ? "内置工具" : t("Built-in Tools"),
+        label: zh ? "内置工具" : "Built-in Tools",
         hint: zh
           ? "Chat agent 在需要时自动挂载，无需手动开关。"
-          : t("Mounted automatically by the chat agent when needed. Not user-toggleable."),
+          : "Mounted automatically by the chat agent when needed. Not user-toggleable.",
         tools: builtin,
       });
     }
     for (const [cap, list] of capabilities) {
       const capLabel = CAPABILITY_LABELS[cap];
-      const label = capLabel ? (zh ? capLabel.zh : t(capLabel.en)) : cap;
+      const label = capLabel ? (zh ? capLabel.zh : (capLabel.en)) : cap;
       out.push({
         key: `cap:${cap}`,
-        label: zh ? `${label} · 能力工具` : t("{{label}} · Capability Tools", { label }),
+        label: zh ? `${label} · 能力工具` : `${label} · Capability Tools`,
         hint: zh
           ? "该能力的专属工具，仅在此能力运行时挂载。"
-          : t("Tools specific to this capability; mounted only when it runs."),
+          : "Tools specific to this capability; mounted only when it runs.",
         tools: list,
       });
     }
     return out;
-  }, [tools, language, t]);
+  }, [tools, language]);
 
   const filteredSections = useMemo<ToolSection[] | null>(() => {
     if (!sections) return null;
@@ -250,15 +250,13 @@ export default function ToolsSettingsPage() {
   return (
     <div data-tour="tour-tools">
       <SettingsPageHeader
-        title={t("Tools")}
-        description={t(
-          "Switch user-toggleable tools on or off. Locked tools are mounted automatically when the chat agent needs them.",
-        )}
+        title={"Tools"}
+        description={"Switch user-toggleable tools on or off. Locked tools are mounted automatically when the chat agent needs them."}
       />
 
       <div className="mb-8">
         <label className="sr-only" htmlFor="tools-search">
-          {t("Search tools")}
+          {"Search tools"}
         </label>
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
@@ -266,18 +264,18 @@ export default function ToolsSettingsPage() {
             id="tools-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("Search tools")}
-            aria-label={t("Search tools")}
+            placeholder={"Search tools"}
+            aria-label={"Search tools"}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-10 pr-10 text-[13px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20"
             spellCheck={false}
           />
           {query && (
             <span className="absolute right-2 top-1/2 -translate-y-1/2">
-              <Tooltip label={t("Clear")} side="top">
+              <Tooltip label={"Clear"} side="top">
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  aria-label={t("Clear")}
+                  aria-label={"Clear"}
                   className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/30"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -290,7 +288,7 @@ export default function ToolsSettingsPage() {
 
       {error && (
         <div className="rounded-xl border border-red-500/40 bg-red-500/5 px-4 py-3 text-[12px] text-red-500">
-          {t("Failed to load tools")}: {error}
+          {"Failed to load tools"}: {error}
         </div>
       )}
 
@@ -299,13 +297,13 @@ export default function ToolsSettingsPage() {
       {!tools && !error && (
         <div className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          {t("Loading...")}
+          {"Loading..."}
         </div>
       )}
 
       {filteredSections && query.trim() && filteredSections.length === 0 && (
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-8 text-center text-[12.5px] text-[var(--muted-foreground)]">
-          {t("No tools match “{{query}}”.", { query: query.trim() })}
+          {`No tools match “${query.trim()}”.`}
         </div>
       )}
 
@@ -346,8 +344,8 @@ export default function ToolsSettingsPage() {
                       availabilityCopy && language !== "zh"
                         ? {
                             ...availabilityCopy,
-                            badge: t(availabilityCopy.badge),
-                            detail: t(availabilityCopy.detail),
+                            badge: (availabilityCopy.badge),
+                            detail: (availabilityCopy.detail),
                           }
                         : availabilityCopy;
                     const isEnabled = toolEffectiveEnabled(
@@ -398,7 +396,7 @@ export default function ToolsSettingsPage() {
                                   <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                                     {language === "zh"
                                       ? "敬请期待"
-                                      : t("Coming soon")}
+                                      : "Coming soon"}
                                   </span>
                                 )}
                                 {availability && !isComingSoon && (
@@ -426,7 +424,7 @@ export default function ToolsSettingsPage() {
                                     >
                                       {language === "zh"
                                         ? "打开设置"
-                                        : t("Open settings")}
+                                        : "Open settings"}
                                     </Link>
                                   )}
                                 </p>
@@ -447,7 +445,7 @@ export default function ToolsSettingsPage() {
                                   /* locked */
                                 }}
                                 label={
-                                  language === "zh" ? "敬请期待" : t("Coming soon")
+                                  language === "zh" ? "敬请期待" : "Coming soon"
                                 }
                               />
                             ) : !isAvailable ? (
@@ -458,7 +456,7 @@ export default function ToolsSettingsPage() {
                                   /* runtime unavailable */
                                 }}
                                 label={
-                                  availability?.badge ?? t("Not configured")
+                                  availability?.badge ?? "Not configured"
                                 }
                               />
                             ) : tool.toggleable ? (
@@ -466,13 +464,11 @@ export default function ToolsSettingsPage() {
                                 checked={isEnabled}
                                 disabled={isPending}
                                 onChange={() => handleToggleEnabled(tool.name)}
-                                label={t(isEnabled ? "On" : "Off")}
+                                label={(isEnabled ? "On" : "Off")}
                               />
                             ) : (
                               <Tooltip
-                                label={t(
-                                  "Auto-mounted by the agent when needed. Not user-toggleable.",
-                                )}
+                                label={"Auto-mounted by the agent when needed. Not user-toggleable."}
                                 side="top"
                               >
                                 <span
@@ -481,7 +477,7 @@ export default function ToolsSettingsPage() {
                                   className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)]/40 px-2 py-0.5 text-[10.5px] text-[var(--muted-foreground)]"
                                 >
                                   <Lock className="h-3 w-3" />
-                                  {t("Always on")}
+                                  {"Always on"}
                                 </span>
                               </Tooltip>
                             )}
@@ -491,30 +487,30 @@ export default function ToolsSettingsPage() {
                           <div className="space-y-4 border-t border-[var(--border)]/40 bg-[var(--background)]/40 px-5 py-4 text-[12.5px] leading-relaxed">
                             {hints.when_to_use && (
                               <Field
-                                label={t("When to use")}
+                                label={"When to use"}
                                 body={hints.when_to_use}
                               />
                             )}
                             {hints.input_format && (
                               <Field
-                                label={t("Input format")}
+                                label={"Input format"}
                                 body={hints.input_format}
                                 mono
                               />
                             )}
                             {hints.guideline && (
                               <Field
-                                label={t("Guideline")}
+                                label={"Guideline"}
                                 body={hints.guideline}
                               />
                             )}
                             {hints.note && (
-                              <Field label={t("Note")} body={hints.note} />
+                              <Field label={"Note"} body={hints.note} />
                             )}
                             {tool.parameters.length > 0 && (
                               <div>
                                 <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
-                                  {t("Parameters")}
+                                  {"Parameters"}
                                 </div>
                                 <ul className="space-y-1.5">
                                   {tool.parameters.map((p) => (
@@ -529,7 +525,7 @@ export default function ToolsSettingsPage() {
                                         {p.type}
                                         {p.required
                                           ? ""
-                                          : ` · ${t("optional")}`}
+                                          : ` · ${"optional"}`}
                                       </span>
                                       {p.description && (
                                         <span className="text-[12px] text-[var(--muted-foreground)]">

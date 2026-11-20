@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type RefObject } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   AlertCircle,
   ArrowLeft,
@@ -57,9 +57,9 @@ export function CreateTopicWizard({
   ) => void;
   returnFocusRef: RefObject<HTMLElement | null>;
 }) {
-  const { t, i18n } = useTranslation();
-  const zh = i18n.language?.toLowerCase().startsWith("zh") ?? false;
-  const sourceTr = useMemo(() => catalogTranslate(t, zh), [t, zh]);
+  
+  const zh = "en"?.toLowerCase().startsWith("zh") ?? false;
+  const sourceTr = useMemo(() => catalogTranslate(zh), [zh]);
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState("");
   const [emoji, setEmoji] = useState("🧭");
@@ -98,7 +98,7 @@ export function CreateTopicWizard({
       const sources: TopicSourceInput[] = [
         {
           kind: "goal",
-          label: t("Learning goal"),
+          label: "Learning goal",
           excerpt: goal.trim(),
         },
         ...hydrated,
@@ -115,7 +115,7 @@ export function CreateTopicWizard({
       setError(
         reason instanceof Error
           ? reason.message
-          : t("Creation failed. Please retry."),
+          : "Creation failed. Please retry.",
       );
     } finally {
       setBusy(false);
@@ -141,20 +141,20 @@ export function CreateTopicWizard({
           <div>
             <div className="flex items-center gap-2 text-xs font-medium text-[var(--primary)]">
               <Sparkles className="h-3.5 w-3.5" />
-              {t("New mastery goal")}
+              {"New mastery goal"}
             </div>
             <h2
               id="create-topic-title"
               className="mt-1 text-xl font-semibold tracking-tight text-[var(--foreground)]"
             >
-              {step === 1 ? t("What do you want to master?") : t("Choose materials")}
+              {step === 1 ? "What do you want to master?" : "Choose materials"}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
-            aria-label={t("Close")}
+            aria-label={"Close"}
             className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--accent)] disabled:opacity-40"
           >
             <X className="h-4 w-4" />
@@ -164,9 +164,9 @@ export function CreateTopicWizard({
         <div className="border-b border-[var(--border)] px-5 py-3 sm:px-7">
           <ol
             className="grid grid-cols-2 gap-2"
-            aria-label={t("Creation steps")}
+            aria-label={"Creation steps"}
           >
-            {[t("Goal"), t("Materials")].map((label, index) => {
+            {["Goal", "Materials"].map((label, index) => {
               const number = index + 1;
               const active = number === step;
               const done = number < step;
@@ -245,7 +245,7 @@ export function CreateTopicWizard({
             className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm text-[var(--muted-foreground)] hover:bg-[var(--accent)] disabled:invisible"
           >
             <ArrowLeft className="h-4 w-4" />
-            {t("Back")}
+            {"Back"}
           </button>
           {step === 1 ? (
             <button
@@ -254,7 +254,7 @@ export function CreateTopicWizard({
               disabled={!goal.trim()}
               className="inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("Choose sources")}
+              {"Choose sources"}
               <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
@@ -269,7 +269,7 @@ export function CreateTopicWizard({
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              {busy ? t("Creating…") : t("Design the outline with the tutor")}
+              {busy ? "Creating…" : "Design the outline with the tutor"}
             </button>
           )}
         </footer>

@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Paperclip } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { ATTACHMENT_ACCEPT } from "@/lib/doc-attachments";
 import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";
@@ -151,7 +151,7 @@ export default memo(function ChatComposer({
   docked = false,
   trayEnd,
 }: ChatComposerProps) {
-  const { t } = useTranslation();
+  
   const capabilityLabel = useCapabilityLabel();
   const { value: pageCustomization } = usePageCustomization();
   const controls = customizable ? pageCustomization.chat.controls : undefined;
@@ -434,15 +434,15 @@ export default memo(function ChatComposer({
 
   const sendLabel =
     sendState === "streaming"
-      ? t("Stop generating")
+      ? "Stop generating"
       : awaitingUserReply
-        ? t("Send answer")
+        ? "Send answer"
         : queuing
-          ? t("Queue message")
-          : t("Send");
+          ? "Queue message"
+          : "Send";
   const sendTitle =
     sendState === "blocked"
-      ? t("Confirm settings on the right to send.")
+      ? "Confirm settings on the right to send."
       : sendLabel;
 
   const resourceItems = buildKnowledgeResourceItems({
@@ -488,10 +488,10 @@ export default memo(function ChatComposer({
               <div className="flex flex-col items-center gap-1 text-[var(--primary)]">
                 <Paperclip size={22} strokeWidth={1.6} />
                 <span className="text-[13px] font-medium">
-                  {t("Drop files here")}
+                  {"Drop files here"}
                 </span>
                 <span className="text-[11px] text-[var(--primary)]/70">
-                  {t("Images, Office docs, code & text")}
+                  {"Images, Office docs, code & text"}
                 </span>
               </div>
             </div>
@@ -555,7 +555,7 @@ export default memo(function ChatComposer({
             languagePickerBelow={!hasMessages && !docked}
             placeholder={
               inputPlaceholder ??
-              (createKindDef ? t(createKindDef.placeholderKey) : undefined)
+              (createKindDef ? (createKindDef.placeholderKey) : undefined)
             }
             placeholderCompletion={inputPlaceholderCompletion}
             minHeight={hasMessages || docked ? 28 : 64}

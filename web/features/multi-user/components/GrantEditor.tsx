@@ -8,7 +8,7 @@ import {
   Loader2,
   Save,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import McpToolGroups from "@/components/common/McpToolGroups";
 import { toggleToolName as toggleName } from "@/lib/mcp-tool-groups";
 import { fetchAdminResources, fetchUserGrant, saveUserGrant } from "../api";
@@ -125,7 +125,7 @@ function ModeSwitch({
   onCustom: () => void;
   defaultLabel?: string;
 }) {
-  const { t } = useTranslation();
+  
   const base =
     "rounded-md px-2 py-0.5 text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45";
   return (
@@ -140,7 +140,7 @@ function ModeSwitch({
             : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
         }`}
       >
-        {defaultLabel ?? t("Default · all")}
+        {defaultLabel ?? "Default · all"}
       </button>
       <button
         type="button"
@@ -152,7 +152,7 @@ function ModeSwitch({
             : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
         }`}
       >
-        {t("Custom")}
+        {"Custom"}
       </button>
     </div>
   );
@@ -165,7 +165,7 @@ export function GrantEditor({
   userId: string;
   lockLearningPolicy?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const [resources, setResources] = useState<MultiUserResources | null>(null);
   const [grant, setGrant] = useState<GrantPayload>(() => emptyGrant(userId));
   const [loading, setLoading] = useState(true);
@@ -185,7 +185,7 @@ export function GrantEditor({
       .catch((error) => {
         setSaveState("error");
         setMessage(
-          error instanceof Error ? error.message : t("Failed to load grants"),
+          error instanceof Error ? error.message : "Failed to load grants",
         );
       })
       .finally(() => {
@@ -194,7 +194,7 @@ export function GrantEditor({
     return () => {
       cancelled = true;
     };
-  }, [userId, t]);
+  }, [userId]);
 
   const currentFingerprint = useMemo(() => grantFingerprint(grant), [grant]);
   const dirty =
@@ -389,24 +389,24 @@ export function GrantEditor({
       setGrant(saved);
       setSavedFingerprint(grantFingerprint(saved));
       setSaveState("saved");
-      setMessage(t("Saved just now"));
+      setMessage("Saved just now");
     } catch (error) {
       setSaveState("error");
-      setMessage(error instanceof Error ? error.message : t("Failed to save"));
+      setMessage(error instanceof Error ? error.message : "Failed to save");
     }
   }
 
   const status = loading
-    ? t("Loading assignments...")
+    ? "Loading assignments..."
     : saveState === "saving"
-      ? t("Saving changes...")
+      ? "Saving changes..."
       : saveState === "error"
-        ? message || t("Failed to save")
+        ? message || "Failed to save"
         : saveState === "saved" && !dirty
-          ? message || t("Saved just now")
+          ? message || "Saved just now"
           : dirty
-            ? t("Unsaved changes")
-            : t("Ready");
+            ? "Unsaved changes"
+            : "Ready";
 
   const statusTone =
     saveState === "error"
@@ -417,19 +417,19 @@ export function GrantEditor({
 
   const toolsSummary =
     grant.enabled_tools === null
-      ? t("all tools")
-      : t("{{count}} tools", { count: grant.enabled_tools.length });
+      ? "all tools"
+      : `${grant.enabled_tools.length} tools`;
   // MCP tools deny-by-default for non-admin users: ``null`` grants none until
   // the admin switches to Custom and picks specific tool names.
   const mcpSummary =
-    grant.mcp_tools === null ? t("no MCP") : t("{{count}} MCP tools", { count: grant.mcp_tools.length });
+    grant.mcp_tools === null ? "no MCP" : `${grant.mcp_tools.length} MCP tools`;
 
   if (loading && !resources) {
     return (
       <div className="border-t border-[var(--border)] bg-[var(--background)]/40 p-4">
         <div className="flex h-[420px] items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--muted-foreground)]">
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {t("Loading assignments...")}
+          {"Loading assignments..."}
         </div>
       </div>
     );
@@ -442,24 +442,24 @@ export function GrantEditor({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                {t("Assign access")}
+                {"Assign access"}
               </h2>
               <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-                {t("Admin resources stay linked server-side; users only receive allowed access.")}
+                {"Admin resources stay linked server-side; users only receive allowed access."}
               </p>
             </div>
             <div className="flex flex-wrap gap-1.5 text-[11px] text-[var(--muted-foreground)]">
               <span className="rounded-full bg-[var(--muted)]/60 px-2 py-1">
-                {t("{{count}} models", { count: selectedModelCount })}
+                {`${selectedModelCount} models`}
               </span>
               <span className="rounded-full bg-[var(--muted)]/60 px-2 py-1">
-                {t("{{count}} KBs", { count: kbIds.size })}
+                {`${kbIds.size} KBs`}
               </span>
               <span className="rounded-full bg-[var(--muted)]/60 px-2 py-1">
-                {t("{{count}} skills", { count: skillIds.size })}
+                {`${skillIds.size} skills`}
               </span>
               <span className="rounded-full bg-[var(--muted)]/60 px-2 py-1">
-                {t("{{count}} partners", { count: partnerIds.size })}
+                {`${partnerIds.size} partners`}
               </span>
               <span className="rounded-full bg-[var(--muted)]/60 px-2 py-1">
                 {toolsSummary}
@@ -474,13 +474,11 @@ export function GrantEditor({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 [scrollbar-gutter:stable]">
           <div className="grid gap-5 md:grid-cols-3">
             <section className="min-w-0 md:col-span-3">
-              <SectionTitle>{t("Learning policy")}</SectionTitle>
+              <SectionTitle>{"Learning policy"}</SectionTitle>
               <div className="rounded-lg border border-[var(--border)]/60 p-3">
                 <CheckRow
-                  label={t("Enable learning policy")}
-                  description={t(
-                    "Teacher persona; Chat and Immersive Reading only",
-                  )}
+                  label={"Enable learning policy"}
+                  description={"Teacher persona; Chat and Immersive Reading only"}
                   checked={Boolean(grant.learning_policy)}
                   disabled={controlsDisabled || lockLearningPolicy}
                   onToggle={() =>
@@ -493,7 +491,7 @@ export function GrantEditor({
                   <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     <label className="text-xs text-[var(--foreground)]">
                       <span className="mb-1 block text-[11px] text-[var(--muted-foreground)]">
-                        {t("Age band")}
+                        {"Age band"}
                       </span>
                       <select
                         value={grant.learning_policy.age_band}
@@ -514,32 +512,32 @@ export function GrantEditor({
                     </label>
                     <label className="text-xs text-[var(--foreground)]">
                       <span className="mb-1 block text-[11px] text-[var(--muted-foreground)]">
-                        {t("Persona")}
+                        {"Persona"}
                       </span>
                       <select
                         value={grant.learning_policy.locked_persona}
                         disabled
                         className="h-8 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2"
                       >
-                        <option value="teacher">{t("Teacher")}</option>
+                        <option value="teacher">{"Teacher"}</option>
                       </select>
                     </label>
                     <div className="text-xs">
                       <span className="mb-1 block text-[11px] text-[var(--muted-foreground)]">
-                        {t("Modes")}
+                        {"Modes"}
                       </span>
                       <div className="flex h-8 items-center gap-1.5">
                         <GraduationCap
                           size={14}
                           className="text-[var(--muted-foreground)]"
                         />
-                        <span>{t("Chat · Immersive Reading")}</span>
+                        <span>{"Chat · Immersive Reading"}</span>
                       </div>
                     </div>
                     <div className="grid gap-3 sm:col-span-3 lg:grid-cols-2">
                       <div>
                         <div className="mb-1 text-[11px] text-[var(--muted-foreground)]">
-                          {t("Assigned reading materials")}
+                          {"Assigned reading materials"}
                         </div>
                         <div className="grid gap-1 sm:grid-cols-2">
                           {(resources?.reading_materials ?? []).map(
@@ -562,9 +560,7 @@ export function GrantEditor({
                           )}
                           {(resources?.reading_materials ?? []).length === 0 ? (
                             <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                              {t(
-                                "Upload books in Reading before assigning them.",
-                              )}
+                              {"Upload books in Reading before assigning them."}
                             </p>
                           ) : null}
                         </div>
@@ -580,12 +576,12 @@ export function GrantEditor({
                               }))
                             }
                           />
-                          {t("Allow learner uploads")}
+                          {"Allow learner uploads"}
                         </label>
                       </div>
                       <div>
                         <div className="mb-1 text-[11px] text-[var(--muted-foreground)]">
-                          {t("Reading extensions")}
+                          {"Reading extensions"}
                         </div>
                         <div className="grid gap-1 sm:grid-cols-2">
                           {(resources?.reading_extensions ?? []).map(
@@ -614,7 +610,7 @@ export function GrantEditor({
               </div>
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("Models")}</SectionTitle>
+              <SectionTitle>{"Models"}</SectionTitle>
               <div className="space-y-1.5 text-xs">
                 {(resources?.models.llm || []).map((profile) => (
                   <div
@@ -649,7 +645,7 @@ export function GrantEditor({
               </div>
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("Knowledge")}</SectionTitle>
+              <SectionTitle>{"Knowledge"}</SectionTitle>
               <div className="space-y-1.5 text-xs">
                 {(resources?.knowledge_bases || []).map((kb) => (
                   <CheckRow
@@ -663,7 +659,7 @@ export function GrantEditor({
               </div>
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("Skills")}</SectionTitle>
+              <SectionTitle>{"Skills"}</SectionTitle>
               <div className="space-y-1.5 text-xs">
                 {(resources?.skills || []).map((skill) => (
                   <CheckRow
@@ -677,11 +673,11 @@ export function GrantEditor({
               </div>
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("Partners")}</SectionTitle>
+              <SectionTitle>{"Partners"}</SectionTitle>
               <div className="space-y-1.5 text-xs">
                 {(resources?.partners || []).length === 0 ? (
                   <p className="px-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                    {t("No partners yet. Create one under Partners to assign it.")}
+                    {"No partners yet. Create one under Partners to assign it."}
                   </p>
                 ) : (
                   (resources?.partners || []).map((partner) => (
@@ -704,7 +700,7 @@ export function GrantEditor({
             </section>
 
             <section className="min-w-0">
-              <SectionTitle>{t("System tools")}</SectionTitle>
+              <SectionTitle>{"System tools"}</SectionTitle>
               <ModeSwitch
                 isCustom={grant.enabled_tools !== null}
                 disabled={controlsDisabled}
@@ -734,11 +730,11 @@ export function GrantEditor({
               )}
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("MCP tools")}</SectionTitle>
+              <SectionTitle>{"MCP tools"}</SectionTitle>
               <ModeSwitch
                 isCustom={grant.mcp_tools !== null}
                 disabled={controlsDisabled}
-                defaultLabel={t("Default · none")}
+                defaultLabel={"Default · none"}
                 onDefault={() => setToolList("mcp_tools", null)}
                 // Custom starts empty: the admin picks the services to assign,
                 // rather than un-picking hundreds of tools they never meant to
@@ -747,7 +743,7 @@ export function GrantEditor({
               />
               {grant.mcp_tools === null ? (
                 <p className="px-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                  {t("MCP tools proxy host-side capabilities, so they stay denied by default. Switch to Custom to assign specific services.")}
+                  {"MCP tools proxy host-side capabilities, so they stay denied by default. Switch to Custom to assign specific services."}
                 </p>
               ) : null}
               {grant.mcp_tools !== null &&
@@ -770,7 +766,7 @@ export function GrantEditor({
                         }
                         className="rounded px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
                       >
-                        {t("All")}
+                        {"All"}
                       </button>
                       <button
                         type="button"
@@ -778,7 +774,7 @@ export function GrantEditor({
                         onClick={() => setToolList("mcp_tools", [])}
                         className="rounded px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
                       >
-                        {t("None")}
+                        {"None"}
                       </button>
                     </div>
                     <McpToolGroups
@@ -800,16 +796,16 @@ export function GrantEditor({
                   </div>
                 ) : (
                   <p className="text-xs text-[var(--muted-foreground)]">
-                    {t("No MCP servers configured.")}
+                    {"No MCP servers configured."}
                   </p>
                 ))}
             </section>
             <section className="min-w-0">
-              <SectionTitle>{t("Code execution")}</SectionTitle>
+              <SectionTitle>{"Code execution"}</SectionTitle>
               <div className="space-y-1.5 text-xs">
                 <CheckRow
-                  label={t("Allow code execution")}
-                  description={t("Follows the deployment sandbox policy. Uncheck to disable exec for this user.")}
+                  label={"Allow code execution"}
+                  description={"Follows the deployment sandbox policy. Uncheck to disable exec for this user."}
                   checked={grant.exec_enabled !== false}
                   disabled={controlsDisabled}
                   onToggle={() =>
@@ -850,10 +846,10 @@ export function GrantEditor({
               <Save className="h-3 w-3" />
             )}
             {saving
-              ? t("Saving...")
+              ? "Saving..."
               : saveState === "saved" && !dirty
-                ? t("Saved")
-                : t("Save assignments")}
+                ? "Saved"
+                : "Save assignments"}
           </button>
         </div>
       </div>

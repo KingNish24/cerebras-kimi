@@ -3,7 +3,7 @@
 import { masterySessionRoute, masterySessionsRoute } from "@/lib/learning-routes";
 
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { ArrowRight, Loader2, MessageCircle, Plus, Radio } from "lucide-react";
 
 import type { TopicSession } from "@/lib/learning-api";
@@ -26,7 +26,7 @@ export function SessionCamp({
   onRetry?: () => void;
   zh: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const openStudy = (sessionId?: string) =>
     router.push(
@@ -44,14 +44,14 @@ export function SessionCamp({
       <div className="dt-panel-head">
         <div className="flex w-full items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
-            <h2>{t("Mastery sessions")}</h2>
+            <h2>{"Mastery sessions"}</h2>
             {stale && (
               <button
                 type="button"
                 onClick={onRetry}
                 className="text-[11px] text-[var(--muted-foreground)] underline underline-offset-2 transition hover:text-[var(--foreground)]"
               >
-                {t("Could not refresh — retry")}
+                {"Could not refresh — retry"}
               </button>
             )}
           </div>
@@ -59,7 +59,7 @@ export function SessionCamp({
             type="button"
             onClick={() => openStudy()}
             className="dt-quiet-button is-icon -mr-2 h-7 w-7"
-            aria-label={t("Start a new learning session")}
+            aria-label={"Start a new learning session"}
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -74,12 +74,10 @@ export function SessionCamp({
           <div className="px-3 py-6 text-center">
             <MessageCircle className="mx-auto h-7 w-7 text-[var(--muted-foreground)] opacity-45" />
             <p className="mt-3 text-sm font-medium text-[var(--foreground)]">
-              {t("No sessions yet")}
+              {"No sessions yet"}
             </p>
             <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-[var(--muted-foreground)]">
-              {t(
-                "Start your first session. Later you can resume this thread or begin again from a fresh angle.",
-              )}
+              {"Start your first session. Later you can resume this thread or begin again from a fresh angle."}
             </p>
             <button
               type="button"
@@ -87,7 +85,7 @@ export function SessionCamp({
               className="mt-4 inline-flex h-9 items-center gap-2 rounded-xl bg-[var(--primary)] px-3.5 text-xs font-medium text-[var(--primary-foreground)]"
             >
               <Plus className="h-3.5 w-3.5" />
-              {t("Begin learning")}
+              {"Begin learning"}
             </button>
           </div>
         ) : (
@@ -117,12 +115,12 @@ export function SessionCamp({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[13.5px] font-medium text-[var(--foreground)]">
-                      {session.title || t("Untitled session")}
+                      {session.title || "Untitled session"}
                     </span>
                     <span className="mt-0.5 block truncate text-[11px] text-[var(--muted-foreground)]">
                       {running
-                        ? t("Tutor is responding")
-                        : `${session.message_count} ${t("messages")} · ${formatRelative(session.updated_at, zh)}`}
+                        ? "Tutor is responding"
+                        : `${session.message_count} ${"messages"} · ${formatRelative(session.updated_at, zh)}`}
                     </span>
                     {session.last_message && (
                       <span className="mt-1 block truncate text-[11px] text-[var(--muted-foreground)]/75">
@@ -140,7 +138,7 @@ export function SessionCamp({
               className="dt-panel-row mt-1 text-[12.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             >
               <Plus className="h-3.5 w-3.5" />
-              {t("Start from a fresh angle")}
+              {"Start from a fresh angle"}
             </button>
           </div>
         )}

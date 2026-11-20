@@ -3,7 +3,7 @@
 import { PageContainer, PageHeader } from '@/components/layout/FeaturePage'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronUp, Database, Loader2, Pencil, Sparkles } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { useAppShell } from '@/context/AppShellContext'
 import type { Book, BookDepth, BookProposal } from '@/lib/book-types'
 import type { TopicSourceInput } from '@/lib/learning-api'
@@ -93,9 +93,9 @@ export default function BookCreator({
   onConfirmProposal,
   confirmLoading = false,
 }: BookCreatorProps) {
-  const { t, i18n } = useTranslation()
-  const zh = i18n.language?.toLowerCase().startsWith('zh') ?? false
-  const sourceTr = useMemo(() => catalogTranslate(t, zh), [t, zh])
+  
+  const zh = "en"?.toLowerCase().startsWith('zh') ?? false
+  const sourceTr = useMemo(() => catalogTranslate(zh), [zh])
   const { language: appLanguage } = useAppShell()
   const [intent, setIntent] = useState('')
   const [language, setLanguage] = useState<string>('auto')
@@ -162,13 +162,13 @@ export default function BookCreator({
   }
   const currentProposal = editProposal || proposal
   const summaryChips = selected.size
-    ? [{ icon: Database, label: t('{{count}} selected', { count: selected.size }) }]
+    ? [{ icon: Database, label: `${selected.size} selected` }]
     : []
 
   return (
     <PageContainer>
       {back && <div className="mb-5">{back}</div>}
-      <PageHeader title={t('Create a new book')} description={t('Describe what you want to learn, then pick the knowledge sources to fuse into a structured, interactive book.')} />
+      <PageHeader title={"Create a new book"} description={"Describe what you want to learn, then pick the knowledge sources to fuse into a structured, interactive book."} />
       <div className="space-y-5">
 
       <div className="dt-panel">
@@ -180,7 +180,7 @@ export default function BookCreator({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-[var(--foreground)]">
-                {formCollapsed ? t('Inputs') : t('Configure inputs')}
+                {formCollapsed ? "Inputs" : "Configure inputs"}
               </span>
               {formCollapsed && intent.trim() && (
                 <span className="truncate text-xs text-[var(--muted-foreground)]">
@@ -192,7 +192,7 @@ export default function BookCreator({
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {summaryChips.length === 0 ? (
                   <span className="text-[11px] text-[var(--muted-foreground)]">
-                    {t('No knowledge sources selected')}
+                    {"No knowledge sources selected"}
                   </span>
                 ) : (
                   summaryChips.map((chip, i) => (
@@ -212,7 +212,7 @@ export default function BookCreator({
             {formCollapsed ? (
               <>
                 <Pencil className="h-3 w-3" />
-                {t('Edit')}
+                {"Edit"}
               </>
             ) : (
               <ChevronUp className="h-3.5 w-3.5" />
@@ -224,15 +224,13 @@ export default function BookCreator({
           <div className="space-y-4 px-5 pb-5">
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-                {t('Learning intent')}
+                {"Learning intent"}
               </span>
               <textarea
                 value={intent}
                 onChange={e => setIntent(e.target.value)}
                 rows={5}
-                placeholder={t(
-                  'e.g. Build intuition for transformer attention with derivations and exercises.'
-                )}
+                placeholder={"e.g. Build intuition for transformer attention with derivations and exercises."}
                 className="dt-soft-input mt-1.5 w-full resize-none rounded-xl bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none"
               />
             </label>
@@ -256,7 +254,7 @@ export default function BookCreator({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-4">
                 <label className="text-xs text-[var(--muted-foreground)]">
-                  {t('Language')}{' '}
+                  {"Language"}{' '}
                   <select
                     value={language}
                     onChange={e => {
@@ -273,10 +271,10 @@ export default function BookCreator({
                 </label>
 
                 <div className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
-                  {t('Depth')}
+                  {"Depth"}
                   <div className="inline-flex rounded-[8px] bg-[rgb(var(--dt-ink,55_53_47)/0.06)] p-[3px] text-[11px]">
                     {DEPTH_OPTIONS.map(option => (
-                      <Tooltip key={option.value} label={t(option.hint)}>
+                      <Tooltip key={option.value} label={(option.hint)}>
                         <button
                           type="button"
                           onClick={() => setDepth(option.value)}
@@ -287,7 +285,7 @@ export default function BookCreator({
                               : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                           }`}
                         >
-                          {t(option.label)}
+                          {(option.label)}
                         </button>
                       </Tooltip>
                     ))}
@@ -304,7 +302,7 @@ export default function BookCreator({
                 ) : (
                   <Sparkles className="h-4 w-4" />
                 )}
-                {t('Generate proposal')}
+                {"Generate proposal"}
               </button>
             </div>
           </div>
@@ -314,9 +312,9 @@ export default function BookCreator({
       {currentProposal && onConfirmProposal && (
         <div className="space-y-4 rounded-[18px] bg-[rgb(var(--dt-ink,55_53_47)/0.028)] p-5">
           <div>
-            <h2 className="text-base font-semibold text-[var(--foreground)]">{t('Proposal')}</h2>
+            <h2 className="text-base font-semibold text-[var(--foreground)]">{"Proposal"}</h2>
             <p className="text-xs text-[var(--muted-foreground)]">
-              {t('Edit anything below, then confirm to generate the chapter spine.')}
+              {"Edit anything below, then confirm to generate the chapter spine."}
             </p>
           </div>
           <ProposalForm
@@ -334,7 +332,7 @@ export default function BookCreator({
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
             >
               {confirmLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t('Confirm proposal & build spine')}
+              {"Confirm proposal & build spine"}
             </button>
           </div>
         </div>
@@ -365,14 +363,14 @@ function ProposalForm({
    *  picker state, so without this the form claims the book has no sources. */
   savedKbs?: string[]
 }) {
-  const { t } = useTranslation()
+  
   const effectiveKbs = selectedKbs.length > 0 ? selectedKbs : (savedKbs ?? [])
   const update = (patch: Partial<BookProposal>) => onChange({ ...proposal, ...patch })
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <label className="block sm:col-span-2">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Title')}
+          {"Title"}
         </span>
         <input
           value={proposal.title}
@@ -382,7 +380,7 @@ function ProposalForm({
       </label>
       <label className="block sm:col-span-2">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Description')}
+          {"Description"}
         </span>
         <textarea
           value={proposal.description}
@@ -393,7 +391,7 @@ function ProposalForm({
       </label>
       <label className="block">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Scope')}
+          {"Scope"}
         </span>
         <input
           value={proposal.scope}
@@ -403,7 +401,7 @@ function ProposalForm({
       </label>
       <label className="block">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Target level')}
+          {"Target level"}
         </span>
         <input
           value={proposal.target_level}
@@ -413,7 +411,7 @@ function ProposalForm({
       </label>
       <label className="block">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Estimated chapters')}
+          {"Estimated chapters"}
         </span>
         <input
           type="number"
@@ -426,12 +424,12 @@ function ProposalForm({
       </label>
       <div className="block sm:col-span-2">
         <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t('Knowledge bases used')}
+          {"Knowledge bases used"}
         </span>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
           {effectiveKbs.length === 0 ? (
             <span className="text-xs italic text-[var(--muted-foreground)]">
-              {t('No knowledge bases selected. The book will rely on general knowledge.')}
+              {"No knowledge bases selected. The book will rely on general knowledge."}
             </span>
           ) : (
             effectiveKbs.map(kb => (

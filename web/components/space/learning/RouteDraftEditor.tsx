@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 
 import type { ModuleInit, TopicDraft } from "@/lib/learning-api";
 import { randomUuid } from "@/lib/random-uuid";
-import { useTranslation } from "react-i18next";
+
 
 import type { Translate } from "./format";
 import {
@@ -42,7 +42,7 @@ export function RouteDraftEditor({
   /** From the draft the server generated; falls back to the classic cap. */
   moduleLimit?: number;
 }) {
-  const { t } = useTranslation();
+  
   const issues = routeDraftIssues(draft);
   const cap = Math.min(
     MAX_MODULE_LIMIT,
@@ -69,12 +69,12 @@ export function RouteDraftEditor({
         ...draft.modules,
         {
           id: moduleId,
-          name: t("New module {{n}}", { n: index + 1 }),
+          name: `New module ${index + 1}`,
           order: index,
           knowledge_points: [
             {
               id: draftId("waypoint"),
-              name: t("New knowledge point"),
+              name: "New knowledge point",
               type: "concept",
               module_id: moduleId,
             },
@@ -103,12 +103,10 @@ export function RouteDraftEditor({
       {!compact && (
         <>
           <h3 className="text-lg font-semibold text-[var(--foreground)]">
-            {t("Review and adjust the modules")}
+            {"Review and adjust the modules"}
           </h3>
           <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-            {t(
-              "Modules define learning phases and knowledge points define the abilities to master. Up/down controls make the order editable by keyboard as well as pointer.",
-            )}
+            {"Modules define learning phases and knowledge points define the abilities to master. Up/down controls make the order editable by keyboard as well as pointer."}
           </p>
         </>
       )}
@@ -116,7 +114,7 @@ export function RouteDraftEditor({
         <label
           className={`${compact ? "" : "mt-5"} block text-xs font-medium text-[var(--foreground)]`}
         >
-          {t("Map description")}
+          {"Map description"}
           <textarea
             value={draft.description}
             onChange={(event) =>
@@ -130,7 +128,7 @@ export function RouteDraftEditor({
       )}
       {issues.some((issue) => issue.code === "no_regions") && (
         <p role="alert" className="mt-4 text-xs font-medium text-red-600">
-          {t("Keep at least one module.")}
+          {"Keep at least one module."}
         </p>
       )}
       <div className="mt-5 space-y-3">
@@ -151,7 +149,7 @@ export function RouteDraftEditor({
                   {moduleIndex + 1}
                 </span>
                 <input
-                  aria-label={t("Module {{n}} name", { n: moduleIndex + 1 })}
+                  aria-label={`Module ${moduleIndex + 1} name`}
                   aria-invalid={blankRegion}
                   value={module.name}
                   onChange={(event) =>
@@ -166,12 +164,8 @@ export function RouteDraftEditor({
                 <OrderButtons
                   index={moduleIndex}
                   count={draft.modules.length}
-                  upLabel={t("Move module “{{name}}” up", {
-                    name: module.name || moduleIndex + 1,
-                  })}
-                  downLabel={t("Move module “{{name}}” down", {
-                    name: module.name || moduleIndex + 1,
-                  })}
+                  upLabel={`Move module “${module.name || moduleIndex + 1}” up`}
+                  downLabel={`Move module “${module.name || moduleIndex + 1}” down`}
                   onMove={(to) =>
                     onChange(moveRouteModule(draft, moduleIndex, to))
                   }
@@ -180,9 +174,7 @@ export function RouteDraftEditor({
                   type="button"
                   onClick={() => removeModule(moduleIndex)}
                   disabled={draft.modules.length === 1}
-                  aria-label={t("Remove module “{{name}}”", {
-                    name: module.name || moduleIndex + 1,
-                  })}
+                  aria-label={`Remove module “${module.name || moduleIndex + 1}”`}
                   className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-600 disabled:opacity-30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -190,7 +182,7 @@ export function RouteDraftEditor({
               </div>
               {blankRegion && (
                 <p className="ml-8 mt-1 text-[11px] text-red-600">
-                  {t("Module name cannot be blank.")}
+                  {"Module name cannot be blank."}
                 </p>
               )}
               <div className="mt-2 space-y-1.5 sm:pl-8">
@@ -206,13 +198,7 @@ export function RouteDraftEditor({
                     >
                       <span className="h-2 w-2 shrink-0 rounded-full border-2 border-[var(--primary)]/60" />
                       <input
-                        aria-label={t(
-                          "Knowledge point {{point}} name in module {{region}}",
-                          {
-                            point: pointIndex + 1,
-                            region: moduleIndex + 1,
-                          },
-                        )}
+                        aria-label={`Knowledge point ${pointIndex + 1} name in module ${moduleIndex + 1}`}
                         aria-invalid={blankWaypoint}
                         value={point.name}
                         onChange={(event) => {
@@ -230,9 +216,7 @@ export function RouteDraftEditor({
                         className="h-8 min-w-[12rem] flex-1 rounded-lg border border-transparent bg-transparent px-2 text-xs outline-none hover:border-[var(--border)] focus:border-[var(--ring)] aria-[invalid=true]:border-red-500/50"
                       />
                       <select
-                        aria-label={t("Type for “{{name}}”", {
-                          name: point.name || pointIndex + 1,
-                        })}
+                        aria-label={`Type for “${point.name || pointIndex + 1}”`}
                         value={point.type}
                         onChange={(event) => {
                           const knowledgePoints = [...module.knowledge_points];
@@ -247,20 +231,16 @@ export function RouteDraftEditor({
                         }}
                         className="h-8 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2 text-[11px] text-[var(--muted-foreground)] outline-none"
                       >
-                        <option value="concept">{t("Concept")}</option>
-                        <option value="memory">{t("Memory")}</option>
-                        <option value="procedure">{t("Procedure")}</option>
-                        <option value="design">{t("Design")}</option>
+                        <option value="concept">{"Concept"}</option>
+                        <option value="memory">{"Memory"}</option>
+                        <option value="procedure">{"Procedure"}</option>
+                        <option value="design">{"Design"}</option>
                       </select>
                       <OrderButtons
                         index={pointIndex}
                         count={module.knowledge_points.length}
-                        upLabel={t("Move “{{name}}” up", {
-                          name: point.name || pointIndex + 1,
-                        })}
-                        downLabel={t("Move “{{name}}” down", {
-                          name: point.name || pointIndex + 1,
-                        })}
+                        upLabel={`Move “${point.name || pointIndex + 1}” up`}
+                        downLabel={`Move “${point.name || pointIndex + 1}” down`}
                         onMove={(to) =>
                           onChange(
                             moveRouteWaypoint(
@@ -283,16 +263,14 @@ export function RouteDraftEditor({
                           })
                         }
                         disabled={module.knowledge_points.length === 1}
-                        aria-label={t("Remove “{{name}}”", {
-                          name: point.name || pointIndex + 1,
-                        })}
+                        aria-label={`Remove “${point.name || pointIndex + 1}”`}
                         className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:text-red-600 disabled:opacity-25"
                       >
                         <X className="h-3 w-3" />
                       </button>
                       {blankWaypoint && (
                         <p className="w-full pl-4 text-[11px] text-red-600">
-                          {t("Knowledge point name cannot be blank.")}
+                          {"Knowledge point name cannot be blank."}
                         </p>
                       )}
                     </div>
@@ -300,7 +278,7 @@ export function RouteDraftEditor({
                 })}
                 {emptyRegion && (
                   <p role="alert" className="text-[11px] text-red-600">
-                    {t("Every module needs at least one knowledge point.")}
+                    {"Every module needs at least one knowledge point."}
                   </p>
                 )}
                 <button
@@ -312,7 +290,7 @@ export function RouteDraftEditor({
                         ...module.knowledge_points,
                         {
                           id: draftId("waypoint"),
-                          name: t("New knowledge point"),
+                          name: "New knowledge point",
                           type: "concept",
                           module_id: module.id,
                         },
@@ -322,7 +300,7 @@ export function RouteDraftEditor({
                   className="mt-1 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--primary)] hover:bg-[var(--primary)]/[0.06]"
                 >
                   <Plus className="h-3 w-3" />
-                  {t("Add knowledge point")}
+                  {"Add knowledge point"}
                 </button>
               </div>
             </div>
@@ -336,7 +314,7 @@ export function RouteDraftEditor({
           className="mt-3 inline-flex h-9 items-center gap-2 rounded-xl border border-dashed border-[var(--border)] px-3 text-xs text-[var(--muted-foreground)] hover:border-[var(--primary)]/50 hover:text-[var(--foreground)]"
         >
           <Plus className="h-3.5 w-3.5" />
-          {t("Add module")}
+          {"Add module"}
         </button>
       )}
     </div>

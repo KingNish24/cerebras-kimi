@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus } from "@/lib/auth";
 import { getOwnLearnerProfile } from "@/lib/profile-api";
 import {
@@ -49,7 +49,7 @@ export function ReadingActionsProvider({
   onStart?: () => void;
   children: React.ReactNode;
 }) {
-  const { i18n, t } = useTranslation();
+  
   const [extensions, setExtensions] = useState<ReadingExtensionManifest[]>([]);
   const [ageMode, setAgeMode] = useState<ReadingAgeMode>("default");
   const [cards, setCards] = useState<ReadingActionCard[]>([]);
@@ -116,7 +116,7 @@ export function ReadingActionsProvider({
                 key,
                 extension,
                 action,
-                label: builtIn ? t(builtIn) : action.label,
+                label: builtIn ? (builtIn) : action.label,
                 needsSelection: action.requires.includes("selection"),
               };
             }),
@@ -128,7 +128,7 @@ export function ReadingActionsProvider({
             (leftRank < 0 ? 3 : leftRank) - (rightRank < 0 ? 3 : rightRank)
           );
         }),
-    [extensions, t],
+    [extensions],
   );
 
   const actions = useMemo(
@@ -182,7 +182,7 @@ export function ReadingActionsProvider({
           {
             locator: requestedLocator,
             selection,
-            locale: i18n.language,
+            locale: "en",
           },
         );
         if (next.type === "browser_speech") {
@@ -190,13 +190,13 @@ export function ReadingActionsProvider({
           const played = await speak({
             materialId,
             locator: requestedLocator,
-            locale: String(next.payload.locale || i18n.language),
+            locale: String(next.payload.locale || "en"),
             fallbackText: text,
           });
           if (!played) {
             settle({
               status: "error",
-              error: t("No speech voice is available in this browser."),
+              error: "No speech voice is available in this browser.",
             });
           }
           return;
@@ -211,7 +211,7 @@ export function ReadingActionsProvider({
         setBusyKey((current) => (current === entry.key ? "" : current));
       }
     },
-    [i18n.language, locator, materialId, speak, t],
+    ["en", locator, materialId, speak],
   );
 
   const dismiss = useCallback((cardId: string) => {

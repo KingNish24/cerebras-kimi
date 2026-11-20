@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Brain, Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import Tooltip from "@/shared/ui/Tooltip";
 import type { LLMOption } from "@/lib/llm-options";
@@ -38,7 +38,7 @@ export default function ReasoningEffortSelector({
   onChange: (value: string | null) => void;
   disabled?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -61,12 +61,12 @@ export default function ReasoningEffortSelector({
 
   return (
     <div ref={rootRef} className="relative">
-      <Tooltip label={t("Reasoning effort")} suppressed={open} side="top">
+      <Tooltip label={"Reasoning effort"} suppressed={open} side="top">
         <button
           type="button"
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
-          aria-label={t("Reasoning effort")}
+          aria-label={"Reasoning effort"}
           aria-expanded={open}
           className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[14px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
             disabled
@@ -78,7 +78,7 @@ export default function ReasoningEffortSelector({
         >
           <Brain size={16} strokeWidth={1.7} className="shrink-0" />
           <span className="min-w-0 whitespace-nowrap">
-            {selected ? t(selectedLabel) : t("Auto")}
+            {selected ? (selectedLabel) : "Auto"}
           </span>
         </button>
       </Tooltip>
@@ -108,7 +108,7 @@ export default function ReasoningEffortSelector({
                       : "text-[var(--foreground)]"
                   }`}
                 >
-                  {t(item.label)}
+                  {(item.label)}
                 </span>
                 {isSelected && (
                   <Check

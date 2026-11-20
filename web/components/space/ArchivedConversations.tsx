@@ -9,7 +9,7 @@ import {
   Route,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -53,13 +53,13 @@ export default function ArchivedConversations({
   onOpen,
   onRestore,
 }: ArchivedConversationsProps) {
-  const { t, i18n } = useTranslation();
-  const placeholder = t("New chat");
+  
+  const placeholder = "New chat";
 
   if (archiveCount(buckets) === 0) {
     return (
       <p className="px-2 py-6 text-center text-[12.5px] text-[var(--muted-foreground)]">
-        {t("Nothing is archived yet.")}
+        {"Nothing is archived yet."}
       </p>
     );
   }
@@ -89,19 +89,19 @@ export default function ArchivedConversations({
           <p className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
             {[
               row.container,
-              formatRelativeTime(session.updated_at, i18n.language),
+              formatRelativeTime(session.updated_at, "en"),
             ]
               .filter(Boolean)
               .join(" · ")}
           </p>
         </button>
         {onDelete && (
-          <Tooltip label={t("Delete permanently")} side="top">
+          <Tooltip label={"Delete permanently"} side="top">
             <button
               type="button"
               onClick={() => onDelete(session.session_id)}
               disabled={disabled || busy || deletingId === session.session_id}
-              aria-label={t("Delete permanently")}
+              aria-label={"Delete permanently"}
               className="shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-600 disabled:opacity-50"
             >
               {deletingId === session.session_id ? (
@@ -123,7 +123,7 @@ export default function ArchivedConversations({
           ) : (
             <ArchiveRestore size={13} strokeWidth={1.8} />
           )}
-          {t("Unarchive")}
+          {"Unarchive"}
         </button>
       </div>
     );
@@ -151,21 +151,19 @@ export default function ArchivedConversations({
   return (
     <div className="px-1 py-1">
       <p className="mb-4 px-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Archiving a conversation only clears it out of the sidebar — nothing is deleted. Restore one here and it goes back where it was.",
-        )}
+        {"Archiving a conversation only clears it out of the sidebar — nothing is deleted. Restore one here and it goes back where it was."}
       </p>
       {renderPartition(
         "chat",
         MessagesSquare,
-        t("Conversations"),
+        "Conversations",
         buckets.chat,
       )}
-      {renderPartition("mastery", Route, t("Mastery Path"), buckets.mastery)}
+      {renderPartition("mastery", Route, "Mastery Path", buckets.mastery)}
       {renderPartition(
         "reading",
         BookText,
-        t("Immersive Reading"),
+        "Immersive Reading",
         buckets.reading,
       )}
     </div>

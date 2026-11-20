@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { useReading } from "@/context/ReadingContext";
 import {
   type AnnotationItem,
@@ -95,7 +95,7 @@ export function SourceNavigator({
    */
   onOpenAnnotation?: (locator: number, quote?: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   // The document's marks, listed here rather than in a column of the reader:
   // beside the navigator and the companion, a fourth column left the page
   // itself the narrowest thing on screen.
@@ -123,7 +123,7 @@ export function SourceNavigator({
   const documentOutline: OutlineRow[] = pageFallback
     ? Array.from({ length: unitCount }, (_, index) => ({
         locator: index + 1,
-        title: t("Page {{page}}", { page: index + 1 }),
+        title: `Page ${index + 1}`,
         level: 1,
         synthesised: false,
       }))
@@ -221,13 +221,13 @@ export function SourceNavigator({
             <NavigatorTab
               active={!showNotes}
               icon={ListTree}
-              label={t("Contents")}
+              label={"Contents"}
               onClick={() => setView("contents")}
             />
             <NavigatorTab
               active={showNotes}
               icon={Highlighter}
-              label={t("Annotations")}
+              label={"Annotations"}
               count={annotationCount}
               onClick={() => setView("notes")}
             />
@@ -235,14 +235,14 @@ export function SourceNavigator({
         ) : (
           <p className="flex min-w-0 flex-1 items-center gap-2 truncate px-1 text-[12px] font-semibold">
             <ListTree size={13} className="shrink-0 text-[var(--primary)]" />
-            {t("Contents")}
+            {"Contents"}
           </p>
         )}
         <button
           type="button"
           onClick={onClose}
           className="flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
-          aria-label={t("Close contents")}
+          aria-label={"Close contents"}
         >
           <X size={13} />
         </button>
@@ -265,7 +265,7 @@ export function SourceNavigator({
             <input
               value={search}
               onChange={(event) => onSearch(event.target.value)}
-              placeholder={t("Search materials and contents")}
+              placeholder={"Search materials and contents"}
               className="min-w-0 flex-1 bg-transparent text-[12px] outline-none"
             />
           </label>
@@ -279,7 +279,7 @@ export function SourceNavigator({
               <div className="mb-2 pb-1">
                 <p className="flex items-center gap-1.5 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
                   <BookmarkCheck size={11} className="text-[var(--primary)]" />
-                  {t("Bookmarks")}
+                  {"Bookmarks"}
                   <span className="tabular-nums opacity-70">
                     {bookmarks.length}
                   </span>
@@ -309,13 +309,13 @@ export function SourceNavigator({
                         {row.label ||
                           outline.find((entry) => entry.locator === row.locator)
                             ?.title ||
-                          t("p. {{page}}", { page: row.locator })}
+                          `p. ${row.locator}`}
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => onRemoveBookmark(row.bookmark_id)}
-                      aria-label={t("Remove this bookmark")}
+                      aria-label={"Remove this bookmark"}
                       className="mr-1 shrink-0 rounded-md p-1 text-[var(--muted-foreground)] opacity-0 transition hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:opacity-100 group-hover:opacity-100"
                     >
                       <Trash2 size={11} />
@@ -327,23 +327,21 @@ export function SourceNavigator({
             {visibleMaterials.length === 0 ? (
               <div className="px-2 py-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
                 {query ? (
-                  <p>{t("No matching materials or contents.")}</p>
+                  <p>{"No matching materials or contents."}</p>
                 ) : mediaSource && transcriptUnavailable ? (
                   <>
                     <p className="font-medium text-[var(--muted-foreground)]">
-                      {t("No transcript available")}
+                      {"No transcript available"}
                     </p>
                     <p className="mt-1">
-                      {t(
-                        "Playback still works. Transcript-grounded explanation and timestamp search are unavailable for this video.",
-                      )}
+                      {"Playback still works. Transcript-grounded explanation and timestamp search are unavailable for this video."}
                     </p>
                   </>
                 ) : (
                   <p>
                     {material?.status === "ready"
-                      ? t("This material has no outline to navigate yet.")
-                      : t("The outline appears once processing finishes.")}
+                      ? "This material has no outline to navigate yet."
+                      : "The outline appears once processing finishes."}
                   </p>
                 )}
               </div>
@@ -398,8 +396,8 @@ export function SourceNavigator({
                             aria-expanded={expanded}
                             aria-label={
                               expanded
-                                ? t("Collapse section")
-                                : t("Expand section")
+                                ? "Collapse section"
+                                : "Expand section"
                             }
                           >
                             {expanded ? (
@@ -409,12 +407,12 @@ export function SourceNavigator({
                             )}
                           </button>
                         )}
-                        <Tooltip label={t("Remove from collection")}>
+                        <Tooltip label={"Remove from collection"}>
                           <button
                             type="button"
                             onClick={() => onRemoveMaterial(candidate)}
                             className="mr-1 shrink-0 rounded-md p-1 text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--destructive)]"
-                            aria-label={t("Remove from collection")}
+                            aria-label={"Remove from collection"}
                           >
                             <X size={10} />
                           </button>
@@ -507,15 +505,11 @@ export function SourceNavigator({
           <div className="shrink-0 px-3 py-2 text-[11px] text-[var(--muted-foreground)]">
             {material && material.status === "ready"
               ? mediaSource
-                ? t("{{count}} passages available to the companion", {
-                    count: rows.length,
-                  })
+                ? `${rows.length} passages available to the companion`
                 : pageFallback
-                  ? t("{{count}} pages", { count: documentOutline.length })
-                  : t("{{count}} outline entries", {
-                      count: documentOutline.length,
-                    })
-              : t(material?.status || "queued")}
+                  ? `${documentOutline.length} pages`
+                  : `${documentOutline.length} outline entries`
+              : (material?.status || "queued")}
           </div>
         </>
       )}
@@ -592,7 +586,7 @@ export function WorkspaceOutlineBranch({
   showLocator: boolean;
   depth?: number;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <ul className={depth ? "ml-2 border-l border-[rgb(var(--dt-ink,55_53_47)/0.08)] pl-1" : ""}>
       {nodes.map((node) => {
@@ -639,7 +633,7 @@ export function WorkspaceOutlineBranch({
             >
               <span className="inline-flex min-w-0 flex-1 [&>span]:w-full [&>span>button]:w-full">
                 {showLocator ? (
-                  <Tooltip label={t("p. {{page}}", { page: node.row.locator })}>
+                  <Tooltip label={`p. ${node.row.locator}`}>
                     {outlineButton}
                   </Tooltip>
                 ) : (
@@ -652,7 +646,7 @@ export function WorkspaceOutlineBranch({
                   onClick={() => onToggle(key)}
                   aria-expanded={!collapsed}
                   aria-label={
-                    collapsed ? t("Expand section") : t("Collapse section")
+                    collapsed ? "Expand section" : "Collapse section"
                   }
                   className="mr-1 shrink-0 rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 >

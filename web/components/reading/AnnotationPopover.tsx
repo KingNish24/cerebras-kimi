@@ -11,7 +11,7 @@ import {
   StickyNote,
   Underline,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { useDevice } from '@/hooks/useDevice'
 import { ANNOTATION_COLORS, ANNOTATION_SWATCH, type AnnotationColor } from '@/lib/reading-api'
@@ -84,7 +84,7 @@ export function AnnotationPopover({
   onDismiss,
   aiActions,
 }: AnnotationPopoverProps) {
-  const { t } = useTranslation()
+  
   const { isMobile } = useDevice()
   const ref = useRef<HTMLDivElement | null>(null)
   const [color, setColor] = useState<AnnotationColor>('yellow')
@@ -183,10 +183,10 @@ export function AnnotationPopover({
         </div>
         <div className="flex items-center gap-0.5 pr-1">
           {ANNOTATION_COLORS.map(swatch => (
-            <Tooltip key={swatch} label={t(swatchLabel(swatch))} side="top">
+            <Tooltip key={swatch} label={(swatchLabel(swatch))} side="top">
               <button
                 type="button"
-                aria-label={t(swatchLabel(swatch))}
+                aria-label={(swatchLabel(swatch))}
                 aria-pressed={color === swatch}
                 onClick={() => setColor(swatch)}
                 className={`h-5 w-5 rounded-full border transition ${
@@ -200,21 +200,21 @@ export function AnnotationPopover({
           ))}
         </div>
         <span className="h-5 w-px bg-[var(--border)]" aria-hidden />
-        <IconButton icon={Highlighter} label={t('Highlight')} onClick={() => onHighlight(color)} />
-        <IconButton icon={Underline} label={t('Underline')} onClick={() => onUnderline(color)} />
+        <IconButton icon={Highlighter} label={"Highlight"} onClick={() => onHighlight(color)} />
+        <IconButton icon={Underline} label={"Underline"} onClick={() => onUnderline(color)} />
         <IconButton
           icon={StickyNote}
-          label={t('Add note')}
+          label={"Add note"}
           active={noteOpen}
           onClick={() => setNoteOpen(open => !open)}
         />
         <IconButton
           icon={BookmarkPlus}
-          label={t('Save citation')}
+          label={"Save citation"}
           onClick={() => onCitation(color)}
         />
         {aiActions ? null : (
-          <IconButton icon={MessageSquareQuote} label={t('Ask about this')} onClick={onAsk} />
+          <IconButton icon={MessageSquareQuote} label={"Ask about this"} onClick={onAsk} />
         )}
       </div>
 
@@ -228,15 +228,15 @@ export function AnnotationPopover({
       )}
       {aiActions && (
         <div className="mt-1.5 flex items-center gap-1 border-t border-[var(--border)] pt-1.5">
-          <Tooltip label={t('Ask about this')} side="bottom">
+          <Tooltip label={"Ask about this"} side="bottom">
             <button
               type="button"
-              aria-label={t('Ask about this')}
+              aria-label={"Ask about this"}
               onClick={onAsk}
               className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-2.5 text-[12px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
             >
               <MessageSquareQuote size={13} />
-              {t('Ask')}
+              {"Ask"}
             </button>
           </Tooltip>
           {inlineAi.map(action => (
@@ -245,7 +245,7 @@ export function AnnotationPopover({
           {overflowAi.length > 0 && (
             <IconButton
               icon={MoreHorizontal}
-              label={t('More actions')}
+              label={"More actions"}
               active={overflowOpen}
               onClick={() => setOverflowOpen(open => !open)}
             />
@@ -284,7 +284,7 @@ export function AnnotationPopover({
               }
             }}
             rows={3}
-            placeholder={t('Your note…')}
+            placeholder={"Your note…"}
             className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[12px] leading-relaxed text-[var(--foreground)] outline-none transition focus:border-[var(--ring)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--ring)_20%,transparent)]"
           />
           <div className="mt-1 flex items-center justify-end gap-1.5">
@@ -293,14 +293,14 @@ export function AnnotationPopover({
               onClick={onDismiss}
               className="rounded-lg px-2 py-1 text-[11px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
             >
-              {t('Cancel')}
+              {"Cancel"}
             </button>
             <button
               type="button"
               onClick={() => onNote(note, color)}
               className="rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[11px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
             >
-              {t('Save note')}
+              {"Save note"}
             </button>
           </div>
         </div>
@@ -313,7 +313,7 @@ export function AnnotationPopover({
       <div
         ref={ref}
         role="dialog"
-        aria-label={t('Annotate selection')}
+        aria-label={"Annotate selection"}
         style={{ transform: dragOffset ? `translateY(${dragOffset}px)` : undefined }}
         className="dt-reader-sheet fixed inset-x-0 bottom-0 z-[70] rounded-t-2xl border-t border-[var(--border)] bg-[var(--popover)] pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-12px_40px_-16px_rgba(0,0,0,0.45)]"
       >
@@ -342,7 +342,7 @@ export function AnnotationPopover({
     <div
       ref={ref}
       role="dialog"
-      aria-label={t('Annotate selection')}
+      aria-label={"Annotate selection"}
       style={{ left: position.left, top: position.top }}
       className="dt-reader-popover fixed z-[70] w-max max-w-[min(360px,92vw)] rounded-xl border border-[var(--border)] bg-[var(--popover)] p-1.5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]"
     >

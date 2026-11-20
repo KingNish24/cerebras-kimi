@@ -3,7 +3,7 @@
 import { PageHeader, PAGE_SECTION_TITLE_CLASS, pageGridClass } from '@/components/layout/FeaturePage'
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "@/shared/router/link";
-import { useTranslation } from "react-i18next";
+
 import { useUiLayoutLabel } from "@/features/ui-layout/tokens";
 import { useCapabilityFilter } from "@/features/capabilities/useCapabilityCatalog";
 import {
@@ -46,10 +46,10 @@ export default function SpaceDashboard({
   groups?: DashboardGroup[];
   onNavigate?: (href: string) => void;
 } = {}) {
-  const { t, i18n } = useTranslation();
+  
   const spaceLabel = useUiLayoutLabel("space");
-  const zh = i18n.language?.toLowerCase().startsWith("zh");
-  const tr = useCallback((l: Lang) => (zh ? l.zh : t(l.en)), [zh, t]);
+  const zh = "en"?.toLowerCase().startsWith("zh");
+  const tr = useCallback((l: Lang) => (zh ? l.zh : (l.en)), [zh]);
 
   const [counts, setCounts] = useState<Partial<Record<DashKey, number>>>({});
 
@@ -84,10 +84,7 @@ export default function SpaceDashboard({
       <PageHeader
         icon={icon}
         title={title ?? spaceLabel}
-        description={description ?? tr({
-            zh: "你的对话、智能体、笔记与题目，集中在一处 —— 从这里进入。",
-            en: "Your conversations, agents, notebooks, and questions in one place — enter from here.",
-          })}
+        description={description ?? "Your conversations, agents, notebooks, and questions in one place — enter from here."}
       />
 
       <div className="space-y-9">

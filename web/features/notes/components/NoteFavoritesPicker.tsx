@@ -11,7 +11,7 @@
  */
 import '@/components/notebook/favorites.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Check, ChevronDown, Library, Search, Sparkles, X } from 'lucide-react'
 import {
   getNotebook,
@@ -41,7 +41,7 @@ export default function NoteFavoritesPicker({
   onSynthesize: (sources: string) => void
   onInsert: (clips: NoteClipInput[]) => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const [collections, setCollections] = useState<NotebookSummary[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [collection, setCollection] = useState(ALL)
@@ -72,7 +72,7 @@ export default function NoteFavoritesPicker({
         if (!cancelled) setItems(details.flat())
       })
       .catch(() => {
-        if (!cancelled) setError(t('Could not load favorites.'))
+        if (!cancelled) setError("Could not load favorites.")
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -80,7 +80,7 @@ export default function NoteFavoritesPicker({
     return () => {
       cancelled = true
     }
-  }, [t])
+  }, [])
 
   const counts = useMemo(() => {
     const map = new Map<string, number>()
@@ -145,10 +145,10 @@ export default function NoteFavoritesPicker({
   const empty = loading
     ? ''
     : !items.length
-      ? t('Nothing saved yet. Save a conversation or result to Favorites to use it here.')
+      ? "Nothing saved yet. Save a conversation or result to Favorites to use it here."
       : !scoped.length
-        ? t('No favorites in this collection yet.')
-        : t('No records match your search')
+        ? "No favorites in this collection yet."
+        : "No records match your search"
 
   return (
     <PickerShell open onClose={onClose} labelledBy="dt-fav-picker-title">
@@ -166,7 +166,7 @@ export default function NoteFavoritesPicker({
         }}
       >
         <header className="dt-fav-picker-head">
-          <h2 id="dt-fav-picker-title">{t('Insert favorite')}</h2>
+          <h2 id="dt-fav-picker-title">{"Insert favorite"}</h2>
           <label className="dt-fav-search">
             <Search size={15} strokeWidth={1.8} aria-hidden />
             <input
@@ -175,15 +175,15 @@ export default function NoteFavoritesPicker({
               onChange={event => setQuery(event.target.value)}
               placeholder={
                 active
-                  ? t('Search in “{{name}}”', { name: active.name })
-                  : t('Search all favorites')
+                  ? `Search in “${active.name}”`
+                  : "Search all favorites"
               }
-              aria-label={t('Search favorites')}
+              aria-label={"Search favorites"}
             />
             {query && (
               <button
                 type="button"
-                aria-label={t('Clear search')}
+                aria-label={"Clear search"}
                 onClick={() => {
                   setQuery('')
                   search.current?.focus()
@@ -196,14 +196,14 @@ export default function NoteFavoritesPicker({
           <button
             type="button"
             className="dt-fav-icon-button"
-            aria-label={t('Close')}
+            aria-label={"Close"}
             onClick={onClose}
           >
             <X size={16} strokeWidth={1.7} />
           </button>
         </header>
         <div className="dt-fav-picker-body">
-          <nav className="dt-fav-collections" aria-label={t('Favorites')}>
+          <nav className="dt-fav-collections" aria-label={"Favorites"}>
             <button
               type="button"
               aria-pressed={collection === ALL}
@@ -213,10 +213,10 @@ export default function NoteFavoritesPicker({
               }}
             >
               <Library size={15} strokeWidth={1.7} className="dt-fav-collection-icon" />
-              <span className="truncate">{t('All favorites')}</span>
+              <span className="truncate">{"All favorites"}</span>
               <span className="dt-fav-count">{items.length || ''}</span>
             </button>
-            {!!collections.length && <p className="dt-fav-rail-label">{t('Folders')}</p>}
+            {!!collections.length && <p className="dt-fav-rail-label">{"Folders"}</p>}
             {collections.map(c => (
               <button
                 key={c.id}
@@ -238,9 +238,9 @@ export default function NoteFavoritesPicker({
           </nav>
           <section className="dt-fav-records" aria-busy={loading}>
             {kinds.length > 1 && (
-              <div className="dt-fav-chips" role="group" aria-label={t('Type')}>
+              <div className="dt-fav-chips" role="group" aria-label={"Type"}>
                 <button type="button" aria-pressed={!kind} onClick={() => setKind('')}>
-                  {t('All')}
+                  {"All"}
                 </button>
                 {kinds.map(value => (
                   <button
@@ -249,13 +249,13 @@ export default function NoteFavoritesPicker({
                     aria-pressed={kind === value}
                     onClick={() => setKind(kind === value ? '' : value)}
                   >
-                    {t(favoriteLabel(value))}
+                    {(favoriteLabel(value))}
                   </button>
                 ))}
               </div>
             )}
             {loading && (
-              <div className="dt-fav-skeleton" role="status" aria-label={t('Loading...')}>
+              <div className="dt-fav-skeleton" role="status" aria-label={"Loading..."}>
                 {[0, 1, 2, 3].map(i => (
                   <span key={i} />
                 ))}
@@ -296,14 +296,14 @@ export default function NoteFavoritesPicker({
                         <FavoriteKindIcon kind={itemKind} />
                         <span className="min-w-0 flex-1">
                           <span className="dt-fav-title">
-                            {item.title || t('Favorite content')}
+                            {item.title || "Favorite content"}
                           </span>
                           {item.summary && <span className="dt-fav-summary">{item.summary}</span>}
                           <span className="dt-fav-meta">
-                            {t(favoriteLabel(itemKind))}
+                            {(favoriteLabel(itemKind))}
                             {!collection && <> · {item.collection.name}</>}
                             {item.created_at ? (
-                              <> · {formatRelativeTime(item.created_at, i18n.language)}</>
+                              <> · {formatRelativeTime(item.created_at, "en")}</>
                             ) : null}
                           </span>
                         </span>
@@ -314,7 +314,7 @@ export default function NoteFavoritesPicker({
                         aria-expanded={open}
                         onClick={() => setPreview(open ? '' : key)}
                       >
-                        {t(open ? 'Hide' : 'Preview')}
+                        {(open ? 'Hide' : 'Preview')}
                         <ChevronDown size={13} className={open ? 'rotate-180' : ''} />
                       </button>
                     </div>
@@ -337,25 +337,25 @@ export default function NoteFavoritesPicker({
           <span className="dt-fav-selection" aria-live="polite">
             {chosen.length ? (
               <>
-                {t('{{count}} selected', { count: chosen.length })}
+                {`${chosen.length} selected`}
                 {chosen.length > 1 && (
                   <span className="dt-fav-hint">
                     {' '}
-                    · {t('Inserted in the order you picked them')}
+                    · {"Inserted in the order you picked them"}
                   </span>
                 )}
                 <button type="button" onClick={() => setPicked([])}>
-                  {t('Clear')}
+                  {"Clear"}
                 </button>
               </>
             ) : (
               <span className="dt-fav-hint">
-                {t('Pick one or more favorites to place on this page.')}
+                {"Pick one or more favorites to place on this page."}
               </span>
             )}
           </span>
           <button type="button" className="dt-fav-button" onClick={onClose}>
-            {t('Cancel')}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -364,7 +364,7 @@ export default function NoteFavoritesPicker({
             onClick={synthesize}
           >
             <Sparkles size={14} strokeWidth={1.8} />
-            {t('Organize into a note')}
+            {"Organize into a note"}
           </button>
           <button
             type="button"
@@ -372,7 +372,7 @@ export default function NoteFavoritesPicker({
             disabled={loading || !chosen.length}
             onClick={insert}
           >
-            {chosen.length > 1 ? t('Insert {{count}}', { count: chosen.length }) : t('Insert')}
+            {chosen.length > 1 ? `Insert ${chosen.length}` : "Insert"}
           </button>
         </footer>
       </div>

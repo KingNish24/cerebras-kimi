@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
 import {
   kbHasLiveProgress,
@@ -19,7 +19,7 @@ export default function KbStatusBadge({
   kb,
   isReindexingLocally = false,
 }: KbStatusBadgeProps) {
-  const { t } = useTranslation();
+  
   const status = resolveKbStatus(kb);
   const needsReindex = kbNeedsReindex(kb);
   const isLive = kbHasLiveProgress(kb) || isReindexingLocally;
@@ -41,16 +41,16 @@ export default function KbStatusBadge({
   const label =
     !isLive && embeddingUnavailable
       ? kb.metadata?.embedding_status === "missing"
-        ? t("Embedding model deleted")
-        : t("Check embedding model")
+        ? "Embedding model deleted"
+        : "Check embedding model"
       : needsReindex
-        ? t("Needs reindex")
+        ? "Needs reindex"
         : isError
-          ? t("Error")
+          ? "Error"
           : isLive
-            ? t("Processing live")
+            ? "Processing live"
             : isReady
-              ? t("Ready")
+              ? "Ready"
               : status.replaceAll("_", " ");
 
   return (

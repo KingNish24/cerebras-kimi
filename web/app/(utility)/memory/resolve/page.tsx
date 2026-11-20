@@ -9,7 +9,7 @@ import Link from "@/shared/router/link";
 import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 
@@ -20,7 +20,7 @@ interface ResolveResponse {
 }
 
 function ResolveInner() {
-  const { t } = useTranslation();
+  
   const params = useSearchParams();
   const router = useRouter();
   const id = params.get("id");
@@ -38,11 +38,8 @@ function ResolveInner() {
           if (cancelled) return;
           setError(
             res.status === 404
-              ? t(
-                  "Entry {{id}} not found in any L2 doc — it may have been deleted.",
-                  { id },
-                )
-              : t("Resolver failed ({{code}})", { code: res.status }),
+              ? `Entry ${id} not found in any L2 doc — it may have been deleted.`
+              : `Resolver failed (${res.status})`,
           );
           return;
         }
@@ -54,15 +51,15 @@ function ResolveInner() {
         );
       } catch (e) {
         if (cancelled) return;
-        setError(e instanceof Error ? e.message : t("Resolver failed"));
+        setError(e instanceof Error ? e.message : "Resolver failed");
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [id, router, t]);
+  }, [id, router]);
 
-  const message = !id ? t("Missing ?id= in URL") : error;
+  const message = !id ? "Missing ?id= in URL" : error;
 
   if (message) {
     return (
@@ -73,7 +70,7 @@ function ResolveInner() {
             href="/memory"
             className="inline-block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-[12px] transition hover:bg-[var(--muted)]"
           >
-            {t("Back to memory")}
+            {"Back to memory"}
           </Link>
         </div>
       </div>
@@ -84,7 +81,7 @@ function ResolveInner() {
     <div className="grid h-full place-items-center px-6 py-10 text-[var(--muted-foreground)]">
       <div className="flex items-center gap-2 text-[13px]">
         <Loader2 className="h-4 w-4 animate-spin" />
-        <span>{t("Resolving entry…")}</span>
+        <span>{"Resolving entry…"}</span>
       </div>
     </div>
   );

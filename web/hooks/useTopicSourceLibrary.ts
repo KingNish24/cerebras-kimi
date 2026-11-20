@@ -151,11 +151,10 @@ type Translate = (cn: string, en: string, vars?: Record<string, string | number>
  * Chinese text as the key and showed English even in Chinese.
  */
 export function catalogTranslate(
-  t: (key: string, vars?: Record<string, string | number>) => string,
   zh: boolean
 ): Translate {
   return (cn, en, vars) =>
-    zh ? cn.replace(/\{\{(\w+)\}\}/g, (_, name: string) => String(vars?.[name] ?? '')) : t(en, vars)
+    zh ? cn.replace(/\{\{(\w+)\}\}/g, (_, name: string) => String(vars?.[name] ?? '')) : (en)
 }
 
 function questionCandidate(row: Record<string, unknown>, tr: Translate): SourceCandidate {

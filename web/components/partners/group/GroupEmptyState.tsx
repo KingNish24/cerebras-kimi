@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import type { PartnerGroupMember } from "@/lib/partner-groups-api";
@@ -21,21 +21,17 @@ export default function GroupEmptyState({
   /** What will actually happen when they ask — the modes differ visibly. */
   mode: string;
 }) {
-  const { t } = useTranslation();
+  
 
   // The resting state is the last moment before the first question, so it has
   // to describe the mode that is actually configured. Saying "everyone answers
   // from their own angle" while the group is set to debate is simply wrong.
   const modeHint =
     mode === "sequential"
-      ? t(
-          "Ask once and they answer in turn — each one sees what came before and builds on it.",
-        )
+      ? "Ask once and they answer in turn — each one sees what came before and builds on it."
       : mode === "debate"
-        ? t(
-            "Ask once and they each take a position, then respond to where they disagree.",
-          )
-        : t("Ask once and every Partner answers from their own angle.");
+        ? "Ask once and they each take a position, then respond to where they disagree."
+        : "Ask once and every Partner answers from their own angle.";
 
   return (
     <div className="flex min-h-[340px] flex-col items-center justify-center px-4 text-center">
@@ -65,10 +61,10 @@ export default function GroupEmptyState({
       </div>
 
       <h2 className="mt-7 text-[14.5px] font-medium text-[var(--foreground)]">
-        {t("Start a group discussion")}
+        {"Start a group discussion"}
       </h2>
       <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-        {modeHint} {t("Use @name to narrow it down.")}
+        {modeHint} {"Use @name to narrow it down."}
       </p>
     </div>
   );

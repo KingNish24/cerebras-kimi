@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   type UnitReference,
   getReadingPosition,
@@ -73,7 +73,7 @@ export function MediaReadingStage({
   activeLocator: number;
   onLocatorChange: (locator: number) => void;
 }) {
-  const { t } = useTranslation();
+  
   const { annotations, saveMark, removeMark } = useReading();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -163,10 +163,10 @@ export function MediaReadingStage({
     const request = node.requestFullscreen();
     if (request) {
       request.catch(() =>
-        setPlayerError(t("Fullscreen is unavailable for this player.")),
+        setPlayerError("Fullscreen is unavailable for this player."),
       );
     }
-  }, [t]);
+  }, []);
 
   const startNote = useCallback(() => {
     if (!activeCue) return;
@@ -206,11 +206,11 @@ export function MediaReadingStage({
       const saved = await saveMark(draft, optimistic);
       if (revision !== noteRevision.current) return;
       if (saved) cancelNote();
-      else setNoteError(t("That annotation could not be saved."));
+      else setNoteError("That annotation could not be saved.");
     } catch {
-      if (revision === noteRevision.current) setNoteError(t("That annotation could not be saved."));
+      if (revision === noteRevision.current) setNoteError("That annotation could not be saved.");
     } finally { setNoteSaving(false); }
-  }, [material.material_id, noteDraft, noteSaving, saveMark, cancelNote, t]);
+  }, [material.material_id, noteDraft, noteSaving, saveMark, cancelNote]);
 
   const selectCue = useCallback(
     (row: TranscriptRow) => {
@@ -334,25 +334,21 @@ export function MediaReadingStage({
     (error: number | string) => {
       if (error === 101 || error === 150) {
         setPlayerError(
-          t(
-            "This video's owner disabled embedded playback. Open it on YouTube; DeepTutor can still use captions when they are available.",
-          ),
+          "This video's owner disabled embedded playback. Open it on YouTube; DeepTutor can still use captions when they are available.",
         );
       } else if (error === 153) {
         setPlayerError(
-          t(
-            "YouTube could not verify this embedded player. Open the official video, or check the browser's referrer policy.",
-          ),
+          "YouTube could not verify this embedded player. Open the official video, or check the browser's referrer policy.",
         );
       } else if (typeof error === "number") {
         setPlayerError(
-          t("YouTube playback failed ({{code}}).", { code: error }),
+          `YouTube playback failed (${error}).`,
         );
       } else {
         setPlayerError(error);
       }
     },
-    [t],
+    [],
   );
 
   // A container the browser cannot decode (Matroska is the common one) shows
@@ -360,11 +356,9 @@ export function MediaReadingStage({
   // the transcript and the companion are unaffected either way.
   const handleUnplayable = useCallback(() => {
     setPlayerError(
-      t(
-        "Your browser cannot play this file's format. The transcript and the companion still work — open the original to watch it elsewhere.",
-      ),
+      "Your browser cannot play this file's format. The transcript and the companion still work — open the original to watch it elsewhere.",
     );
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -537,7 +531,7 @@ export function MediaReadingStage({
       ? "YouTube"
       : material.source_kind === "bilibili"
         ? "Bilibili"
-        : t("Native media");
+        : "Native media";
   const visibleTranscriptIndexes = normalizedTranscriptQuery
     ? transcriptMatches
     : transcript.map((_, index) => index);
@@ -548,7 +542,7 @@ export function MediaReadingStage({
         <div className="min-w-0">
           <p className="truncate text-[10.5px] font-semibold">{title}</p>
           <p className="truncate text-[10.5px] text-[var(--muted-foreground)]">
-            {provider} · {activeRef?.title || t("Transcript")}
+            {provider} · {activeRef?.title || "Transcript"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -556,7 +550,7 @@ export function MediaReadingStage({
             type="button"
             onClick={toggleFullscreen}
             aria-label={
-              isFullscreen ? t("Exit fullscreen") : t("Enter fullscreen")
+              isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
             }
             aria-pressed={isFullscreen}
             className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--primary)]"
@@ -570,7 +564,7 @@ export function MediaReadingStage({
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-[10px] text-[var(--primary)] hover:underline"
             >
-              {t("Open official")}
+              {"Open official"}
               <ExternalLink size={9} />
             </a>
           )}
@@ -591,7 +585,7 @@ export function MediaReadingStage({
               <button
                 type="button"
                 onClick={toggleFullscreen}
-                aria-label={t("Exit fullscreen")}
+                aria-label={"Exit fullscreen"}
                 className="absolute right-3 top-3 z-10 rounded-md bg-black/60 p-2 text-white hover:bg-black/80"
               >
                 <Minimize2 size={13} />
@@ -690,7 +684,7 @@ export function MediaReadingStage({
                   </button>
                 ) : index === 0 ? (
                   <p key="caption-current-empty" className="truncate px-1 py-0.5 text-[var(--muted-foreground)]">
-                    {transcriptUnavailable ? t("No transcript available") : t("Beginning")}
+                    {transcriptUnavailable ? "No transcript available" : "Beginning"}
                   </p>
                 ) : null,
               )}
@@ -701,12 +695,8 @@ export function MediaReadingStage({
             <div className="mt-3 rounded-xl bg-[var(--card)] px-4 py-3 text-[10.5px] leading-relaxed text-[var(--muted-foreground)] shadow-[var(--dt-shadow-xs,0_0_0_1px_rgba(0,0,0,.06))]">
               {playerError ||
                 (chaptersOnly
-                  ? t(
-                      "Only chapter markers are available for this video. You can navigate by chapter, but the companion will not treat them as a spoken transcript.",
-                    )
-                  : t(
-                      "This video has no accessible transcript. Playback works, but the companion cannot ground explanations in its spoken content.",
-                    ))}
+                  ? "Only chapter markers are available for this video. You can navigate by chapter, but the companion will not treat them as a spoken transcript."
+                  : "This video has no accessible transcript. Playback works, but the companion cannot ground explanations in its spoken content.")}
               {playerError && !officialUrl && (
                 <a
                   href={rawMaterialUrl(material.material_id)}
@@ -714,7 +704,7 @@ export function MediaReadingStage({
                   rel="noreferrer"
                   className="ml-1 inline-flex items-center gap-1 text-[var(--primary)] hover:underline"
                 >
-                  {t("Open the original file")}
+                  {"Open the original file"}
                   <ExternalLink size={9} />
                 </a>
               )}
@@ -724,29 +714,27 @@ export function MediaReadingStage({
           <div className="mt-4 flex items-center justify-between rounded-xl bg-[var(--card)] px-4 py-3 shadow-[var(--dt-shadow-xs,0_0_0_1px_rgba(0,0,0,.06))]">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">
-                {t("Current passage")}
+                {"Current passage"}
               </p>
               <p className="mt-1 truncate text-[11px] text-[var(--muted-foreground)] dark:text-[var(--foreground)]">
-                {activeRef?.title || t("Beginning")}
+                {activeRef?.title || "Beginning"}
               </p>
               {/* Say it once, here, where the claim is made. A player that
                   cannot report its position leaves this label frozen, which
                   reads as a broken feature rather than a platform limit. */}
               {untrackedPlayback && (
                 <p className="mt-1 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
-                  {t(
-                    "This player does not report playback position, so the passage follows the controls below rather than the video.",
-                  )}
+                  {"This player does not report playback position, so the passage follows the controls below rather than the video."}
                 </p>
               )}
             </div>
             <div className="flex items-center gap-1">
-              <Tooltip label={t("Add segment note")}>
+              <Tooltip label={"Add segment note"}>
 <button
                 type="button"
                 onClick={startNote}
                 disabled={!activeCue}
-                aria-label={t("Add segment note")}
+                aria-label={"Add segment note"}
 
                 className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--primary)] disabled:opacity-40"
               >
@@ -759,7 +747,7 @@ export function MediaReadingStage({
                 disabled={activeLocator <= 1}
                 className="rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
               >
-                {t("Previous")}
+                {"Previous"}
               </button>
               <button
                 type="button"
@@ -769,7 +757,7 @@ export function MediaReadingStage({
                 disabled={activeLocator >= refs.length}
                 className="rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
               >
-                {t("Next")}
+                {"Next"}
               </button>
             </div>
           </div>
@@ -778,7 +766,7 @@ export function MediaReadingStage({
             {noteEditorOpen && (
               <div className="bg-[var(--muted)]/40 p-3">
                 <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-                  {editingNoteId ? t("Edit note") : t("New note")}
+                  {editingNoteId ? "Edit note" : "New note"}
                 </label>
                 <textarea
                   value={noteDraft}
@@ -801,7 +789,7 @@ export function MediaReadingStage({
                     className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
                   >
                     <X size={11} />
-                    {t("Cancel")}
+                    {"Cancel"}
                   </button>
                   <button
                     type="button"
@@ -811,7 +799,7 @@ export function MediaReadingStage({
                     className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2 py-1 text-[10.5px] font-medium text-[var(--primary-foreground)] disabled:opacity-40"
                   >
                     <StickyNote size={11} />
-                    {t("Save note")}
+                    {"Save note"}
                   </button>
                 </div>
               </div>
@@ -839,22 +827,22 @@ export function MediaReadingStage({
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      <Tooltip label={t("Edit note")}>
+                      <Tooltip label={"Edit note"}>
 <button
                         type="button"
                         onClick={() => editNote(annotation)}
-                        aria-label={t("Edit note")}
+                        aria-label={"Edit note"}
 
                         className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--primary)]"
                       >
                         <Pencil size={11} />
                       </button>
 </Tooltip>
-                      <Tooltip label={t("Delete note")}>
+                      <Tooltip label={"Delete note"}>
 <button
                         type="button"
                         onClick={() => void removeMark(annotation)}
-                        aria-label={t("Delete note")}
+                        aria-label={"Delete note"}
 
                         className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--destructive)]"
                       >
@@ -874,7 +862,7 @@ export function MediaReadingStage({
                   className="flex w-full items-center gap-2 px-3 py-2 text-left text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-40"
                 >
                   <StickyNote size={12} />
-                  {t("Add a note for this segment")}
+                  {"Add a note for this segment"}
                 </button>
               )
             )}
@@ -883,7 +871,7 @@ export function MediaReadingStage({
           <div className="mt-4 overflow-hidden rounded-xl bg-[var(--card)] shadow-[var(--dt-shadow-xs,0_0_0_1px_rgba(0,0,0,.06))]">
             <div className="flex flex-wrap items-center gap-2 px-3 pb-1 pt-2.5">
               <label className="relative min-w-[180px] flex-1">
-                <span className="sr-only">{t("Search transcript")}</span>
+                <span className="sr-only">{"Search transcript"}</span>
                 <Search
                   size={11}
                   className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
@@ -891,8 +879,8 @@ export function MediaReadingStage({
                 <input
                   type="search"
                   value={transcriptQuery}
-                  aria-label={t("Search transcript")}
-                  placeholder={t("Search transcript")}
+                  aria-label={"Search transcript"}
+                  placeholder={"Search transcript"}
                   onChange={(event) => {
                     const next = event.target.value;
                     setTranscriptQuery(next);
@@ -919,16 +907,14 @@ export function MediaReadingStage({
                   aria-live="polite"
                   className="text-[10px] tabular-nums text-[var(--muted-foreground)]"
                 >
-                  {t("{{count}} transcript matches", {
-                    count: transcriptMatches.length,
-                  })}
+                  {`${transcriptMatches.length} transcript matches`}
                 </span>
               )}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   disabled={!transcriptMatches.length}
-                  aria-label={t("Previous transcript match")}
+                  aria-label={"Previous transcript match"}
                   onClick={() => moveTranscriptMatch(-1)}
                   className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
                 >
@@ -937,7 +923,7 @@ export function MediaReadingStage({
                 <button
                   type="button"
                   disabled={!transcriptMatches.length}
-                  aria-label={t("Next transcript match")}
+                  aria-label={"Next transcript match"}
                   onClick={() => moveTranscriptMatch(1)}
                   className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
                 >
@@ -957,7 +943,7 @@ export function MediaReadingStage({
                   }`}
                 >
                   <ChevronsDown size={11} />
-                  {t("Follow playback")}
+                  {"Follow playback"}
                 </button>
               </div>
             </div>
@@ -983,16 +969,16 @@ export function MediaReadingStage({
               {transcriptUnavailable ? (
                 <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
                   {chaptersOnly
-                    ? t("Only chapter markers are available for this video.")
-                    : t("No transcript cues available.")}
+                    ? "Only chapter markers are available for this video."
+                    : "No transcript cues available."}
                 </p>
               ) : normalizedTranscriptQuery && transcriptMatches.length === 0 ? (
                 <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
-                  {t("No transcript matches.")}
+                  {"No transcript matches."}
                 </p>
               ) : transcript.length === 0 ? (
                 <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
-                  {t("No transcript cues available.")}
+                  {"No transcript cues available."}
                 </p>
               ) : (
                 <div className="space-y-0.5">

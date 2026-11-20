@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Check, Loader2 } from "lucide-react";
 import {
   getLlamaIndexConfig,
@@ -17,7 +17,7 @@ export function LlamaIndexForm({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [loaded, setLoaded] = useState<LlamaIndexConfig | null>(null);
   const [form, setForm] = useState<LlamaIndexConfig | null>(null);
   const [saving, setSaving] = useState(false);
@@ -122,7 +122,7 @@ export function LlamaIndexForm({
       {/* Retrieval profile */}
       <div>
         <div className="mb-2 text-[12px] font-medium text-[var(--foreground)]">
-          {t("Retrieval profile")}
+          {"Retrieval profile"}
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {profiles.map((p) => {
@@ -147,7 +147,7 @@ export function LlamaIndexForm({
                   )}
                 </div>
                 <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-                  {t(p.desc)}
+                  {(p.desc)}
                 </span>
               </button>
             );
@@ -158,15 +158,15 @@ export function LlamaIndexForm({
       {/* Retrieval breadth */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <NumberField
-          label={t("Results per query")}
+          label={"Results per query"}
           value={form.top_k}
           min={1}
           max={50}
           onChange={(v) => set({ top_k: v })}
         />
         <NumberField
-          label={t("Vector candidate ×")}
-          hint={isHybrid ? undefined : t("Used by hybrid only")}
+          label={"Vector candidate ×"}
+          hint={isHybrid ? undefined : "Used by hybrid only"}
           value={form.vector_top_k_multiplier}
           min={1}
           max={10}
@@ -174,8 +174,8 @@ export function LlamaIndexForm({
           onChange={(v) => set({ vector_top_k_multiplier: v })}
         />
         <NumberField
-          label={t("Keyword candidate ×")}
-          hint={isHybrid ? undefined : t("Used by hybrid only")}
+          label={"Keyword candidate ×"}
+          hint={isHybrid ? undefined : "Used by hybrid only"}
           value={form.bm25_top_k_multiplier}
           min={1}
           max={10}
@@ -188,24 +188,22 @@ export function LlamaIndexForm({
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Reranking")}
+            {"Reranking"}
           </span>
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Applies on the next query")}
+            {"Applies on the next query"}
           </span>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
           <TextField
-            label={t("Reranker model")}
-            hint={t(
-              "Leave empty to disable. Example: BAAI/bge-reranker-base. Requires the optional rag-rerank extra.",
-            )}
+            label={"Reranker model"}
+            hint={"Leave empty to disable. Example: BAAI/bge-reranker-base. Requires the optional rag-rerank extra."}
             value={form.reranker_model}
             maxLength={200}
             onChange={(v) => set({ reranker_model: v })}
           />
           <NumberField
-            label={t("Rerank candidates")}
+            label={"Rerank candidates"}
             value={form.rerank_top_k}
             min={1}
             max={100}
@@ -218,10 +216,10 @@ export function LlamaIndexForm({
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Vector index")}
+            {"Vector index"}
           </span>
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Applies on the next full re-index")}
+            {"Applies on the next full re-index"}
           </span>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -247,7 +245,7 @@ export function LlamaIndexForm({
                   )}
                 </div>
                 <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-                  {t(indexType.desc)}
+                  {(indexType.desc)}
                 </span>
               </button>
             );
@@ -256,21 +254,21 @@ export function LlamaIndexForm({
         {isHnsw && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <NumberField
-              label={t("HNSW graph degree")}
+              label={"HNSW graph degree"}
               value={form.hnsw_m}
               min={4}
               max={64}
               onChange={(v) => set({ hnsw_m: v })}
             />
             <NumberField
-              label={t("HNSW construction candidates")}
+              label={"HNSW construction candidates"}
               value={form.hnsw_ef_construction}
               min={16}
               max={512}
               onChange={(v) => set({ hnsw_ef_construction: v })}
             />
             <NumberField
-              label={t("HNSW search candidates")}
+              label={"HNSW search candidates"}
               value={form.hnsw_ef_search}
               min={1}
               max={512}
@@ -284,22 +282,22 @@ export function LlamaIndexForm({
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Chunking")}
+            {"Chunking"}
           </span>
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Applies on the next re-index")}
+            {"Applies on the next re-index"}
           </span>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <NumberField
-            label={t("Chunk size")}
+            label={"Chunk size"}
             value={form.chunk_size}
             min={64}
             max={8192}
             onChange={(v) => set({ chunk_size: v })}
           />
           <NumberField
-            label={t("Chunk overlap")}
+            label={"Chunk overlap"}
             value={form.chunk_overlap}
             min={0}
             max={Math.max(0, form.chunk_size - 1)}
@@ -312,22 +310,22 @@ export function LlamaIndexForm({
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Image descriptions")}
+            {"Image descriptions"}
           </span>
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Applies on the next image indexing run")}
+            {"Applies on the next image indexing run"}
           </span>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <NumberField
-            label={t("Concurrent image descriptions")}
+            label={"Concurrent image descriptions"}
             value={form.image_description_concurrency}
             min={1}
             max={16}
             onChange={(v) => set({ image_description_concurrency: v })}
           />
           <NumberField
-            label={t("Per-image timeout (seconds)")}
+            label={"Per-image timeout (seconds)"}
             value={form.image_description_timeout_seconds}
             min={5}
             max={600}
@@ -344,7 +342,7 @@ export function LlamaIndexForm({
           className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {t("Save changes")}
+          {"Save changes"}
         </button>
       </div>
     </div>

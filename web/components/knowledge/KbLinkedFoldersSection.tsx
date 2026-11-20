@@ -9,7 +9,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { TaskState } from "@/hooks/useKnowledgeProgress";
 import {
   formatKnowledgeTimestamp,
@@ -40,7 +40,7 @@ export default function KbLinkedFoldersSection({
   onUnlinkFolder,
   onSyncFolder,
 }: KbLinkedFoldersSectionProps) {
-  const { t } = useTranslation();
+  
   const kbRef = knowledgeBaseRef(kb);
   const [folders, setFolders] = useState<LinkedFolderInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ export default function KbLinkedFoldersSection({
     } catch (err) {
       let message: string;
       if (err instanceof DOMException && err.name === "AbortError") {
-        message = t("Timed out loading linked folders. Click retry.");
+        message = "Timed out loading linked folders. Click retry.";
       } else {
         message = err instanceof Error ? err.message : String(err);
       }
@@ -82,7 +82,7 @@ export default function KbLinkedFoldersSection({
       window.clearTimeout(timeout);
       setLoading(false);
     }
-  }, [kbRef, t]);
+  }, [kbRef]);
 
   useEffect(() => {
     void refresh();
@@ -115,9 +115,7 @@ export default function KbLinkedFoldersSection({
   const handleUnlink = async (folder: LinkedFolderInfo) => {
     if (
       !window.confirm(
-        t(
-          "Unlinking stops future syncs. Files already imported remain in this knowledge base.",
-        ),
+        "Unlinking stops future syncs. Files already imported remain in this knowledge base.",
       )
     ) {
       return;
@@ -187,13 +185,13 @@ export default function KbLinkedFoldersSection({
               className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               <RefreshCw className="h-3 w-3" />
-              {t("Retry")}
+              {"Retry"}
             </button>
           </>
         ) : (
           <Loader2
             className="h-4 w-4 animate-spin text-[var(--muted-foreground)]"
-            aria-label={t("Loading linked folders")}
+            aria-label={"Loading linked folders"}
           />
         )}
       </div>
@@ -206,37 +204,35 @@ export default function KbLinkedFoldersSection({
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-[13px] font-medium text-[var(--foreground)]">
             <FolderSync className="h-4 w-4 text-[var(--muted-foreground)]" />
-            {t("Linked folders")}
+            {"Linked folders"}
           </div>
           <p className="mt-0.5 max-w-2xl text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Keep a local folder as a document source and sync new or modified supported files when you choose.",
-            )}
+            {"Keep a local folder as a document source and sync new or modified supported files when you choose."}
           </p>
         </div>
         <Tooltip label={
           readOnly
-            ? t("Assigned knowledge bases are read-only.")
+            ? "Assigned knowledge bases are read-only."
             : activeSync
-              ? t("Wait for the current sync to finish.")
-              : t("Link folder")
+              ? "Wait for the current sync to finish."
+              : "Link folder"
         } side="top">
           <button
             type="button"
             onClick={() => setLinkOpen(true)}
             disabled={readOnly || activeSync}
             className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-2 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-45"
-            aria-label={t("Link folder")}
+            aria-label={"Link folder"}
           >
             <FolderSync className="h-3.5 w-3.5" />
-            {t("Link folder")}
+            {"Link folder"}
           </button>
         </Tooltip>
       </div>
 
       {readOnly && (
         <div className="rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2 text-[11.5px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
-          {t("This knowledge base is read-only. Linked folders can be viewed but not changed.")}
+          {"This knowledge base is read-only. Linked folders can be viewed but not changed."}
         </div>
       )}
 
@@ -254,7 +250,7 @@ export default function KbLinkedFoldersSection({
               className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border border-red-300 px-2.5 py-1 text-[12px] font-medium transition-colors hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-950/50"
             >
               <RefreshCw className="h-3 w-3" />
-              {t("Retry")}
+              {"Retry"}
             </button>
           )}
         </div>
@@ -269,7 +265,7 @@ export default function KbLinkedFoldersSection({
         <div className="rounded-lg border border-dashed border-[var(--border)] px-4 py-10 text-center">
           <FolderSync className="mx-auto mb-2 h-7 w-7 text-[var(--muted-foreground)]" />
           <p className="text-[12px] text-[var(--muted-foreground)]">
-            {t('No linked folders yet. Click "Link folder" to add a source.')}
+            {"No linked folders yet. Click \"Link folder\" to add a source."}
           </p>
           <button
             type="button"
@@ -278,7 +274,7 @@ export default function KbLinkedFoldersSection({
             className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-45"
           >
             <FolderSync className="h-3.5 w-3.5" />
-            {t("Link folder")}
+            {"Link folder"}
           </button>
         </div>
       ) : (
@@ -303,9 +299,7 @@ export default function KbLinkedFoldersSection({
       )}
 
       <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Sync now imports new or modified supported files. Deleted or renamed source files are not removed yet.",
-        )}
+        {"Sync now imports new or modified supported files. Deleted or renamed source files are not removed yet."}
       </p>
 
       <LinkFolderModal
@@ -336,7 +330,7 @@ function LinkedFolderCard({
   onSync: () => void;
   onUnlink: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const addedAt = formatKnowledgeTimestamp(folder.added_at);
   const lastSync = formatKnowledgeTimestamp(folder.last_sync ?? undefined);
   const actionDisabled = readOnly || busy || unlinking;
@@ -356,11 +350,11 @@ function LinkedFolderCard({
           </div>
           <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--muted-foreground)]">
             <span>
-              {t("{{count}} tracked files", { count: folder.file_count })}
+              {`${folder.file_count} tracked files`}
             </span>
-            {addedAt && <span>{t("Linked {{time}}", { time: addedAt })}</span>}
+            {addedAt && <span>{`Linked ${addedAt}`}</span>}
             <span>
-              {t("Last successful sync")}: {lastSync || t("Never synced")}
+              {"Last successful sync"}: {lastSync || "Never synced"}
             </span>
           </div>
         </div>
@@ -368,10 +362,10 @@ function LinkedFolderCard({
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           <Tooltip label={
               readOnly
-                ? t("Assigned knowledge bases are read-only.")
+                ? "Assigned knowledge bases are read-only."
                 : busy
-                  ? t("Wait for the current sync to finish.")
-                  : t("Check this folder for new or modified files")
+                  ? "Wait for the current sync to finish."
+                  : "Check this folder for new or modified files"
             } side="top">
             <button
               type="button"
@@ -384,15 +378,15 @@ function LinkedFolderCard({
               ) : (
                 <RefreshCw className="h-3 w-3" />
               )}
-              {syncing ? t("Syncing…") : t("Sync now")}
+              {syncing ? "Syncing…" : "Sync now"}
             </button>
           </Tooltip>
-          <Tooltip label={t("Unlink folder")} side="top">
+          <Tooltip label={"Unlink folder"} side="top">
             <button
               type="button"
               onClick={onUnlink}
               disabled={actionDisabled}
-              aria-label={t("Unlink {{path}}", { path: folder.path })}
+              aria-label={`Unlink ${folder.path}`}
               className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border border-transparent px-2 py-2 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-45 dark:hover:bg-red-950/30"
             >
               {unlinking ? (
@@ -414,17 +408,9 @@ function LinkedFolderCard({
           <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="min-w-0 break-words">
             {result.task_id
-              ? `${t("Queued {{count}} files for indexing.", {
-                  count: result.file_count,
-                })} ${t("{{new}} new, {{modified}} modified.", {
-                  new: result.new_files,
-                  modified: result.modified_files,
-                })}`
+              ? `${`Queued ${result.file_count} files for indexing.`} ${`${result.new_files} new, ${result.modified_files} modified.`}`
               : result.new_files || result.modified_files
-                ? t("{{new}} new, {{modified}} modified.", {
-                    new: result.new_files,
-                    modified: result.modified_files,
-                  })
+                ? `${result.new_files} new, ${result.modified_files} modified.`
                 : result.message}
           </span>
         </div>
@@ -440,7 +426,7 @@ function SyncProgress({
   task: TaskState;
   progress?: KnowledgeBase["progress"];
 }) {
-  const { t } = useTranslation();
+  
   const percent = resolveProgressPercent(progress);
 
   return (
@@ -451,7 +437,7 @@ function SyncProgress({
       aria-busy={task.executing}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--muted-foreground)]">
-        <span>{t(task.label || "Sync linked folder")}</span>
+        <span>{(task.label || "Sync linked folder")}</span>
         {task.executing && percent > 0 && (
           <span className="font-medium text-[var(--foreground)]">
             {percent}%
@@ -461,7 +447,7 @@ function SyncProgress({
       <ProcessLogs
         logs={task.logs}
         executing={task.executing}
-        title={t("Sync Process")}
+        title={"Sync Process"}
       />
       {task.executing && (
         <div className="h-1.5 overflow-hidden rounded-full bg-[var(--border)]/70">

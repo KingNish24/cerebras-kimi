@@ -19,7 +19,7 @@ import {
 } from "react";
 import { useAppShell } from "@/context/AppShellContext";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useChatWorkspaces } from "@/hooks/useChatWorkspaces";
 import SessionList from "@/components/SessionList";
 import { useSidebarDrawer } from "@/components/layout/AppShell";
@@ -105,7 +105,7 @@ export function ClassicSidebarShell({
 }: SidebarShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const { sidebarCollapsed, setSidebarCollapsed: setCollapsed } = useAppShell();
   const { isMobile } = useDevice();
   const drawer = useSidebarDrawer();
@@ -203,7 +203,7 @@ export function ClassicSidebarShell({
           <button
             onClick={() => setCollapsed(false)}
             className="absolute inset-0 flex items-center justify-center rounded-lg text-[var(--muted-foreground)] opacity-0 transition-all duration-150 hover:bg-background/60 hover:text-[var(--foreground)] group-hover/sb:opacity-100"
-            aria-label={t("Expand sidebar")}
+            aria-label={"Expand sidebar"}
           >
             <PanelLeftOpen size={16} />
           </button>
@@ -224,11 +224,11 @@ export function ClassicSidebarShell({
           {SECONDARY_NAV.map((item) => {
             const active = isNavActive(pathname, item.href);
             return (
-              <Tooltip key={item.href} label={t(item.label) as string} side="right">
+              <Tooltip key={item.href} label={(item.label) as string} side="right">
                 <Link
                   href={item.href}
                   prefetch={false}
-                  aria-label={t(item.label) as string}
+                  aria-label={(item.label) as string}
                   className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-150 ${
                     active
                       ? "bg-[var(--accent)] text-[var(--foreground)] shadow-sm"
@@ -277,7 +277,7 @@ export function ClassicSidebarShell({
         <button
           onClick={() => setCollapsed(true)}
           className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] max-md:hidden"
-          aria-label={t("Collapse sidebar")}
+          aria-label={"Collapse sidebar"}
         >
           <PanelLeftClose size={15} />
         </button>
@@ -303,7 +303,7 @@ export function ClassicSidebarShell({
         onRenameSession &&
         onDeleteSession ? (
           <section className="mt-3 px-2 pt-0.5">
-            {!onOrganizeSession && <div className="mb-2 px-2 text-xs text-[var(--muted-foreground)]">{t("Recent")}</div>}
+            {!onOrganizeSession && <div className="mb-2 px-2 text-xs text-[var(--muted-foreground)]">{"Recent"}</div>}
             {loadingSessions ? (
               <SessionList
                 sessions={[]}
@@ -370,7 +370,7 @@ export function ClassicSidebarShell({
                 }`}
               >
                 <item.icon size={15} strokeWidth={active ? 1.9 : 1.6} />
-                <span>{t(item.label)}</span>
+                <span>{(item.label)}</span>
               </Link>
             );
           })}
@@ -380,7 +380,7 @@ export function ClassicSidebarShell({
       {!isMobile && (
         <div
           role="separator"
-          aria-label={t("Resize sidebar")}
+          aria-label={"Resize sidebar"}
           aria-orientation="vertical"
           aria-valuemin={resize.min}
           aria-valuemax={resize.max}

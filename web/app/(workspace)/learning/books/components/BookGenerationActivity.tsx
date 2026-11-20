@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Pause, Play, RefreshCcw } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   ActivityDivider,
@@ -67,7 +67,7 @@ export default function BookGenerationActivity({
   resuming = false,
   className = "",
 }: BookGenerationActivityProps) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -79,9 +79,9 @@ export default function BookGenerationActivity({
         spine,
         generation,
         progress,
-        t: (key, options) => t(key, options) as string,
+        t: (key, options) => (key) as string,
       }),
-    [book, pages, spine, generation, progress, t],
+    [book, pages, spine, generation, progress],
   );
 
   // One clock for the strip. `now` is state rather than a bare re-render
@@ -185,10 +185,7 @@ export default function BookGenerationActivity({
         />
         {activity.chaptersTotal > 0 && (
           <span className="shrink-0 text-[12px] font-medium tabular-nums text-[var(--muted-foreground)] opacity-60">
-            {t("{{done}}/{{total}} chapters", {
-              done: activity.chaptersReady,
-              total: activity.chaptersTotal,
-            })}
+            {`${activity.chaptersReady}/${activity.chaptersTotal} chapters`}
           </span>
         )}
         {activity.live && onPause && (
@@ -196,8 +193,8 @@ export default function BookGenerationActivity({
             onClick={onPause}
             busy={pausing}
             icon={<Pause className="h-3 w-3" />}
-            label={t("Pause generation")}
-            busyLabel={t("Pausing…")}
+            label={"Pause generation"}
+            busyLabel={"Pausing…"}
           />
         )}
         {!activity.live &&
@@ -215,10 +212,10 @@ export default function BookGenerationActivity({
               }
               label={
                 activity.phase === "interrupted"
-                  ? t("Continue generating")
-                  : t("Resume generation")
+                  ? "Continue generating"
+                  : "Resume generation"
               }
-              busyLabel={t("Resuming…")}
+              busyLabel={"Resuming…"}
             />
           )}
       </div>
@@ -234,7 +231,7 @@ export default function BookGenerationActivity({
         <div className="absolute inset-x-0 top-full z-40 flex justify-center px-6">
           <div
             role="dialog"
-            aria-label={t("Finished so far")}
+            aria-label={"Finished so far"}
             // A layer gets a layer's surface: staying readable over arbitrary
             // content is the one case where a border, a radius and a shadow
             // are doing work rather than decorating.
@@ -250,7 +247,7 @@ export default function BookGenerationActivity({
                 />
               ))}
               {history.chapters.length > 0 && (
-                <ActivityDivider label={t("Chapters")} />
+                <ActivityDivider label={"Chapters"} />
               )}
               {history.chapters.map((row) => (
                 <ActivityRow

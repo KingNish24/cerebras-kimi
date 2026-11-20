@@ -8,7 +8,7 @@ import {
   type ContentFontScale,
   type ContentLineSpacing,
 } from "@/lib/learning-display";
-import { useTranslation } from "react-i18next";
+
 
 import type { CodeBlockThemeId } from "@/components/common/code-block-themes";
 import { CODE_BLOCK_THEME_OPTIONS } from "@/components/common/code-block-themes";
@@ -44,7 +44,7 @@ const RichCodeBlockPreview = dynamic(
 );
 
 export default function AppearanceSettingsPage() {
-  const { t } = useTranslation();
+  
   const {
     theme,
     contentFontScale,
@@ -75,17 +75,13 @@ export default function AppearanceSettingsPage() {
   return (
     <div data-tour="tour-appearance">
       <SettingsPageHeader
-        title={t("Appearance")}
-        description={t(
-          "Customize the visual theme, learning text, and code blocks. Apply changes using the bar below.",
-        )}
+        title={"Appearance"}
+        description={"Customize the visual theme, learning text, and code blocks. Apply changes using the bar below."}
       />
 
       <SettingSection
-        title={t("Theme")}
-        description={t(
-          "Pick the colour palette and interface style. Each tile previews the theme it applies.",
-        )}
+        title={"Theme"}
+        description={"Pick the colour palette and interface style. Each tile previews the theme it applies."}
       >
         <div className="py-3.5">
           {/* Order is intentional: System (follow the OS; the default for
@@ -95,11 +91,11 @@ export default function AppearanceSettingsPage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {(
               [
-                { id: "system", label: t("System") },
-                { id: "snow", label: t("Default") },
-                { id: "light", label: t("Cream") },
-                { id: "dark", label: t("Dark") },
-                { id: "glass", label: t("Glass") },
+                { id: "system", label: "System" },
+                { id: "snow", label: "Default" },
+                { id: "light", label: "Cream" },
+                { id: "dark", label: "Dark" },
+                { id: "glass", label: "Glass" },
               ] as const
             ).map(({ id, label }) => (
               <ThemePreviewCard
@@ -112,28 +108,22 @@ export default function AppearanceSettingsPage() {
             ))}
           </div>
           <p className="mt-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]/80">
-            {t("System follows the device's light or dark appearance.")}{" "}
-            {t(
-              "Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark keeps Cream's warmth on near-black. Glass adds translucent purple panels on a deep gradient.",
-            )}
+            {"System follows the device's light or dark appearance."}{" "}
+            {"Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark keeps Cream's warmth on near-black. Glass adds translucent purple panels on a deep gradient."}
           </p>
         </div>
       </SettingSection>
 
       <SettingSection
-        title={t("Learning text")}
-        description={t(
-          "Adjust messages, lessons, and practice text. Your changes stay in this preview until you apply them. Immersive Reading has its own display controls.",
-        )}
+        title={"Learning text"}
+        description={"Adjust messages, lessons, and practice text. Your changes stay in this preview until you apply them. Immersive Reading has its own display controls."}
       >
         <SettingRow
-          title={t("Text size")}
-          description={t(
-            "Scale learning content while keeping navigation and controls the same size.",
-          )}
+          title={"Text size"}
+          description={"Scale learning content while keeping navigation and controls the same size."}
           control={
             <select
-              aria-label={t("Learning text size")}
+              aria-label={"Learning text size"}
               value={contentFontScale}
               onChange={(event) =>
                 void updateContentFontScale(
@@ -151,11 +141,11 @@ export default function AppearanceSettingsPage() {
           }
         />
         <SettingRow
-          title={t("Line spacing")}
-          description={t("Choose the space between lines of learning text.")}
+          title={"Line spacing"}
+          description={"Choose the space between lines of learning text."}
           control={
             <select
-              aria-label={t("Learning line spacing")}
+              aria-label={"Learning line spacing"}
               value={contentLineSpacing}
               onChange={(event) =>
                 void updateContentLineSpacing(
@@ -165,20 +155,20 @@ export default function AppearanceSettingsPage() {
               className={selectClass}
             >
               <option value="compact" className={selectOptionClass}>
-                {t("Compact")}
+                {"Compact"}
               </option>
               <option value="normal" className={selectOptionClass}>
-                {t("Normal")}
+                {"Normal"}
               </option>
               <option value="relaxed" className={selectOptionClass}>
-                {t("Relaxed")}
+                {"Relaxed"}
               </option>
             </select>
           }
         />
         <div className="border-t border-[var(--border)]/50 py-4">
           <div className="mb-3 text-[13.5px] font-medium">
-            {t("Learning text preview")}
+            {"Learning text preview"}
           </div>
           <div
             data-testid="learning-text-preview"
@@ -205,23 +195,21 @@ export default function AppearanceSettingsPage() {
             onClick={() => void resetLearningText()}
             className="mt-4 rounded-md border border-[var(--border)] px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[var(--muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
           >
-            {t("Reset learning text")}
+            {"Reset learning text"}
           </button>
         </div>
       </SettingSection>
 
       <SettingSection
-        title={t("Code blocks")}
-        description={t(
-          "Choose how code snippets look across the app after you apply changes.",
-        )}
+        title={"Code blocks"}
+        description={"Choose how code snippets look across the app after you apply changes."}
       >
         <div className="border-t border-[var(--border)]/50 py-3.5 first:border-t-0">
           <div className="text-[13.5px] font-medium text-[var(--foreground)]">
-            {t("Preview")}
+            {"Preview"}
           </div>
           <p className="mb-3 mt-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t("Updates live as you change the settings below.")}
+            {"Updates live as you change the settings below."}
           </p>
           <RichCodeBlockPreview
             raw={CODE_BLOCK_PREVIEW_SNIPPET}
@@ -230,10 +218,8 @@ export default function AppearanceSettingsPage() {
         </div>
 
         <SettingRow
-          title={t("Syntax theme")}
-          description={t(
-            "Select the Prism theme used for highlighted code blocks.",
-          )}
+          title={"Syntax theme"}
+          description={"Select the Prism theme used for highlighted code blocks."}
           control={
             <select
               value={codeBlockTheme}
@@ -258,10 +244,8 @@ export default function AppearanceSettingsPage() {
         />
 
         <SettingRow
-          title={t("Show line numbers")}
-          description={t(
-            "Display a gutter with line numbers beside each code block.",
-          )}
+          title={"Show line numbers"}
+          description={"Display a gutter with line numbers beside each code block."}
           control={
             <Toggle
               checked={codeBlockShowLineNumbers}
@@ -271,10 +255,8 @@ export default function AppearanceSettingsPage() {
         />
 
         <SettingRow
-          title={t("Wrap long lines")}
-          description={t(
-            "Wrap long code lines instead of forcing horizontal scrolling.",
-          )}
+          title={"Wrap long lines"}
+          description={"Wrap long code lines instead of forcing horizontal scrolling."}
           control={
             <Toggle
               checked={codeBlockWrapLongLines}

@@ -3,7 +3,7 @@
 import Link from '@/shared/router/link'
 import { useRouter } from '@/shared/router/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Check, ChevronDown, PenLine, Plus, Search, type LucideIcon } from 'lucide-react'
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
 import { formatRelativeTime } from '@/lib/relative-time'
@@ -117,7 +117,7 @@ export function InstanceCrumb({
   /** The label is a stand-in (an unnamed draft): drawn quieter. */
   placeholder?: boolean
 }) {
-  const { t, i18n } = useTranslation()
+  
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<CrumbItem[] | null>(null)
@@ -214,8 +214,8 @@ export function InstanceCrumb({
                   ref={inputRef}
                   value={query}
                   onChange={event => setQuery(event.target.value)}
-                  placeholder={t('Search')}
-                  aria-label={t('Search')}
+                  placeholder={"Search"}
+                  aria-label={"Search"}
                 />
               </label>
             )}
@@ -245,9 +245,9 @@ export function InstanceCrumb({
             <div className="dt-menu-label">{menuLabel}</div>
             <div className="dt-crumb-rows">
               {rows === null ? (
-                <div className="dt-crumb-empty">{failed ? t('Failed to load') : t('Loading...')}</div>
+                <div className="dt-crumb-empty">{failed ? "Failed to load" : "Loading..."}</div>
               ) : rows.length === 0 ? (
-                <div className="dt-crumb-empty">{trimmed ? t('No matches') : t('Nothing here yet')}</div>
+                <div className="dt-crumb-empty">{trimmed ? "No matches" : "Nothing here yet"}</div>
               ) : (
                 rows.map(item => {
                   const current = item.id === currentId
@@ -269,7 +269,7 @@ export function InstanceCrumb({
                       {current ? (
                         <Check size={14} strokeWidth={1.8} className="dt-crumb-check" />
                       ) : item.updatedAt ? (
-                        <span className="dt-crumb-detail">{formatRelativeTime(item.updatedAt, i18n.language)}</span>
+                        <span className="dt-crumb-detail">{formatRelativeTime(item.updatedAt, "en")}</span>
                       ) : item.detail ? (
                         <span className="dt-crumb-detail">{item.detail}</span>
                       ) : null}
@@ -287,7 +287,7 @@ export function InstanceCrumb({
                 className="dt-menu-item is-quiet"
               >
                 <PenLine size={15} strokeWidth={1.6} />
-                <span className="min-w-0 flex-1 truncate">{t('Rename')}</span>
+                <span className="min-w-0 flex-1 truncate">{"Rename"}</span>
               </button>
             )}
             {all && (

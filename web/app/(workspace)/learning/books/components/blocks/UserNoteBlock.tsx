@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Pencil, StickyNote, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { Block } from "@/lib/book-types";
@@ -28,7 +28,7 @@ export default function UserNoteBlock({
   onSave,
   autoEdit = false,
 }: UserNoteBlockProps) {
-  const { t } = useTranslation();
+  
   const body = String(block.payload?.body || "");
   const editable = !!onSave;
 
@@ -72,14 +72,14 @@ export default function UserNoteBlock({
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center justify-between gap-2">
           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--primary)]">
-            {t("Your note")}
+            {"Your note"}
           </div>
           {editable && !editing && (
-            <Tooltip label={t("Edit note")}>
+            <Tooltip label={"Edit note"}>
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                aria-label={t("Edit note")}
+                aria-label={"Edit note"}
                 className="inline-flex h-6 w-6 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-[var(--background)] hover:text-[var(--foreground)] group-hover/note:opacity-100 focus-visible:opacity-100"
               >
                 <Pencil className="h-3 w-3" />
@@ -107,7 +107,7 @@ export default function UserNoteBlock({
                 }
               }}
               rows={4}
-              placeholder={t("Markdown supported. ⌘/Ctrl + Enter to save.")}
+              placeholder={"Markdown supported. ⌘/Ctrl + Enter to save."}
               className="w-full resize-y dt-soft-input rounded-lg bg-[var(--background)] px-2 py-1.5 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/60"
             />
             <div className="flex items-center justify-end gap-1.5">
@@ -118,7 +118,7 @@ export default function UserNoteBlock({
                 className="inline-flex items-center gap-1 rounded-md bg-[rgb(var(--dt-ink,55_53_47)/0.05)] px-2 py-0.5 transition-colors hover:bg-[rgb(var(--dt-ink,55_53_47)/0.085)] text-[11px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
               >
                 <X className="h-3 w-3" />
-                {t("Cancel")}
+                {"Cancel"}
               </button>
               <button
                 type="button"
@@ -131,7 +131,7 @@ export default function UserNoteBlock({
                 ) : (
                   <Check className="h-3 w-3" />
                 )}
-                {t("Save")}
+                {"Save"}
               </button>
             </div>
           </div>
@@ -145,8 +145,8 @@ export default function UserNoteBlock({
             className="text-left text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:cursor-default disabled:hover:text-[var(--muted-foreground)]"
           >
             {editable
-              ? t("Empty note — click to start writing your own annotation.")
-              : t("Empty note.")}
+              ? "Empty note — click to start writing your own annotation."
+              : "Empty note."}
           </button>
         )}
       </div>

@@ -10,7 +10,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { useTranslation } from "react-i18next";
+
 import dynamic from "@/shared/router/dynamic";
 import ViewerLauncher, {
   type LauncherClosedTab,
@@ -116,7 +116,7 @@ function SessionViewerPanelInner(
   }: SessionViewerPanelProps,
   ref: React.Ref<SessionViewerPanelHandle>,
 ) {
-  const { t } = useTranslation();
+  
   const followups = useOptionalQuizFollowupController();
   const [tabs, setTabs] = useState<ViewerTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
@@ -264,10 +264,10 @@ function SessionViewerPanelInner(
     setTabs((prev) =>
       prev.some((tab) => tab.id === newTabId)
         ? prev
-        : [...prev, { kind: "new", id: newTabId, label: t("New tab") }],
+        : [...prev, { kind: "new", id: newTabId, label: "New tab" }],
     );
     setActiveTabId(newTabId);
-  }, [t]);
+  }, []);
 
   const openFromNewTab = useCallback((openTarget: () => void) => {
     setTabs((prev) => prev.filter((tab) => tab.id !== newTabId));
@@ -283,13 +283,13 @@ function SessionViewerPanelInner(
       const next: ViewerTab = {
         kind: "markdown-note",
         id: markdownNoteTabId,
-        label: t("Markdown note"),
+        label: "Note",
       };
       setActiveTabId(markdownNoteTabId);
       return [...prev, next];
     });
     onAutoOpen();
-  }, [onAutoOpen, t]);
+  }, [onAutoOpen]);
 
   const openQuizFollowupTab = useCallback(
     (context: QuizFollowupTabContext) => {
@@ -513,14 +513,14 @@ function SessionViewerPanelInner(
       {
         kind: "geogebra",
         id,
-        label: t("GeoGebra board"),
+        label: "GeoGebra board",
         script: "",
         editable: true,
       },
     ]);
     setActiveTabId(id);
     onAutoOpen();
-  }, [onAutoOpen, t]);
+  }, [onAutoOpen]);
 
   const openGeogebraTab = useCallback(
     (payload: GeogebraTabPayload) => {
@@ -815,8 +815,8 @@ function SessionViewerPanelInner(
       const responder = named(responderFromPreferences(row.preferences));
       return {
         id: row.session_id,
-        title: isPlaceholderSessionTitle(row.title) ? t("Side chat") : row.title,
-        detail: t("With {{name}}", { name: responderLabel(responder) }),
+        title: isPlaceholderSessionTitle(row.title) ? "Side chat" : row.title,
+        detail: `With ${responderLabel(responder)}`,
         icon: RESPONDER_ICONS[responder.kind],
         updatedAt: row.updated_at,
       };
@@ -890,7 +890,7 @@ function SessionViewerPanelInner(
         onPointerDown={startResize}
         role="separator"
         aria-orientation="vertical"
-        aria-label={t("Resize viewer")}
+        aria-label={"Resize viewer"}
         className="group/resize absolute inset-y-0 left-0 z-10 w-2 cursor-col-resize max-md:hidden"
       >
         <span className="absolute left-[3px] top-1/2 h-10 w-[3px] -translate-y-1/2 rounded-full bg-transparent transition-colors group-hover/resize:bg-[color-mix(in_srgb,var(--muted-foreground)_35%,transparent)]" />

@@ -23,7 +23,7 @@ import {
   Workflow,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl, asJsonOrThrow } from "@/shared/api/client";
 import MemoryRunPanel from "@/components/memory/MemoryRunPanel";
@@ -185,7 +185,7 @@ export default function MemoryWorkbench({
   initialKey,
   initialFocus,
 }: MemoryWorkbenchProps) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const nav = layer === "L2" ? L2_NAV : L3_NAV;
   const [docKey, setDocKey] = useState<string>(initialKey || nav[0].key);
@@ -319,19 +319,19 @@ export default function MemoryWorkbench({
       await asJsonOrThrow(response);
       setContent(editorValue);
       setEditing(false);
-      setToast(t("Saved"));
+      setToast("Saved");
       void loadLines();
     } catch (e) {
-      setToast(e instanceof Error ? e.message : t("Save failed"));
+      setToast(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
     }
-  }, [editorValue, layer, docKey, t, loadLines]);
+  }, [editorValue, layer, docKey, loadLines]);
 
   const nicelabel = useMemo(() => {
     const entry = nav.find((n) => n.key === docKey);
-    return entry ? t(entry.label) : docKey;
-  }, [docKey, nav, t]);
+    return entry ? (entry.label) : docKey;
+  }, [docKey, nav]);
 
   const handleRunComplete = useCallback(() => {
     void loadDoc();
@@ -366,7 +366,7 @@ export default function MemoryWorkbench({
                     }
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="flex-1 truncate">{t(label)}</span>
+                    <span className="flex-1 truncate">{(label)}</span>
                     {doc?.exists && (
                       <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
                         {doc.entry_count}
@@ -390,7 +390,7 @@ export default function MemoryWorkbench({
                 className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] transition hover:bg-[var(--muted)]"
               >
                 <Pencil className="h-3.5 w-3.5" />
-                {t("Edit raw")}
+                {"Edit raw"}
               </button>
             ) : (
               <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ export default function MemoryWorkbench({
                   }}
                   className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-[12px]"
                 >
-                  {t("Cancel")}
+                  {"Cancel"}
                 </button>
                 <button
                   type="button"
@@ -415,7 +415,7 @@ export default function MemoryWorkbench({
                   ) : (
                     <Save className="h-3.5 w-3.5" />
                   )}
-                  {t("Save")}
+                  {"Save"}
                 </button>
               </div>
             )}
@@ -491,7 +491,7 @@ function Breadcrumb({
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {t("Memory")}
+        {"Memory"}
       </Link>
       <span className="text-[var(--muted-foreground)]">/</span>
       <span className="inline-flex items-center gap-1.5 text-[var(--foreground)]">
@@ -501,8 +501,8 @@ function Breadcrumb({
           <Network className="h-3.5 w-3.5" />
         )}
         {layer === "L2"
-          ? t("L2 · Per-surface summaries")
-          : t("L3 · Cross-surface knowledge")}
+          ? "L2 · Per-surface summaries"
+          : "L3 · Cross-surface knowledge"}
       </span>
       <span className="text-[var(--muted-foreground)]">/</span>
       <span className="text-[var(--foreground)]">{label}</span>
@@ -525,9 +525,9 @@ function LayerSwitcher({
     icon: LucideIcon;
     label: string;
   }[] = [
-    { key: "L1", href: "/memory/l1", icon: Layers, label: t("L1") },
-    { key: "L2", href: "/memory/l2", icon: Workflow, label: t("L2") },
-    { key: "L3", href: "/memory/l3", icon: Network, label: t("L3") },
+    { key: "L1", href: "/memory/l1", icon: Layers, label: "L1" },
+    { key: "L2", href: "/memory/l2", icon: Workflow, label: "L2" },
+    { key: "L3", href: "/memory/l3", icon: Network, label: "L3" },
   ];
   return (
     <nav className="flex items-center gap-0.5 rounded-full border border-[var(--border)] bg-[var(--card)] p-0.5">
@@ -569,8 +569,8 @@ function ViewSwitch({
   t: (k: string) => string;
 }) {
   const items: { key: ViewMode; label: string; icon: LucideIcon }[] = [
-    { key: "plain", label: t("Rendered"), icon: FileText },
-    { key: "lines", label: t("Line numbers"), icon: Hash },
+    { key: "plain", label: "Rendered", icon: FileText },
+    { key: "lines", label: "Line numbers", icon: Hash },
   ];
   return (
     <div className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1">
@@ -633,7 +633,7 @@ function EmptyState({ t }: { t: (k: string) => string }) {
     <div className="grid h-[300px] place-items-center text-center text-[13px] text-[var(--muted-foreground)]">
       <div className="max-w-sm space-y-2">
         <Workflow className="mx-auto h-6 w-6 opacity-60" />
-        <p>{t("Empty. Click Update to extract facts from your traces.")}</p>
+        <p>{"Empty. Click Update to extract facts from your traces."}</p>
       </div>
     </div>
   );

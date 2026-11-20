@@ -109,7 +109,7 @@ export function buildContextTreeItems(params: {
             {
               key: `file-${index}`,
               icon: Paperclip,
-              kind: t("Attach files"),
+              kind: "Attach files",
               label: file.filename,
               thumbnailUrl: file.type === "image" ? file.previewUrl : undefined,
               onClick: () => params.onPreviewAttachment?.(index),
@@ -121,7 +121,7 @@ export function buildContextTreeItems(params: {
       (id): ContextTreeItem => ({
         key: `kb-${id}`,
         icon: Database,
-        kind: t("Knowledge"),
+        kind: "Knowledge",
         label:
           params.knowledgeBases.find((kb) => knowledgeBaseRef(kb) === id)?.name ||
           id,
@@ -132,7 +132,7 @@ export function buildContextTreeItems(params: {
       (book): ContextTreeItem => ({
         key: `book-${book.bookId}`,
         icon: BookOpen,
-        kind: t("Book"),
+        kind: "Book",
         label: `${book.bookTitle} (${book.pages.length})`,
         onRemove: () => params.onRemoveBookReference(book.bookId),
       }),
@@ -141,7 +141,7 @@ export function buildContextTreeItems(params: {
       (material): ContextTreeItem => ({
         key: `reading-${material.materialId}-r${material.revision}`,
         icon: BookMarked,
-        kind: t("Reading"),
+        kind: "Reading",
         label: `${material.materialTitle} (${material.units.length})`,
         onRemove: params.onRemoveReadingReference
           ? () => params.onRemoveReadingReference?.(material.materialId)
@@ -152,7 +152,7 @@ export function buildContextTreeItems(params: {
       (group): ContextTreeItem => ({
         key: `nb-${group.notebookId}`,
         icon: BookOpen,
-        kind: t("Notebook"),
+        kind: "Favorites",
         label: `${group.notebookName} (${group.count})`,
         onRemove: () => params.onRemoveNotebook(group.notebookId),
       }),
@@ -161,7 +161,7 @@ export function buildContextTreeItems(params: {
       (session): ContextTreeItem => ({
         key: `hist-${session.sessionId}`,
         icon: MessageSquare,
-        kind: t("Chat History"),
+        kind: "Chat History",
         label: session.title,
         onRemove: () => params.onRemoveHistory(session.sessionId),
       }),
@@ -170,7 +170,7 @@ export function buildContextTreeItems(params: {
       (session): ContextTreeItem => ({
         key: `agent-${session.sessionId}`,
         icon: Bot,
-        kind: t("My Agents"),
+        kind: "Subagents",
         label: session.title,
         onRemove: () => params.onRemoveAgent(session.sessionId),
       }),
@@ -179,7 +179,7 @@ export function buildContextTreeItems(params: {
       (entry): ContextTreeItem => ({
         key: `q-${entry.id}`,
         icon: ClipboardList,
-        kind: t("Question Bank"),
+        kind: "Question Bank",
         label: entry.question,
         onRemove: () => params.onRemoveQuestion(entry.id),
       }),
@@ -189,7 +189,7 @@ export function buildContextTreeItems(params: {
           {
             key: "persona",
             icon: UserRound,
-            kind: t("Persona"),
+            kind: "Persona",
             label: params.selectedPersona,
             onRemove: params.onClearPersona,
           } satisfies ContextTreeItem,
@@ -199,8 +199,8 @@ export function buildContextTreeItems(params: {
       (file): ContextTreeItem => ({
         key: `mem-${file}`,
         icon: Brain,
-        kind: t("Memory"),
-        label: file === "summary" ? t("Summary") : t("Profile"),
+        kind: "Memory",
+        label: file === "summary" ? "Summary" : "Profile",
         onRemove: () => params.onToggleMemoryFile(file),
       }),
     ),
@@ -222,14 +222,14 @@ export function buildKnowledgeResourceItems(params: {
       key: "knowledge",
       group: "Reference materials",
       summary: selectedKnowledgeBases.length
-        ? `${selectedKnowledgeBases.length} ${t("selected")}`
+        ? `${selectedKnowledgeBases.length} ${"selected"}`
         : knowledgeBases.length > 0
-          ? t("Default")
-          : t("No KB"),
+          ? "Default"
+          : "No KB",
       onClear: selectedKnowledgeBases.length
         ? () => [...selectedKnowledgeBases].forEach(onToggleKB)
         : undefined,
-      label: t("Knowledge"),
+      label: "Knowledge",
       icon: Database,
       count: selectedKnowledgeBases.length,
       node: (
@@ -288,7 +288,7 @@ export function buildTrayConfig(params: {
           {
             key: `mode:${params.activeCap.value}`,
             icon: modeIcon(params.activeCap),
-            kind: t("Mode"),
+            kind: "Mode",
             label: capabilityLabel(params.activeCap),
             onRemove: () => params.onSelectCapability(""),
           },
@@ -317,9 +317,9 @@ export function buildTrayConfig(params: {
           {
             key: `create:${createKindDef.kind}`,
             icon: PencilRuler,
-            kind: t("Create"),
-            prefix: t("Create"),
-            label: t(createKindDef.labelKey),
+            kind: "Create",
+            prefix: "Create",
+            label: (createKindDef.labelKey),
             onRemove: () => params.onCreateTargetChange?.(null),
           },
         ]

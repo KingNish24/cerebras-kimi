@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import Link from '@/shared/router/link'
 import './note-library.css'
 import { FileDown, Layers, X } from 'lucide-react'
@@ -15,7 +15,7 @@ interface Card {
   back: string
 }
 export default function NoteReview() {
-  const { t } = useTranslation()
+  
   const [cards, setCards] = useState<Card[]>([])
   const [open, setOpen] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -66,14 +66,14 @@ export default function NoteReview() {
         }}
       >
         <Layers size={14} strokeWidth={1.7} />
-        {t('Review flashcards')}
+        {"Review flashcards"}
         <span className="dt-notes-review-count">{cards.length}</span>
       </button>
-      <PickerShell open={open} onClose={() => setOpen(false)} ariaLabel={t('Review flashcards')}>
+      <PickerShell open={open} onClose={() => setOpen(false)} ariaLabel={"Review flashcards"}>
         <div className="dt-notes-review">
           <header>
             <span className="dt-notes-review-heading">
-              {t('Review flashcards')}
+              {"Review flashcards"}
               <button
                 type="button"
                 className="dt-notes-review-export"
@@ -81,11 +81,11 @@ export default function NoteReview() {
                 onClick={() => void exportAll()}
               >
                 <FileDown size={13} strokeWidth={1.7} />
-                {t('Export all for Anki')}
+                {"Export all for Anki"}
               </button>
             </span>
-            {card && <span>{t('{{count}} left', { count: cards.length })}</span>}
-            <button className="dt-note-icon-button" aria-label={t('Close')} onClick={() => setOpen(false)}>
+            {card && <span>{(cards.length === 1 ? `${cards.length} left` : `${cards.length} left`)}</span>}
+            <button className="dt-note-icon-button" aria-label={"Close"} onClick={() => setOpen(false)}>
               <X size={15} />
             </button>
           </header>
@@ -96,21 +96,21 @@ export default function NoteReview() {
                 {revealed && <p className="is-back">{card.back}</p>}
               </div>
               <Link href={`/co-writer/${card.page_id}#${card.block_id}`} className="dt-notes-review-source">
-                {t('From “{{page}}”', { page: card.page_title || t('Untitled') })} ↗
+                {`From “${card.page_title || t('Untitled')}”`} ↗
               </Link>
               <div className="dt-notes-review-actions">
                 {revealed ? (
                   <>
                     <button disabled={busy} onClick={() => void grade(false)}>
-                      {t('Again')}
+                      {"Again"}
                     </button>
                     <button disabled={busy} className="is-primary" onClick={() => void grade(true)}>
-                      {t('Remembered')}
+                      {"Remembered"}
                     </button>
                   </>
                 ) : (
                   <button className="is-primary" onClick={() => setRevealed(true)}>
-                    {t('Show answer')}
+                    {"Show answer"}
                   </button>
                 )}
               </div>
@@ -118,7 +118,7 @@ export default function NoteReview() {
           ) : (
             <div className="dt-notes-review-done">
               <span aria-hidden>🎉</span>
-              <p>{t('All caught up')}</p>
+              <p>{"All caught up"}</p>
             </div>
           )}
           {error && (

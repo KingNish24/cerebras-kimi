@@ -10,7 +10,7 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import {
@@ -56,10 +56,10 @@ export default function HistorySessionPicker({
   onClose,
   onApply,
 }: HistorySessionPickerProps) {
-  const { t } = useTranslation();
+  
   // Backend writes the English sentinel "New conversation" until the LLM
   // title lands; mirror SessionList with a localized "New chat" label.
-  const placeholderLabel = t("New chat");
+  const placeholderLabel = "New chat";
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [selectedSessions, setSelectedSessions] = useState<
     Record<string, SessionSummary>
@@ -237,10 +237,8 @@ export default function HistorySessionPicker({
           resourceKind="chat_history"
           icon={HistoryIcon}
           titleId="history-picker-title"
-          title={t("Select History Sessions")}
-          subtitle={t(
-            "Choose one or more past conversations to analyze before this turn.",
-          )}
+          title={"Select History Sessions"}
+          subtitle={"Choose one or more past conversations to analyze before this turn."}
           onClose={onClose}
         />
 
@@ -257,7 +255,7 @@ export default function HistorySessionPicker({
                     setQuery(event.target.value);
                   }}
                   maxLength={200}
-                  placeholder={t("Search full conversation history")}
+                  placeholder={"Search full conversation history"}
                   className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
                 />
               </div>
@@ -266,7 +264,7 @@ export default function HistorySessionPicker({
                   onClick={() => setSelectedSessions({})}
                   className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
-                  {t("Clear")}
+                  {"Clear"}
                 </button>
               )}
             </div>
@@ -326,7 +324,7 @@ export default function HistorySessionPicker({
                           </span>
                           <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]/85">
                             <MessageSquare size={11} strokeWidth={1.8} />
-                            {session.message_count ?? 0} {t("messages")}
+                            {session.message_count ?? 0} {"messages"}
                           </span>
                           {searchResult && (
                             <span className="mt-1 line-clamp-2 block text-[11px] leading-relaxed text-[var(--muted-foreground)]">
@@ -375,13 +373,13 @@ export default function HistorySessionPicker({
                       }}
                       className="mx-2 my-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[var(--primary)] transition hover:bg-[var(--muted)] disabled:opacity-50"
                     >
-                      {loadingMore ? t("Loading…") : t("Load more")}
+                      {loadingMore ? "Loading…" : "Load more"}
                     </button>
                   )}
                 </div>
               ) : (
                 <div className="px-6 py-14 text-center text-[13px] text-[var(--muted-foreground)]">
-                  {t("No matching sessions found.")}
+                  {"No matching sessions found."}
                 </div>
               )}
             </div>
@@ -401,7 +399,7 @@ export default function HistorySessionPicker({
                     </div>
                     <div className="mt-0.5 flex items-center gap-2.5 text-[11px] text-[var(--muted-foreground)]">
                       <span>
-                        {activeSession.message_count ?? 0} {t("messages")}
+                        {activeSession.message_count ?? 0} {"messages"}
                       </span>
                       {formatSessionTimestamp(
                         activeSession.updated_at || activeSession.created_at,
@@ -418,7 +416,7 @@ export default function HistorySessionPicker({
                   {selectedIds.includes(activeId!) && (
                     <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
                       <Check size={10} strokeWidth={3} />
-                      {t("Selected")}
+                      {"Selected"}
                     </span>
                   )}
                 </div>
@@ -427,7 +425,7 @@ export default function HistorySessionPicker({
                   {activeLoading && !activeDetail ? (
                     <div className="flex min-h-[200px] items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      {t("Loading preview…")}
+                      {"Loading preview…"}
                     </div>
                   ) : activeDetail ? (
                     <ConversationPreview
@@ -436,7 +434,7 @@ export default function HistorySessionPicker({
                     />
                   ) : (
                     <div className="flex min-h-[200px] items-center justify-center text-[12px] text-[var(--muted-foreground)]">
-                      {t("No messages in this session.")}
+                      {"No messages in this session."}
                     </div>
                   )}
                 </div>
@@ -445,7 +443,7 @@ export default function HistorySessionPicker({
               <div className="flex h-full flex-col items-center justify-center gap-2 px-8 text-center text-[var(--muted-foreground)]">
                 <HistoryIcon className="h-6 w-6 opacity-40" strokeWidth={1.6} />
                 <p className="text-[12px]">
-                  {t("Select a session to preview it here.")}
+                  {"Select a session to preview it here."}
                 </p>
               </div>
             )}
@@ -455,15 +453,15 @@ export default function HistorySessionPicker({
         <div className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-3.5">
           <div className="text-[12px] text-[var(--muted-foreground)]">
             {selectedIds.length === 1
-              ? t("1 session selected")
-              : t("{{n}} sessions selected", { n: selectedIds.length })}
+              ? "1 session selected"
+              : `${selectedIds.length} sessions selected`}
           </div>
           <button
             onClick={handleApply}
             disabled={!selectedIds.length}
             className="btn-primary rounded-xl bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {t("Use Selected Sessions ({{n}})", { n: selectedIds.length })}
+            {`Use Selected Sessions (${selectedIds.length})`}
           </button>
         </div>
       </div>
@@ -484,7 +482,7 @@ function ConversationPreview({
   detail: SessionDetail;
   focusMessageId?: number | string | null;
 }) {
-  const { t } = useTranslation();
+  
   const messageRefs = useRef(new Map<string, HTMLDivElement>());
   const turns = useMemo(
     () =>
@@ -500,10 +498,10 @@ function ConversationPreview({
           // program is labelled instead of quoted.
           text:
             truncateText(previewProse(normalizeMessageContent(m.content)), 1400) ||
-            t("Interactive"),
+            "Interactive",
         }))
         .filter((m) => m.text.trim().length > 0),
-    [detail.messages, t],
+    [detail.messages],
   );
 
   useEffect(() => {
@@ -516,7 +514,7 @@ function ConversationPreview({
   if (turns.length === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center text-[12px] text-[var(--muted-foreground)]">
-        {t("No messages in this session.")}
+        {"No messages in this session."}
       </div>
     );
   }
@@ -547,7 +545,7 @@ function ConversationPreview({
               ) : (
                 <Sparkles size={12} strokeWidth={1.9} />
               )}
-              {isUser ? t("You") : t("Assistant")}
+              {isUser ? "You" : "Assistant"}
             </div>
             <div className="whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-[var(--foreground)]/85">
               {turn.text}

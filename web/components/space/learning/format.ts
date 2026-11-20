@@ -15,9 +15,9 @@ const KNOWLEDGE_TYPE_LABELS: Record<string, string> = {
   design: "Design",
 };
 
-export function knowledgeTypeLabel(type: string, t: Translate): string {
+export function knowledgeTypeLabel(type: string): string {
   const label = KNOWLEDGE_TYPE_LABELS[type];
-  return label ? t(label) : type;
+  return label ? (label) : type;
 }
 
 /**
@@ -27,7 +27,6 @@ export function knowledgeTypeLabel(type: string, t: Translate): string {
  */
 export function topicDisplayName(
   topic: { name: string; path_id: string },
-  t: Translate,
 ): string {
   const name = topic.name.trim();
   if (
@@ -38,7 +37,7 @@ export function topicDisplayName(
     return name;
   }
   const suffix = topic.path_id.split("_").at(-1)?.slice(-4) || "map";
-  return `${t("Exploration trail")} · ${suffix}`;
+  return `${"Exploration trail"} · ${suffix}`;
 }
 
 const MINUTE = 60;
@@ -70,7 +69,7 @@ export function formatRelative(epochSeconds: number, zh: boolean): string {
 
 // Callers pass `zh` down through props; every other language follows the active interface language.
 function dateLanguage(zh: boolean) {
-  return zh ? "zh" : normalizeLanguage(i18n.language);
+  return zh ? "zh" : normalizeLanguage("en");
 }
 
 /** Calendar form, for when "in 3 days" is not precise enough. */

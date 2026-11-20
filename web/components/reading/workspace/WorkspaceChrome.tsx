@@ -12,7 +12,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { type ReadingLibraryMaterial } from "@/lib/reading-workspace-api";
 import { readingFailureMessage } from "@/lib/reading-failure";
 
@@ -77,19 +77,17 @@ export function MenuItem({
 }
 
 export function CompanionWelcome({ hasMaterial }: { hasMaterial: boolean }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="mx-auto flex min-h-full max-w-[290px] flex-col items-center justify-center py-10 text-center">
       <SelectPassageMark />
       <p className="mt-5 font-serif text-[18px] font-medium tracking-[-0.01em] text-[var(--foreground)]">
-        {t("Read and ask as you go")}
+        {"Read and ask as you go"}
       </p>
       <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
         {hasMaterial
-          ? t(
-              "Select any passage to ask about it, explain it or translate it — or just ask below. Answers point back to the page they come from.",
-            )
-          : t("Add material to begin a reading conversation.")}
+          ? "Select any passage to ask about it, explain it or translate it — or just ask below. Answers point back to the page they come from."
+          : "Add material to begin a reading conversation."}
       </p>
     </div>
   );
@@ -149,19 +147,19 @@ function SelectPassageMark() {
 }
 
 export function EmptyWorkspace({ onAdd }: { onAdd: () => void }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
       <Library size={25} className="text-[var(--primary)]" />
       <p className="mt-3 font-serif text-[18px] font-medium">
-        {t("Add material to begin")}
+        {"Add material to begin"}
       </p>
       <button
         type="button"
         onClick={onAdd}
         className="mt-5 rounded-xl bg-[var(--primary)] px-4 py-2 text-[11px] font-semibold text-[var(--primary-foreground)]"
       >
-        {t("Add material")}
+        {"Add material"}
       </button>
     </div>
   );
@@ -172,15 +170,15 @@ export function MaterialProcessing({
 }: {
   material: ReadingLibraryMaterial;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
       <Loader2 size={24} className="animate-spin text-[var(--primary)]" />
       <p className="mt-4 font-serif text-[18px] font-medium">
-        {t("Preparing {{title}}", { title: material.title })}
+        {`Preparing ${material.title}`}
       </p>
       <p className="mt-2 text-[10.5px] text-[var(--muted-foreground)]">
-        {t("Extracting structure and grounded passages…")} {material.progress}%
+        {"Extracting structure and grounded passages…"} {material.progress}%
       </p>
     </div>
   );
@@ -193,7 +191,7 @@ export function MaterialFailure({
   material: ReadingLibraryMaterial;
   onRetry: () => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState("");
 
@@ -206,7 +204,7 @@ export function MaterialFailure({
       setRetryError(
         caught instanceof Error
           ? caught.message
-          : t("Try importing this material again."),
+          : "Try importing this material again.",
       );
     } finally {
       setRetrying(false);
@@ -217,11 +215,11 @@ export function MaterialFailure({
     <div className="flex h-full flex-col items-center justify-center px-8 text-center">
       <CircleAlert size={24} className="text-red-600" />
       <p className="mt-4 font-serif text-[18px] font-medium">
-        {t("This material could not be prepared")}
+        {"This material could not be prepared"}
       </p>
       <p className="mt-2 max-w-lg text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
-        {readingFailureMessage(material, t) ||
-          t("Try importing this material again.")}
+        {readingFailureMessage(material) ||
+          "Try importing this material again."}
       </p>
       {retryError && (
         <p className="mt-2 max-w-lg text-[10.5px] text-red-700">{retryError}</p>
@@ -233,7 +231,7 @@ export function MaterialFailure({
         className="mt-5 inline-flex h-9 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-[11px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
       >
         {retrying && <Loader2 size={12} className="animate-spin" />}
-        {retrying ? t("Retrying…") : t("Retry")}
+        {retrying ? "Retrying…" : "Retry"}
       </button>
     </div>
   );

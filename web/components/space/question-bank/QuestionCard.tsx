@@ -3,7 +3,7 @@
 import { useState } from "react";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import Link from "@/shared/router/link";
-import { useTranslation } from "react-i18next";
+
 import {
   Bookmark,
   CheckCheck,
@@ -148,7 +148,7 @@ export default function QuestionCard({
   onUnfile,
   onCreateAndFile,
 }: QuestionCardProps) {
-  const { t } = useTranslation();
+  
   const [answersVisible, setAnswersVisible] = useState(!collapseAnswers);
   const options = entry.options || {};
   const hasOptions = Object.keys(options).length > 0;
@@ -187,7 +187,7 @@ export default function QuestionCard({
           type="checkbox"
           checked={selected}
           onChange={onToggleSelected}
-          aria-label={t("Select")}
+          aria-label={"Select"}
           className={`mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer accent-[var(--primary)] transition-opacity ${
             selected ? "opacity-100" : "opacity-70 hover:opacity-100"
           }`}
@@ -198,7 +198,7 @@ export default function QuestionCard({
             <span
               className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${badge.className}`}
             >
-              {t(badge.label)}
+              {(badge.label)}
             </span>
             {entry.difficulty && (
               <span
@@ -215,20 +215,20 @@ export default function QuestionCard({
             )}
             {entry.question_type && (
               <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                {t(QUESTION_TYPE_LABELS[entry.question_type] || entry.question_type)}
+                {(QUESTION_TYPE_LABELS[entry.question_type] || entry.question_type)}
               </span>
             )}
             <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-              {t(SOURCE_LABELS[entry.source] || "Unknown Source")}
+              {(SOURCE_LABELS[entry.source] || "Unknown Source")}
             </span>
             {entry.assessment_type && ASSESSMENT_TYPE_LABELS[entry.assessment_type] ? (
               <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                {t(ASSESSMENT_TYPE_LABELS[entry.assessment_type])}
+                {(ASSESSMENT_TYPE_LABELS[entry.assessment_type])}
               </span>
             ) : null}
             {entry.score_trend && (
               <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                {t(TREND_LABELS[entry.score_trend] || "First Attempt")}
+                {(TREND_LABELS[entry.score_trend] || "First Attempt")}
               </span>
             )}
             {showReviewState && (
@@ -239,7 +239,7 @@ export default function QuestionCard({
                     : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
                 }`}
               >
-                {entry.resolved ? t("Resolved") : t("Needs Review")}
+                {entry.resolved ? "Resolved" : "Needs Review"}
               </span>
             )}
           </div>
@@ -254,12 +254,12 @@ export default function QuestionCard({
             onUnpick={onUnfile}
             onCreate={onCreateAndFile}
           />
-          <Tooltip label={entry.bookmarked ? t("Unmark question") : t("Mark question")}>
+          <Tooltip label={entry.bookmarked ? "Unmark question" : "Mark question"}>
             <button
               type="button"
               onClick={onToggleBookmark}
               disabled={disabled}
-              aria-label={entry.bookmarked ? t("Unmark question") : t("Mark question")}
+              aria-label={entry.bookmarked ? "Unmark question" : "Mark question"}
               className={`rounded-lg p-1.5 transition-colors disabled:opacity-40 ${
                 entry.bookmarked
                   ? "text-[var(--primary)]"
@@ -270,12 +270,12 @@ export default function QuestionCard({
             </button>
           </Tooltip>
           {showReviewState && (
-            <Tooltip label={entry.resolved ? t("Reopen Review") : t("Mark Resolved")}>
+            <Tooltip label={entry.resolved ? "Reopen Review" : "Mark Resolved"}>
               <button
                 type="button"
                 onClick={onToggleResolved}
                 disabled={disabled}
-                aria-label={entry.resolved ? t("Reopen Review") : t("Mark Resolved")}
+                aria-label={entry.resolved ? "Reopen Review" : "Mark Resolved"}
                 className={`rounded-lg p-1.5 transition-colors disabled:opacity-40 ${
                   entry.resolved
                     ? "text-green-600 dark:text-green-400"
@@ -290,12 +290,12 @@ export default function QuestionCard({
               </button>
             </Tooltip>
           )}
-          <Tooltip label={t("Delete")}>
+          <Tooltip label={"Delete"}>
             <button
               type="button"
               onClick={onDelete}
               disabled={disabled}
-              aria-label={t("Delete")}
+              aria-label={"Delete"}
               className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 dark:hover:bg-red-950/30"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -366,12 +366,12 @@ export default function QuestionCard({
                   </div>
                   {isCorrectAnswer && (
                     <span className="mt-px shrink-0 text-[10px] font-medium text-green-600 dark:text-green-400">
-                      ✓ {t("Correct")}
+                      ✓ {"Correct"}
                     </span>
                   )}
                   {isWrongPick && (
                     <span className="mt-px shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400">
-                      ✗ {t("Your pick")}
+                      ✗ {"Your pick"}
                     </span>
                   )}
                 </div>
@@ -385,13 +385,13 @@ export default function QuestionCard({
           className="space-y-2"
         >
           <summary className="cursor-pointer py-1 text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            {t("Answer and explanation")}
+            {"Answer and explanation"}
           </summary>
 
           {!hasOptions && (
             <div className="grid gap-2 sm:grid-cols-2">
               <AnswerBlock
-                label={`${t("Your Answer")}${
+                label={`${"Your Answer"}${
                   result === "correct" ? " ✓" : result === "incorrect" ? " ✗" : ""
                 }`}
                 body={entry.user_answer}
@@ -401,7 +401,7 @@ export default function QuestionCard({
                 isCode={isCode}
               />
               <AnswerBlock
-                label={t("Reference Answer")}
+                label={"Reference Answer"}
                 body={entry.correct_answer}
                 tone="correct"
                 isCode={isCode}
@@ -412,7 +412,7 @@ export default function QuestionCard({
           {entry.explanation && (
             <div className="rounded-lg border border-blue-200/60 bg-blue-50/30 px-3 py-2 dark:border-blue-900/40 dark:bg-blue-950/15">
               <div className="mb-1 text-[10.5px] font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
-                {t("Explanation")}
+                {"Explanation"}
               </div>
               <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
                 <MarkdownRenderer
@@ -428,7 +428,7 @@ export default function QuestionCard({
 
           {!!entry.practice?.review_count && (
             <AnswerBlock
-              label={t("Latest practice answer")}
+              label={"Latest practice answer"}
               body={entry.practice.last_answer || ""}
               tone={entry.practice.last_rating === "again" ? "wrong" : "neutral"}
               isCode={isCode}
@@ -443,12 +443,12 @@ export default function QuestionCard({
                 className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 py-0.5 pl-2 pr-1 text-[var(--muted-foreground)]"
               >
                 {category.name}
-                <Tooltip label={t("Remove tag")}>
+                <Tooltip label={"Remove tag"}>
                   <button
                     type="button"
                     onClick={() => void onUnfile(category.id)}
                     disabled={disabled}
-                    aria-label={t("Remove tag")}
+                    aria-label={"Remove tag"}
                     className="rounded p-0.5 transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
                   >
                     <X className="h-2.5 w-2.5" />
@@ -469,7 +469,7 @@ export default function QuestionCard({
                 className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <ExternalLink size={10} />
-                {entry.session_title || t("Original Session")}
+                {entry.session_title || "Original Session"}
               </Link>
             )}
             {independentProvenance && (
@@ -483,7 +483,7 @@ export default function QuestionCard({
                 className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <ExternalLink size={10} />
-                {entry.section_title || entry.material_title || t("Material")}
+                {entry.section_title || entry.material_title || "Material"}
               </Link>
             )}
             {entry.source === "mastery_path" && entry.material_title && (
@@ -504,15 +504,13 @@ export default function QuestionCard({
                 className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <MessageSquare size={10} />
-                {t("Follow-up")}
+                {"Follow-up"}
               </Link>
             )}
           </div>
           {!!entry.practice?.is_mistake && !entry.resolved && (
             <span className="text-[var(--muted-foreground)]">
-              {t("Next review: {{date}}", {
-                date: new Date(entry.practice.due_at * 1000).toLocaleDateString(),
-              })}
+              {`Next review: ${new Date(entry.practice.due_at * 1000).toLocaleDateString()}`}
             </span>
           )}
           <span className="text-[var(--muted-foreground)]">

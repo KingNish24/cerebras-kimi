@@ -9,7 +9,7 @@ import {
   Sparkles,
   XCircle,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { Block, QuizAttempt } from "@/lib/book-types";
@@ -52,7 +52,7 @@ export default function QuizBlock({
   onRequestSupplement,
   supplementing = false,
 }: QuizBlockProps) {
-  const { t } = useTranslation();
+  
   const questions =
     (block.payload?.questions as QuizQuestion[] | undefined) || [];
 
@@ -77,7 +77,7 @@ export default function QuizBlock({
   if (questions.length === 0) {
     return (
       <div className="text-sm text-[var(--muted-foreground)]">
-        {t("No quiz questions generated.")}
+        {"No quiz questions generated."}
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default function QuizBlock({
     <section>
       <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--primary)]">
         <span className="h-px flex-1 bg-[var(--primary)]/20" />
-        {t("Quick Check")}
+        {"Quick Check"}
         <span className="h-px flex-1 bg-[var(--primary)]/20" />
       </div>
       <div className="space-y-3">
@@ -110,7 +110,7 @@ export default function QuizBlock({
       {offerSupplement && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-dashed border-[var(--primary)]/40 bg-[var(--primary)]/[0.04] px-3 py-2">
           <span className="text-xs text-[var(--muted-foreground)]">
-            {t("Missed one? I can add a worked explanation and an easier set.")}
+            {"Missed one? I can add a worked explanation and an easier set."}
           </span>
           <button
             type="button"
@@ -123,7 +123,7 @@ export default function QuizBlock({
             ) : (
               <Sparkles className="h-3.5 w-3.5" />
             )}
-            {supplementing ? t("Adding…") : t("Add extra practice")}
+            {supplementing ? "Adding…" : "Add extra practice"}
           </button>
         </div>
       )}
@@ -144,7 +144,7 @@ function QuizQuestionCard({
   previous?: QuizAttempt;
   onAttempt?: (args: QuizAttemptArgs) => void;
 }) {
-  const { t } = useTranslation();
+  
   const normalizedType = normalizeQuizQuestionType(question.question_type);
   const options = question.options || {};
   const isChoice = isChoiceQuizQuestion(normalizedType);
@@ -206,7 +206,7 @@ function QuizQuestionCard({
           </span>
           <div className="min-w-0 flex-1">
             <MarkdownRenderer
-              content={String(question.question || t("(missing)"))}
+              content={String(question.question || "(missing)")}
               variant="compact"
               className="font-sans text-sm font-medium text-[var(--foreground)] [&_ol]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_p]:my-1.5 [&_pre]:my-2 [&_ul]:my-2"
               enableMath
@@ -262,8 +262,8 @@ function QuizQuestionCard({
       ) : (
         <div className="mt-2 text-xs text-[var(--muted-foreground)]">
           {normalizedType === "written"
-            ? t("Think about your answer, then reveal the solution.")
-            : t("Open response — click reveal to see the model answer.")}
+            ? "Think about your answer, then reveal the solution."
+            : "Open response — click reveal to see the model answer."}
         </div>
       )}
 
@@ -277,11 +277,11 @@ function QuizQuestionCard({
           ) : (
             <Eye className="h-3.5 w-3.5" />
           )}
-          {revealed ? t("Hide answer") : t("Reveal answer")}
+          {revealed ? "Hide answer" : "Reveal answer"}
         </button>
         {revealed && correct && isChoice && (
           <span className="text-xs text-[var(--muted-foreground)]">
-            {t("Answer")}:{" "}
+            {"Answer"}:{" "}
             <span className="font-mono text-[var(--foreground)]">
               {correctChoiceKey || correct}
             </span>
@@ -292,7 +292,7 @@ function QuizQuestionCard({
       {revealed && correct && !isChoice && (
         <div className="mt-2 rounded-lg bg-[rgb(var(--dt-ink,55_53_47)/0.035)] p-2">
           <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-            {t("Answer")}
+            {"Answer"}
           </div>
           <MarkdownRenderer
             content={correct}
@@ -308,19 +308,19 @@ function QuizQuestionCard({
       {revealed && !isChoice && (
         <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-[var(--muted)]/30 px-2.5 py-1.5">
           <span className="text-xs text-[var(--muted-foreground)]">
-            {t("How did you do?")}
+            {"How did you do?"}
           </span>
           <div className="flex items-center gap-1.5">
             <SelfGradeButton
               active={selfGraded === true}
               tone="correct"
-              label={t("Got it right")}
+              label={"Got it right"}
               onClick={() => recordSelfGrade(true)}
             />
             <SelfGradeButton
               active={selfGraded === false}
               tone="incorrect"
-              label={t("Missed it")}
+              label={"Missed it"}
               onClick={() => recordSelfGrade(false)}
             />
           </div>

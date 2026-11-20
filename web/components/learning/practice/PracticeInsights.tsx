@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { BarChart3, ChartNoAxesCombined, RefreshCw } from "lucide-react";
 import { practiceRoute } from "@/lib/learning-routes";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -30,7 +30,7 @@ const dateLabel = (date: string) =>
   new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
 export function PracticeInsights({ revision }: { revision: number }) {
-  const { t } = useTranslation();
+  
   const search = useSearchParams();
   const router = useRouter();
   const days = [7, 30, 90].includes(Number(search.get("stats_days")))
@@ -86,42 +86,42 @@ export function PracticeInsights({ revision }: { revision: number }) {
     .sort((a, b) => b[metric.key] - a[metric.key]);
   return (
     <section
-      aria-label={t("Practice activity")}
+      aria-label={"Practice activity"}
       className="mb-5 overflow-hidden rounded-2xl border border-border bg-card"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5">
         <div>
-          <h2 className="text-sm font-semibold">{t("Practice activity")}</h2>
+          <h2 className="text-sm font-semibold">{"Practice activity"}</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {data
               ? `${dateLabel(data.start_date)} – ${dateLabel(data.end_date)}`
-              : t("Daily activity and sources")}
+              : "Daily activity and sources"}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <select
-            aria-label={t("Statistics period")}
+            aria-label={"Statistics period"}
             value={days}
             onChange={e => setView("stats_days", e.target.value)}
             className="h-9 rounded-lg border border-border bg-background px-2 text-xs"
           >
             {[7, 30, 90].map(value => (
               <option key={value} value={value}>
-                {t("Last {{count}} days", { count: value })}
+                {`Last ${value} days`}
               </option>
             ))}
           </select>
           <div
             className="flex rounded-lg border border-border p-0.5"
             role="group"
-            aria-label={t("Chart style")}
+            aria-label={"Chart style"}
           >
             {(["line", "bars"] as const).map(value => (
-              <Tooltip key={value} label={t(value === "line" ? "Line chart" : "Bar chart")}>
+              <Tooltip key={value} label={(value === "line" ? "Line chart" : "Bar chart")}>
                 <button
                   type="button"
                   aria-pressed={style === value}
-                  aria-label={t(value === "line" ? "Line chart" : "Bar chart")}
+                  aria-label={(value === "line" ? "Line chart" : "Bar chart")}
                   onClick={() => setView("stats_chart", value)}
                   className={`rounded-md p-2 ${style === value ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
@@ -146,7 +146,7 @@ export function PracticeInsights({ revision }: { revision: number }) {
                 className="h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: item.color }}
               />
-              {t(item.label)}
+              {(item.label)}
             </span>
             <span className="mt-2 block text-2xl font-semibold tabular-nums tracking-tight">
               {data ? number(data.totals[item.key]) : "—"}
@@ -167,8 +167,8 @@ export function PracticeInsights({ revision }: { revision: number }) {
         >
           <span>
             {data
-              ? t("Could not refresh statistics. Showing the last loaded data.")
-              : t("Could not load statistics.")}{" "}
+              ? "Could not refresh statistics. Showing the last loaded data."
+              : "Could not load statistics."}{" "}
             {error}
           </span>
           <button
@@ -177,7 +177,7 @@ export function PracticeInsights({ revision }: { revision: number }) {
             className="inline-flex shrink-0 items-center gap-1 underline"
           >
             <RefreshCw size={12} />
-            {t("Retry")}
+            {"Retry"}
           </button>
         </div>
       )}
@@ -188,21 +188,21 @@ export function PracticeInsights({ revision }: { revision: number }) {
               rows={data.daily}
               metric={metric.key}
               color={metric.color}
-              label={t(metric.label)}
+              label={(metric.label)}
               style={style}
             />
           </div>
           <div className="border-t border-border px-5 py-4 lg:border-l lg:border-t-0">
             <div className="mb-4 flex items-center justify-between gap-2 text-xs">
-              <h3 className="font-medium">{t("Sources in this period")}</h3>
-              <span className="text-muted-foreground">{t(metric.label)}</span>
+              <h3 className="font-medium">{"Sources in this period"}</h3>
+              <span className="text-muted-foreground">{(metric.label)}</span>
             </div>
             {sources.length ? (
               <ul className="space-y-3.5">
                 {sources.map(source => (
                   <li key={source.source}>
                     <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-                      <span>{t(SOURCES[source.source] || "Other")}</span>
+                      <span>{(SOURCES[source.source] || "Other")}</span>
                       <span className="whitespace-nowrap tabular-nums">
                         {number(source[metric.key])}
                         <span className="ml-2 text-muted-foreground">
@@ -225,7 +225,7 @@ export function PracticeInsights({ revision }: { revision: number }) {
               </ul>
             ) : (
               <p className="py-6 text-center text-xs text-muted-foreground">
-                {t("No activity in this period")}
+                {"No activity in this period"}
               </p>
             )}
           </div>
@@ -235,29 +235,27 @@ export function PracticeInsights({ revision }: { revision: number }) {
           role="status"
           className="flex h-52 items-center justify-center text-sm text-muted-foreground"
         >
-          {loading ? t("Loading…") : t("Statistics unavailable")}
+          {loading ? "Loading…" : "Statistics unavailable"}
         </div>
       )}
       <div className="border-t border-border px-5 py-3 text-[11px] leading-relaxed text-muted-foreground">
-        {t(
-          "New mistakes count each question once, on its first wrong day. Reviews count saved submissions. Deleted questions are excluded."
-        )}
+        {"New mistakes count each question once, on its first wrong day. Reviews count saved submissions. Deleted questions are excluded."}
         {data && (
           <details className="mt-2">
             <summary className="w-fit cursor-pointer font-medium hover:text-foreground">
-              {t("View daily data")}
+              {"View daily data"}
             </summary>
             <div className="mt-2 max-h-60 overflow-auto">
               <table className="w-full text-right tabular-nums">
-                <caption className="sr-only">{t("Daily practice data")}</caption>
+                <caption className="sr-only">{"Daily practice data"}</caption>
                 <thead className="sticky top-0 bg-card">
                   <tr>
                     <th scope="col" className="py-2 text-left">
-                      {t("Date")}
+                      {"Date"}
                     </th>
                     {METRICS.map(item => (
                       <th key={item.key} scope="col">
-                        {t(item.label)}
+                        {(item.label)}
                       </th>
                     ))}
                   </tr>
@@ -296,7 +294,7 @@ function DailyChart({
   label: string;
   style: "line" | "bars";
 }) {
-  const { t } = useTranslation();
+  
   const id = useId();
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
@@ -340,7 +338,7 @@ function DailyChart({
       <div
         tabIndex={0}
         role="group"
-        aria-label={t("Daily chart. Use left and right arrows to inspect dates.")}
+        aria-label={"Daily chart. Use left and right arrows to inspect dates."}
         className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         onKeyDown={event => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -360,9 +358,7 @@ function DailyChart({
           className="block h-[184px] w-full overflow-visible"
         >
           <title id={`${id}-title`}>
-            {t("{{metric}} by day. Exact values are available in the daily data table.", {
-              metric: label,
-            })}
+            {`${label} by day. Exact values are available in the daily data table.`}
           </title>
           {ticks.map(value => (
             <g key={value}>

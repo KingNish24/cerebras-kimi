@@ -2,7 +2,7 @@
 
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   AlertTriangle,
   Check,
@@ -39,7 +39,7 @@ export default function KbMarginNoteDevicesSection({
   kb: KnowledgeBase;
 }) {
   const kbRef = knowledgeBaseRef(kb);
-  const { t } = useTranslation();
+  
   const [devices, setDevices] = useState<MarginNoteDevice[] | null>(null);
   const [status, setStatus] = useState<MarginNoteLibraryStatus | null>(null);
   const [deviceName, setDeviceName] = useState("");
@@ -120,20 +120,18 @@ export default function KbMarginNoteDevicesSection({
       <section className="space-y-3">
         <div>
           <div className="text-[13px] font-medium text-[var(--foreground)]">
-            {t("MarginNote 4 devices")}
+            {"MarginNote 4 devices"}
           </div>
           <p className="mt-0.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Pair a device to get a token, then paste it into the MarginNote 4 add-on. The add-on pushes notes, excerpts, cards and mindmap nodes into this library.",
-            )}
+            {"Pair a device to get a token, then paste it into the MarginNote 4 add-on. The add-on pushes notes, excerpts, cards and mindmap nodes into this library."}
           </p>
         </div>
 
         <dl className="grid gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 sm:grid-cols-2">
-          <Field label={t("Synced objects")}>
+          <Field label={"Synced objects"}>
             {status ? status.objects.toLocaleString() : "—"}
           </Field>
-          <Field label={t("Active devices")}>
+          <Field label={"Active devices"}>
             {devices ? active.length.toLocaleString() : "—"}
           </Field>
         </dl>
@@ -142,10 +140,10 @@ export default function KbMarginNoteDevicesSection({
       <section className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
         <div>
           <div className="text-[12.5px] font-medium text-[var(--foreground)]">
-            {t("Pair a device")}
+            {"Pair a device"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-            {t("A name only helps you tell your devices apart later.")}
+            {"A name only helps you tell your devices apart later."}
           </p>
         </div>
         <div className="flex gap-2">
@@ -153,7 +151,7 @@ export default function KbMarginNoteDevicesSection({
             value={deviceName}
             onChange={(event) => setDeviceName(event.target.value)}
             disabled={pairing}
-            placeholder={t("My iPad")}
+            placeholder={"My iPad"}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
           <button
@@ -167,7 +165,7 @@ export default function KbMarginNoteDevicesSection({
             ) : (
               <Plus className="h-3.5 w-3.5" />
             )}
-            {t("Pair device")}
+            {"Pair device"}
           </button>
         </div>
 
@@ -175,7 +173,7 @@ export default function KbMarginNoteDevicesSection({
           <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/20">
             <div className="flex items-center gap-1.5 text-[12px] font-medium text-amber-800 dark:text-amber-300">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-              {t("Copy this now — it is not shown again.")}
+              {"Copy this now — it is not shown again."}
             </div>
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 select-all break-all rounded-md bg-[var(--background)] px-2 py-1.5 font-mono text-[11px] text-[var(--foreground)]">
@@ -191,7 +189,7 @@ export default function KbMarginNoteDevicesSection({
                 ) : (
                   <Copy className="h-3 w-3" />
                 )}
-                {copied ? t("Copied") : t("Copy")}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
@@ -206,16 +204,16 @@ export default function KbMarginNoteDevicesSection({
 
       <section className="space-y-3">
         <div className="text-[12.5px] font-medium text-[var(--foreground)]">
-          {t("Paired devices")}
+          {"Paired devices"}
         </div>
         {devices === null ? (
           <div className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {t("Loading…")}
+            {"Loading…"}
           </div>
         ) : devices.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] px-3 py-6 text-center text-[12px] text-[var(--muted-foreground)]">
-            {t("No devices paired yet.")}
+            {"No devices paired yet."}
           </div>
         ) : (
           <ul className="divide-y divide-[var(--border)] overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--background)]">
@@ -228,16 +226,16 @@ export default function KbMarginNoteDevicesSection({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
-                      {device.device_name || t("Unnamed device")}
+                      {device.device_name || "Unnamed device"}
                     </span>
                     {!device.active && (
                       <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                        {t("Revoked")}
+                        {"Revoked"}
                       </span>
                     )}
                   </div>
                   <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
-                    {device.device_kind} · {t("Last seen")}{" "}
+                    {device.device_kind} · {"Last seen"}{" "}
                     {formatKnowledgeTimestamp(device.last_seen) || "—"}
                   </div>
                 </div>
@@ -248,7 +246,7 @@ export default function KbMarginNoteDevicesSection({
                     className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-[12px] font-medium text-red-700 transition-colors hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
                   >
                     <Trash2 className="h-3 w-3" />
-                    {t("Revoke")}
+                    {"Revoke"}
                   </button>
                 )}
               </li>

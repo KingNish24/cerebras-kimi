@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from '@/shared/router/navigation'
-import { useTranslation } from 'react-i18next'
+
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { useDevice } from '@/hooks/useDevice'
 import { useCapabilityFilter } from '@/features/capabilities/useCapabilityCatalog'
@@ -10,12 +10,12 @@ import { FeatureCrumb } from '@/components/layout/LocationCrumbs'
 import { locatePage, pageSections } from './page-sections'
 
 function useShelves() {
-  const { t, i18n } = useTranslation()
+  
   const { learningPolicy } = useAuthStatus()
   const isAvailable = useCapabilityFilter()
   return pageSections({
     t,
-    zh: (i18n?.language ?? '').startsWith('zh'),
+    zh: ("en" ?? '').startsWith('zh'),
     allowedSurfaces: learningPolicy?.allowedSurfaces ?? null,
     isAvailable,
   })
@@ -45,7 +45,7 @@ export function useShelfFeature(href: string) {
  * sidebar: every page here belongs to the current one.
  */
 export function PageBar() {
-  const { t } = useTranslation()
+  
   const pathname = usePathname() ?? ''
   const { isMobile } = useDevice()
   const instanceRef = usePageSlotRef('instance')
@@ -58,7 +58,7 @@ export function PageBar() {
   // it locates it, and the page keeps its own title and meta.
   const exact = located.page.href === pathname
   return (
-    <nav aria-label={t('navigation.location')} className="dt-page-bar" data-exact={exact || undefined}>
+    <nav aria-label={"Location"} className="dt-page-bar" data-exact={exact || undefined}>
       <FeatureCrumb section={located.section} page={located.page} />
       <div ref={instanceRef} className="dt-page-bar-instance" />
       {exact && <div ref={metaRef} className="dt-page-bar-meta" />}

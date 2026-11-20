@@ -89,13 +89,12 @@ export function describeProviderTool(
   toolName: string,
   args: Record<string, unknown> | undefined,
   provider: ToolProvider | null | undefined,
-  t: (key: string, opts?: Record<string, unknown>) => string,
 ): ProviderRow | null {
   if (!provider?.source) return null;
   if (provider.source === "mcp") {
     return {
       glyph: "link",
-      verb: t("Using {{service}}", { service: provider.id || toolName }),
+      verb: `Using ${provider.id || toolName}`,
       chip: mcpToolLabel(toolName, provider.id) || null,
       mono: true,
     };
@@ -103,7 +102,7 @@ export function describeProviderTool(
   if (provider.source === "cli") {
     return {
       glyph: "command",
-      verb: t("Running {{app}}", { app: provider.id || toolName }),
+      verb: `Running ${provider.id || toolName}`,
       // The arguments *are* the command. They arrive as an array precisely
       // because no shell parses them, so this is a label and nothing splits it
       // again.

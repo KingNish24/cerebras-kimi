@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 /** The rule-and-words look every quoted passage shares, sent or not. */
@@ -21,7 +21,7 @@ export function QuotedPassage({
   quote: string;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex items-start gap-1.5 px-4 pt-3">
       <p
@@ -29,10 +29,10 @@ export function QuotedPassage({
       >
         {quote}
       </p>
-      <Tooltip label={t("Remove quoted passage")}>
+      <Tooltip label={"Remove quoted passage"}>
         <button
           type="button"
-          aria-label={t("Remove quoted passage")}
+          aria-label={"Remove quoted passage"}
           onClick={onRemove}
           className="-mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
         >

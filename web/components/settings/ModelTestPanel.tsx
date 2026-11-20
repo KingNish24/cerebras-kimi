@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle2, CircleAlert, FlaskConical, Loader2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import {
   useSettings,
   type CatalogModel,
@@ -22,7 +22,7 @@ export function ModelTestPanel({
   profile: CatalogProfile
   model?: CatalogModel | null
 }) {
-  const { t } = useTranslation()
+  
   const { draft, modelTests, testRunning, runDetailedTest, mutateCatalog } = useSettings()
   const result = modelTests[modelTestKey(service, profile.id, model?.id)]
   const current =
@@ -60,11 +60,11 @@ export function ModelTestPanel({
       : false
 
   return (
-    <section aria-label={t('Model connection test')} className={`space-y-3 p-4 ${subPanelClass}`}>
+    <section aria-label={"Model connection test"} className={`space-y-3 p-4 ${subPanelClass}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-medium">
-            {service === 'search' ? t('Test search') : t('Test this model')}
+            {service === 'search' ? "Test search" : "Test this model"}
           </p>
           <p className="mt-1 break-all text-xs text-[var(--muted-foreground)]">
             {model?.model || profile.name}
@@ -82,26 +82,20 @@ export function ModelTestPanel({
           className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-xs font-medium hover:bg-[var(--accent)] disabled:opacity-40"
         >
           {running ? <Loader2 size={15} className="animate-spin" /> : <FlaskConical size={15} />}
-          {running ? t('Testing model…') : current ? t('Test again') : t('Test model')}
+          {running ? "Testing model…" : current ? "Test again" : "Test model"}
         </button>
       </div>
       <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
         {service === 'llm' || service === 'task'
-          ? t(
-              'Sends a short request and detects the context window using these settings. Your active model stays unchanged.'
-            )
+          ? "Sends a short request and detects the context window using these settings. Your active model stays unchanged."
           : service === 'embedding'
-            ? t(
-                'Tests embedding access and detects dimensions. Existing dimensions are kept until you choose to update them.'
-              )
-            : t(
-                'Sends a sample request using these settings. Your active configuration stays unchanged.'
-              )}
+            ? "Tests embedding access and detects dimensions. Existing dimensions are kept until you choose to update them."
+            : "Sends a sample request using these settings. Your active configuration stays unchanged."}
       </p>
       <div role="status" aria-live="polite">
         {result && !current && (
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            {t('Settings changed since the last test. Test again to verify them.')}
+            {"Settings changed since the last test. Test again to verify them."}
           </p>
         )}
         {current && result && (
@@ -117,7 +111,7 @@ export function ModelTestPanel({
                 <Loader2 size={16} className="mt-0.5 shrink-0 animate-spin" />
               )}
               <span className="break-words">
-                {result.state === 'success' ? t('Model responded successfully') : result.message}
+                {result.state === 'success' ? "Model responded successfully" : result.message}
               </span>
             </p>
             {result.response && (
@@ -130,21 +124,12 @@ export function ModelTestPanel({
                 <div>
                   <p className="font-medium">
                     {context
-                      ? t(
-                          context.source === 'default'
-                            ? 'Unknown context capacity · conservative budget: {{count}} tokens'
-                            : 'Detected context: {{count}} tokens',
-                          {
-                            count: context.value,
-                          }
-                        )
-                      : t('Detected dimensions: {{count}}', {
-                          count: dimension,
-                        })}
+                      ? (context.source === 'default' ? 'Unknown context capacity · conservative budget: {{count}} tokens' : 'Detected context: {{count}} tokens')
+                      : `Detected dimensions: ${dimension}`}
                   </p>
                   {context && (
                     <p className="mt-1 text-[var(--muted-foreground)]">
-                      {formatContextWindowSource(context.source, t)}
+                      {formatContextWindowSource(context.source)}
                     </p>
                   )}
                 </div>
@@ -160,10 +145,10 @@ export function ModelTestPanel({
                   className="rounded-md border border-[var(--border)] px-2.5 py-1.5 disabled:opacity-50"
                 >
                   {context?.source === 'default'
-                    ? t('Set context capacity manually')
+                    ? "Set context capacity manually"
                     : adopted
-                      ? t('Already applied')
-                      : t('Use detected value')}
+                      ? "Already applied"
+                      : "Use detected value"}
                 </button>
               </div>
             )}
@@ -173,7 +158,7 @@ export function ModelTestPanel({
       {current && result?.logs && (
         <details>
           <summary className="cursor-pointer text-xs text-[var(--muted-foreground)]">
-            {t('Test details')}
+            {"Test details"}
           </summary>
           <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-[var(--background)] p-3 font-mono text-[11px] leading-5">
             {result.logs}

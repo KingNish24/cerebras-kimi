@@ -4,7 +4,7 @@ import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Download, Loader2, XCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -64,7 +64,7 @@ const ENGINE_DESCRIPTION_KEYS: Record<string, string> = {
 };
 
 export default function DocumentParsingSettingsPage() {
-  const { t } = useTranslation();
+  
   const [liveData, setLiveData] = useState<DocumentParsingPayload | null>(null);
   const [data, setData] = useStagedSettings("document-parsing", liveData, setLiveData);
   const [loading, setLoading] = useState(true);
@@ -82,7 +82,7 @@ export default function DocumentParsingSettingsPage() {
         throw new Error(
           "detail" in payload && payload.detail
             ? payload.detail
-            : t("Failed to load document parsing settings."),
+            : "Failed to load document parsing settings.",
         );
       }
       setLiveData(payload as DocumentParsingPayload);
@@ -93,7 +93,7 @@ export default function DocumentParsingSettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -118,16 +118,14 @@ export default function DocumentParsingSettingsPage() {
   return (
     <div>
       <SettingsPageHeader
-        title={t("Document Parsing")}
-        description={t(
-          "How uploaded documents are converted into text for knowledge bases and question generation. Pick an engine and its options. Local model downloads are off by default — they only happen when you explicitly allow them.",
-        )}
+        title={"Document Parsing"}
+        description={"How uploaded documents are converted into text for knowledge bases and question generation. Pick an engine and its options. Local model downloads are off by default — they only happen when you explicitly allow them."}
       />
 
       {loading && (
         <div className="flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("Loading...")}
+          {"Loading..."}
         </div>
       )}
 
@@ -147,12 +145,10 @@ export default function DocumentParsingSettingsPage() {
           <section className="mb-10">
             <header className="mb-3">
               <h2 className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
-                {t("Engine")}
+                {"Engine"}
               </h2>
               <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "The active engine handles all parsing. Text-only is built in and extracts plain text; markitdown is lightweight and optional; MinerU and Docling produce richer structure, while Tika provides broad remote text extraction.",
-                )}
+                {"The active engine handles all parsing. Text-only is built in and extracts plain text; markitdown is lightweight and optional; MinerU and Docling produce richer structure, while Tika provides broad remote text extraction."}
               </p>
             </header>
             <div className="flex flex-col gap-2">
@@ -177,22 +173,22 @@ export default function DocumentParsingSettingsPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-[13px] font-medium text-[var(--foreground)]">
-                          {nameKey ? t(nameKey) : engine.name}
+                          {nameKey ? (nameKey) : engine.name}
                         </span>
                         {active && (
                           <span className="rounded-full bg-[var(--foreground)] px-2 py-0.5 text-[10px] font-medium text-[var(--background)]">
-                            {t("Active")}
+                            {"Active"}
                           </span>
                         )}
                         {!engine.available && (
                           <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
-                            {t("Not installed")}
+                            {"Not installed"}
                           </span>
                         )}
                       </div>
                       <p className="mt-1 text-[12px] text-[var(--muted-foreground)]">
                         {descriptionKey
-                          ? t(descriptionKey)
+                          ? (descriptionKey)
                           : engine.description}
                       </p>
                     </div>
@@ -285,16 +281,14 @@ export default function DocumentParsingSettingsPage() {
 }
 
 function TextOnlyPanel() {
-  const { t } = useTranslation();
+  
   return (
     <SettingSection
-      title={t("Text-only")}
-      description={t(
-        "Built-in plain text extraction for PDF, Office, and text files. No optional parser package, model download, OCR, or layout reconstruction.",
-      )}
+      title={"Text-only"}
+      description={"Built-in plain text extraction for PDF, Office, and text files. No optional parser package, model download, OCR, or layout reconstruction."}
     >
       <SettingRow
-        title={t("Model status")}
+        title={"Model status"}
         control={
           <ReadinessBadge
             readiness={{ ready: true, reason: "ready", message: "" }}
@@ -306,7 +300,7 @@ function TextOnlyPanel() {
 }
 
 function ReadinessBadge({ readiness }: { readiness?: Readiness }) {
-  const { t } = useTranslation();
+  
   if (!readiness) return null;
   return (
     <span
@@ -321,7 +315,7 @@ function ReadinessBadge({ readiness }: { readiness?: Readiness }) {
       ) : (
         <XCircle className="h-3.5 w-3.5 shrink-0" />
       )}
-      {readiness.ready ? t("Ready to parse.") : t(readiness.message)}
+      {readiness.ready ? "Ready to parse." : (readiness.message)}
     </span>
   );
 }
@@ -331,13 +325,13 @@ function ReadinessBadge({ readiness }: { readiness?: Readiness }) {
 // message must wrap full-width — it doesn't fit a SettingRow's compact,
 // non-shrinking control slot (which overflows and squeezes the title).
 function ReadinessNotice({ readiness }: { readiness?: Readiness }) {
-  const { t } = useTranslation();
+  
   if (!readiness) return null;
   if (readiness.ready) {
     return (
       <div className="flex items-center gap-1.5 py-3.5 text-[12px] text-emerald-600 dark:text-emerald-400">
         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-        {t("Ready to parse.")}
+        {"Ready to parse."}
       </div>
     );
   }
@@ -345,7 +339,7 @@ function ReadinessNotice({ readiness }: { readiness?: Readiness }) {
     <div className="py-3.5">
       <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-[12px] leading-relaxed text-amber-700 dark:text-amber-300">
         <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        <span className="min-w-0">{t(readiness.message)}</span>
+        <span className="min-w-0">{(readiness.message)}</span>
       </div>
     </div>
   );
@@ -372,7 +366,7 @@ function DoclingPanel({
   onInstalled: () => Promise<boolean>;
   onSave: (patch: Record<string, unknown>) => Promise<boolean>;
 }) {
-  const { t } = useTranslation();
+  
   const mode =
     slice.mode === "remote"
       ? "remote"
@@ -417,7 +411,7 @@ function DoclingPanel({
       if (!response.ok) {
         setTestResult({
           ok: false,
-          message: data.detail || t("Connection test failed."),
+          message: data.detail || "Connection test failed.",
         });
         return;
       }
@@ -425,7 +419,7 @@ function DoclingPanel({
         ok: Boolean(data.ok),
         message:
           data.message ||
-          (data.ok ? t("Ready to parse.") : t("Connection test failed.")),
+          (data.ok ? "Ready to parse." : "Connection test failed."),
       });
     } catch (err) {
       setTestResult({
@@ -442,21 +436,15 @@ function DoclingPanel({
   return (
     <>
       <SettingSection
-        title={t("Docling backend")}
-        description={t(
-          "Choose where parsing runs: the in-process docling package (local) or a Docling Serve server (remote).",
-        )}
+        title={"Docling backend"}
+        description={"Choose where parsing runs: the in-process docling package (local) or a Docling Serve server (remote)."}
       >
         <SettingRow
-          title={t("Mode")}
+          title={"Mode"}
           description={
             isRemote
-              ? t(
-                  "Docling Serve returns Markdown only here. Use local Docling for structured table, equation and image blocks.",
-                )
-              : t(
-                  "Parsing runs on this machine using the installed docling package.",
-                )
+              ? "Docling Serve returns Markdown only here. Use local Docling for structured table, equation and image blocks."
+              : "Parsing runs on this machine using the installed docling package."
           }
           control={
             <div className="inline-flex rounded-lg border border-[var(--border)] p-0.5">
@@ -477,7 +465,7 @@ function DoclingPanel({
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {m === "local" ? t("Local") : t("Remote server")}
+                  {m === "local" ? "Local" : "Remote server"}
                 </button>
               ))}
             </div>
@@ -487,13 +475,11 @@ function DoclingPanel({
 
       {isRemote && (
         <SettingSection
-          title={t("Remote server")}
-          description={t(
-            "Point at a Docling Serve server (e.g. `docling serve` or the docker image). No local docling install or models needed.",
-          )}
+          title={"Remote server"}
+          description={"Point at a Docling Serve server (e.g. `docling serve` or the docker image). No local docling install or models needed."}
         >
           <SettingRow
-            title={t("Server base URL")}
+            title={"Server base URL"}
             control={
               <input
                 className={`${inputClass} w-[320px] max-w-[48vw] font-mono text-[12px]`}
@@ -507,21 +493,17 @@ function DoclingPanel({
             }
           />
           <SettingRow
-            title={t("API key")}
+            title={"API key"}
             description={
               tokenSet
-                ? t(
-                    "A key is saved. Type to replace it; leave blank to keep it.",
-                  )
-                : t(
-                    "Optional. Sent as the X-Api-Key header for a secured server.",
-                  )
+                ? "A key is saved. Type to replace it; leave blank to keep it."
+                : "Optional. Sent as the X-Api-Key header for a secured server."
             }
             control={
               <input
                 type="password"
                 className={`${inputClass} w-[320px] max-w-[48vw]`}
-                placeholder={tokenSet ? TOKEN_MASK : t("Optional API key")}
+                placeholder={tokenSet ? TOKEN_MASK : "Optional API key"}
                 value={tokenDraft}
                 onChange={(e) => {
                   void onSave({ api_token: e.target.value });
@@ -530,8 +512,8 @@ function DoclingPanel({
             }
           />
           <SettingRow
-            title={t("Test connection")}
-            description={t("Pings the server health + version endpoints.")}
+            title={"Test connection"}
+            description={"Pings the server health + version endpoints."}
             control={
               <div className="flex items-center gap-3">
                 {testResult && (
@@ -557,7 +539,7 @@ function DoclingPanel({
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
                 >
                   {testing && <Loader2 className="h-3 w-3 animate-spin" />}
-                  {t("Test")}
+                  {"Test"}
                 </button>
 
               </div>
@@ -565,9 +547,7 @@ function DoclingPanel({
           />
           <div className="px-1 pb-4">
             <span className="text-[12px] text-[var(--muted-foreground)]">
-              {t(
-                  "Apply pending settings using the bar below.",
-                )}
+              {"Apply pending settings using the bar below."}
             </span>
           </div>
         </SettingSection>
@@ -575,11 +555,11 @@ function DoclingPanel({
 
       {isRemote && (
         <SettingSection
-          title={t("Parsing options")}
-          description={t("Forwarded to the Docling server for each document.")}
+          title={"Parsing options"}
+          description={"Forwarded to the Docling server for each document."}
         >
           <SettingRow
-            title={t("Recognize tables")}
+            title={"Recognize tables"}
             control={
               <Toggle
                 checked={doTables}
@@ -589,8 +569,8 @@ function DoclingPanel({
             }
           />
           <SettingRow
-            title={t("OCR scanned pages")}
-            description={t("Slower; enable for image-only PDFs.")}
+            title={"OCR scanned pages"}
+            description={"Slower; enable for image-only PDFs."}
             control={
               <Toggle
                 checked={doOcr}
@@ -605,31 +585,27 @@ function DoclingPanel({
       {!isRemote && notInstalled && (
         <NotInstalledSection
           engineId="docling"
-          title={t("Docling (local)")}
+          title={"Docling (local)"}
           onInstalled={onInstalled}
         />
       )}
 
       {!isRemote && !notInstalled && (
         <SettingSection
-          title={t("Docling (local)")}
-          description={t(
-            "Structured conversion of PDF/Office/HTML/images. Downloads layout/table models on first run.",
-          )}
+          title={"Docling (local)"}
+          description={"Structured conversion of PDF/Office/HTML/images. Downloads layout/table models on first run."}
         >
           <ReadinessNotice readiness={readiness} />
           {readiness && !readiness.ready && (
             <ModelDownloadRow
               engineId="docling"
-              title={t("Docling")}
+              title={"Docling"}
               onDownloaded={onInstalled}
             />
           )}
           <SettingRow
-            title={t("Allow automatic model download")}
-            description={t(
-              "Off by default. When off, parsing fails with guidance instead of silently downloading models. Or pre-fetch with `docling-tools models download`.",
-            )}
+            title={"Allow automatic model download"}
+            description={"Off by default. When off, parsing fails with guidance instead of silently downloading models. Or pre-fetch with `docling-tools models download`."}
             control={
               <Toggle
                 checked={allowDownload}
@@ -639,7 +615,7 @@ function DoclingPanel({
             }
           />
           <SettingRow
-            title={t("Recognize tables")}
+            title={"Recognize tables"}
             control={
               <Toggle
                 checked={doTables}
@@ -649,8 +625,8 @@ function DoclingPanel({
             }
           />
           <SettingRow
-            title={t("OCR scanned pages")}
-            description={t("Slower; enable for image-only PDFs.")}
+            title={"OCR scanned pages"}
+            description={"Slower; enable for image-only PDFs."}
             control={
               <Toggle
                 checked={doOcr}
@@ -661,13 +637,13 @@ function DoclingPanel({
           />
         </SettingSection>
       )}
-      <SettingSection title={t("Docling enrichments")} description={t("Optional Docling models for formulas and pictures. Local mode respects automatic model download settings; prefetch required models when downloads are disabled.")}>
+      <SettingSection title={"Docling enrichments"} description={"Optional Docling models for formulas and pictures. Local mode respects automatic model download settings; prefetch required models when downloads are disabled."}>
         {([
           ["do_formula_enrichment", "Recognize formulas"],
           ["do_picture_classification", "Classify pictures"],
           ["do_picture_description", "Describe pictures with Docling"],
         ] as const).map(([key, label]) => (
-          <SettingRow key={key} title={t(label)} control={<Toggle checked={Boolean(slice[key])} disabled={busy} onChange={(value) => onSave({ [key]: value })} />} />
+          <SettingRow key={key} title={(label)} control={<Toggle checked={Boolean(slice[key])} disabled={busy} onChange={(value) => onSave({ [key]: value })} />} />
         ))}
       </SettingSection>
     </>
@@ -687,7 +663,7 @@ function TikaPanel({
   busy: boolean;
   onSave: (patch: Record<string, unknown>) => Promise<boolean>;
 }) {
-  const { t } = useTranslation();
+  
   const draftUrl = String(slice.server_url ?? "");
   const setDraftUrl = (server_url: string) => { void onSave({ server_url }); };
   const [testing, setTesting] = useState(false);
@@ -718,7 +694,7 @@ function TikaPanel({
       if (!response.ok) {
         setTestResult({
           ok: false,
-          message: data.detail || t("Connection test failed."),
+          message: data.detail || "Connection test failed.",
         });
         return;
       }
@@ -726,7 +702,7 @@ function TikaPanel({
         ok: Boolean(data.ok),
         message:
           data.message ||
-          (data.ok ? t("Ready to parse.") : t("Connection test failed.")),
+          (data.ok ? "Ready to parse." : "Connection test failed."),
       });
     } catch (err) {
       setTestResult({
@@ -740,14 +716,12 @@ function TikaPanel({
 
   return (
     <SettingSection
-      title={t("Tika")}
-      description={t(
-        "Point at an Apache Tika server (e.g. the apache/tika docker image). No local install or models needed.",
-      )}
+      title={"Tika"}
+      description={"Point at an Apache Tika server (e.g. the apache/tika docker image). No local install or models needed."}
     >
       <ReadinessNotice readiness={readiness} />
       <SettingRow
-        title={t("Server base URL")}
+        title={"Server base URL"}
         control={
           <input
             className={`${inputClass} w-[320px] max-w-[48vw] font-mono text-[12px]`}
@@ -761,8 +735,8 @@ function TikaPanel({
         }
       />
       <SettingRow
-        title={t("Test connection")}
-        description={t("Pings the server /version endpoint.")}
+        title={"Test connection"}
+        description={"Pings the server /version endpoint."}
         control={
           <div className="flex items-center gap-3">
             {testResult && (
@@ -788,7 +762,7 @@ function TikaPanel({
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
             >
               {testing && <Loader2 className="h-3 w-3 animate-spin" />}
-              {t("Test")}
+              {"Test"}
             </button>
 
           </div>
@@ -796,9 +770,7 @@ function TikaPanel({
       />
       <div className="px-1 pb-4">
         <span className="text-[12px] text-[var(--muted-foreground)]">
-          {t(
-            "Apply pending settings using the bar below.",
-          )}
+          {"Apply pending settings using the bar below."}
         </span>
       </div>
     </SettingSection>
@@ -818,14 +790,14 @@ function MarkItDownPanel({
   onInstalled: () => Promise<boolean>;
   onSave: (patch: Record<string, unknown>) => void;
 }) {
-  const { t } = useTranslation();
+  
   const llmImages = Boolean(slice.enable_llm_image_description);
 
   if (!available) {
     return (
       <NotInstalledSection
         engineId="markitdown"
-        title={t("markitdown")}
+        title={"markitdown"}
         onInstalled={onInstalled}
       />
     );
@@ -833,16 +805,12 @@ function MarkItDownPanel({
 
   return (
     <SettingSection
-      title={t("markitdown")}
-      description={t(
-        "Lightweight Markdown conversion with broad format support. No model downloads.",
-      )}
+      title={"markitdown"}
+      description={"Lightweight Markdown conversion with broad format support. No model downloads."}
     >
       <SettingRow
-        title={t("Describe images with the vision model")}
-        description={t(
-          "Reserved — uses DeepTutor's vision model to caption images during conversion.",
-        )}
+        title={"Describe images with the vision model"}
+        description={"Reserved — uses DeepTutor's vision model to caption images during conversion."}
         control={
           <Toggle
             checked={llmImages}
@@ -870,7 +838,7 @@ function PyMuPDF4LLMPanel({
   onInstalled: () => Promise<boolean>;
   onSave: (patch: Record<string, unknown>) => void;
 }) {
-  const { t } = useTranslation();
+  
   const writeImages = slice.write_images !== false;
   const imageFormat =
     typeof slice.image_format === "string" ? slice.image_format : "png";
@@ -880,7 +848,7 @@ function PyMuPDF4LLMPanel({
     return (
       <NotInstalledSection
         engineId="pymupdf4llm"
-        title={t("PyMuPDF4LLM")}
+        title={"PyMuPDF4LLM"}
         onInstalled={onInstalled}
       />
     );
@@ -888,16 +856,12 @@ function PyMuPDF4LLMPanel({
 
   return (
     <SettingSection
-      title={t("PyMuPDF4LLM")}
-      description={t(
-        "Lightweight PDF/e-book → Markdown built on PyMuPDF. No model downloads or CUDA, so it runs on low-end machines.",
-      )}
+      title={"PyMuPDF4LLM"}
+      description={"Lightweight PDF/e-book → Markdown built on PyMuPDF. No model downloads or CUDA, so it runs on low-end machines."}
     >
       <SettingRow
-        title={t("Extract images")}
-        description={t(
-          "Save embedded images and rendered vector graphics into the parse, referenced from the Markdown.",
-        )}
+        title={"Extract images"}
+        description={"Save embedded images and rendered vector graphics into the parse, referenced from the Markdown."}
         control={
           <Toggle
             checked={writeImages}
@@ -909,7 +873,7 @@ function PyMuPDF4LLMPanel({
       {writeImages && (
         <>
           <SettingRow
-            title={t("Image format")}
+            title={"Image format"}
             control={
               <select
                 className={`${nativeSelectClass} w-28`}
@@ -926,8 +890,8 @@ function PyMuPDF4LLMPanel({
             }
           />
           <SettingRow
-            title={t("Image resolution (DPI)")}
-            description={t("Higher is sharper but larger. 72–600.")}
+            title={"Image resolution (DPI)"}
+            description={"Higher is sharper but larger. 72–600."}
             control={
               <input
                 type="number"
@@ -963,7 +927,7 @@ function LiteParsePanel({
   onInstalled: () => Promise<boolean>;
   onSave: (patch: Record<string, unknown>) => void;
 }) {
-  const { t } = useTranslation();
+  
   const imageMode =
     typeof slice.image_mode === "string" ? slice.image_mode : "placeholder";
   const extractLinks = slice.extract_links !== false;
@@ -974,7 +938,7 @@ function LiteParsePanel({
     return (
       <NotInstalledSection
         engineId="liteparse"
-        title={t("LiteParse")}
+        title={"LiteParse"}
         onInstalled={onInstalled}
       />
     );
@@ -982,14 +946,12 @@ function LiteParsePanel({
 
   return (
     <SettingSection
-      title={t("LiteParse")}
-      description={t(
-        "Fast Rust-backed PDF/Office/image parser from LlamaIndex. Markdown output, no model downloads.",
-      )}
+      title={"LiteParse"}
+      description={"Fast Rust-backed PDF/Office/image parser from LlamaIndex. Markdown output, no model downloads."}
     >
       <SettingRow
-        title={t("Image mode")}
-        description={t("How images are represented in the output.")}
+        title={"Image mode"}
+        description={"How images are represented in the output."}
         control={
           <select
             className={nativeSelectClass + " w-32"}
@@ -1006,8 +968,8 @@ function LiteParsePanel({
         }
       />
       <SettingRow
-        title={t("Extract links")}
-        description={t("Render [text](url) links in markdown output.")}
+        title={"Extract links"}
+        description={"Render [text](url) links in markdown output."}
         control={
           <Toggle
             checked={extractLinks}
@@ -1017,8 +979,8 @@ function LiteParsePanel({
         }
       />
       <SettingRow
-        title={t("Extract images")}
-        description={t("Save embedded images alongside the parsed Markdown.")}
+        title={"Extract images"}
+        description={"Save embedded images alongside the parsed Markdown."}
         control={
           <Toggle
             checked={extractImages}
@@ -1028,8 +990,8 @@ function LiteParsePanel({
         }
       />
       <SettingRow
-        title={t("Max pages")}
-        description={t("0 = unlimited. Limit pages parsed per document.")}
+        title={"Max pages"}
+        description={"0 = unlimited. Limit pages parsed per document."}
         control={
           <input
             type="number"
@@ -1069,7 +1031,7 @@ function useBackgroundJob(
   engineId: string,
   onDone: () => void,
 ) {
-  const { t } = useTranslation();
+  
   const [job, setJob] = useState<JobStatus | null>(null);
   const [starting, setStarting] = useState(false);
   const cursor = useRef(0);
@@ -1135,7 +1097,7 @@ function useBackgroundJob(
           state: "failed",
           kind,
           lines: [],
-          message: data.message || data.detail || t("Failed."),
+          message: data.message || data.detail || "Failed.",
         });
         return;
       }
@@ -1216,7 +1178,7 @@ function JobButton({
   onStart: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useTranslation();
+  
   if (running) {
     return (
       <button
@@ -1224,7 +1186,7 @@ function JobButton({
         onClick={onCancel}
         className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-80"
       >
-        {t("Cancel")}
+        {"Cancel"}
       </button>
     );
   }
@@ -1255,7 +1217,7 @@ function NotInstalledSection({
   title: string;
   onInstalled: () => Promise<boolean>;
 }) {
-  const { t } = useTranslation();
+  
   const [checking, setChecking] = useState(false);
   const [checked, setChecked] = useState(false);
 
@@ -1274,29 +1236,29 @@ function NotInstalledSection({
   return (
     <SettingSection
       title={title}
-      description={t("This local parser is not installed. Choose the instructions for your server deployment; packages cannot be installed while DeepTutor is running.")}
+      description={"This local parser is not installed. Choose the instructions for your server deployment; packages cannot be installed while DeepTutor is running."}
     >
       <div className="space-y-4 px-1 pb-4 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
         <div>
-          <h3 className="font-medium text-[var(--foreground)]">{t("Docker")}</h3>
-          <p>{t("Add this extra to DEEPTUTOR_EXTRAS in your existing deployment configuration, preserving other extras. Recreate the same service with its existing configuration and mounts.")}</p>
+          <h3 className="font-medium text-[var(--foreground)]">{"Docker"}</h3>
+          <p>{"Add this extra to DEEPTUTOR_EXTRAS in your existing deployment configuration, preserving other extras. Recreate the same service with its existing configuration and mounts."}</p>
           <code className={commandClass}>parse-{engineId}</code>
-          <p className="mt-1">{t("Startup reapplies extras. Installation failures do not stop the server: inspect startup logs, then recheck availability. Data mounts preserve user data, not installed Python packages.")}</p>
+          <p className="mt-1">{"Startup reapplies extras. Installation failures do not stop the server: inspect startup logs, then recheck availability. Data mounts preserve user data, not installed Python packages."}</p>
         </div>
         <div>
-          <h3 className="font-medium text-[var(--foreground)]">{t("Source checkout")}</h3>
-          <p>{t("Stop DeepTutor. Run from the checkout in the server's Python environment, then restart the same instance.")}</p>
+          <h3 className="font-medium text-[var(--foreground)]">{"Source checkout"}</h3>
+          <p>{"Stop DeepTutor. Run from the checkout in the server's Python environment, then restart the same instance."}</p>
           <code className={commandClass}>python scripts/install_extras.py parse-{engineId}</code>
         </div>
         <div>
-          <h3 className="font-medium text-[var(--foreground)]">{t("Wheel installation")}</h3>
-          <p>{t("Stop DeepTutor. Run in the server's Python environment, then restart with the same runtime home. Do not run this over a source checkout.")}</p>
+          <h3 className="font-medium text-[var(--foreground)]">{"Wheel installation"}</h3>
+          <p>{"Stop DeepTutor. Run in the server's Python environment, then restart with the same runtime home. Do not run this over a source checkout."}</p>
           <code className={commandClass}>deeptutor module install parser-{engineId}</code>
         </div>
       </div>
       <SettingRow
-        title={t("Recheck availability")}
-        description={t("After restarting, refresh parser availability here. This does not install packages or apply pending settings.")}
+        title={"Recheck availability"}
+        description={"After restarting, refresh parser availability here. This does not install packages or apply pending settings."}
         control={
           <button
             type="button"
@@ -1305,12 +1267,12 @@ function NotInstalledSection({
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
           >
             {checking && <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />}
-            {checking ? t("Checking availability…") : t("Recheck availability")}
+            {checking ? "Checking availability…" : "Recheck availability"}
           </button>
         }
       />
       <p role="status" className="px-1 pb-2 text-[12px] text-[var(--muted-foreground)]">
-        {checking ? t("Checking availability…") : checked ? t("Availability refreshed. This parser is still unavailable; check the installation and startup logs, then retry.") : ""}
+        {checking ? "Checking availability…" : checked ? "Availability refreshed. This parser is still unavailable; check the installation and startup logs, then retry." : ""}
       </p>
     </SettingSection>
   );
@@ -1328,7 +1290,7 @@ function ModelDownloadRow({
   title: string;
   onDownloaded: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const { job, starting, start, cancel } = useBackgroundJob(
     "models",
     "/api/settings/document-parsing/models/download",
@@ -1339,15 +1301,13 @@ function ModelDownloadRow({
   return (
     <>
       <SettingRow
-        title={t("Download models")}
-        description={t(
-          "Fetch the model weights onto the server now — no terminal needed.",
-        )}
+        title={"Download models"}
+        description={"Fetch the model weights onto the server now — no terminal needed."}
         control={
           <JobButton
             running={job?.state === "running"}
             starting={starting}
-            label={t("Download models")}
+            label={"Download models"}
             onStart={start}
             onCancel={cancel}
           />
@@ -1355,8 +1315,8 @@ function ModelDownloadRow({
       />
       <JobLog
         job={job}
-        runningLabel={t("Downloading {{name}} models…", { name: title })}
-        doneLabel={t("Downloaded. Reloading…")}
+        runningLabel={`Downloading ${title} models…`}
+        doneLabel={"Downloaded. Reloading…"}
       />
     </>
   );

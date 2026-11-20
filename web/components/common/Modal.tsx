@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 interface ModalProps {
   isOpen: boolean;
@@ -49,7 +49,7 @@ export default function Modal({
   closeOnEscape = true,
   showCloseButton = true,
 }: ModalProps) {
-  const { t } = useTranslation();
+  
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -137,7 +137,7 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={hasTitle ? titleId : undefined}
-        aria-label={hasTitle ? undefined : (title ?? t("Dialog"))}
+        aria-label={hasTitle ? undefined : (title ?? "Dialog")}
         onKeyDown={handleKeyDown}
         onMouseDown={(e) => e.stopPropagation()}
         className={`bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl ${widthClasses[width]} max-h-[90vh] flex flex-col animate-in zoom-in-95`}
@@ -156,7 +156,7 @@ export default function Modal({
               <button
                 type="button"
                 onClick={onClose}
-                aria-label={t("Close")}
+                aria-label={"Close"}
                 className="flex h-9 w-9 items-center justify-center rounded-lg p-1 transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 <X className="w-5 h-5 text-[var(--muted-foreground)]" />

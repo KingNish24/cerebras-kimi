@@ -6,7 +6,7 @@ import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import LightRagEmbeddingWarning from "./LightRagEmbeddingWarning";
 import {
   ArrowLeft,
@@ -126,7 +126,7 @@ export default function KnowledgeBaseDetail({
   onClearHistory,
   onBack,
 }: KnowledgeBaseDetailProps) {
-  const { t } = useTranslation();
+  
   const [section, setSection] = useState<KbDetailSection>("files");
   const [retrySubmitting, setRetrySubmitting] = useState(false);
 
@@ -138,19 +138,17 @@ export default function KnowledgeBaseDetail({
             <Database className="h-5 w-5" />
           </div>
           <div className="text-[14px] font-medium text-[var(--foreground)]">
-            {t("No knowledge base selected")}
+            {"No knowledge base selected"}
           </div>
           <p className="mx-auto mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Pick a knowledge base from the list, or create a new one to get started.",
-            )}
+            {"Pick a knowledge base from the list, or create a new one to get started."}
           </p>
           <button
             type="button"
             onClick={onCreate}
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
           >
-            {t("Create your first knowledge base")}
+            {"Create your first knowledge base"}
           </button>
         </div>
       </main>
@@ -162,19 +160,19 @@ export default function KnowledgeBaseDetail({
   // A MarginNote library records no engine and no embedding: defaulting to
   // "llamaindex · Default embedding" here described a pipeline it never runs.
   const provider = kb.metadata?.type === "kiwix"
-    ? t("Kiwix / ZIM")
+    ? "Kiwix / ZIM"
     : isMarginNote
-    ? t("MarginNote 4")
+    ? "MarginNote 4"
     : kb.statistics?.rag_provider || "llamaindex";
   const pageIndexProvider =
     isMarginNote || kb.metadata?.type === "kiwix" || !providerUsesEmbeddingMetadata(provider);
   const embeddingLabel = meta.embedding_model
     ? typeof meta.embedding_dim === "number"
-      ? `${meta.embedding_model} · ${meta.embedding_dim}${t("d")}`
+      ? `${meta.embedding_model} · ${meta.embedding_dim}${"d"}`
       : meta.embedding_model
-    : t("Default embedding");
+    : "Default embedding";
   const updatedLabel =
-    formatKnowledgeTimestamp(meta.last_updated) || t("Unknown time");
+    formatKnowledgeTimestamp(meta.last_updated) || "Unknown time";
   const lastIndexedLabel = formatKnowledgeTimestamp(meta.last_indexed_at);
 
   const isReindexingLocally =
@@ -227,7 +225,7 @@ export default function KnowledgeBaseDetail({
                   className="dt-section-back mb-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  {t("Knowledge bases")}
+                  {"Knowledge bases"}
                 </button>
               )}
               <div className="flex flex-wrap items-center gap-2">
@@ -237,12 +235,12 @@ export default function KnowledgeBaseDetail({
                 {kb.is_default && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
                     <Star className="h-3 w-3" fill="currentColor" />
-                    {t("Default")}
+                    {"Default"}
                   </span>
                 )}
                 {(kb.assigned || kb.provenance_label) && (
                   <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
-                    {kb.provenance_label || t("Assigned by admin")}
+                    {kb.provenance_label || "Assigned by admin"}
                   </span>
                 )}
                 <KbStatusBadge
@@ -253,18 +251,16 @@ export default function KnowledgeBaseDetail({
               <p className="mt-1 text-[12px] text-[var(--muted-foreground)]">
                 {provider}
                 {!pageIndexProvider ? ` · ${embeddingLabel}` : ""} ·{" "}
-                {t("Updated")} {updatedLabel}
+                {"Updated"} {updatedLabel}
                 {lastIndexedLabel
-                  ? ` · ${t("Last indexed")} ${lastIndexedLabel}`
+                  ? ` · ${"Last indexed"} ${lastIndexedLabel}`
                   : ""}
               </p>
               <LightRagEmbeddingWarning kb={kb} />
             </div>
           </div>
           {canRetry && (
-            <Tooltip label={t(
-                "Retry indexing from the documents already stored in this knowledge base.",
-              )} side="top">
+            <Tooltip label={"Retry indexing from the documents already stored in this knowledge base."} side="top">
               <button
                 type="button"
                 onClick={handleRetry}
@@ -277,12 +273,8 @@ export default function KnowledgeBaseDetail({
                   <RefreshCw className="h-3 w-3" />
                 )}
                 {retrySubmitting || isReindexingLocally
-                  ? t("Retrying…")
-                  : t(
-                      kbProvider(kb) === "lightrag"
-                        ? "Review rebuild"
-                        : "Retry indexing",
-                    )}
+                  ? "Retrying…"
+                  : (kbProvider(kb) === "lightrag" ? "Review rebuild" : "Retry indexing")}
               </button>
             </Tooltip>
           )}
@@ -305,7 +297,7 @@ export default function KnowledgeBaseDetail({
                 }`}
               >
                 <Icon size={13} />
-                {t(label)}
+                {(label)}
               </button>
             );
           })}

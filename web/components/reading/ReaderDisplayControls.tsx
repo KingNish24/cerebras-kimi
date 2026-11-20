@@ -10,7 +10,7 @@ import {
   SunMoon,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import {
@@ -64,35 +64,31 @@ export function ReaderDisplayControls({
   onChange: (next: Partial<ReaderDisplayPreferences>) => void;
   showSpread?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const { fontSize, lineWidth, serif, readerTheme, spreadMode } = preferences;
 
   return (
     <div className="flex shrink-0 items-center gap-0.5">
       <PreferenceButton
-        label={t("Smaller text ({{percent}}%)", {
-          percent: Math.round((fontSize / 16) * 100),
-        })}
+        label={`Smaller text (${Math.round((fontSize / 16) * 100)}%)`}
         icon={Minus}
         disabled={fontSize <= MIN_FONT_SIZE}
         onClick={() => onChange({ fontSize: Math.max(MIN_FONT_SIZE, fontSize - 1) })}
       />
       <PreferenceButton
-        label={t("Larger text ({{percent}}%)", {
-          percent: Math.round((fontSize / 16) * 100),
-        })}
+        label={`Larger text (${Math.round((fontSize / 16) * 100)}%)`}
         icon={Plus}
         disabled={fontSize >= MAX_FONT_SIZE}
         onClick={() => onChange({ fontSize: Math.min(MAX_FONT_SIZE, fontSize + 1) })}
       />
       <PreferenceButton
-        label={serif ? t("Use sans-serif font") : t("Use serif font")}
+        label={serif ? "Use sans-serif font" : "Use serif font"}
         icon={ALargeSmall}
         active={!serif}
         onClick={() => onChange({ serif: !serif })}
       />
       <PreferenceButton
-        label={t("Change line width ({{width}} characters)", { width: lineWidth })}
+        label={`Change line width (${lineWidth} characters)`}
         icon={Rows3}
         onClick={() =>
           onChange({
@@ -103,7 +99,7 @@ export function ReaderDisplayControls({
         }
       />
       <PreferenceButton
-        label={t("Change reading theme")}
+        label={"Change reading theme"}
         icon={SunMoon}
         active={readerTheme !== "auto"}
         onClick={() =>
@@ -121,8 +117,8 @@ export function ReaderDisplayControls({
         <PreferenceButton
           label={
             spreadMode === "none"
-              ? t("Switch to two-page spread")
-              : t("Switch to single-page view")
+              ? "Switch to two-page spread"
+              : "Switch to single-page view"
           }
           icon={Columns2}
           active={spreadMode === "auto"}
@@ -132,7 +128,7 @@ export function ReaderDisplayControls({
         />
       )}
       <PreferenceButton
-        label={t("Reset reading display")}
+        label={"Reset reading display"}
         icon={RotateCcw}
         onClick={() => onChange(DEFAULT_READER_DISPLAY_PREFERENCES)}
       />

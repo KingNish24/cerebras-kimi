@@ -23,7 +23,7 @@ import {
   Microscope,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 export type ConfigurableCapability =
   | "math_animator"
@@ -58,7 +58,7 @@ function CapabilityConfigCardInner({
   onConfirm,
   children,
 }: CapabilityConfigCardProps) {
-  const { t } = useTranslation();
+  
   const { icon: Icon, label } = CAPABILITY_CHROME[capability];
   const hasErrors = !!validationErrors?.length;
 
@@ -71,16 +71,16 @@ function CapabilityConfigCardInner({
           className="shrink-0 text-[var(--muted-foreground)]"
         />
         <span className="flex-1 text-[12px] font-semibold tracking-[0.005em] text-[var(--foreground)]">
-          {t(label)}
+          {(label)}
         </span>
         {confirmed ? (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-[2px] text-[10px] font-semibold text-[var(--primary)]">
             <Check size={10} strokeWidth={2.5} />
-            {t("Confirmed")}
+            {"Confirmed"}
           </span>
         ) : (
           <span className="shrink-0 rounded-full bg-[var(--muted)]/55 px-1.5 py-[1px] text-[10px] font-semibold text-[var(--muted-foreground)]">
-            {t("Required")}
+            {"Required"}
           </span>
         )}
       </header>
@@ -96,8 +96,8 @@ function CapabilityConfigCardInner({
       <footer className="flex items-center justify-between gap-2 border-t border-[var(--border)]/35 bg-[var(--background)]/40 px-3.5 py-2">
         <span className="min-w-0 flex-1 truncate text-[10.5px] text-[var(--muted-foreground)]/75">
           {confirmed
-            ? t("Edit any field to update settings.")
-            : t("Confirm settings to enable sending.")}
+            ? "Edit any field to update settings."
+            : "Confirm settings to enable sending."}
         </span>
         <button
           type="button"
@@ -109,7 +109,7 @@ function CapabilityConfigCardInner({
               : "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_2px_6px_color-mix(in_srgb,var(--primary)_28%,transparent)] hover:shadow-[0_4px_10px_color-mix(in_srgb,var(--primary)_40%,transparent)] disabled:bg-[var(--muted-foreground)]/15 disabled:text-[var(--muted-foreground)]/40 disabled:shadow-none"
           }`}
         >
-          {confirmed ? t("Confirmed") : t("Confirm")}
+          {confirmed ? "Confirmed" : "Confirm"}
         </button>
       </footer>
     </section>

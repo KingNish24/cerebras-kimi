@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Loader2 } from "lucide-react";
 
 /**
@@ -19,7 +19,7 @@ export default function ImagePreview({
   url: string;
   filename: string;
 }) {
-  const { t } = useTranslation();
+  
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
   return (
@@ -45,7 +45,7 @@ export default function ImagePreview({
       )}
       {state === "error" ? (
         <div className="text-[12px] text-[var(--muted-foreground)]">
-          {t("Failed to load image.")}
+          {"Failed to load image."}
         </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element

@@ -12,7 +12,7 @@
 
 import type { ReactNode } from "react";
 import { Bot, MessagesSquare, UsersRound } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { agentGlyph, agentKindLabel } from "@/components/agents/agent-icons";
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import ResponderFace from "./ResponderFace";
@@ -42,7 +42,7 @@ export default function SideChatResponderMenu({
   agents: { name: string; kind?: string }[];
   placement?: TrayPlacement;
 }) {
-  const { t } = useTranslation();
+  
   const { partners, loading } = usePartnerRoster(true);
   const { groups } = usePartnerGroups(true);
   const partner =
@@ -70,7 +70,7 @@ export default function SideChatResponderMenu({
   return (
     <TrayMenu
       icon={<ResponderFace responder={value} agents={agents} size={14} />}
-      label={t("Answered by")}
+      label={"Answered by"}
       value={name}
       active={value.kind !== "dito"}
       placement={placement}
@@ -97,17 +97,17 @@ export default function SideChatResponderMenu({
           />
         );
         return (
-          <TrayList label={t("Answered by")}>
-            <TraySection title={t("Answered by")}>
+          <TrayList label={"Answered by"}>
+            <TraySection title={"Answered by"}>
               {row(
                 DITO,
                 <MessagesSquare size={14} strokeWidth={1.7} />,
                 "Dito",
-                aboutConversation ? t("Has read this conversation") : undefined,
+                aboutConversation ? "Has read this conversation" : undefined,
               )}
             </TraySection>
             {agents.length > 0 && (
-              <TraySection title={t("Agents")}>
+              <TraySection title={"Agents"}>
                 {agents.map((item) => {
                   const glyph = { Icon: agentGlyph(item.kind) ?? Bot };
                   return row(
@@ -121,10 +121,8 @@ export default function SideChatResponderMenu({
             )}
             {groups.length > 0 && (
               <TraySection
-                title={t("Partner groups")}
-                hint={t(
-                  "Dito convenes the group and brings back what it said.",
-                )}
+                title={"Partner groups"}
+                hint={"Dito convenes the group and brings back what it said."}
               >
                 {groups.map((item) =>
                   row(
@@ -146,7 +144,7 @@ export default function SideChatResponderMenu({
               </TraySection>
             )}
             {partners.length > 0 && (
-              <TraySection title={t("Partners")}>
+              <TraySection title={"Partners"}>
                 {partners.map((item) =>
                   row(
                     { kind: "partner", id: item.partner_id, name: item.name },
@@ -164,7 +162,7 @@ export default function SideChatResponderMenu({
                 )}
               </TraySection>
             )}
-            {loading && <p className="dt-tray-empty">{t("Loading...")}</p>}
+            {loading && <p className="dt-tray-empty">{"Loading..."}</p>}
           </TrayList>
         );
       }}

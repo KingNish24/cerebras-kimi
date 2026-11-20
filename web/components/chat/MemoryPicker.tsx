@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Brain, Check, FileText, ScrollText } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { LucideIcon } from "lucide-react";
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
@@ -44,7 +44,7 @@ export default function MemoryPicker({
   onClose,
   onApply,
 }: MemoryPickerProps) {
-  const { t } = useTranslation();
+  
   const [selected, setSelected] = useState<SpaceMemoryFile[]>(initialFiles);
 
   // IIFE keeps the setState call out of the synchronous effect body to
@@ -85,10 +85,8 @@ export default function MemoryPicker({
           resourceKind="memory"
           icon={Brain}
           titleId="memory-picker-title"
-          title={t("Select Memory")}
-          subtitle={t(
-            "Choose which long-form memory artifacts to attach to this turn.",
-          )}
+          title={"Select Memory"}
+          subtitle={"Choose which long-form memory artifacts to attach to this turn."}
           onClose={onClose}
         />
 
@@ -124,10 +122,10 @@ export default function MemoryPicker({
                           strokeWidth={1.7}
                           className="text-[var(--primary)]"
                         />
-                        {t(option.label)}
+                        {(option.label)}
                       </div>
                       <p className="mt-0.5 text-[12px] leading-5 text-[var(--muted-foreground)]">
-                        {t(option.description)}
+                        {(option.description)}
                       </p>
                     </div>
                   </button>
@@ -139,22 +137,22 @@ export default function MemoryPicker({
           <div className="mt-4 flex items-center justify-between gap-3">
             <div className="text-[12px] text-[var(--muted-foreground)]">
               {selected.length === 1
-                ? t("1 memory artifact selected")
-                : t("{{n}} memory artifacts selected", { n: selected.length })}
+                ? "1 memory artifact selected"
+                : `${selected.length} memory artifacts selected`}
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSelected([])}
                 className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
-                {t("Clear")}
+                {"Clear"}
               </button>
               <button
                 onClick={handleApply}
                 disabled={!selected.length}
                 className="btn-primary rounded-xl bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {t("Use Selected Memory ({{n}})", { n: selected.length })}
+                {`Use Selected Memory (${selected.length})`}
               </button>
             </div>
           </div>

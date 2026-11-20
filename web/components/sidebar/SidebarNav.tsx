@@ -35,7 +35,7 @@ import {
   MoreHorizontal,
   RotateCcw,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { useCapabilityAccess } from "@/components/access/CapabilityAccessContext";
 import {
@@ -93,7 +93,7 @@ export function SidebarNav({
   onNavigate,
 }: SidebarNavProps) {
   const pathname = usePathname();
-  const { t } = useTranslation();
+  
   const { has } = useCapabilityAccess();
 
   const [layout, setLayout] = useState<SidebarNavLayout | null>(null);
@@ -197,7 +197,7 @@ export function SidebarNav({
     };
   }, [closeMenus, menu, railMenu]);
 
-  const lockedTooltip = t("Locked — contact your administrator to get access.");
+  const lockedTooltip = "Locked — contact your administrator to get access.";
   const isLocked = (href: string) => {
     const requires = NAV_BY_HREF.get(href)?.requires;
     return requires ? !has(requires) : false;
@@ -221,7 +221,7 @@ export function SidebarNav({
           />
         ))}
         {resolved.collapsed.length > 0 ? (
-          <Tooltip label={t("More")} side="right">
+          <Tooltip label={"More"} side="right">
             <button
               type="button"
               onClick={(event) => {
@@ -237,7 +237,7 @@ export function SidebarNav({
                   ),
                 );
               }}
-              aria-label={t("More")}
+              aria-label={"More"}
               aria-haspopup="menu"
               aria-expanded={Boolean(railMenu)}
               className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-150 ${
@@ -255,7 +255,7 @@ export function SidebarNav({
               <FloatingPanel
                 ref={menuRootRef}
                 position={railMenu}
-                label={t("More")}
+                label={"More"}
               >
                 {resolved.collapsed.map((href) => {
                   const entry = NAV_BY_HREF.get(href);
@@ -270,7 +270,7 @@ export function SidebarNav({
                     >
                       <Icon size={14} strokeWidth={1.6} />
                       <span className="min-w-0 flex-1 truncate">
-                        {t(entry.label)}
+                        {(entry.label)}
                       </span>
                       <Lock size={11} strokeWidth={1.8} />
                     </span>
@@ -289,7 +289,7 @@ export function SidebarNav({
                     >
                       <Icon size={14} strokeWidth={1.6} />
                       <span className="min-w-0 flex-1 truncate">
-                        {t(entry.label)}
+                        {(entry.label)}
                       </span>
                     </Link>
                   );
@@ -330,7 +330,7 @@ export function SidebarNav({
     const menuOpen = menu?.href === href;
     const Icon = entry.icon;
     const { style, ...handlers } = drag.getItemProps(href);
-    const label = t(entry.label);
+    const label = (entry.label);
     const body = (
       <Fragment key={`${href}-content`}>
         <Icon size={15} strokeWidth={active ? 1.9 : 1.6} className="shrink-0" />
@@ -390,7 +390,7 @@ export function SidebarNav({
           type="button"
           data-no-drag
           onClick={openRowMenu(href, folded)}
-          aria-label={t("Arrange {{feature}}", { feature: label })}
+          aria-label={`Arrange ${label}`}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           className={`absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-background/70 hover:text-[var(--foreground)] ${
@@ -437,7 +437,7 @@ export function SidebarNav({
               />
             </span>
             <span className="min-w-0 flex-1 truncate text-left">
-              {t("More")}
+              {"More"}
             </span>
             {/* Fades and shrinks away rather than vanishing — the count answers
                 "how much is hidden", a question the open group answers itself. */}
@@ -491,11 +491,11 @@ export function SidebarNav({
             <FloatingPanel
               ref={menuRootRef}
               position={menu.position}
-              label={t("Arrange sidebar")}
+              label={"Arrange sidebar"}
             >
               <MenuRow
                 icon={menu.folded ? ArrowUpFromLine : ArrowDownToLine}
-                label={menu.folded ? t("Move out of More") : t("Move to More")}
+                label={menu.folded ? "Move out of More" : "Move to More"}
                 onClick={() => {
                   applyLayout(
                     setNavCollapsed(editable, menu.href, !menu.folded),
@@ -511,7 +511,7 @@ export function SidebarNav({
                   <div className="my-1 border-t border-border/70" />
                   <MenuRow
                     icon={RotateCcw}
-                    label={t("Reset sidebar order")}
+                    label={"Reset sidebar order"}
                     onClick={() => {
                       applyLayout({
                         order: [...PRIMARY_NAV_HREFS],
@@ -537,7 +537,7 @@ export function SidebarHome({
   collapsed?: boolean;
   onHomeClick: (event: React.MouseEvent) => void;
 }) {
-  const { t } = useTranslation();
+  
   const pathname = usePathname();
   const { has } = useCapabilityAccess();
   const { learningPolicy } = useAuthStatus();
@@ -551,7 +551,7 @@ export function SidebarHome({
   }
   const active = isNavActive(pathname, entry.href);
   const locked = entry.requires ? !has(entry.requires) : false;
-  const lockedTooltip = t("Locked — contact your administrator to get access.");
+  const lockedTooltip = "Locked — contact your administrator to get access.";
   if (collapsed) {
     return (
       <div className="mt-1 flex shrink-0 justify-center">
@@ -569,7 +569,7 @@ export function SidebarHome({
   const content = (
     <>
       <Icon size={15} strokeWidth={active ? 1.9 : 1.6} className="shrink-0" />
-      <span>{t(entry.label)}</span>
+      <span>{(entry.label)}</span>
     </>
   );
   const className =
@@ -578,13 +578,13 @@ export function SidebarHome({
     <div className="shrink-0 px-2 pb-1 pt-1">
       {locked ? (
         <Tooltip
-          label={t(entry.label)}
+          label={(entry.label)}
           description={lockedTooltip}
           side="right"
         >
           <div
             aria-disabled
-            aria-label={`${t(entry.label)} — ${lockedTooltip}`}
+            aria-label={`${(entry.label)} — ${lockedTooltip}`}
             className={`${className} cursor-not-allowed text-muted-foreground/40`}
           >
             {content}
@@ -622,15 +622,15 @@ function RailRow({
   lockedTooltip: string;
   onHomeClick: (event: React.MouseEvent) => void;
 }) {
-  const { t } = useTranslation();
+  
   const entry = NAV_BY_HREF.get(href);
   if (!entry) return null;
   const Icon = entry.icon;
-  const label = t(entry.label);
+  const label = (entry.label);
   const description = locked
     ? lockedTooltip
     : entry.tooltipKey
-      ? t(entry.tooltipKey)
+      ? (entry.tooltipKey)
       : undefined;
 
   if (locked) {

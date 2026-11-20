@@ -4,7 +4,7 @@ import Link from '@/shared/router/link'
 import { usePathname } from '@/shared/router/navigation'
 import { ArrowLeft, AlertCircle, BookOpen, RefreshCw, type LucideIcon } from 'lucide-react'
 import type { ReactNode, Ref, UIEventHandler } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { LEARNING_HUB } from '@/lib/learning-routes'
 import { FeaturePage, PageHeader } from '@/components/layout/FeaturePage'
 import { useUiLayoutLabel } from '@/features/ui-layout/tokens'
@@ -95,7 +95,7 @@ export function LearningErrorState({
   message: ReactNode
   onRetry?: () => void
 }) {
-  const { t } = useTranslation()
+  
   return (
     <div
       role="alert"
@@ -110,7 +110,7 @@ export function LearningErrorState({
           className="inline-flex items-center gap-1.5 font-medium hover:underline"
         >
           <RefreshCw size={14} />
-          {t('Retry')}
+          {"Retry"}
         </button>
       )}
     </div>
@@ -118,9 +118,9 @@ export function LearningErrorState({
 }
 
 export function LearningSkeleton({ count = 3 }: { count?: number }) {
-  const { t } = useTranslation()
+  
   return (
-    <div role="status" aria-label={t('Loading…')} className="my-6 grid gap-3" aria-busy="true">
+    <div role="status" aria-label={"Loading…"} className="my-6 grid gap-3" aria-busy="true">
       {Array.from({ length: count }, (_, index) => (
         <div
           key={index}

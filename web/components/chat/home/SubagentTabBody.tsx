@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { ArrowUp, Square } from "lucide-react";
 
 import SubagentRunTranscript from "@/components/chat/home/SubagentRunTranscript";
@@ -26,7 +26,7 @@ export default function SubagentTabBody({
   tabEvents: StreamEvent[];
   sessionId: string | null;
 }) {
-  const { t } = useTranslation();
+  
   const [localEvents, setLocalEvents] = useState<StreamEvent[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -91,7 +91,7 @@ export default function SubagentTabBody({
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         if (abortRef.current !== controller) return;
-        setError(t("Agent response timed out. Please try again."));
+        setError("Agent response timed out. Please try again.");
         controller.abort();
       }, 5 * 60_000);
     };
@@ -120,7 +120,7 @@ export default function SubagentTabBody({
         setBusy(false);
       }
     }
-  }, [draft, busy, name, sessionId, append, t]);
+  }, [draft, busy, name, sessionId, append]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
@@ -153,8 +153,8 @@ export default function SubagentTabBody({
             }}
             placeholder={
               name
-                ? t("Message {{name}} directly…", { name })
-                : t("Message the agent directly…")
+                ? `Message ${name} directly…`
+                : "Message the agent directly…"
             }
             className="max-h-32 min-h-[36px] flex-1 resize-none rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--ring)] disabled:opacity-60"
           />
@@ -162,7 +162,7 @@ export default function SubagentTabBody({
             type="button"
             onClick={busy ? stop : () => void send()}
             disabled={!busy && (!draft.trim() || !name)}
-            aria-label={busy ? t("Stop") : t("Send")}
+            aria-label={busy ? "Stop" : "Send"}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--foreground)] text-[var(--background)] transition-opacity disabled:opacity-40"
           >
             {busy ? (

@@ -2,7 +2,7 @@
 
 import { AnimatePresence, m as motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { getModeBadgeLabel } from "@/features/chat/messages";
 import type { ChatOutlineEntry } from "@/lib/chat-outline";
@@ -99,7 +99,7 @@ export function TurnNavigator({
   onJump: (key: string) => void;
   onJumpToBottom: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const railRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [left, setLeft] = useState<number | null>(null);
@@ -269,7 +269,7 @@ export function TurnNavigator({
       }}
     >
       <nav
-        aria-label={t("Jump to one of your questions")}
+        aria-label={"Jump to one of your questions"}
         // Negative margins turn the padding into an invisible grab area:
         // the ticks are hairlines, so the pointer must be able to claim
         // the rail from a few px away in the empty gutter around them.
@@ -372,7 +372,7 @@ export function TurnNavigator({
                   </span>
                 ) : hovered.capability && hovered.capability !== "chat" ? (
                   <span className="truncate normal-case tracking-normal opacity-80">
-                    {t(getModeBadgeLabel(hovered.capability))}
+                    {(getModeBadgeLabel(hovered.capability))}
                   </span>
                 ) : null}
               </div>

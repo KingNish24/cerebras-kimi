@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, RefreshCw } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { useSettings } from '@/features/settings/store/SettingsStore'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { modelTestFingerprint } from '@/lib/model-settings'
@@ -73,7 +73,7 @@ function VoiceLookup({
   update: (value: string) => void
   disabled: boolean
 }) {
-  const { t } = useTranslation()
+  
   const { draft } = useSettings()
   const catalog = useRef(draft)
   const hasModel = Boolean(
@@ -135,10 +135,10 @@ function VoiceLookup({
   return (
     <section
       className="space-y-3 rounded-xl border border-[var(--border)] p-4"
-      aria-label={t('Voice')}
+      aria-label={"Voice"}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-sm font-medium">{t('Voice')}</h4>
+        <h4 className="text-sm font-medium">{"Voice"}</h4>
         <button
           type="button"
           disabled={loading || !hasModel}
@@ -146,29 +146,15 @@ function VoiceLookup({
           className={registryButton}
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-          {t(loading ? 'settings.voiceDiscovery.loading' : 'Refresh')}
+          {(loading ? 'settings.voiceDiscovery.loading' : 'Refresh')}
         </button>
       </div>
       <p role="status" className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          !hasModel
-            ? 'settings.voiceDiscovery.modelFirst'
-            : loading
-              ? 'settings.voiceDiscovery.loading'
-              : error
-                ? 'settings.voiceDiscovery.failed'
-                : result?.status === 'unsupported'
-                  ? 'settings.voiceDiscovery.unsupported'
-                  : !result?.voices.length
-                    ? 'settings.voiceDiscovery.empty'
-                    : result.scope === 'custom'
-                      ? 'settings.voiceDiscovery.custom'
-                      : 'settings.voiceDiscovery.account'
-        )}
+        {(!hasModel ? 'settings.voiceDiscovery.modelFirst' : loading ? 'settings.voiceDiscovery.loading' : error ? 'settings.voiceDiscovery.failed' : result?.status === 'unsupported' ? 'settings.voiceDiscovery.unsupported' : !result?.voices.length ? 'settings.voiceDiscovery.empty' : result.scope === 'custom' ? 'settings.voiceDiscovery.custom' : 'settings.voiceDiscovery.account')}
       </p>
       {Boolean(result?.voices.length) && (
         <label className="block space-y-1.5 text-xs font-medium">
-          <span>{t('settings.voiceDiscovery.choose')}</span>
+          <span>{"Choose a voice"}</span>
           <select
             className={selectClass}
             disabled={disabled}
@@ -177,7 +163,7 @@ function VoiceLookup({
               if (e.target.value) update(e.target.value)
             }}
           >
-            <option value="">{t('settings.voiceDiscovery.choose')}</option>
+            <option value="">{"Choose a voice"}</option>
             {result?.voices.map(voice => (
               <option key={voice.id} value={voice.id}>
                 {voice.label}
@@ -188,7 +174,7 @@ function VoiceLookup({
       )}
       {value && !listed && (
         <p className="break-all text-xs text-[var(--muted-foreground)]">
-          {t('settings.voiceDiscovery.current')}: {value}
+          {"Current voice (not in this result)"}: {value}
         </p>
       )}
       <button
@@ -197,11 +183,11 @@ function VoiceLookup({
         aria-expanded={manual}
         onClick={() => setManual(v => !v)}
       >
-        {t('settings.voiceDiscovery.manual')}
+        {"Enter a voice ID manually"}
       </button>
       {manual && (
         <label className="block space-y-1.5 text-xs font-medium">
-          <span>{t('Voice ID')}</span>
+          <span>{"Voice ID"}</span>
           <input
             className={inputClass}
             value={value}

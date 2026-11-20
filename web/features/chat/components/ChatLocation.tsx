@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useTranslation } from "react-i18next";
+
 import { InstanceCrumb, type CrumbItem } from "@/components/layout/LocationCrumbs";
 import { isLearningSession } from "@/lib/navigation";
 import { sessionRoute } from "@/lib/mastery-session";
@@ -34,15 +34,15 @@ export function ChatLocation({
   onRename?: () => void;
   onNewChat: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const toItem = useCallback(
     (session: SessionSummary): CrumbItem => ({
       id: session.session_id,
-      label: displaySessionTitle(session.title, t("New conversation")),
+      label: displaySessionTitle(session.title, "New conversation"),
       href: sessionRoute(session),
       updatedAt: session.updated_at,
     }),
-    [t],
+    [],
   );
   const load = useCallback(
     async () => (await listSessions(60)).filter(listed).map(toItem),
@@ -57,12 +57,12 @@ export function ChatLocation({
     <InstanceCrumb
       label={title}
       placeholder={placeholder}
-      menuLabel={t("Recent conversations")}
+      menuLabel={"Recent conversations"}
       currentId={sessionId}
       load={load}
       search={search}
-      create={{ label: t("New chat"), onSelect: onNewChat }}
-      all={{ label: t("All conversations"), href: "/space/chat-history" }}
+      create={{ label: "New chat", onSelect: onNewChat }}
+      all={{ label: "All conversations", href: "/space/chat-history" }}
       onRename={onRename}
     />
   );

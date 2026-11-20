@@ -12,7 +12,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { useTranslation } from "react-i18next";
+
 import { createPortal } from "react-dom";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { Tooltip } from "@/shared/ui/Tooltip";
@@ -445,7 +445,7 @@ export function TraySearch({
  */
 export function TrayReuse({ kinds }: { kinds: readonly ResourceKind[] }) {
   const context = useResourceReuse();
-  const { t } = useTranslation();
+  
   if (!context) return null;
   const enabled = kinds.every((kind) => context.policy[kind]);
   return (
@@ -457,7 +457,7 @@ export function TrayReuse({ kinds }: { kinds: readonly ResourceKind[] }) {
         onChange={(event) => kinds.forEach((kind) => context.setEveryTurn(kind, event.target.checked))}
       />
       <span aria-hidden className="dt-tray-switch" />
-      {t("Every turn")}
+      {"Every turn"}
     </label>
   );
 }

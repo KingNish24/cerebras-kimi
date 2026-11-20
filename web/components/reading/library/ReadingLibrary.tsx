@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   deleteReadingWorkspace,
@@ -48,7 +48,7 @@ type FolderDialogState =
   | { mode: "edit"; collection: ReadingWorkspace };
 
 export function ReadingLibraryPage() {
-  const { t, i18n } = useTranslation();
+  
   const router = useRouter();
   const [collections, setCollections] = useState<ReadingWorkspace[]>([]);
   const [materials, setMaterials] = useState<ReadingLibraryMaterial[]>([]);
@@ -83,12 +83,12 @@ export function ReadingLibraryPage() {
       setError(
         caught instanceof Error
           ? caught.message
-          : t("Could not load your collections.")
+          : "Could not load your collections."
       );
     } finally {
       setLoading(false);
     }
-  }, [search, t]);
+  }, [search]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 140);
@@ -113,11 +113,11 @@ export function ReadingLibraryPage() {
     const sorted = [...collections];
     sorted.sort((a, b) =>
       sort === "name"
-        ? a.title.localeCompare(b.title, i18n.language)
+        ? a.title.localeCompare(b.title, "en")
         : b.updated_at - a.updated_at
     );
     return sorted;
-  }, [collections, i18n.language, sort]);
+  }, [collections, "en", sort]);
 
   const menuKey = (collection: ReadingWorkspace) =>
     libraryItemKey(collection, collection.workspace_id);
@@ -127,7 +127,7 @@ export function ReadingLibraryPage() {
       view="collections"
       collectionCount={rows.length}
       materialCount={materials.length}
-      actionLabel={t("New collection")}
+      actionLabel={"New collection"}
       onAction={create}
     >
       <InvidiousAccountFeedback />
@@ -140,14 +140,14 @@ export function ReadingLibraryPage() {
           <input
             value={search}
             onChange={event => setSearch(event.target.value)}
-            placeholder={t("Search collections and materials")}
+            placeholder={"Search collections and materials"}
             className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[var(--muted-foreground)]"
           />
           {!!search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label={t("Clear")}
+              aria-label={"Clear"}
             >
               <X size={12} className="text-[var(--muted-foreground)]" />
             </button>
@@ -155,16 +155,16 @@ export function ReadingLibraryPage() {
         </label>
         <div className="flex items-center gap-2 sm:ml-auto">
           <span className="text-[11px] text-[var(--muted-foreground)]">
-            {t("{{count}} collections", { count: rows.length })}
+            {(rows.length === 1 ? `${rows.length} collection` : `${rows.length} collections`)}
           </span>
           <div className="flex overflow-hidden rounded-md border border-[var(--border)]">
             <SortButton
-              label={t("Recent")}
+              label={"Recent"}
               active={sort === "recent"}
               onClick={() => setSort("recent")}
             />
             <SortButton
-              label={t("Name")}
+              label={"Name"}
               active={sort === "name"}
               onClick={() => setSort("name")}
             />
@@ -291,7 +291,7 @@ function FolderTile({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  
   const files = collection.tabs.length;
   const preparing = collection.tabs.some(
     tab =>
@@ -311,7 +311,7 @@ function FolderTile({
             <Loader2
               size={13}
               className="absolute bottom-1 right-1 animate-spin text-white"
-              aria-label={t("Preparing")}
+              aria-label={"Preparing"}
             />
           )}
         </span>
@@ -321,9 +321,9 @@ function FolderTile({
         <span className="mt-0.5 max-w-full truncate text-[11px] text-[var(--muted-foreground)]">
           {[
             files
-              ? t("{{count}} files", { count: files })
-              : t("Empty"),
-            relativeDate(collection.updated_at, i18n.language),
+              ? (files === 1 ? `${files} file` : `${files} files`)
+              : "Empty",
+            relativeDate(collection.updated_at, "en"),
           ]
             .filter(Boolean)
             .join(" · ")}
@@ -332,7 +332,7 @@ function FolderTile({
       <button
         type="button"
         onClick={onToggleMenu}
-        aria-label={t("Collection menu")}
+        aria-label={"Collection menu"}
         aria-expanded={menuOpen}
         className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-100 transition hover:bg-[var(--muted)] sm:opacity-0 sm:focus:opacity-100 sm:group-hover:opacity-100 aria-expanded:opacity-100"
       >
@@ -351,7 +351,7 @@ function FolderTile({
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left hover:bg-[var(--muted)]"
             >
               <BookOpen size={12} />
-              {t("Start reading")}
+              {"Start reading"}
             </Link>
             <button
               type="button"
@@ -360,7 +360,7 @@ function FolderTile({
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left hover:bg-[var(--muted)]"
             >
               <Palette size={12} />
-              {t("Rename or recolor")}
+              {"Rename or recolor"}
             </button>
             <button
               type="button"
@@ -369,7 +369,7 @@ function FolderTile({
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[var(--destructive)] hover:bg-[var(--muted)]"
             >
               <Trash2 size={12} />
-              {t("Delete collection")}
+              {"Delete collection"}
             </button>
           </div>
         </>
@@ -385,7 +385,7 @@ function UnsettledRow({
   material: ReadingLibraryMaterial;
   onRetried: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [retrying, setRetrying] = useState(false);
   const failed = material.status === "failed";
 
@@ -404,11 +404,11 @@ function UnsettledRow({
       )}
       <span className="min-w-0 flex-1 truncate text-[11.5px]">
         {failed
-          ? t("{{title}} could not be prepared", { title: material.title })
-          : t("Preparing {{title}}", { title: material.title })}
-        {failed && readingFailureMessage(material, t) ? (
+          ? `${material.title} could not be prepared`
+          : `Preparing ${material.title}`}
+        {failed && readingFailureMessage(material) ? (
           <span className="ml-1.5 text-[10.5px] text-[var(--muted-foreground)]">
-            {readingFailureMessage(material, t)}
+            {readingFailureMessage(material)}
           </span>
         ) : null}
       </span>
@@ -438,7 +438,7 @@ function UnsettledRow({
           }}
           className="shrink-0 text-[11px] font-semibold text-[var(--primary)] disabled:opacity-50"
         >
-          {retrying ? t("Retrying…") : t("Retry")}
+          {retrying ? "Retrying…" : "Retry"}
         </button>
       )}
     </div>
@@ -452,15 +452,13 @@ function EmptyCollections({
   searching: boolean;
   onCreate: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <LearningEmptyState
-      title={searching ? t("Nothing matches that.") : t("No collections yet")}
+      title={searching ? "Nothing matches that." : "No collections yet"}
       description={
         !searching &&
-        t(
-          "A collection is one reading task: a paper with its survey, every lecture of a course, a few chapters of a book. Everything in it shares the same conversations and annotations."
-        )
+        "A collection is one reading task: a paper with its survey, every lecture of a course, a few chapters of a book. Everything in it shares the same conversations and annotations."
       }
       action={
         !searching && (
@@ -469,7 +467,7 @@ function EmptyCollections({
             onClick={onCreate}
             className="inline-flex h-8 items-center rounded-lg bg-[var(--primary)] px-3.5 text-xs font-semibold text-[var(--primary-foreground)]"
           >
-            {t("New collection")}
+            {"New collection"}
           </button>
         )
       }
@@ -486,7 +484,7 @@ export function DeleteCollectionDialog({
   onClose: () => void;
   onDeleted: () => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
 
@@ -494,16 +492,10 @@ export function DeleteCollectionDialog({
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[var(--overlay)] p-4">
       <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg dark:bg-[var(--popover)]">
         <h2 className="font-serif text-[17px] font-semibold">
-          {t("Delete collection")}
+          {"Delete collection"}
         </h2>
         <p className="mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "“{{title}}” and its reading conversations will be deleted. The {{count}} materials in it stay in your library.",
-            {
-              title: collection.title,
-              count: collection.tabs.length,
-            }
-          )}
+          {(collection.tabs.length === 1 ? `“${collection.title}” and its reading conversation will be deleted. The material in it stays in your library.` : `“${collection.title}” and its reading conversations will be deleted. The ${collection.tabs.length} materials in it stay in your library.`)}
         </p>
         {error && (
           <p className="mt-3 text-[11px] text-[var(--destructive)]">{error}</p>
@@ -514,7 +506,7 @@ export function DeleteCollectionDialog({
             onClick={onClose}
             className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -528,7 +520,7 @@ export function DeleteCollectionDialog({
                   setError(
                     caught instanceof Error
                       ? caught.message
-                      : t("Delete failed")
+                      : "Delete failed"
                   )
                 )
                 .finally(() => setWorking(false));
@@ -536,7 +528,7 @@ export function DeleteCollectionDialog({
             className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[11.5px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
-            {t("Delete")}
+            {"Delete"}
           </button>
         </div>
       </div>

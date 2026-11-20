@@ -13,7 +13,7 @@ import {
   RotateCw,
   ShieldCheck,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { normalizeLanguage } from "@/i18n/languages";
 import { formatDate } from "@/lib/datetime";
 
@@ -59,7 +59,7 @@ function jobTone(status: UpdateJobStatus) {
 }
 
 export default function AboutSettingsPage() {
-  const { t, i18n } = useTranslation();
+  
   const [status, setStatus] = useState<AppUpdateStatus | null>(null);
   const [job, setJob] = useState<UpdateJob | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,12 +82,12 @@ export default function AboutSettingsPage() {
       setError(
         cause instanceof Error
           ? cause.message
-          : (t("Unable to load version information.") as string),
+          : ("Unable to load version information." as string),
       );
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -117,7 +117,7 @@ export default function AboutSettingsPage() {
       }
       if (cancelled) return;
       if (Date.now() >= deadline) {
-        setError(t("DeepTutor did not reconnect before the update timeout."));
+        setError("DeepTutor did not reconnect before the update timeout.");
         return;
       }
       timer = setTimeout(poll, POLL_INTERVAL_MS);
@@ -128,7 +128,7 @@ export default function AboutSettingsPage() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [activeJob, load, t]);
+  }, [activeJob, load]);
 
   const check = useCallback(async () => {
     setChecking(true);
@@ -142,12 +142,12 @@ export default function AboutSettingsPage() {
       setError(
         cause instanceof Error
           ? cause.message
-          : (t("Unable to check for updates.") as string),
+          : ("Unable to check for updates." as string),
       );
     } finally {
       setChecking(false);
     }
-  }, [t]);
+  }, []);
 
   const changeChecks = (enabled: boolean) => setChecks({ enabled });
 
@@ -162,12 +162,12 @@ export default function AboutSettingsPage() {
       setError(
         cause instanceof Error
           ? cause.message
-          : (t("Unable to start the update.") as string),
+          : ("Unable to start the update." as string),
       );
     } finally {
       setRequesting(false);
     }
-  }, [t]);
+  }, []);
 
   const currentVersion =
     normalizeVersionTag(status?.current_version) ??
@@ -183,11 +183,11 @@ export default function AboutSettingsPage() {
     if (!status?.checked_at) return "";
     const parsed = new Date(status.checked_at);
     if (Number.isNaN(parsed.getTime())) return "";
-    return formatDate(parsed, normalizeLanguage(i18n.language), {
+    return formatDate(parsed, normalizeLanguage("en"), {
       dateStyle: "medium",
       timeStyle: "short",
     });
-  }, [i18n.language, status?.checked_at]);
+  }, ["en", status?.checked_at]);
 
   const installMode = status?.installation.mode ?? "unknown";
   const canUpdate = Boolean(
@@ -203,10 +203,8 @@ export default function AboutSettingsPage() {
   return (
     <div data-tour="tour-about" className="pb-8">
       <SettingsPageHeader
-        title={t("About")}
-        description={t(
-          "DeepTutor version, release channel, and the safest update path for this installation.",
-        )}
+        title={"About"}
+        description={"DeepTutor version, release channel, and the safest update path for this installation."}
       />
 
       <section className="relative mb-10 overflow-hidden border-y border-[var(--border)]/60 py-7">
@@ -218,7 +216,7 @@ export default function AboutSettingsPage() {
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              {t("Running version")}
+              {"Running version"}
             </div>
             <div className="font-serif text-[38px] font-semibold leading-none tracking-[-0.035em] text-[var(--foreground)]">
               {edition.short} {currentVersion}
@@ -235,7 +233,7 @@ export default function AboutSettingsPage() {
                 rel="noreferrer noopener"
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
-                {t("Release notes")}
+                {"Release notes"}
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
             )}
@@ -249,7 +247,7 @@ export default function AboutSettingsPage() {
                 icon={<RefreshCw className="h-3.5 w-3.5" />}
                 onClick={() => void check()}
               >
-                {t("Check now")}
+                {"Check now"}
               </Button>
             )}
             {canUpdate && (
@@ -259,7 +257,7 @@ export default function AboutSettingsPage() {
                 icon={<Download className="h-3.5 w-3.5" />}
                 onClick={() => setConfirmOpen(true)}
               >
-                {t("Update to {{version}}", { version: latestVersion ?? "" })}
+                {`Update to ${latestVersion ?? ""}`}
               </Button>
             )}
           </div>
@@ -273,46 +271,38 @@ export default function AboutSettingsPage() {
         </div>
       )}
 
-      <SettingSection title={t("Software")}>
+      <SettingSection title={"Software"}>
         <SettingRow
-          title={t("Current version")}
+          title={"Current version"}
           control={<CodeValue value={currentVersion} />}
         />
         <SettingRow
-          title={t("Installation")}
-          description={t(
-            status?.installation.reason || "How DeepTutor is installed here.",
-          )}
+          title={"Installation"}
+          description={(status?.installation.reason || "How DeepTutor is installed here.")}
           control={
             <span className="text-[12.5px] text-[var(--foreground)]">
-              {t(INSTALLATION_LABELS[installMode])}
+              {(INSTALLATION_LABELS[installMode])}
             </span>
           }
         />
         <SettingRow
-          title={t("Release channel")}
-          description={t(
-            "Only stable, published DeepTutor releases are considered.",
-          )}
+          title={"Release channel"}
+          description={"Only stable, published DeepTutor releases are considered."}
           control={
             <span className="text-[12.5px] text-[var(--foreground)]">
-              {t("Stable")}
+              {"Stable"}
             </span>
           }
         />
       </SettingSection>
 
       <SettingSection
-        title={t("Updates")}
-        description={t(
-          "Version checks are cached for 24 hours. DeepTutor never installs an update without confirmation.",
-        )}
+        title={"Updates"}
+        description={"Version checks are cached for 24 hours. DeepTutor never installs an update without confirmation."}
       >
         <SettingRow
-          title={t("Check for updates")}
-          description={t(
-            "Turn this off for offline or controlled deployments.",
-          )}
+          title={"Check for updates"}
+          description={"Turn this off for offline or controlled deployments."}
           control={
             status?.is_admin ? (
               <Toggle
@@ -322,19 +312,19 @@ export default function AboutSettingsPage() {
               />
             ) : (
               <span className="text-[12.5px] text-[var(--muted-foreground)]">
-                {status?.check_enabled ? t("On") : t("Off")}
+                {status?.check_enabled ? "On" : "Off"}
               </span>
             )
           }
         />
         <SettingRow
-          title={t("Latest stable release")}
+          title={"Latest stable release"}
           description={
             checkedAt
-              ? t("Last checked {{time}}", { time: checkedAt })
+              ? `Last checked ${checkedAt}`
               : status?.check_enabled
-                ? t("Not checked yet")
-                : t("Version checks are disabled.")
+                ? "Not checked yet"
+                : "Version checks are disabled."
           }
           control={
             <div className="flex items-center gap-2">
@@ -347,16 +337,14 @@ export default function AboutSettingsPage() {
         {status?.release?.migration_warning && (
           <div className="flex items-start gap-2 border-t border-[var(--border)]/50 py-3.5 text-[12.5px] leading-relaxed text-amber-700 dark:text-amber-400">
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-            {t(
-              "This release mentions migrations or breaking changes. Read the release notes before updating.",
-            )}
+            {"This release mentions migrations or breaking changes. Read the release notes before updating."}
           </div>
         )}
 
         {status?.release?.excerpt && (
           <div className="border-t border-[var(--border)]/50 py-4">
             <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-              {status.release.name || t("What changed")}
+              {status.release.name || "What changed"}
             </div>
             <p className="max-w-2xl whitespace-pre-line text-[12.5px] leading-6 text-[var(--muted-foreground)]">
               {status.release.excerpt}
@@ -368,10 +356,10 @@ export default function AboutSettingsPage() {
           <div className="border-t border-[var(--border)]/50 py-4">
             <div className="mb-2 flex items-center gap-2 text-[12.5px] font-medium text-[var(--foreground)]">
               <ShieldCheck className="h-4 w-4 text-[var(--muted-foreground)]" />
-              {t("Managed by your installation")}
+              {"Managed by your installation"}
             </div>
             <p className="mb-3 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-              {t(status.installation.reason)}
+              {(status.installation.reason)}
             </p>
             <code className="block overflow-x-auto rounded-lg bg-[var(--accent)]/60 px-3 py-2 text-[11.5px] text-[var(--foreground)]">
               {status.installation.command}
@@ -405,16 +393,16 @@ export default function AboutSettingsPage() {
         )}
       </SettingSection>
 
-      <SettingSection title={t("Project")}>
+      <SettingSection title={"Project"}>
         <ResourceRow
-          title={t("GitHub")}
-          description={t("Source code, issues, and contributions")}
+          title={"GitHub"}
+          description={"Source code, issues, and contributions"}
           href="https://github.com/HKUDS/DeepTutor"
           icon={<Github className="h-4 w-4" />}
         />
         <ResourceRow
-          title={t("Documentation")}
-          description={t("Installation, configuration, and guides")}
+          title={"Documentation"}
+          description={"Installation, configuration, and guides"}
           href="https://docs.deeptutor.info"
           icon={<ArrowUpRight className="h-4 w-4" />}
         />
@@ -422,17 +410,14 @@ export default function AboutSettingsPage() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title={t("Update and restart DeepTutor?")}
-        confirmLabel={t("Update and restart")}
+        title={"Update and restart DeepTutor?"}
+        confirmLabel={"Update and restart"}
         busy={requesting}
-        busyLabel={t("Preparing update…")}
+        busyLabel={"Preparing update…"}
         onConfirm={() => void update()}
         onCancel={() => setConfirmOpen(false)}
       >
-        {t(
-          "DeepTutor will briefly stop, install {{version}}, and reopen with the same settings. Active conversations must finish first.",
-          { version: latestVersion ?? "" },
-        )}
+        {`DeepTutor will briefly stop, install ${latestVersion ?? ""}, and reopen with the same settings. Active conversations must finish first.`}
       </ConfirmDialog>
     </div>
   );

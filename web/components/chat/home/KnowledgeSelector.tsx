@@ -4,7 +4,7 @@ import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import Link from "@/shared/router/link";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Database } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useLingerExpand } from "@/hooks/use-linger-expand";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
@@ -41,7 +41,7 @@ export default function KnowledgeSelector({
   /** Render the picker contents inside a shared resource panel. */
   embedded?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const [openState, setOpenState] = useState(false);
   const open = embedded || openState;
   const {
@@ -64,11 +64,11 @@ export default function KnowledgeSelector({
   const count = selected.length;
   const label =
     count === 0
-      ? t("Knowledge")
+      ? "Knowledge"
       : count === 1
         ? (knowledgeBases.find((kb) => knowledgeBaseRef(kb) === selected[0])
             ?.name ?? selected[0])
-        : `${count} ${t("knowledge bases")}`;
+        : `${count} ${"knowledge bases"}`;
   const menuPlacementClass =
     placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5";
 
@@ -82,7 +82,7 @@ export default function KnowledgeSelector({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          aria-label={t("Select knowledge bases")}
+          aria-label={"Select knowledge bases"}
           aria-expanded={open}
           {...lingerProps}
           className={`inline-flex h-8 shrink-0 items-center rounded-lg px-2 text-[14px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
@@ -121,8 +121,8 @@ export default function KnowledgeSelector({
           {embedded && knowledgeBases.length > 0 && (
             <div className="border-b border-[var(--border)] px-3 py-2">
               <input
-                aria-label={t("Search")}
-                placeholder={t("Search")}
+                aria-label={"Search"}
+                placeholder={"Search"}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full rounded-lg bg-[var(--muted)]/50 px-2 py-2 text-[13px] outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)]"
@@ -132,12 +132,12 @@ export default function KnowledgeSelector({
 
           {knowledgeBases.length === 0 ? (
             <div className="px-3 py-6 text-center text-[12px] text-[var(--muted-foreground)]">
-              <p>{t("No knowledge bases available")}</p>
+              <p>{"No knowledge bases available"}</p>
               <Link
                 href="/knowledge-bases"
                 className="mt-2 inline-flex items-center text-xs text-[var(--primary)] hover:underline"
               >
-                {t("Create your first knowledge base")}
+                {"Create your first knowledge base"}
               </Link>
             </div>
           ) : (

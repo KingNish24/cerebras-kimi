@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { type NotebookSummary, listNotebooks } from "@/lib/notebook-api";
 import { copyText } from "@/lib/clipboard";
 import { notify } from "@/lib/notifications";
@@ -30,7 +30,7 @@ export function ModalShell({
   onClose: () => void;
   wide?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-[2px]">
       <div
@@ -41,7 +41,7 @@ export function ModalShell({
           <button
             type="button"
             onClick={onClose}
-            aria-label={t("Close")}
+            aria-label={"Close"}
             className="flex size-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             <X size={14} />
@@ -64,7 +64,7 @@ export function ConversationLinkDialog({
   onClose: () => void;
   onSave: (ids: string[]) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [selected, setSelected] = useState<string[]>(
     current.linked_session_ids ?? [],
   );
@@ -73,11 +73,9 @@ export function ConversationLinkDialog({
     (row) => row.session_id !== current.session_id,
   );
   return (
-    <ModalShell title={t("Link reading conversations")} onClose={onClose}>
+    <ModalShell title={"Link reading conversations"} onClose={onClose}>
       <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Linked conversations are passed explicitly as historical context. They remain separate and never appear in regular Chat history.",
-        )}
+        {"Linked conversations are passed explicitly as historical context. They remain separate and never appear in regular Chat history."}
       </p>
       <div className="mt-4 max-h-72 space-y-1 overflow-y-auto">
         {candidates.length ? (
@@ -113,7 +111,7 @@ export function ConversationLinkDialog({
           })
         ) : (
           <p className="py-8 text-center text-[11px] text-[var(--muted-foreground)]">
-            {t("Create another reading conversation first.")}
+            {"Create another reading conversation first."}
           </p>
         )}
       </div>
@@ -123,7 +121,7 @@ export function ConversationLinkDialog({
           onClick={onClose}
           className="px-3 py-2 text-[11px]"
         >
-          {t("Cancel")}
+          {"Cancel"}
         </button>
         <button
           type="button"
@@ -135,7 +133,7 @@ export function ConversationLinkDialog({
           className="flex h-9 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-[11px] font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
         >
           {saving && <Loader2 size={12} className="animate-spin" />}
-          {t("Link conversations")}
+          {"Link conversations"}
         </button>
       </div>
     </ModalShell>
@@ -151,7 +149,7 @@ export function NotebookCaptureDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [notebooks, setNotebooks] = useState<NotebookSummary[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,17 +162,15 @@ export function NotebookCaptureDialog({
         setError(
           caught instanceof Error
             ? caught.message
-            : t("Could not load notebooks."),
+            : "Could not load favorites collections.",
         ),
       )
       .finally(() => setLoading(false));
-  }, [t]);
+  }, []);
   return (
-    <ModalShell title={t("Send reading notes to Notebook")} onClose={onClose}>
+    <ModalShell title={"Send reading notes to favorites"} onClose={onClose}>
       <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Highlights and notes are organized by source and locator before they are copied. Your material stays private in the reading workspace.",
-        )}
+        {"Highlights and notes are organized by source and locator before they are copied. Your material stays private in the reading workspace."}
       </p>
       <div className="mt-4 max-h-64 space-y-1 overflow-y-auto">
         {loading ? (
@@ -214,7 +210,7 @@ export function NotebookCaptureDialog({
           })
         ) : (
           <p className="py-8 text-center text-[11px] text-[var(--muted-foreground)]">
-            {t("Create a Notebook first.")}
+            {"Create a favorites collection first."}
           </p>
         )}
       </div>
@@ -225,7 +221,7 @@ export function NotebookCaptureDialog({
           onClick={onClose}
           className="px-3 py-2 text-[11px]"
         >
-          {t("Cancel")}
+          {"Cancel"}
         </button>
         <button
           type="button"
@@ -236,7 +232,7 @@ export function NotebookCaptureDialog({
               .then(onSaved)
               .catch((caught) =>
                 setError(
-                  caught instanceof Error ? caught.message : t("Save failed."),
+                  caught instanceof Error ? caught.message : "Save failed.",
                 ),
               )
               .finally(() => setSaving(false));
@@ -244,7 +240,7 @@ export function NotebookCaptureDialog({
           className="flex h-9 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-[11px] font-semibold text-[var(--primary-foreground)] disabled:opacity-50"
         >
           {saving && <Loader2 size={12} className="animate-spin" />}
-          {t("Send to Notebook")}
+          {"Send to favorites"}
         </button>
       </div>
     </ModalShell>
@@ -258,25 +254,25 @@ export function OrganizedNotesDialog({
   notes: OrganizedReadingNotes;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
-    <ModalShell title={t("Organized reading notes")} onClose={onClose} wide>
+    <ModalShell title={"Organized reading notes"} onClose={onClose} wide>
       <div className="mb-3 flex items-center justify-between text-[10.5px] text-[var(--muted-foreground)]">
         <span>
-          {t("{{count}} annotations", { count: notes.annotation_count })}
+          {`${notes.annotation_count} annotations`}
         </span>
         <button
           type="button"
           onClick={() =>
             void copyText(notes.markdown).catch(() =>
-              notify(t("The clipboard is not available in this browser."), {
+              notify("The clipboard is not available in this browser.", {
                 tone: "error",
               }),
             )
           }
           className="flex items-center gap-1.5 rounded-lg px-2 py-1 hover:bg-[var(--muted)]"
         >
-          <Copy size={11} /> {t("Copy Markdown")}
+          <Copy size={11} /> {"Copy Markdown"}
         </button>
       </div>
       <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 font-sans text-[10.5px] leading-relaxed text-[var(--muted-foreground)] dark:border-[var(--border)] dark:bg-[var(--background)] dark:text-[var(--foreground)]">
@@ -301,7 +297,7 @@ export function WorkspaceValueDialog({
   onClose: () => void;
   onSubmit: (value: string) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [value, setValue] = useState(initialValue);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
@@ -313,7 +309,7 @@ export function WorkspaceValueDialog({
     try {
       await onSubmit(value.trim());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("Save failed."));
+      setError(caught instanceof Error ? caught.message : "Save failed.");
     } finally {
       setWorking(false);
     }
@@ -343,7 +339,7 @@ export function WorkspaceValueDialog({
             onClick={onClose}
             className="px-3 py-2 text-[11px]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="submit"
@@ -372,7 +368,7 @@ export function WorkspaceConfirmDialog({
   onClose: () => void;
   onConfirm: () => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   return (
@@ -387,7 +383,7 @@ export function WorkspaceConfirmDialog({
           onClick={onClose}
           className="px-3 py-2 text-[11px]"
         >
-          {t("Cancel")}
+          {"Cancel"}
         </button>
         <button
           type="button"
@@ -398,7 +394,7 @@ export function WorkspaceConfirmDialog({
             void onConfirm()
               .catch((caught) =>
                 setError(
-                  caught instanceof Error ? caught.message : t("Save failed."),
+                  caught instanceof Error ? caught.message : "Save failed.",
                 ),
               )
               .finally(() => setWorking(false));

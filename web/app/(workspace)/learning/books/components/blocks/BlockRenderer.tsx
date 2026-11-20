@@ -11,7 +11,7 @@ import {
   ArrowDown,
   Replace,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { Block, BlockType, QuizAttempt } from "@/lib/book-types";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -100,7 +100,7 @@ export default function BlockRenderer({
   currentPageId,
   bookLanguage,
 }: BlockRendererProps) {
-  const { t } = useTranslation();
+  
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [editingBody, setEditingBody] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -118,7 +118,7 @@ export default function BlockRenderer({
     return (
       <div className="flex items-center gap-2 rounded-2xl bg-[rgb(var(--dt-ink,55_53_47)/0.028)] px-4 py-3 text-sm text-[var(--muted-foreground)]">
         <Loader2 className="h-4 w-4 animate-spin" />
-        <span>{t("Generating {{type}}…", { type: t(block.type) })}</span>
+        <span>{`Generating ${(block.type)}…`}</span>
       </div>
     );
   }
@@ -130,23 +130,23 @@ export default function BlockRenderer({
       <div className="rounded-2xl border border-rose-300/60 bg-rose-50 px-4 py-3 text-sm text-rose-900 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100">
         <div className="mb-1 flex items-center gap-2 font-medium">
           <AlertTriangle className="h-4 w-4" />
-          {t("{{type}} block failed", { type: t(block.type) })}
+          {`${(block.type)} block failed`}
         </div>
         {failure?.kind && (
           <div className="mb-1 text-[11px] uppercase tracking-wider opacity-70">
             {failure.kind}
-            {failure.retryable === false ? ` · ${t("not retryable")}` : ""}
+            {failure.retryable === false ? ` · ${"not retryable"}` : ""}
           </div>
         )}
         <div className="text-xs opacity-80">
-          {block.error || failure?.message || t("Unknown error")}
+          {block.error || failure?.message || "Unknown error"}
         </div>
         {onRegenerate && (
           <button
             onClick={() => onRegenerate(block)}
             className="mt-2 inline-flex rounded-md border border-rose-400/60 bg-white/40 px-2 py-1 text-xs font-medium hover:bg-white/60 dark:bg-white/10"
           >
-            {t("Retry")}
+            {"Retry"}
           </button>
         )}
       </div>
@@ -272,19 +272,19 @@ export default function BlockRenderer({
         <div className="pointer-events-none absolute -top-3 right-2 z-10 flex translate-y-1 items-center gap-1 rounded-lg bg-[var(--card)] px-1 py-0.5 text-[var(--muted-foreground)] opacity-0 shadow-[var(--dt-shadow-sm,0_1px_3px_rgba(0,0,0,.12))] transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
           {onMove && (
             <>
-              <Tooltip label={t("Move up")}>
+              <Tooltip label={"Move up"}>
                 <button
                   onClick={() => onMove(block, "up")}
-                  aria-label={t("Move up")}
+                  aria-label={"Move up"}
                   className="pointer-events-auto rounded p-1 hover:bg-[var(--background)] hover:text-[var(--foreground)]"
                 >
                   <ArrowUp className="h-3.5 w-3.5" />
                 </button>
               </Tooltip>
-              <Tooltip label={t("Move down")}>
+              <Tooltip label={"Move down"}>
                 <button
                   onClick={() => onMove(block, "down")}
-                  aria-label={t("Move down")}
+                  aria-label={"Move down"}
                   className="pointer-events-auto rounded p-1 hover:bg-[var(--background)] hover:text-[var(--foreground)]"
                 >
                   <ArrowDown className="h-3.5 w-3.5" />
@@ -294,10 +294,10 @@ export default function BlockRenderer({
           )}
           {onChangeType && (
             <div className="relative pointer-events-auto">
-              <Tooltip label={t("Change type")} suppressed={showTypeMenu}>
+              <Tooltip label={"Change type"} suppressed={showTypeMenu}>
                 <button
                   onClick={() => setShowTypeMenu((v) => !v)}
-                  aria-label={t("Change type")}
+                  aria-label={"Change type"}
                   aria-expanded={showTypeMenu}
                   className="rounded p-1 hover:bg-[var(--background)] hover:text-[var(--foreground)]"
                 >
@@ -316,7 +316,7 @@ export default function BlockRenderer({
                         }}
                         className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-[var(--background)] hover:text-[var(--foreground)]"
                       >
-                        {t(type)}
+                        {(type)}
                       </button>
                     ),
                   )}
@@ -325,10 +325,10 @@ export default function BlockRenderer({
             </div>
           )}
           {canEditBody && !editingBody && (
-            <Tooltip label={t("Edit text")}>
+            <Tooltip label={"Edit text"}>
               <button
                 onClick={() => setEditingBody(true)}
-                aria-label={t("Edit text")}
+                aria-label={"Edit text"}
                 className="pointer-events-auto rounded p-1 hover:bg-[var(--background)] hover:text-[var(--foreground)]"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -336,10 +336,10 @@ export default function BlockRenderer({
             </Tooltip>
           )}
           {onRegenerate && (
-            <Tooltip label={t("Regenerate")}>
+            <Tooltip label={"Regenerate"}>
               <button
                 onClick={() => onRegenerate(block)}
-                aria-label={t("Regenerate")}
+                aria-label={"Regenerate"}
                 className="pointer-events-auto rounded p-1 hover:bg-[var(--background)] hover:text-[var(--foreground)]"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
@@ -350,8 +350,8 @@ export default function BlockRenderer({
             <Tooltip
               label={
                 confirmDelete
-                  ? t("Click again to delete this block")
-                  : t("Delete")
+                  ? "Click again to delete this block"
+                  : "Delete"
               }
             >
               <button
@@ -366,8 +366,8 @@ export default function BlockRenderer({
                 onBlur={() => setConfirmDelete(false)}
                 aria-label={
                   confirmDelete
-                    ? t("Click again to delete this block")
-                    : t("Delete")
+                    ? "Click again to delete this block"
+                    : "Delete"
                 }
                 className={`pointer-events-auto rounded p-1 ${
                   confirmDelete

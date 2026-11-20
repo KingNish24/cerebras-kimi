@@ -17,7 +17,7 @@ import {
   FolderOpen,
   Loader2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Modal from "@/components/common/Modal";
 import Button from "@/components/ui/Button";
 import ScopePicker from "@/components/space/ScopePicker";
@@ -60,7 +60,7 @@ export default function ImportWizard({
   onClose,
   onImported,
 }: ImportWizardProps) {
-  const { t, i18n } = useTranslation();
+  
   const chatGptFileRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>("intro");
   const [scan, setScan] = useState<ScanResult | null>(null);
@@ -205,7 +205,7 @@ export default function ImportWizard({
     <Modal
       isOpen
       onClose={onClose}
-      title={t("Import conversations")}
+      title={"Import conversations"}
       titleIcon={titleIcon}
       width="xl"
       closeOnBackdrop={phase !== "importing"}
@@ -238,8 +238,8 @@ export default function ImportWizard({
         {phase === "scanning" && (
           <CenteredStatus
             icon={<Loader2 className="h-5 w-5 animate-spin" />}
-            title={t("Reading your folder…")}
-            subtitle={t("Finding projects and conversations.")}
+            title={"Reading your folder…"}
+            subtitle={"Finding projects and conversations."}
           />
         )}
         {phase === "select" &&
@@ -247,10 +247,8 @@ export default function ImportWizard({
           (groups.length === 0 ? (
             <CenteredStatus
               icon={<FolderOpen className="h-5 w-5" />}
-              title={t("No conversations found")}
-              subtitle={t(
-                "This folder has no readable chat history. Pick your .claude or .codex folder.",
-              )}
+              title={"No conversations found"}
+              subtitle={"This folder has no readable chat history. Pick your .claude or .codex folder."}
             />
           ) : (
             <div className="space-y-4">
@@ -259,7 +257,7 @@ export default function ImportWizard({
                   htmlFor="agent-name"
                   className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]"
                 >
-                  {t("Agent name")}
+                  {"Agent name"}
                 </label>
                 <input
                   id="agent-name"
@@ -270,12 +268,8 @@ export default function ImportWizard({
                 />
                 <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                   {unit === "dates"
-                    ? t(
-                        "Pick the days to bring in. Refreshing later re-syncs these days and pulls in new conversations on them.",
-                      )
-                    : t(
-                        "Pick the projects to bring in. Refreshing later re-syncs these projects and pulls in their new conversations.",
-                      )}
+                    ? "Pick the days to bring in. Refreshing later re-syncs these days and pulls in new conversations on them."
+                    : "Pick the projects to bring in. Refreshing later re-syncs these projects and pulls in their new conversations."}
                 </p>
               </div>
               <ScopePicker
@@ -285,7 +279,7 @@ export default function ImportWizard({
                 onToggle={toggleKey}
                 onSelectAll={selectAll}
                 onClearAll={clearAll}
-                lang={i18n.language}
+                lang={"en"}
               />
             </div>
           ))}
@@ -300,7 +294,7 @@ export default function ImportWizard({
 /* ----------------------------- sub-views ----------------------------- */
 
 function IntroView() {
-  const { t } = useTranslation();
+  
   const supported = isFileSystemAccessSupported();
   return (
     <div className="space-y-5">
@@ -310,14 +304,10 @@ function IntroView() {
         </span>
         <div className="min-w-0 space-y-1">
           <p className="text-[13px] leading-relaxed text-[var(--foreground)]">
-            {t(
-              "Import a local Claude Code or Codex folder, or choose the conversations.json file from an official ChatGPT data export. DeepTutor parses it in your browser before saving the conversations you import.",
-            )}
+            {"Import a local Claude Code or Codex folder, or choose the conversations.json file from an official ChatGPT data export. DeepTutor parses it in your browser before saving the conversations you import."}
           </p>
           <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Folder imports remain refreshable agents. ChatGPT exports are one-time snapshots that can be imported again safely without duplicating conversations.",
-            )}
+            {"Folder imports remain refreshable agents. ChatGPT exports are one-time snapshots that can be imported again safely without duplicating conversations."}
           </p>
         </div>
       </div>
@@ -326,18 +316,14 @@ function IntroView() {
         <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 px-3.5 py-3 text-[12px] leading-relaxed text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
           <AlertTriangle className="mt-px h-4 w-4 shrink-0" />
           <span>
-            {t(
-              "Your browser doesn't support folder access, but you can still import a ChatGPT JSON export.",
-            )}
+            {"Your browser doesn't support folder access, but you can still import a ChatGPT JSON export."}
           </span>
         </div>
       ) : (
         <div className="flex items-start gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 px-3.5 py-3 text-[12px] leading-relaxed text-[var(--foreground)]/85">
           <Eye className="mt-px h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
           <span>
-            {t(
-              "Hidden folders like .claude won't show by default — press ⌘⇧. (Command-Shift-Period) in the picker to reveal them.",
-            )}
+            {"Hidden folders like .claude won't show by default — press ⌘⇧. (Command-Shift-Period) in the picker to reveal them."}
           </span>
         </div>
       )}
@@ -350,7 +336,7 @@ function ImportingView({
 }: {
   progress: { stage: "parsing" | "saving"; done: number; total: number };
 }) {
-  const { t } = useTranslation();
+  
   const pct =
     progress.total > 0
       ? Math.round((progress.done / progress.total) * 100)
@@ -363,16 +349,13 @@ function ImportingView({
         icon={<Loader2 className="h-5 w-5 animate-spin" />}
         title={
           progress.stage === "parsing"
-            ? t("Reading conversations…")
-            : t("Saving to your space…")
+            ? "Reading conversations…"
+            : "Saving to your space…"
         }
         subtitle={
           progress.stage === "parsing"
-            ? t("{{done}} / {{total}}", {
-                done: progress.done,
-                total: progress.total,
-              })
-            : t("Almost there.")
+            ? `${progress.done} / ${progress.total}`
+            : "Almost there."
         }
       />
       <div className="mx-auto h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-[var(--muted)]/60">
@@ -390,46 +373,38 @@ function DoneView({
 }: {
   result: { imported: number; skipped: number };
 }) {
-  const { t } = useTranslation();
+  
   return (
     <CenteredStatus
       icon={
         <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
       }
-      title={t("Imported {{count}} conversations", { count: result.imported })}
+      title={`Imported ${result.imported} conversations`}
       subtitle={
         result.skipped > 0
-          ? t("{{count}} skipped (already imported or empty).", {
-              count: result.skipped,
-            })
-          : t("They're ready in your space — open one to keep chatting.")
+          ? `${result.skipped} skipped (already imported or empty).`
+          : "They're ready in your space — open one to keep chatting."
       }
     />
   );
 }
 
 function ErrorView({ code }: { code: ImportScanErrorCode | "generic" }) {
-  const { t } = useTranslation();
+  
   const message =
     code === "not_recognized"
-      ? t(
-          "This folder doesn't look like a .claude or .codex home. Please select the right folder.",
-        )
+      ? "This folder doesn't look like a .claude or .codex home. Please select the right folder."
       : code === "invalid_export"
-        ? t(
-            "This file doesn't contain readable ChatGPT conversations. Select the conversations.json file from an official ChatGPT data export.",
-          )
+        ? "This file doesn't contain readable ChatGPT conversations. Select the conversations.json file from an official ChatGPT data export."
         : code === "unsupported_browser"
-          ? t(
-              "Your browser doesn't support folder access. Please use a Chromium-based browser.",
-            )
-          : t("Something went wrong while importing. Please try again.");
+          ? "Your browser doesn't support folder access. Please use a Chromium-based browser."
+          : "Something went wrong while importing. Please try again.";
   return (
     <CenteredStatus
       icon={
         <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
       }
-      title={t("Couldn't import")}
+      title={"Couldn't import"}
       subtitle={message}
     />
   );
@@ -486,13 +461,13 @@ function WizardFooter({
   onDone: () => void;
   onRetry: () => void;
 }) {
-  const { t } = useTranslation();
+  
 
   if (phase === "intro") {
     return (
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel}>
-          {t("Cancel")}
+          {"Cancel"}
         </Button>
         <Button
           variant="primary"
@@ -501,7 +476,7 @@ function WizardFooter({
           onClick={onPick}
           disabled={!isFileSystemAccessSupported()}
         >
-          {t("Select folder")}
+          {"Select folder"}
         </Button>
         <Button
           variant="primary"
@@ -509,7 +484,7 @@ function WizardFooter({
           icon={<FileJson className="h-4 w-4" />}
           onClick={onPickChatGpt}
         >
-          {t("Select ChatGPT export")}
+          {"Select ChatGPT export"}
         </Button>
       </div>
     );
@@ -523,7 +498,7 @@ function WizardFooter({
         </span>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel}>
-            {t("Cancel")}
+            {"Cancel"}
           </Button>
           <Button
             variant="primary"
@@ -532,8 +507,8 @@ function WizardFooter({
             disabled={!canImport}
           >
             {selectedCount > 0
-              ? t("Import {{count}} conversations", { count: selectedCount })
-              : t("Import")}
+              ? `Import ${selectedCount} conversations`
+              : "Import"}
           </Button>
         </div>
       </div>
@@ -544,7 +519,7 @@ function WizardFooter({
     return (
       <div className="flex items-center justify-end">
         <Button variant="primary" size="sm" onClick={onDone}>
-          {t("Done")}
+          {"Done"}
         </Button>
       </div>
     );
@@ -554,10 +529,10 @@ function WizardFooter({
     return (
       <div className="flex items-center justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel}>
-          {t("Close")}
+          {"Close"}
         </Button>
         <Button variant="primary" size="sm" onClick={onRetry}>
-          {t("Try again")}
+          {"Try again"}
         </Button>
       </div>
     );
@@ -567,7 +542,7 @@ function WizardFooter({
   return (
     <div className="flex items-center justify-end">
       <span className="text-[12px] text-[var(--muted-foreground)]">
-        {t("Working…")}
+        {"Working…"}
       </span>
     </div>
   );

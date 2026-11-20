@@ -4,7 +4,7 @@ import dynamic from "@/shared/router/dynamic";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { Code2, Copy, Check, ExternalLink, Maximize2, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { Mermaid } from "@/components/Mermaid";
 import { prepareIframeHtml, type WidgetColorScheme } from "@/lib/iframe-html";
 import {
@@ -53,7 +53,7 @@ function parseChartConfig(source: string): unknown {
 }
 
 function ChartJsRenderer({ config }: { config: string }) {
-  const { t } = useTranslation();
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<unknown>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ function ChartJsRenderer({ config }: { config: string }) {
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : t("Failed to render chart"),
+            err instanceof Error ? err.message : "Failed to render chart",
           );
         }
       }
@@ -99,13 +99,13 @@ function ChartJsRenderer({ config }: { config: string }) {
         chartRef.current = null;
       }
     };
-  }, [config, t]);
+  }, [config]);
 
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
         <p className="text-sm font-medium text-red-600 dark:text-red-400">
-          {t("Chart rendering error")}
+          {"Chart rendering error"}
         </p>
         <pre className="mt-2 whitespace-pre-wrap text-xs text-red-500">
           {error}
@@ -132,7 +132,7 @@ function colorSchemeForTheme(theme: Theme): WidgetColorScheme {
 }
 
 function HtmlRenderer({ html }: { html: string }) {
-  const { t } = useTranslation();
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(560);
   const [theme, setTheme] = useState<Theme>(() =>
@@ -181,7 +181,7 @@ function HtmlRenderer({ html }: { html: string }) {
       const contentUrl = URL.createObjectURL(
         new Blob([prepared], { type: "text/html" }),
       );
-      const wrapper = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${t("Visualization").replace(/[&<>]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]!)}</title><style>html,body,iframe{height:100%;width:100%;margin:0;border:0;}</style></head><body><iframe sandbox="allow-scripts" src="${contentUrl}"></iframe></body></html>`;
+      const wrapper = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${"Visualization".replace(/[&<>]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]!)}</title><style>html,body,iframe{height:100%;width:100%;margin:0;border:0;}</style></head><body><iframe sandbox="allow-scripts" src="${contentUrl}"></iframe></body></html>`;
       const url = URL.createObjectURL(
         new Blob([wrapper], { type: "text/html" }),
       );
@@ -203,11 +203,11 @@ function HtmlRenderer({ html }: { html: string }) {
         className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[10px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
       >
         <ExternalLink size={10} strokeWidth={1.8} />
-        {t("Open in new tab")}
+        {"Open in new tab"}
       </button>
       <iframe
         ref={iframeRef}
-        title={t("HTML visualization")}
+        title={"HTML visualization"}
         sandbox="allow-scripts"
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)]"
         style={{ minHeight: 320, height }}
@@ -217,7 +217,7 @@ function HtmlRenderer({ html }: { html: string }) {
 }
 
 function PluginIframeRenderer({ result }: { result: VisualizeCanvasResult }) {
-  const { t } = useTranslation();
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(560);
   const entryUrl = result.renderer.entry_url;
@@ -257,7 +257,7 @@ function PluginIframeRenderer({ result }: { result: VisualizeCanvasResult }) {
   if (!entryUrl) {
     return (
       <div className="p-4 text-sm text-red-600">
-        {t("Visualizer renderer is unavailable")}
+        {"Visualizer renderer is unavailable"}
       </div>
     );
   }
@@ -390,7 +390,7 @@ function sanitizeSvg(raw: string): string {
 }
 
 function SvgFigure({ svg }: { svg: string }) {
-  const { t } = useTranslation();
+  
   const trimmed = svg.trim();
   const looksSvg = trimmed.startsWith("<svg") || trimmed.startsWith("<?xml");
 
@@ -405,12 +405,12 @@ function SvgFigure({ svg }: { svg: string }) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
         <p className="text-sm font-medium text-red-600 dark:text-red-400">
-          {t("SVG rendering error")}
+          {"SVG rendering error"}
         </p>
         <pre className="mt-2 whitespace-pre-wrap text-xs text-red-500">
           {looksSvg
-            ? t("SVG could not be safely rendered")
-            : t("Invalid SVG: does not start with <svg")}
+            ? "SVG could not be safely rendered"
+            : "Invalid SVG: does not start with <svg"}
         </pre>
       </div>
     );
@@ -464,7 +464,7 @@ function SvgRenderer({ svg }: { svg: string }) {
 }
 
 function CanvasVisualization({ result }: { result: VisualizeCanvasResult }) {
-  const { t } = useTranslation();
+  
   if (result.renderer.target === "iframe") {
     return <PluginIframeRenderer result={result} />;
   }
@@ -509,9 +509,7 @@ function CanvasVisualization({ result }: { result: VisualizeCanvasResult }) {
   }
   return (
     <div className="p-4 text-sm text-red-600">
-      {t("No native renderer is registered for {{renderer}}.", {
-        renderer: renderer || result.render_type,
-      })}
+      {`No native renderer is registered for ${renderer || result.render_type}.`}
     </div>
   );
 }
@@ -537,7 +535,7 @@ export default function VisualizationViewer({
 }: {
   result: VisualizeResult;
 }) {
-  const { t } = useTranslation();
+  
 
   // All hooks must run unconditionally before any early return — React
   // requires a stable hook order across renders. The text-path body below
@@ -600,7 +598,7 @@ export default function VisualizationViewer({
             className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[10px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
           >
             <Maximize2 size={10} strokeWidth={1.8} />
-            {t("Fullscreen")}
+            {"Fullscreen"}
           </button>
         )}
         <CanvasVisualization result={result} />
@@ -614,7 +612,7 @@ export default function VisualizationViewer({
           className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           <Code2 size={12} strokeWidth={1.8} />
-          {showCode ? t("Hide code") : t("Show code")}
+          {showCode ? "Hide code" : "Show code"}
         </button>
 
         <button
@@ -627,7 +625,7 @@ export default function VisualizationViewer({
           ) : (
             <Copy size={12} strokeWidth={1.8} />
           )}
-          {copied ? t("Copied") : t("Copy code")}
+          {copied ? "Copied" : "Copy code"}
         </button>
 
         <span className="ml-auto text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]/50">
@@ -652,7 +650,7 @@ export default function VisualizationViewer({
       {/* Review notes */}
       {result.review.changed && result.review.review_notes && (
         <p className="text-[11px] text-[var(--muted-foreground)]">
-          {t("Review")}: {result.review.review_notes}
+          {"Review"}: {result.review.review_notes}
         </p>
       )}
 
@@ -680,7 +678,7 @@ export default function VisualizationViewer({
                 className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-white/20"
               >
                 <X size={12} strokeWidth={1.8} />
-                {t("Close")}
+                {"Close"}
               </button>
             </div>
             {/* m-auto (not items-center/justify-center) so oversized content

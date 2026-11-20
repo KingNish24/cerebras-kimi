@@ -12,7 +12,7 @@ import {
   Pin,
   RotateCcw,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   deriveSessionMark,
   sessionKindOf,
@@ -137,11 +137,11 @@ export default function OrganizedSessionList({
 }: OrganizedSessionListProps) {
   // Reads the set; `SessionList` owns keeping it current.
   const unread = useUnreadSessions();
-  const { t } = useTranslation();
+  
   const { board: taskBoard } = useTaskBoard();
   // Backend writes the English sentinel "New conversation" until the LLM
   // title lands; mirror SessionList by showing a localized, breathing label.
-  const placeholderLabel = t("New chat");
+  const placeholderLabel = "New chat";
   const [workspaceMoveError, setWorkspaceMoveError] = useState("");
   const [movingWorkspace, setMovingWorkspace] = useState(false);
   const [groupLimits, setGroupLimits] = useState<Record<string, number>>({});
@@ -295,7 +295,7 @@ export default function OrganizedSessionList({
   if (entries.length === 0) {
     return (
       <div className="px-3 py-2 text-[11px] text-[var(--muted-foreground)]/65">
-        {emptyLabel ?? t("No conversations yet")}
+        {emptyLabel ?? "No conversations yet"}
       </div>
     );
   }
@@ -342,7 +342,7 @@ export default function OrganizedSessionList({
               }}
               className="rounded p-0.5 hover:bg-[var(--muted)]"
               aria-label={
-                expanded ? t("Hide tutor threads") : t("Show tutor threads")
+                expanded ? "Hide tutor threads" : "Show tutor threads"
               }
               aria-expanded={expanded}
             >
@@ -365,7 +365,7 @@ export default function OrganizedSessionList({
           {child ? (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--muted)]/70 px-1.5 py-0.5 text-[9px] font-medium text-[var(--muted-foreground)]">
               <MessagesSquare size={9} strokeWidth={1.8} />
-              {t("Side chat")}
+              {"Side chat"}
             </span>
           ) : null}
           {editing ? (
@@ -385,7 +385,7 @@ export default function OrganizedSessionList({
             />
           ) : (
             <Tooltip
-              label={`${t("Conversation")}: ${isPlaceholderSessionTitle(session.title) ? placeholderLabel : session.title}`}
+              label={`${"Conversation"}: ${isPlaceholderSessionTitle(session.title) ? placeholderLabel : session.title}`}
               side="top"
               className="min-w-0 flex-1"
             >
@@ -435,7 +435,7 @@ export default function OrganizedSessionList({
                     ? "opacity-100"
                     : "opacity-0 group-hover/session:opacity-100 focus:opacity-100"
                 }`}
-                aria-label={t("Conversation actions")}
+                aria-label={"Conversation actions"}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
@@ -467,7 +467,7 @@ export default function OrganizedSessionList({
                   ? "opacity-100"
                   : "opacity-0 group-hover/session:opacity-100 focus:opacity-100"
               }`}
-              aria-label={t("Conversation actions")}
+              aria-label={"Conversation actions"}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
             >
@@ -515,13 +515,13 @@ export default function OrganizedSessionList({
                     taskLinks?.task_ids.length ? (
                       <SessionMenuItem
                         icon={Unlink}
-                        label={t(taskLinks.status_link_enabled ? "tasks.unlinkStatus" : "tasks.linkStatus")}
+                        label={(taskLinks.status_link_enabled ? "tasks.unlinkStatus" : "tasks.linkStatus")}
                         onClick={() => {
                           void setTaskStatusLink(
                             session.session_id,
                             sessionWorkspaceId(session),
                             !taskLinks.status_link_enabled,
-                          ).catch(() => notify(t("tasks.saveError"), { tone: "error" }));
+                          ).catch(() => notify("Could not save the task change. Please try again.", { tone: "error" }));
                           setOpenMenuId(null);
                           setMenuPosition(null);
                         }}
@@ -534,7 +534,7 @@ export default function OrganizedSessionList({
                         <SessionMenuDivider />
                         <SessionMenuItem
                           icon={RotateCcw}
-                          label={t("Reset chat order")}
+                          label={"Reset chat order"}
                           onClick={() => {
                             setOpenMenuId(null);
                             setMenuPosition(null);
@@ -632,7 +632,7 @@ export default function OrganizedSessionList({
           className="group/heading flex w-full min-w-0 items-center gap-1.5 rounded-lg px-1.5 py-1 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-background/40 hover:text-[var(--foreground)]"
         >
           {!recent && <GroupMark />}
-          <span className="min-w-0 truncate">{recent ? t("Recent") : entry.label}</span>
+          <span className="min-w-0 truncate">{recent ? "Recent" : entry.label}</span>
           {/* The caret follows the words rather than introducing them — a
               title that can be folded, instead of a row of controls with a
               label attached. */}
@@ -658,7 +658,7 @@ export default function OrganizedSessionList({
             {entry.rows.length > limit && (
               <button type="button" className="px-2 py-1 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 onClick={() => setGroupLimits(previous => ({ ...previous, [entry.id]: limit + 5 }))}>
-                {t("Show more")}
+                {"Show more"}
               </button>
             )}
           </div>
@@ -681,7 +681,7 @@ export default function OrganizedSessionList({
             .filter((row) => !row.preferences?.pinned)
             .sort((a, b) => time(b) - time(a))}
           lead={{
-            label: t("navigation.pinned"),
+            label: "Pinned",
             rows: found.filter((row) => row.preferences?.pinned),
           }}
           view={timeline}
@@ -689,7 +689,7 @@ export default function OrganizedSessionList({
           renderRow={(row) => renderRow(row)}
           empty={
             <p className="dt-navigation-empty">
-              {timeline.query ? t("navigation.noResults") : emptyLabel ?? t("navigation.noSessions")}
+              {timeline.query ? "No matching records" : emptyLabel ?? "Your conversations will appear here."}
             </p>
           }
         />

@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   Check,
   ChevronDown,
@@ -113,7 +113,7 @@ export default function KbDocumentList({
   collapsed,
   onToggleCollapsed,
 }: KbDocumentListProps) {
-  const { t } = useTranslation();
+  
   const [files, setFiles] = useState<KnowledgeBaseFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,11 +226,11 @@ export default function KbDocumentList({
   if (collapsed) {
     return (
       <aside className="flex h-full w-[44px] shrink-0 flex-col items-center gap-1 border-r border-[var(--border)] bg-[var(--card)]/40 py-2">
-        <Tooltip label={t("Expand")} side="top">
+        <Tooltip label={"Expand"} side="top">
           <button
             type="button"
             onClick={onToggleCollapsed}
-            aria-label={t("Expand")}
+            aria-label={"Expand"}
             className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
             <PanelLeftOpen size={13} strokeWidth={1.7} />
@@ -361,24 +361,24 @@ export default function KbDocumentList({
           {confirmDeleteFor === node.path ? (
             <div className="flex shrink-0 items-center gap-0.5 pr-0.5">
               <span className="px-0.5 text-[10px] font-medium text-red-600 dark:text-red-400">
-                {t("Delete?")}
+                {"Delete?"}
               </span>
-              <Tooltip label={t("Confirm delete")} side="top">
+              <Tooltip label={"Confirm delete"} side="top">
                 <button
                   type="button"
                   onClick={() => void handleDelete(node.path)}
                   disabled={busy}
-                  aria-label={t("Confirm delete")}
+                  aria-label={"Confirm delete"}
                   className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:text-red-400 dark:hover:bg-red-950/40"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
               </Tooltip>
-              <Tooltip label={t("Cancel")} side="top">
+              <Tooltip label={"Cancel"} side="top">
                 <button
                   type="button"
                   onClick={() => setConfirmDeleteFor(null)}
-                  aria-label={t("Cancel")}
+                  aria-label={"Cancel"}
                   className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -387,7 +387,7 @@ export default function KbDocumentList({
             </div>
           ) : (
             <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/row:opacity-100">
-              <Tooltip label={t("Move to…")} side="top">
+              <Tooltip label={"Move to…"} side="top">
                 <button
                   type="button"
                   onClick={() => {
@@ -396,20 +396,20 @@ export default function KbDocumentList({
                       cur === node.path ? null : node.path,
                     );
                   }}
-                  aria-label={t("Move to…")}
+                  aria-label={"Move to…"}
                   className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <MoveRight className="h-3.5 w-3.5" />
                 </button>
               </Tooltip>
-              <Tooltip label={t("Delete file")} side="top">
+              <Tooltip label={"Delete file"} side="top">
                 <button
                   type="button"
                   onClick={() => {
                     setMoveMenuFor(null);
                     setConfirmDeleteFor(node.path);
                   }}
-                  aria-label={t("Delete file")}
+                  aria-label={"Delete file"}
                   className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -427,7 +427,7 @@ export default function KbDocumentList({
             />
             <div className="absolute right-1 top-8 z-20 max-h-60 w-44 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
               <div className="px-2.5 py-1 text-[10px] uppercase tracking-wide text-[var(--muted-foreground)]">
-                {t("Move to")}
+                {"Move to"}
               </div>
               {parentOf(node.path) !== "" && (
                 <button
@@ -435,7 +435,7 @@ export default function KbDocumentList({
                   onClick={() => void handleMove(node.path, "")}
                   className="block w-full truncate px-2.5 py-1.5 text-left text-[12px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/60"
                 >
-                  / {t("Root")}
+                  / {"Root"}
                 </button>
               )}
               {folderPaths
@@ -452,7 +452,7 @@ export default function KbDocumentList({
                 ))}
               {folderPaths.length === 0 && parentOf(node.path) === "" && (
                 <div className="px-2.5 py-1.5 text-[11px] text-[var(--muted-foreground)]">
-                  {t("No folders yet")}
+                  {"No folders yet"}
                 </div>
               )}
             </div>
@@ -467,31 +467,31 @@ export default function KbDocumentList({
       <div className="flex items-center justify-between gap-1 px-2.5 pb-1.5 pt-2.5">
         <div className="flex min-w-0 items-center gap-1.5">
           <span className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Files")}
+            {"Files"}
           </span>
           <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[10px] text-[var(--muted-foreground)]">
             {fileEntries.length}
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
-          <Tooltip label={t("New folder")} side="top">
+          <Tooltip label={"New folder"} side="top">
             <button
               type="button"
               onClick={() => {
                 setNewFolderOpen((v) => !v);
                 setNewFolderName("");
               }}
-              aria-label={t("New folder")}
+              aria-label={"New folder"}
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <FolderPlus size={13} strokeWidth={1.7} />
             </button>
           </Tooltip>
-          <Tooltip label={t("Refresh")} side="top">
+          <Tooltip label={"Refresh"} side="top">
             <button
               type="button"
               onClick={() => void load(true)}
-              aria-label={t("Refresh")}
+              aria-label={"Refresh"}
               disabled={loading || busy}
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
             >
@@ -502,11 +502,11 @@ export default function KbDocumentList({
               )}
             </button>
           </Tooltip>
-          <Tooltip label={t("Collapse")} side="top">
+          <Tooltip label={"Collapse"} side="top">
             <button
               type="button"
               onClick={onToggleCollapsed}
-              aria-label={t("Collapse")}
+              aria-label={"Collapse"}
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <PanelLeftClose size={12} strokeWidth={1.7} />
@@ -525,7 +525,7 @@ export default function KbDocumentList({
               if (e.key === "Escape") setNewFolderOpen(false);
             }}
             autoFocus
-            placeholder={t("Folder name")}
+            placeholder={"Folder name"}
             className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[12px] text-[var(--foreground)] outline-none focus:border-[var(--foreground)]/25"
           />
           <button
@@ -534,7 +534,7 @@ export default function KbDocumentList({
             disabled={busy || !newFolderName.trim()}
             className="shrink-0 rounded-md bg-[var(--primary)] px-2 py-1 text-[11px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-40"
           >
-            {t("Add")}
+            {"Add"}
           </button>
         </div>
       )}
@@ -559,7 +559,7 @@ export default function KbDocumentList({
               onClick={() => void load(true)}
               className="ml-1 underline"
             >
-              {t("Retry")}
+              {"Retry"}
             </button>
           </div>
         ) : loading && !files.length ? (
@@ -574,7 +574,7 @@ export default function KbDocumentList({
         ) : fileEntries.length === 0 && folderPaths.length === 0 ? (
           <div className="px-2 py-6 text-center text-[11px] text-[var(--muted-foreground)]">
             <Folder className="mx-auto mb-1.5 h-3.5 w-3.5 opacity-50" />
-            {t("No files yet. Add one using the Add Documents tab.")}
+            {"No files yet. Add one using the Add Documents tab."}
           </div>
         ) : (
           <ul className="space-y-px">{root.map((n) => renderNode(n, 0))}</ul>

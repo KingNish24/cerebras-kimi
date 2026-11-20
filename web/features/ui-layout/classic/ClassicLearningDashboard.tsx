@@ -7,7 +7,7 @@
 import { pageGridClass } from '@/components/layout/FeaturePage'
 import { useEffect, useState } from 'react'
 import { BookOpen, Route } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { scopedUrl } from '@/lib/workspace-scope'
 import { bookRoute } from '@/lib/learning-routes'
@@ -34,7 +34,7 @@ import { LearningWays } from '@/components/learning/LearningWays'
 import { LEARNING_SURFACES, learningSurface } from '@/components/learning/surfaces'
 
 export function ClassicLearningDashboard() {
-  const { t } = useTranslation()
+  
   const [sources, setSources] = useState<LearningSources>({
     books: [],
     mastery: [],
@@ -91,19 +91,17 @@ export function ClassicLearningDashboard() {
   return (
     <LearningShell
       back={false}
-      title={t('Personalized Learning')}
-      subtitle={t('One tutor, your own way to learn.')}
+      title={"Personalized Learning"}
+      subtitle={"One tutor, your own way to learn."}
     >
       {/* The ways in lead the page: everything below them assumes you already
           chose one. Each opens its own introduction before it commits you. */}
       <LearningWays />
       {failed.length > 0 && (
         <LearningErrorState
-          message={t('Some learning activity could not be loaded: {{sources}}.', {
-            sources: LEARNING_SURFACES.filter(surface => surface.kind !== "practice" && failed.includes(surface.kind))
+          message={`Some learning activity could not be loaded: ${LEARNING_SURFACES.filter(surface => surface.kind !== "practice" && failed.includes(surface.kind))
               .map(surface => t(surface.title))
-              .join(t('source list separator')),
-          })}
+              .join(t('source list separator'))}.`}
           onRetry={() => setReload(value => value + 1)}
         />
       )}
@@ -114,7 +112,7 @@ export function ClassicLearningDashboard() {
           {(todos.reviews.length > 0 || todos.books.length > 0) && (
             <section aria-labelledby="learning-todos" className="mb-9">
               <h2 id="learning-todos" className="mb-3 text-[13.5px] font-semibold">
-                {t('What needs your attention')}
+                {"What needs your attention"}
               </h2>
               <div className={pageGridClass(2)}>
                 {todos.reviews.map(topic => (
@@ -123,9 +121,7 @@ export function ClassicLearningDashboard() {
                     href={scopedUrl(masterySessionRoute(topic.path_id, 'review', topic.content_workspace_id || ''), topic.content_workspace_id || '')}
                     title={topic.name || topic.metadata.goal}
                     icon={<Route size={19} />}
-                    subtitle={t('{{count}} reviews due', {
-                      count: topic.reviews.filter(review => review.due).length,
-                    })}
+                    subtitle={`${topic.reviews.filter(review => review.due).length} reviews due`}
                     onClick={() =>
                       setPendingPrompt(
                         masteryOpeningMessage('review', t, {
@@ -147,7 +143,7 @@ export function ClassicLearningDashboard() {
                     icon={<BookOpen size={19} />}
                     subtitle={
                       <>
-                        {book.status === 'paused' ? t('Paused') : t('Compiling')}
+                        {book.status === 'paused' ? "Paused" : "Compiling"}
                         {book.status === 'paused' && book.metadata.pause_reason
                           ? ` · ${book.metadata.pause_reason}`
                           : ''}
@@ -161,7 +157,7 @@ export function ClassicLearningDashboard() {
           {recent.length > 0 && (
             <section aria-labelledby="learning-recent">
               <h2 id="learning-recent" className="mb-3 text-[13.5px] font-semibold">
-                {t('Recent activity')}
+                {"Recent activity"}
               </h2>
               <div className={pageGridClass(2)}>
                 {recent.map(item => {
@@ -173,7 +169,7 @@ export function ClassicLearningDashboard() {
                       title={item.title}
                       updatedAt={item.updatedAt}
                       progress={item.progress}
-                      subtitle={t(surface.title)}
+                      subtitle={(surface.title)}
                       icon={<surface.icon size={19} />}
                     />
                   )
@@ -183,8 +179,8 @@ export function ClassicLearningDashboard() {
           )}
           {!recent.length && failed.length === 0 && (
             <LearningEmptyState
-              title={t('Your next learning journey starts here')}
-              description={t('Choose a book, a topic, a collection or a video to begin.')}
+              title={"Your next learning journey starts here"}
+              description={"Choose a book, a topic, a collection or a video to begin."}
             />
           )}
         </>

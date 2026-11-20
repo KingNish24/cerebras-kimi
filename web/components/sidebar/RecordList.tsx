@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useState, type ReactNode } from 'react'
 import { ArrowDownUp, Check, ChevronDown, Search, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { formatRelativeTime, getDayGroupKey, type DayGroupKey } from '@/lib/relative-time'
 import { browserStorage } from '@/shared/storage'
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
@@ -77,7 +77,7 @@ export function RecordHeader({
   searchLabel: string
   sorts?: RecordSort[]
 }) {
-  const { t } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const rootRef = useMenuPopover<HTMLDivElement>(open, setOpen)
   const close = () => view.setSearching(false)
@@ -91,11 +91,11 @@ export function RecordHeader({
         <div className="dt-navigation-actions">
           {sorts.length > 1 && (
             <div ref={rootRef} className="relative">
-              <Tooltip label={t('navigation.sortRecords')} suppressed={open}>
+              <Tooltip label={"Sort by"} suppressed={open}>
                 <button
                   type="button"
                   className="dt-nav-icon"
-                  aria-label={t('navigation.sortRecords')}
+                  aria-label={"Sort by"}
                   aria-haspopup="menu"
                   aria-expanded={open}
                   onClick={() => setOpen(value => !value)}
@@ -104,8 +104,8 @@ export function RecordHeader({
                 </button>
               </Tooltip>
               {open && (
-                <div role="menu" aria-label={t('navigation.sortRecords')} className="dt-popover dt-record-sort-menu">
-                  <div className="dt-menu-label">{t('navigation.sortRecords')}</div>
+                <div role="menu" aria-label={"Sort by"} className="dt-popover dt-record-sort-menu">
+                  <div className="dt-menu-label">{"Sort by"}</div>
                   {sorts.map(value => (
                     <button
                       key={value}
@@ -119,7 +119,7 @@ export function RecordHeader({
                       }}
                     >
                       <span className="min-w-0 flex-1">
-                        {t(value === 'updatedAt' ? 'navigation.lastActive' : 'navigation.createdTime')}
+                        {(value === 'updatedAt' ? 'navigation.lastActive' : 'navigation.createdTime')}
                       </span>
                       {view.sort === value && <Check size={14} strokeWidth={2} />}
                     </button>
@@ -155,7 +155,7 @@ export function RecordHeader({
               if (event.key === 'Escape') close()
             }}
           />
-          <button type="button" aria-label={t('navigation.clearSearch')} onClick={close}>
+          <button type="button" aria-label={"Clear search"} onClick={close}>
             <X size={13} strokeWidth={1.8} />
           </button>
         </label>
@@ -166,7 +166,7 @@ export function RecordHeader({
 
 /** Relative time at the right edge of a record row; the exact time on hover. */
 export function RecordTime({ seconds, className = '' }: { seconds: number; className?: string }) {
-  const { i18n } = useTranslation()
+  
   // A malformed backend timestamp (string, NaN, Infinity) used to throw
   // `RangeError: Invalid time value` and take down the whole sidebar.
   const safeSeconds = Number.isFinite(seconds) ? seconds : Date.now() / 1000
@@ -175,9 +175,9 @@ export function RecordTime({ seconds, className = '' }: { seconds: number; class
     <time
       className={`dt-record-time ${className}`}
       dateTime={date.toISOString()}
-      title={date.toLocaleString(i18n.language)}
+      title={date.toLocaleString("en")}
     >
-      {formatRelativeTime(safeSeconds, i18n.language)}
+      {formatRelativeTime(safeSeconds, "en")}
     </time>
   )
 }
@@ -199,7 +199,7 @@ export function RecordGroups<T>({
   lead?: { label: string; rows: readonly T[] }
   empty?: ReactNode
 }) {
-  const { t } = useTranslation()
+  
   const shown = rows.slice(0, view.limit)
   return (
     <>
@@ -211,7 +211,7 @@ export function RecordGroups<T>({
       )}
       {groupByDay(shown, time).map(([group, items]) => (
         <section className="dt-record-group" key={group}>
-          <h2>{t(dayGroupLabel(group))}</h2>
+          <h2>{(dayGroupLabel(group))}</h2>
           {items.map(renderRow)}
         </section>
       ))}
@@ -219,7 +219,7 @@ export function RecordGroups<T>({
       {rows.length > view.limit && (
         <button type="button" className="dt-navigation-row w-full" onClick={view.more}>
           <ChevronDown size={15} />
-          {t('Show more')}
+          {"Show more"}
         </button>
       )}
     </>

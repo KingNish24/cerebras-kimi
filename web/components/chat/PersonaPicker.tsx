@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Check, Loader2, Search, UserRound } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import { listPersonas, type PersonaInfo } from "@/lib/personas-api";
@@ -20,7 +20,7 @@ export default function PersonaPicker({
   onClose,
   onApply,
 }: PersonaPickerProps) {
-  const { t } = useTranslation();
+  
   const [personas, setPersonas] = useState<PersonaInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string | null>(initialPersona);
@@ -81,10 +81,8 @@ export default function PersonaPicker({
           resourceKind="persona"
           icon={UserRound}
           titleId="persona-picker-title"
-          title={t("Select Persona")}
-          subtitle={t(
-            "Choose a behavior persona to apply, or pick No persona to use the default.",
-          )}
+          title={"Select Persona"}
+          subtitle={"Choose a behavior persona to apply, or pick No persona to use the default."}
           onClose={onClose}
         />
 
@@ -109,10 +107,10 @@ export default function PersonaPicker({
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[14px] font-medium text-[var(--foreground)]">
-                {t("No persona")}
+                {"No persona"}
               </div>
               <p className="mt-0.5 text-[12px] leading-5 text-[var(--muted-foreground)]">
-                {t("Use the default assistant behavior for this turn.")}
+                {"Use the default assistant behavior for this turn."}
               </p>
             </div>
           </button>
@@ -123,7 +121,7 @@ export default function PersonaPicker({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search personas by name or description")}
+                placeholder={"Search personas by name or description"}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
               />
             </div>
@@ -164,7 +162,7 @@ export default function PersonaPicker({
                           </span>
                           {persona.source === "admin" ? (
                             <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-                              {t("preset")}
+                              {"preset"}
                             </span>
                           ) : null}
                         </div>
@@ -181,8 +179,8 @@ export default function PersonaPicker({
             ) : (
               <div className="px-6 py-14 text-center text-[13px] text-[var(--muted-foreground)]">
                 {personas.length === 0
-                  ? t("No personas yet")
-                  : t("No matching personas found.")}
+                  ? "No personas yet"
+                  : "No matching personas found."}
               </div>
             )}
           </div>
@@ -190,14 +188,14 @@ export default function PersonaPicker({
           <div className="mt-4 flex items-center justify-between gap-3">
             <div className="text-[12px] text-[var(--muted-foreground)]">
               {selected
-                ? t("Persona: {{name}}", { name: selected })
-                : t("No persona selected")}
+                ? `Persona: ${selected}`
+                : "No persona selected"}
             </div>
             <button
               onClick={handleApply}
               className="btn-primary rounded-xl bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
             >
-              {selected ? t("Use Persona") : t("Continue without persona")}
+              {selected ? "Use Persona" : "Continue without persona"}
             </button>
           </div>
         </div>

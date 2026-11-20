@@ -2,8 +2,8 @@
 
 The agent talks to a normal ``vtx.agent.session.Session``, so nothing in the
 vtx runtime needs to change. But instead of writing ``~/.vtx/sessions/<cwd>/*.jsonl``,
-entries and the header are stored in the DeepTutor session document at
-``data/sessions/<id>.json`` under ``vtx_header`` / ``vtx_entries``.
+entries and the header are stored in the DeepTutor session row
+(``data/deeptutor.sqlite3``) under ``vtx_header`` / ``vtx_entries``.
 
 A ContextVar binds the DeepTutor store + record while the runtime creates its
 session. Sessions created outside that context stay in memory (still no vtx

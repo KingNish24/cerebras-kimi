@@ -3,7 +3,7 @@
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   getOwnLearnerProfile,
@@ -20,7 +20,7 @@ const fields: Array<[keyof LearnerProfile, string]> = [
 ];
 
 export default function LearnerProfileSettingsPage() {
-  const { t } = useTranslation();
+  
   const { draftRevision } = useSettings();
   const [live, setLive] = useState<LearnerProfile>({});
   const [profile, setProfile] = useStagedSettings("learner-profile", live, setLive);
@@ -51,14 +51,14 @@ export default function LearnerProfileSettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-8">
-      <h1 className="text-xl font-semibold">{t("Learner profile")}</h1>
+      <h1 className="text-xl font-semibold">{"Learner profile"}</h1>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-        {t("Personalize explanations and reading support for your account.")}
+        {"Personalize explanations and reading support for your account."}
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {fields.map(([key, label]) => (
           <label key={key} className="grid gap-1 text-sm">
-            <span>{t(label)}</span>
+            <span>{(label)}</span>
             <input
               disabled={status === "loading"}
               type={key === "age" ? "number" : "text"}
@@ -74,7 +74,7 @@ export default function LearnerProfileSettingsPage() {
       <div className="mt-6 flex items-center gap-3">
         {status === "error" && (
           <span className="text-sm text-red-600">
-            {t("Unable to save profile")}
+            {"Unable to save profile"}
           </span>
         )}
       </div>

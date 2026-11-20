@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { SettingRow, SettingSection, inputClass } from "./shared";
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { apiFetch, apiUrl } from "@/shared/api/client";
@@ -19,7 +19,7 @@ import {
  * Mirrors the value to localStorage so the chat watchdog picks it up at once.
  */
 export default function ChatResponseTimeoutSection() {
-  const { t } = useTranslation();
+  
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [seconds, setSeconds] = useState<number>(
@@ -78,7 +78,7 @@ export default function ChatResponseTimeoutSection() {
           body: JSON.stringify({ chat_response_timeout: value }),
         },
       );
-      if (!response.ok) throw new Error(t("Failed to save."));
+      if (!response.ok) throw new Error("Failed to save.");
       setSeconds(value);
       setInitial(value);
       writeStoredChatResponseTimeout(value);
@@ -86,7 +86,7 @@ export default function ChatResponseTimeoutSection() {
       setMessage(err instanceof Error ? err.message : String(err));
       throw err;
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     registerExtension("chat-timeout", {
@@ -99,25 +99,17 @@ export default function ChatResponseTimeoutSection() {
 
   return (
     <SettingSection
-      title={t("Chat response timeout")}
-      description={t(
-        "How long chat waits for a reply before showing a timeout error. Increase it for slow tools like image or video generation.",
-      )}
+      title={"Chat response timeout"}
+      description={"How long chat waits for a reply before showing a timeout error. Increase it for slow tools like image or video generation."}
     >
       <SettingRow
-        title={t("Timeout (seconds)")}
-        description={t(
-          "Between {{min}} and {{max}} seconds. Takes effect immediately — no restart.",
-          {
-            min: MIN_CHAT_RESPONSE_TIMEOUT_SECONDS,
-            max: MAX_CHAT_RESPONSE_TIMEOUT_SECONDS,
-          },
-        )}
+        title={"Timeout (seconds)"}
+        description={`Between ${MIN_CHAT_RESPONSE_TIMEOUT_SECONDS} and ${MAX_CHAT_RESPONSE_TIMEOUT_SECONDS} seconds. Takes effect immediately — no restart.`}
         control={
           <input
             className={`${inputClass} w-28`}
             disabled={!loaded}
-            aria-label={t("Timeout (seconds)")}
+            aria-label={"Timeout (seconds)"}
             type="number"
             min={MIN_CHAT_RESPONSE_TIMEOUT_SECONDS}
             max={MAX_CHAT_RESPONSE_TIMEOUT_SECONDS}

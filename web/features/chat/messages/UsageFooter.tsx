@@ -3,11 +3,11 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Coins, DatabaseZap, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import type { UsageSummary } from './usage-summary'
 
 export function UsageFooter({ turn, session }: { turn: UsageSummary; session: UsageSummary }) {
-  const { t, i18n } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const [scope, setScope] = useState<'turn' | 'session'>('turn')
   const anchor = useRef<HTMLButtonElement>(null)
@@ -16,16 +16,16 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const summary = scope === 'turn' ? turn : session
   const shown = summary
-  const number = (n?: number | null) => (n == null ? '—' : n.toLocaleString(i18n.language))
+  const number = (n?: number | null) => (n == null ? '—' : n.toLocaleString("en"))
   const rate = (n?: number | null) => (n == null ? '—' : `${(n * 100).toFixed(1)}%`)
-  const compact = new Intl.NumberFormat(i18n.language, {
+  const compact = new Intl.NumberFormat("en", {
     notation: 'compact',
     maximumFractionDigits: 1,
   })
   const tokenFigure = compact.format(turn.total_tokens ?? 0)
   const hitFigure = rate(turn.cache_hit_rate)
   const seconds = (n?: number | null) =>
-    n == null ? '—' : t('{{value}} s', { value: n.toFixed(2) })
+    n == null ? '—' : `${n.toFixed(2)} s`
   const cacheKnown = Boolean(summary.cache_reported_calls)
   const uncached = cacheKnown
     ? Math.max(
@@ -82,23 +82,23 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
   }, [open])
 
   const rows = [
-    [t('Input tokens'), number(shown.prompt_tokens)],
-    [t('Uncached input'), number(uncached)],
-    [t('Cache read'), cacheKnown ? number(shown.cache_read_input_tokens) : '—'],
+    ["Input tokens", number(shown.prompt_tokens)],
+    ["Uncached input", number(uncached)],
+    ["Cache read", cacheKnown ? number(shown.cache_read_input_tokens) : '—'],
     [
-      t('Cache write'),
+      "Cache write",
       number(summary.cache_write_reported_calls ? summary.cache_creation_input_tokens : null),
     ],
-    [t('Output tokens'), number(shown.completion_tokens)],
-    [t('Reasoning tokens'), number(shown.reasoning_tokens)],
-    [t('Cache hit rate'), rate(shown.cache_hit_rate)],
-    [t('Model time'), seconds(shown.duration_seconds)],
-    [t('TTFT'), seconds(shown.ttft_seconds)],
+    ["Output tokens", number(shown.completion_tokens)],
+    ["Reasoning tokens", number(shown.reasoning_tokens)],
+    ["Cache hit rate", rate(shown.cache_hit_rate)],
+    ["Model time", seconds(shown.duration_seconds)],
+    ["TTFT", seconds(shown.ttft_seconds)],
     [
-      t('TPS'),
+      "TPS",
       shown.tokens_per_second == null
         ? '—'
-        : t('{{value}} tok/s', { value: shown.tokens_per_second.toFixed(1) }),
+        : `${shown.tokens_per_second.toFixed(1)} tok/s`,
     ],
   ]
   return (
@@ -112,18 +112,18 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
         aria-expanded={open}
         aria-controls={id}
         aria-haspopup="dialog"
-        aria-label={`${tokenFigure} ${t('tokens')}, ${t('Cache hit rate')} ${hitFigure}`}
+        aria-label={`${tokenFigure} ${"tokens"}, ${"Cache hit rate"} ${hitFigure}`}
         onClick={() => setOpen(!open)}
         className="inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] tabular-nums text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--primary)] [@container(max-width:240px)]:gap-2 [@container(max-width:240px)]:px-2"
       >
         <span className="inline-flex items-center gap-1">
           <Coins size={12} strokeWidth={1.8} aria-hidden="true" />
           {tokenFigure}
-          <span className="[@container(max-width:240px)]:hidden">{t('tokens')}</span>
+          <span className="[@container(max-width:240px)]:hidden">{"tokens"}</span>
         </span>
         <span className="inline-flex items-center gap-1">
           <DatabaseZap size={12} strokeWidth={1.8} aria-hidden="true" />
-          <span className="[@container(max-width:240px)]:hidden">{t('Cache hit rate')}</span>
+          <span className="[@container(max-width:240px)]:hidden">{"Cache hit rate"}</span>
           {hitFigure}
         </span>
         <ChevronDown
@@ -138,7 +138,7 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
             ref={panel}
             id={id}
             role="dialog"
-            aria-label={t('Token usage and performance')}
+            aria-label={"Token usage and performance"}
             tabIndex={-1}
             style={position}
             className="fixed z-[100] w-[272px] max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--background)] p-3 text-xs text-[var(--foreground)] shadow-lg outline-none"
@@ -146,7 +146,7 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
             <div
               className="mb-3 flex items-center gap-1"
               role="group"
-              aria-label={t('Statistics scope')}
+              aria-label={"Statistics scope"}
             >
               {(['turn', 'session'] as const).map(value => (
                 <button
@@ -158,12 +158,12 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
                   }}
                   className={`flex-1 rounded-md px-2 py-1 text-[11px] transition-colors ${scope === value ? 'bg-[var(--muted)] font-medium' : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50'}`}
                 >
-                  {value === 'turn' ? t('This turn') : t('This session')}
+                  {value === 'turn' ? "This turn" : "This session"}
                 </button>
               ))}
               <button
                 type="button"
-                aria-label={t('Close')}
+                aria-label={"Close"}
                 onClick={() => {
                   setOpen(false)
                   anchor.current?.focus()
@@ -174,7 +174,7 @@ export function UsageFooter({ turn, session }: { turn: UsageSummary; session: Us
               </button>
             </div>
             <div className="mb-2 flex items-baseline justify-between border-b border-[var(--border)] pb-2">
-              <span className="font-medium">{t('Total tokens')}</span>
+              <span className="font-medium">{"Total tokens"}</span>
               <span className="text-base font-semibold tabular-nums">
                 {number(shown.total_tokens)}
               </span>

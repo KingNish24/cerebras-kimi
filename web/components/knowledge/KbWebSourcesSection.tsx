@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   Ban,
   Globe,
@@ -33,7 +33,7 @@ interface KbWebSourcesSectionProps {
 export default function KbWebSourcesSection({
   kbName,
 }: KbWebSourcesSectionProps) {
-  const { t } = useTranslation();
+  
   const [sources, setSources] = useState<WebSource[]>([]);
   const [jobs, setJobs] = useState<WebSourceSyncJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,7 +172,7 @@ export default function KbWebSourcesSection({
               className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
             >
               <RefreshCw className="h-3 w-3" />
-              {t("Retry")}
+              {"Retry"}
             </button>
           </>
         ) : (
@@ -187,12 +187,10 @@ export default function KbWebSourcesSection({
       <div className="flex items-center justify-between gap-3">
         <div>
           <div className="text-[13px] font-medium text-[var(--foreground)]">
-            {t("Web Sources")}
+            {"Web Sources"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-            {t(
-              "Crawl a documentation website on demand with bounded depth and page limits.",
-            )}
+            {"Crawl a documentation website on demand with bounded depth and page limits."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -207,7 +205,7 @@ export default function KbWebSourcesSection({
             ) : (
               <RefreshCw className="h-3 w-3" />
             )}
-            {syncing ? t("Syncing…") : t("Sync now")}
+            {syncing ? "Syncing…" : "Sync now"}
           </button>
           <button
             type="button"
@@ -215,7 +213,7 @@ export default function KbWebSourcesSection({
             className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
           >
             <Plus className="h-3 w-3" />
-            {t("Add source")}
+            {"Add source"}
           </button>
         </div>
       </div>
@@ -230,19 +228,19 @@ export default function KbWebSourcesSection({
         <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
           <label className="block">
             <span className="mb-1 block text-[11px] font-medium text-[var(--muted-foreground)]">
-              {t("Documentation URL")}
+              {"Documentation URL"}
             </span>
             <input
               type="url"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              placeholder={t("https://docs.deeptutor.info/")}
+              placeholder={"https://docs.deeptutor.info/"}
               className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             />
           </label>
           <label className="block">
             <span className="mb-1 block text-[11px] font-medium text-[var(--muted-foreground)]">
-              {t("Max crawl depth")}
+              {"Max crawl depth"}
             </span>
             <input
               type="number"
@@ -261,14 +259,14 @@ export default function KbWebSourcesSection({
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-3 w-3 animate-spin" />}
-              {t("Add")}
+              {"Add"}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
               className="rounded-md px-3 py-1.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
             >
-              {t("Cancel")}
+              {"Cancel"}
             </button>
           </div>
         </div>
@@ -278,7 +276,7 @@ export default function KbWebSourcesSection({
         <div className="rounded-lg border border-dashed border-[var(--border)] py-8 text-center">
           <Globe className="mx-auto mb-2 h-6 w-6 text-[var(--muted-foreground)]" />
           <p className="text-[12px] text-[var(--muted-foreground)]">
-            {t('No web sources yet. Click "Add source" to crawl a doc site.')}
+            {"No web sources yet. Click \"Add source\" to crawl a doc site."}
           </p>
         </div>
       ) : (
@@ -339,7 +337,7 @@ function WebSourceCard({
   onRetry: () => void;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const statusColor =
     source.last_sync_status === "success"
       ? "text-emerald-600 dark:text-emerald-400"
@@ -371,14 +369,14 @@ function WebSourceCard({
         </div>
         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-[var(--muted-foreground)]">
           <span>
-            {t("Depth")}: {source.max_depth}
+            {"Depth"}: {source.max_depth}
           </span>
           <span className={statusColor}>
-            {t("Status")}: {source.last_sync_status}
+            {"Status"}: {source.last_sync_status}
           </span>
           {source.page_count > 0 && (
             <span>
-              {t("Pages")}: {source.page_count}
+              {"Pages"}: {source.page_count}
             </span>
           )}
           {source.bilingual_pairings && source.bilingual_pairings.length > 0 && (
@@ -391,21 +389,21 @@ function WebSourceCard({
                 )
                 .join("\n")}
             >
-              {t("Bilingual pairs")}: {source.bilingual_pairings.length}
+              {"Bilingual pairs"}: {source.bilingual_pairings.length}
             </span>
           )}
           {lastSync && (
             <span>
-              {t("Synced")}: {lastSync}
+              {"Synced"}: {lastSync}
             </span>
           )}
           {job && (
             <span className={jobColor}>
-              {t("Schedule")}: {t(job.state === "interrupted" ? "Interrupted" : job.state)}
+              {"Schedule"}: {(job.state === "interrupted" ? "Interrupted" : job.state)}
             </span>
           )}
-          {nextRun && <span>{t("Next run")}: {nextRun}</span>}
-          {job?.cancel_requested && <span>{t("Cancelling…")}</span>}
+          {nextRun && <span>{"Next run"}: {nextRun}</span>}
+          {job?.cancel_requested && <span>{"Cancelling…"}</span>}
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <label className="inline-flex items-center gap-1.5 text-[11px]">
@@ -416,12 +414,12 @@ function WebSourceCard({
               onChange={(event) =>
                 onScheduleChange(event.target.checked, intervalValue)
               }
-              aria-label={t("Automatic sync")}
+              aria-label={"Automatic sync"}
             />
-            {t("Automatic sync")}
+            {"Automatic sync"}
           </label>
           <label className="inline-flex items-center gap-1.5 text-[11px]">
-            <span>{t("Interval hours")}</span>
+            <span>{"Interval hours"}</span>
             <input
               type="number"
               min={1}
@@ -436,7 +434,7 @@ function WebSourceCard({
                 )
               }
               className="w-16 rounded-md border border-[var(--border)] bg-[var(--card)] px-1.5 py-1 text-[11px] text-[var(--foreground)] outline-none focus:border-[var(--primary)] disabled:opacity-50"
-              aria-label={t("Interval hours")}
+              aria-label={"Interval hours"}
             />
           </label>
         </div>
@@ -453,35 +451,35 @@ function WebSourceCard({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {job?.state === "running" || job?.state === "pending" ? (
-          <Tooltip label={t("Cancel sync")} side="top">
+          <Tooltip label={"Cancel sync"} side="top">
             <button
               type="button"
               onClick={onCancel}
               disabled={busy}
-              aria-label={t("Cancel sync")}
+              aria-label={"Cancel sync"}
               className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600 disabled:opacity-50"
             >
               <Ban className="h-3.5 w-3.5" />
             </button>
           </Tooltip>
         ) : (
-          <Tooltip label={t("Retry sync")} side="top">
+          <Tooltip label={"Retry sync"} side="top">
             <button
               type="button"
               onClick={onRetry}
               disabled={busy || !source.enabled || !source.auto_sync_enabled}
-              aria-label={t("Retry sync")}
+              aria-label={"Retry sync"}
               className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
           </Tooltip>
         )}
-        <Tooltip label={t("Remove source")} side="top">
+        <Tooltip label={"Remove source"} side="top">
           <button
             type="button"
             onClick={onRemove}
-            aria-label={t("Remove source")}
+            aria-label={"Remove source"}
             className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600"
           >
             <Trash2 className="h-3.5 w-3.5" />

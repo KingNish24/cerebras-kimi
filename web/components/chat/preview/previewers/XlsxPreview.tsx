@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useBinarySource } from "./useBinarySource";
 import Tooltip from "@/shared/ui/Tooltip";
 
@@ -23,7 +23,7 @@ interface SheetModel {
  * strip. It shows cached cell text but not the workbook's visual formatting.
  */
 export default function XlsxPreview({ url }: { url: string }) {
-  const { t } = useTranslation();
+  
   const src = useBinarySource(url);
   const [sheets, setSheets] = useState<SheetModel[] | null>(null);
   const [active, setActive] = useState(0);
@@ -85,7 +85,7 @@ export default function XlsxPreview({ url }: { url: string }) {
       <div className="flex h-full flex-col items-center justify-center gap-2 px-8 text-center text-[12px] text-[var(--muted-foreground)]">
         <AlertCircle size={18} strokeWidth={1.7} className="opacity-70" />
         <p>
-          {t("Couldn't render this spreadsheet — use Download to open it.")}
+          {"Couldn't render this spreadsheet — use Download to open it."}
         </p>
       </div>
     );
@@ -95,7 +95,7 @@ export default function XlsxPreview({ url }: { url: string }) {
     return (
       <div className="flex h-full items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
         <Loader2 size={14} className="animate-spin" />
-        <span>{t("Loading preview…")}</span>
+        <span>{"Loading preview…"}</span>
       </div>
     );
   }
@@ -103,7 +103,7 @@ export default function XlsxPreview({ url }: { url: string }) {
   if (sheets.length === 0) {
     return (
       <div className="flex h-full items-center justify-center px-8 text-center text-[12px] text-[var(--muted-foreground)]">
-        {t("This workbook has no sheets to preview.")}
+        {"This workbook has no sheets to preview."}
       </div>
     );
   }
@@ -139,7 +139,7 @@ export default function XlsxPreview({ url }: { url: string }) {
         </table>
         {sheet.truncated ? (
           <p className="px-3 py-2 text-[11px] text-[var(--muted-foreground)]/70">
-            {t("Large sheet — preview truncated. Download for the full file.")}
+            {"Large sheet — preview truncated. Download for the full file."}
           </p>
         ) : null}
       </div>

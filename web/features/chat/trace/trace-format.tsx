@@ -118,7 +118,7 @@ export function describeToolCall(
   // An external provider's row is decided in `lib/trace-tools` — the whole
   // decision is data there, so it is unit-tested; only the glyph is resolved
   // here, where the marks live.
-  const providerRow = describeProviderTool(toolName, args, provider, t);
+  const providerRow = describeProviderTool(toolName, args, provider);
   if (providerRow) {
     return {
       verb: providerRow.verb,
@@ -138,46 +138,46 @@ export function describeToolCall(
   switch (toolName) {
     case "exec":
       return {
-        verb: a.language === "shell" ? t("Running command") : t("Running code"),
+        verb: a.language === "shell" ? "Running command" : "Running code",
         chip:
           a.language === "shell"
             ? clip(str(a.code), 48) || null
-            : str(a.language) || t("Python"),
+            : str(a.language) || "Python",
         mono: true,
       };
     case "rag":
       return {
-        verb: t("Searching knowledge"),
+        verb: "Searching knowledge",
         chip: clip(str(a.query)) || null,
         mono: false,
       };
     case "kb_files":
       return {
-        verb: t("Listing knowledge base files"),
+        verb: "Listing knowledge base files",
         chip: str(a.kb_name) || null,
         mono: false,
       };
     case "web_search":
       return {
-        verb: t("Searching the web"),
+        verb: "Searching the web",
         chip: clip(str(a.query)) || null,
         mono: false,
       };
     case "paper_search":
       return {
-        verb: t("Searching papers"),
+        verb: "Searching papers",
         chip: clip(str(a.query)) || null,
         mono: false,
       };
     case "web_fetch":
       return {
-        verb: t("Fetching page"),
+        verb: "Fetching page",
         chip: host(str(a.url)) || null,
         mono: true,
       };
     case "read_skill":
       return {
-        verb: t("Reading skill"),
+        verb: "Reading skill",
         chip: str(a.name) || null,
         mono: false,
       };
@@ -186,80 +186,80 @@ export function describeToolCall(
         ? (a.names as unknown[]).map((n) => String(n))
         : [];
       return {
-        verb: t("Loading tools"),
+        verb: "Loading tools",
         chip: names.join(", ") || null,
         mono: true,
       };
     }
     case "read_source":
       return {
-        verb: t("Reading source"),
+        verb: "Reading source",
         chip: str(a.source_id) || null,
         mono: false,
       };
     case "read_file":
       return {
-        verb: t("Reading file"),
+        verb: "Reading file",
         chip: basename(str(a.path)) || null,
         mono: true,
       };
     case "write_file":
       return {
-        verb: t("Writing file"),
+        verb: "Writing file",
         chip: basename(str(a.path)) || null,
         mono: true,
       };
     case "edit_file":
       return {
-        verb: t("Editing file"),
+        verb: "Editing file",
         chip: basename(str(a.path)) || null,
         mono: true,
       };
     case "list_dir":
       return {
-        verb: t("Listing files"),
+        verb: "Listing files",
         chip: basename(str(a.path)) || null,
         mono: true,
       };
     case "write_note":
       return {
-        verb: t("Writing note"),
+        verb: "Writing note",
         chip: clip(str(a.title), 40) || null,
         mono: false,
       };
     case "read_memory":
       return {
-        verb: t("Recalling memory"),
+        verb: "Recalling memory",
         chip: null,
         mono: false,
       };
     case "write_memory":
       return {
-        verb: t("Saving memory"),
+        verb: "Saving memory",
         chip: null,
         mono: false,
       };
     case "reason":
       return {
-        verb: t("Reasoning"),
+        verb: "Reasoning",
         chip: clip(str(a.query)) || null,
         mono: false,
       };
     case "brainstorm":
       return {
-        verb: t("Brainstorming"),
+        verb: "Brainstorming",
         chip: clip(str(a.topic)) || null,
         mono: false,
       };
     case "ask_user":
       return {
-        verb: t("Asking you"),
+        verb: "Asking you",
         chip: null,
         mono: false,
       };
     case "invoke_other":
       return {
-        verb: t("Proposing a Partner follow-up"),
+        verb: "Proposing a Partner follow-up",
         chip: str(a.target_partner_id)
           ? `@${str(a.target_partner_id).replace(/^@/, "")}`
           : null,
@@ -267,24 +267,24 @@ export function describeToolCall(
       };
     case "github":
       return {
-        verb: t("Querying GitHub"),
+        verb: "Querying GitHub",
         chip: str(a.target) || null,
         mono: true,
       };
     case "geogebra_analysis":
       return {
-        verb: t("Analyzing figure"),
+        verb: "Analyzing figure",
         chip: null,
         mono: false,
       };
     case "visualize":
       return {
-        verb: t("Visualizing"),
+        verb: "Visualizing",
         chip: null,
         mono: false,
       };
     case "math_animator":
-      return { verb: t("Animating"), chip: null, mono: false };
+      return { verb: "Animating", chip: null, mono: false };
     default:
       return {
         verb: titleCase(toolName),
@@ -299,7 +299,7 @@ export function humanizeQuestionId(
   t?: (key: string, opts?: Record<string, unknown>) => string,
 ) {
   return value.replace(/\bq_(\d+)\b/gi, (_match, n) =>
-    t ? t("Question {{n}}", { n }) : `Question ${n}`,
+    t ? `Question ${n}` : `Question ${n}`,
   );
 }
 
@@ -356,51 +356,47 @@ export function getTraceHeader(
     // answering. Noun header for the trace row — the turn-level status row
     // carries the verb form ("Exploring your context…") so the two never
     // read as the same label stacked on itself.
-    title = t("Context exploration");
+    title = "Context exploration";
   } else if (role === "retrieve") {
-    title = t("Retrieve");
+    title = "Retrieve";
   } else if (role === "explore" || kind === "agent_loop_round") {
-    title = t("Exploring");
+    title = "Exploring";
   } else if (kind === "tool_planning") {
-    title = t("Tool call");
+    title = "Tool call";
   } else if (group === "react_round") {
     if (nested) {
-      title = meta.round ? t("Round {{n}}", { n: meta.round }) : label;
+      title = meta.round ? `Round ${meta.round}` : label;
     } else {
-      const step = meta.step_id ? t("Step {{n}}", { n: meta.step_id }) : "";
-      const round = meta.round ? t("Round {{n}}", { n: meta.round }) : label;
+      const step = meta.step_id ? `Step ${meta.step_id}` : "";
+      const round = meta.round ? `Round ${meta.round}` : label;
       title = [step, round].filter(Boolean).join(" · ");
     }
   } else if (role === "plan" && kind === "llm_planning") {
-    title = t("Plan");
+    title = "Plan";
   } else if (role === "observe" || kind === "llm_observation") {
-    title = t("Observe");
+    title = "Observe";
   } else if (role === "quiz_question" || kind === "quiz_question_emitted") {
     // Each quiz question gets its own sub-trace card; index is 0-based in
     // metadata, so display as 1-based for the user.
     const idx = Number(meta.question_index);
     title = Number.isFinite(idx)
-      ? t("Question {{n}}", { n: idx + 1 })
-      : t("Question");
+      ? `Question ${idx + 1}`
+      : "Question";
   } else if (role === "response" || kind === "llm_final_response") {
-    title = t("Response");
+    title = "Response";
   } else if (role === "reflection" || kind === "tool_result_reflection") {
     // Tool Summarizer sub-trace (Phase 1 of the question pipeline). The
     // top-level status row carries the verbose "DeepTutor Reflecting…"
     // wording; the sub-trace just labels itself "Reflecting" so the card
     // header stays short.
-    title = t("Reflecting");
+    title = "Reflecting";
   } else if (role === "thought" || kind === "llm_reasoning") {
-    title = t("Thought");
+    title = "Thought";
   } else if (kind === "llm_generation") {
     if (/^generate\s+/i.test(label)) {
-      title = t("Generating {{label}}", {
-        label: label.replace(/^generate\s+/i, ""),
-      });
+      title = `Generating ${label.replace(/^generate\s+/i, "")}`;
     } else if (/^write\s+/i.test(label)) {
-      title = t("Writing {{label}}", {
-        label: label.replace(/^write\s+/i, ""),
-      });
+      title = `Writing ${label.replace(/^write\s+/i, "")}`;
     }
   }
 

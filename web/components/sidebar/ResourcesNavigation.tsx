@@ -1,5 +1,5 @@
 'use client'
-import { useTranslation } from 'react-i18next'
+
 import { NavigationRow, OverviewRow, Section } from './NavigationPrimitives'
 import { PersonalizationShelfIcon, ResourcesShelfIcon } from './ShelfIcons'
 import {
@@ -12,15 +12,15 @@ import { useCapabilityFilter } from '@/features/capabilities/useCapabilityCatalo
 import { navVisibleUnderPolicy } from './nav-entries'
 
 function Shelf({ groups, titled }: { groups: DashboardGroup[]; titled: boolean }) {
-  const { t, i18n } = useTranslation()
+  
   const available = useCapabilityFilter()
-  const zh = i18n.language.startsWith('zh')
+  const zh = "en".startsWith('zh')
   return visibleGroups(groups, available).map(group => {
     const rows = group.items.map(row => (
-      <NavigationRow key={row.key} href={row.href} label={zh ? row.title.zh : t(row.title.en)} icon={row.icon} />
+      <NavigationRow key={row.key} href={row.href} label={zh ? row.title.zh : (row.title.en)} icon={row.icon} />
     ))
     return titled ? (
-      <Section key={group.label.en} title={zh ? group.label.zh : t(group.label.en)}>
+      <Section key={group.label.en} title={zh ? group.label.zh : (group.label.en)}>
         {rows}
       </Section>
     ) : (
@@ -33,10 +33,10 @@ function Shelf({ groups, titled }: { groups: DashboardGroup[]; titled: boolean }
 
 /** The workspace's materials. */
 export function ResourcesNavigation() {
-  const { t } = useTranslation()
+  
   return (
     <>
-      <OverviewRow href="/space" label={t('navigation.allResources')} icon={ResourcesShelfIcon} />
+      <OverviewRow href="/space" label={"All resources"} icon={ResourcesShelfIcon} />
       <Shelf groups={DASHBOARD_GROUPS} titled />
     </>
   )
@@ -44,14 +44,14 @@ export function ResourcesNavigation() {
 
 /** What travels with the account into every workspace. */
 export function PersonalizationNavigation({ allowedSurfaces }: { allowedSurfaces: readonly string[] | null }) {
-  const { t } = useTranslation()
+  
   const groups = PERSONALIZATION_GROUPS.map(group => ({
     ...group,
     items: group.items.filter(item => item.href !== '/agents' || navVisibleUnderPolicy(item.href, allowedSurfaces)),
   }))
   return (
     <>
-      <OverviewRow href="/personalization" label={t('navigation.allPersonalization')} icon={PersonalizationShelfIcon} />
+      <OverviewRow href="/personalization" label={"All personalization"} icon={PersonalizationShelfIcon} />
       <Shelf groups={groups} titled={false} />
     </>
   )

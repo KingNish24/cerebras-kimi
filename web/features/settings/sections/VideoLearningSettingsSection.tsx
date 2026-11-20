@@ -4,7 +4,7 @@ import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useEffect, useState } from "react";
 import { CheckCircle2, Loader2, Server, Youtube } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { SettingsPageHeader } from "@/components/settings/shared";
 import {
@@ -21,7 +21,7 @@ const DEFAULTS: VideoLearningSettings = {
 };
 
 export default function VideoLearningSettingsPage() {
-  const { t } = useTranslation();
+  
   const { draftRevision } = useSettings();
   const [live, setLive] = useState(DEFAULTS);
   const [settings, setSettings] = useStagedSettings("video-learning", live, setLive);
@@ -35,24 +35,24 @@ export default function VideoLearningSettingsPage() {
         setMessage(
           error instanceof Error
             ? error.message
-            : t("Settings could not be loaded."),
+            : "Settings could not be loaded.",
         ),
       )
       .finally(() => setLoading(false));
-  }, [t, draftRevision]);
+  }, [draftRevision]);
 
   const test = async () => {
-    setMessage(t("Testing Invidious…"));
+    setMessage("Testing Invidious…");
     try {
       const result = await testInvidious(settings);
       setMessage(
         result.ok
-          ? t("Invidious connected ({{message}}).", result)
-          : t("Invidious unavailable: {{message}}", result),
+          ? `Invidious connected ({{message}}).`
+          : `Invidious unavailable: {{message}}`,
       );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : t("Connection test failed."),
+        error instanceof Error ? error.message : "Connection test failed.",
       );
     }
   };
@@ -60,10 +60,8 @@ export default function VideoLearningSettingsPage() {
   return (
     <div className="space-y-6">
       <SettingsPageHeader
-        title={t("Video Learning")}
-        description={t(
-          "Choose native YouTube or a self-hosted Invidious instance. Provider changes do not rebuild learning materials or reset progress.",
-        )}
+        title={"Video Learning"}
+        description={"Choose native YouTube or a self-hosted Invidious instance. Provider changes do not rebuild learning materials or reset progress."}
       />
       {loading ? (
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -75,16 +73,12 @@ export default function VideoLearningSettingsPage() {
                 [
                   "youtube",
                   Youtube,
-                  t(
-                    "Official privacy-enhanced IFrame Player. No media is proxied or stored.",
-                  ),
+                  "Official privacy-enhanced IFrame Player. No media is proxied or stored.",
                 ],
                 [
                   "invidious",
                   Server,
-                  t(
-                    "HTML5 playback through your configured Invidious instance.",
-                  ),
+                  "HTML5 playback through your configured Invidious instance.",
                 ],
               ] as const
             ).map(([provider, Icon, description]) => (
@@ -102,8 +96,8 @@ export default function VideoLearningSettingsPage() {
                 <div className="flex items-center gap-2 font-medium">
                   <Icon className="h-5 w-5" />
                   {provider === "youtube"
-                    ? t("Native YouTube")
-                    : t("Self-hosted Invidious")}
+                    ? "Native YouTube"
+                    : "Self-hosted Invidious"}
                 </div>
                 <p className="mt-2 text-sm text-[var(--muted-foreground)]">
                   {description}
@@ -113,9 +107,9 @@ export default function VideoLearningSettingsPage() {
           </div>
 
           <div className="space-y-4 rounded-xl border border-[var(--border)] p-5">
-            <h3 className="font-medium">{t("Invidious connection")}</h3>
+            <h3 className="font-medium">{"Invidious connection"}</h3>
             <label className="block text-sm">
-              <span className="mb-1 block">{t("Backend API origin")}</span>
+              <span className="mb-1 block">{"Backend API origin"}</span>
               <input
                 value={settings.invidious.api_base_url}
                 onChange={(event) =>
@@ -127,13 +121,13 @@ export default function VideoLearningSettingsPage() {
                     },
                   }))
                 }
-                placeholder={t("Invidious API URL")}
+                placeholder={"http://127.0.0.1:3000"}
                 className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 font-mono"
               />
             </label>
             <label className="block text-sm">
               <span className="mb-1 block">
-                {t("Browser-facing origin (optional)")}
+                {"Browser-facing origin (optional)"}
               </span>
               <input
                 value={settings.invidious.public_base_url}
@@ -146,7 +140,7 @@ export default function VideoLearningSettingsPage() {
                     },
                   }))
                 }
-                placeholder={t("Defaults to the API origin")}
+                placeholder={"Defaults to the API origin"}
                 className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 font-mono"
               />
             </label>
@@ -155,18 +149,16 @@ export default function VideoLearningSettingsPage() {
               onClick={() => void test()}
               className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
             >
-              {t("Test connection")}
+              {"Test connection"}
             </button>
           </div>
 
           <label className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] p-4 text-sm">
             <span>
-              <strong>{t("YouTube transcript adapter")}</strong>
+              <strong>{"YouTube transcript adapter"}</strong>
               <br />
               <span className="text-[var(--muted-foreground)]">
-                {t(
-                  "Optional captions; playback remains available when the package or captions are unavailable.",
-                )}
+                {"Optional captions; playback remains available when the package or captions are unavailable."}
               </span>
             </span>
             <select
@@ -184,9 +176,9 @@ export default function VideoLearningSettingsPage() {
               className="rounded-lg border border-[var(--border)] bg-transparent px-3 py-2"
             >
               <option value="youtube_transcript_api">
-                {t("youtube-transcript-api")}
+                {"youtube-transcript-api"}
               </option>
-              <option value="none">{t("Disabled")}</option>
+              <option value="none">{"Disabled"}</option>
             </select>
           </label>
 

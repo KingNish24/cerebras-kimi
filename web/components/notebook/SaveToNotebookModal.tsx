@@ -11,7 +11,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import { apiFetch, apiUrl } from "@/shared/api/client";
@@ -153,7 +153,7 @@ export default function SaveToNotebookModal({
   onClose,
   onSaved,
 }: SaveToNotebookModalProps) {
-  const { t } = useTranslation();
+  
   const [notebooks, setNotebooks] = useState<RealNotebookSummary[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [title, setTitle] = useState("");
@@ -358,7 +358,7 @@ export default function SaveToNotebookModal({
 
       if (controller.signal.aborted) return;
       if (!response.ok || !response.body) {
-        throw new Error(t("Failed to save to notebook."));
+        throw new Error("Failed to save to favorites.");
       }
 
       const reader = response.body.getReader();
@@ -385,7 +385,7 @@ export default function SaveToNotebookModal({
             setSummaryPreview(finalSummary);
           } else if (type === "error") {
             throw new Error(
-              String(event.payload.detail || t("Failed to save to notebook.")),
+              String(event.payload.detail || "Failed to save to favorites."),
             );
           } else if (type === "result") {
             // The backend skips notebooks it cannot write to and still
@@ -397,9 +397,7 @@ export default function SaveToNotebookModal({
             const rejected = selectedIds.filter((id) => !accepted.includes(id));
             if (!accepted.length) {
               throw new Error(
-                t(
-                  "No notebook accepted this save. Their files may be missing or damaged.",
-                ),
+                "No favorites accepted this save. Their files may be missing or damaged.",
               );
             }
             const summary = String(event.payload.summary || finalSummary);
@@ -409,7 +407,7 @@ export default function SaveToNotebookModal({
               const names = rejected
                 .map((id) => notebooks.find((n) => n.id === id)?.name ?? id)
                 .join("、");
-              setError(t("Could not save to: {{names}}", { names }));
+              setError(`Could not save to: ${names}`);
             }
             onSaved?.({ summary });
             setIsLoading(false);
@@ -419,11 +417,11 @@ export default function SaveToNotebookModal({
         }
       }
 
-      throw new Error(t("Notebook save stream ended unexpectedly."));
+      throw new Error("Favorites save stream ended unexpectedly.");
     } catch (err) {
       if (controller.signal.aborted) return;
       setError(
-        err instanceof Error ? err.message : t("Failed to save to notebook."),
+        err instanceof Error ? err.message : "Failed to save to favorites.",
       );
       setIsLoading(false);
     } finally {
@@ -456,15 +454,11 @@ export default function SaveToNotebookModal({
         <PickerHeader
           icon={NotebookPen}
           titleId="save-to-notebook-title"
-          title={t("Save to Notebook")}
+          title={"Save to favorites"}
           subtitle={
             hasMessageSelection
-              ? t(
-                  "Choose which messages to include, pick one or more notebooks, and a summary will be generated automatically.",
-                )
-              : t(
-                  "Select one or more notebooks. A summary will be generated automatically.",
-                )
+              ? "Choose which messages to include, pick one or more favorites collections, and a summary will be generated automatically."
+              : "Select one or more favorites collections. A summary will be generated automatically."
           }
           onClose={onClose}
         />
@@ -488,7 +482,7 @@ export default function SaveToNotebookModal({
         <div className="flex-1 space-y-5 overflow-y-auto bg-[var(--background)]/40 px-5 py-5">
           <div>
             <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
-              {t("Title")}
+              {"Title"}
             </label>
             <input
               value={title}
@@ -504,13 +498,10 @@ export default function SaveToNotebookModal({
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
                 <label className="block text-sm font-medium text-[var(--foreground)]">
-                  {t("Messages to include")}
+                  {"Messages to include"}
                 </label>
                 <span className="text-xs text-[var(--muted-foreground)]">
-                  {t("{{selected}} of {{total}} selected", {
-                    selected: selectedMessageCount,
-                    total: totalMessages,
-                  })}
+                  {`${selectedMessageCount} of ${totalMessages} selected`}
                 </span>
               </div>
               <div className="mb-2 flex flex-wrap items-center gap-1.5">
@@ -520,7 +511,7 @@ export default function SaveToNotebookModal({
                   disabled={allMessagesSelected}
                   className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("Select all")}
+                  {"Select all"}
                 </button>
                 <button
                   type="button"
@@ -528,21 +519,21 @@ export default function SaveToNotebookModal({
                   disabled={selectedMessageCount === 0}
                   className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("Clear")}
+                  {"Clear"}
                 </button>
                 <button
                   type="button"
                   onClick={() => selectLastTurns(1)}
                   className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--foreground)]"
                 >
-                  {t("Last turn")}
+                  {"Last turn"}
                 </button>
                 <button
                   type="button"
                   onClick={() => selectLastTurns(3)}
                   className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--foreground)]"
                 >
-                  {t("Last 3 turns")}
+                  {"Last 3 turns"}
                 </button>
               </div>
               <div className="max-h-72 space-y-1.5 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--card)] p-2">
@@ -579,7 +570,7 @@ export default function SaveToNotebookModal({
                       <div className="min-w-0 flex-1">
                         <div className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                           <Icon className="h-3 w-3" />
-                          <span>{t(roleLabelKey(msg.role))}</span>
+                          <span>{(roleLabelKey(msg.role))}</span>
                           <span className="text-[var(--muted-foreground)]/60">
                             ·
                           </span>
@@ -592,7 +583,7 @@ export default function SaveToNotebookModal({
                               : "text-[var(--foreground)]/85"
                           }`}
                         >
-                          {empty ? t("(empty message)") : preview}
+                          {empty ? "(empty message)" : preview}
                         </p>
                       </div>
                     </button>
@@ -605,11 +596,11 @@ export default function SaveToNotebookModal({
           <div>
             <div className="mb-2 flex items-center justify-between">
               <label className="block text-sm font-medium text-[var(--foreground)]">
-                {t("Notebooks")}
+                {"Favorites"}
               </label>
               {selectedIds.length > 0 && (
                 <span className="text-xs text-[var(--muted-foreground)]">
-                  {selectedIds.length} {t("selected")}
+                  {selectedIds.length} {"selected"}
                 </span>
               )}
             </div>
@@ -621,7 +612,7 @@ export default function SaveToNotebookModal({
               ) : notebooks.length === 0 ? (
                 <div className="flex flex-col items-center gap-2.5 px-3 py-6 text-center text-sm text-[var(--muted-foreground)]">
                   <NotebookPen className="h-5 w-5 text-[var(--muted-foreground)]/60" />
-                  <span>{t("No notebooks yet.")}</span>
+                  <span>{"No favorites collections yet."}</span>
                 </div>
               ) : (
                 notebooks.map((notebook) => {
@@ -665,7 +656,7 @@ export default function SaveToNotebookModal({
                           </p>
                         )}
                         <div className="mt-1 text-[11px] text-[var(--muted-foreground)]/85">
-                          {notebook.record_count ?? 0} {t("records")}
+                          {notebook.record_count ?? 0} {"records"}
                         </div>
                       </div>
                     </button>
@@ -681,8 +672,8 @@ export default function SaveToNotebookModal({
                   onKeyDown={(event) => {
                     if (event.key === "Enter") void handleCreateNotebook();
                   }}
-                  placeholder={t("New notebook")}
-                  aria-label={t("New notebook")}
+                  placeholder={"New collection"}
+                  aria-label={"New collection"}
                   className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
                 />
                 <button
@@ -696,7 +687,7 @@ export default function SaveToNotebookModal({
                   ) : (
                     <Plus className="h-3.5 w-3.5" />
                   )}
-                  {t("Create")}
+                  {"Create"}
                 </button>
               </div>
             )}
@@ -704,12 +695,12 @@ export default function SaveToNotebookModal({
 
           <div>
             <div className="mb-2 text-sm font-medium text-[var(--foreground)]">
-              {t("Summary preview")}
+              {"Summary preview"}
             </div>
             <div className="min-h-24 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm leading-6 text-[var(--foreground)]/85">
               {summaryPreview || (
                 <span className="text-[var(--muted-foreground)]">
-                  {t("The generated summary will appear here during saving.")}
+                  {"The generated summary will appear here during saving."}
                 </span>
               )}
             </div>
@@ -727,7 +718,7 @@ export default function SaveToNotebookModal({
             onClick={onClose}
             className="rounded-xl px-4 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             onClick={handleSave}
@@ -735,7 +726,7 @@ export default function SaveToNotebookModal({
             className="btn-primary inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {t("Save")}
+            {"Save"}
           </button>
         </div>
       </div>

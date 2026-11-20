@@ -475,8 +475,8 @@ export function useCatalogActions({
         delete model.context_window_detected_at;
       }
     });
-    setToast(t("Detected context window written to draft"));
-  }, [llmContextDetection, mutateCatalog, setToast, t]);
+    setToast("Detected context window written to draft");
+  }, [llmContextDetection, mutateCatalog, setToast]);
 
   return {
     addProfile,

@@ -332,15 +332,13 @@ export function ChatStateAdapterProvider({
                 type: "STREAM_END",
                 key: record.key,
                 status: "failed",
-                errorMessage: i18n.t("Connection lost while generating. Please retry your message."),
+                errorMessage: "Connection lost while generating. Please retry your message.",
               });
               // Surface the disconnect to the user. The WS client already
               // logs to console — we add a toast so non-debugging users
               // don't see streaming silently flatline.
               notify(
-                i18n.t(
-                  "Connection lost while generating. Please retry your message.",
-                ),
+                "Connection lost while generating. Please retry your message.",
                 {
                   tone: "error",
                   durationMs: 6000,
@@ -384,9 +382,7 @@ export function ChatStateAdapterProvider({
             type: "STREAM_END",
             key,
             status: "failed",
-            errorMessage: i18n.t(
-              "Couldn't reach the server. Please check your connection and retry.",
-            ),
+            errorMessage: "Couldn't reach the server. Please check your connection and retry.",
             // The start_turn command never left this tab — mark the turn
             // as an unsent submission rather than a failed assistant
             // reply (#1594).
@@ -396,9 +392,7 @@ export function ChatStateAdapterProvider({
           // from the close-while-streaming handler above). Same user
           // mental model, so same toast copy.
           notify(
-            i18n.t(
-              "Couldn't reach the server. Please check your connection and retry.",
-            ),
+            "Couldn't reach the server. Please check your connection and retry.",
             {
               tone: "error",
               durationMs: 6000,
@@ -1275,9 +1269,7 @@ export function ChatStateAdapterProvider({
         });
         dispatch({ type: "SET_SUBMISSION_PERSISTENCE", key, submissionId, saved: saved !== null });
         if (!saved) {
-          notify(i18n.t(
-            "This unsent message could not be saved in your browser. Copy it before leaving this page.",
-          ), { tone: "error", durationMs: 10_000 });
+          notify("This unsent message could not be saved in your browser. Copy it before leaving this page.", { tone: "error", durationMs: 10_000 });
         }
       }
       if (replacesSubmissionId && submissionId) {
@@ -1293,7 +1285,7 @@ export function ChatStateAdapterProvider({
         })) return false;
         const durable = readFailedSubmissions(submissionStorageKey).find((record) => record.submissionId === submissionId);
         if (!durable || durable.retryRequiresReview || JSON.stringify(durable.requestSnapshot) !== JSON.stringify(requestSnapshot)) {
-          notify(i18n.t("This unsent message could not be saved in your browser. Copy it before leaving this page."), { tone: "error" });
+          notify("This unsent message could not be saved in your browser. Copy it before leaving this page.", { tone: "error" });
           return false;
         }
         try {
@@ -1332,15 +1324,15 @@ export function ChatStateAdapterProvider({
     if (!session) return;
     const runner = runnersRef.current.get(key);
     if (runner) {
-      notify(i18n.t("Cancelling…"), { tone: "info" });
+      notify("Cancelling…", { tone: "info" });
       try {
         if (!await runner.client.cancelCurrentTurn()) {
-          notify(i18n.t("Couldn't reach the server. Please check your connection and retry."), { tone: "error" });
+          notify("Couldn't reach the server. Please check your connection and retry.", { tone: "error" });
           return;
         }
         if (generation !== runtimeGeneration.current) return;
       } catch {
-        notify(i18n.t("Couldn't reach the server. Please check your connection and retry."), { tone: "error" });
+        notify("Couldn't reach the server. Please check your connection and retry.", { tone: "error" });
         return;
       }
       runner.client.disconnect();
@@ -1546,7 +1538,7 @@ export function ChatStateAdapterProvider({
     try {
       remote = await getSession(session.sessionId);
     } catch {
-      notify(i18n.t("Couldn't reach the server. Please check your connection and retry."), {
+      notify("Couldn't reach the server. Please check your connection and retry.", {
         tone: "error",
       });
       return;

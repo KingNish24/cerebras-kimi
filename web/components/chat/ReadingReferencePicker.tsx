@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BookMarked, Check, ChevronRight, Loader2, Search } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import PickerHeader from "@/components/common/PickerHeader";
 import PickerShell from "@/components/common/PickerShell";
@@ -59,7 +59,7 @@ export default function ReadingReferencePicker({
   onClose,
   onApply,
 }: ReadingReferencePickerProps) {
-  const { t } = useTranslation();
+  
   const [materials, setMaterials] = useState<MaterialInfo[]>([]);
   const [details, setDetails] = useState<Record<string, MaterialDetail>>({});
   const [activeMaterialId, setActiveMaterialId] = useState<string | null>(null);
@@ -94,7 +94,7 @@ export default function ReadingReferencePicker({
         setError(
           cause instanceof Error
             ? cause.message
-            : t("Unable to load reading materials."),
+            : "Unable to load reading materials.",
         );
       })
       .finally(() => {
@@ -103,7 +103,7 @@ export default function ReadingReferencePicker({
     return () => {
       mounted = false;
     };
-  }, [initialReferences, open, t]);
+  }, [initialReferences, open]);
 
   useEffect(() => {
     if (!open || !activeMaterialId || details[activeMaterialId]) return;
@@ -124,7 +124,7 @@ export default function ReadingReferencePicker({
         setError(
           cause instanceof Error
             ? cause.message
-            : t("Unable to load reading sections."),
+            : "Unable to load reading sections.",
         );
       })
       .finally(() => {
@@ -133,7 +133,7 @@ export default function ReadingReferencePicker({
     return () => {
       mounted = false;
     };
-  }, [activeMaterialId, details, open, t]);
+  }, [activeMaterialId, details, open]);
 
   const filteredMaterials = useMemo(() => {
     const keyword = query.trim().toLocaleLowerCase();
@@ -167,16 +167,13 @@ export default function ReadingReferencePicker({
     if (!activeDetail) return [];
     return Array.from({ length: activeDetail.unit_count }, (_, index) => {
       const locator = index + 1;
-      const fallback = t("{{unit}} {{locator}}", {
-        unit: t(activeDetail.unit),
-        locator,
-      });
+      const fallback = `${(activeDetail.unit)} ${locator}`;
       return {
         locator,
         title: unitTitle(activeDetail, locator, fallback),
       } satisfies SelectedReadingUnit;
     });
-  }, [activeDetail, t]);
+  }, [activeDetail]);
   const allActiveSelected =
     Boolean(activeMaterial) &&
     activeUnits.length > 0 &&
@@ -198,9 +195,7 @@ export default function ReadingReferencePicker({
     );
     if (!existing && selected.length >= MAX_READING_REFERENCE_MATERIALS) {
       setError(
-        t("You can reference up to {{count}} reading materials at once.", {
-          count: MAX_READING_REFERENCE_MATERIALS,
-        }),
+        `You can reference up to ${MAX_READING_REFERENCE_MATERIALS} reading materials at once.`,
       );
       return;
     }
@@ -213,18 +208,14 @@ export default function ReadingReferencePicker({
     if (!additions.length) {
       if (pending.length) {
         setError(
-          t("You can reference up to {{count}} reading sections at once.", {
-            count: MAX_READING_REFERENCE_UNITS,
-          }),
+          `You can reference up to ${MAX_READING_REFERENCE_UNITS} reading sections at once.`,
         );
       }
       return;
     }
     if (additions.length < pending.length) {
       setError(
-        t("Only the first {{count}} available sections were selected.", {
-          count: additions.length,
-        }),
+        `Only the first ${additions.length} available sections were selected.`,
       );
     } else {
       setError(null);
@@ -318,10 +309,8 @@ export default function ReadingReferencePicker({
           resourceKind="reading"
           icon={BookMarked}
           titleId="reading-reference-picker-title"
-          title={t("Select Reading Sections")}
-          subtitle={t(
-            "Choose sections from imported reading materials to ground the next answer.",
-          )}
+          title={"Select Reading Sections"}
+          subtitle={"Choose sections from imported reading materials to ground the next answer."}
           onClose={onClose}
         />
 
@@ -341,7 +330,7 @@ export default function ReadingReferencePicker({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search reading materials")}
+                placeholder={"Search reading materials"}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
               />
             </div>
@@ -379,7 +368,7 @@ export default function ReadingReferencePicker({
                             {material.title || material.filename}
                           </span>
                           <span className="mt-0.5 block text-[11px] text-[var(--muted-foreground)]">
-                            {material.unit_count} {t("sections")}
+                            {material.unit_count} {"sections"}
                           </span>
                         </span>
                         {count > 0 ? (
@@ -394,7 +383,7 @@ export default function ReadingReferencePicker({
                 </div>
               ) : (
                 <div className="px-5 py-10 text-center text-[13px] text-[var(--muted-foreground)]">
-                  {t("No reading materials found.")}
+                  {"No reading materials found."}
                 </div>
               )}
             </div>
@@ -403,7 +392,7 @@ export default function ReadingReferencePicker({
           <section className="min-h-0 overflow-y-auto p-5">
             {!activeMaterial ? (
               <div className="flex h-full items-center justify-center text-sm text-[var(--muted-foreground)]">
-                {t("Select a reading material to view sections.")}
+                {"Select a reading material to view sections."}
               </div>
             ) : loadingDetail && !activeDetail ? (
               <div className="flex h-full items-center justify-center">
@@ -425,7 +414,7 @@ export default function ReadingReferencePicker({
                     onClick={toggleAllActive}
                     className="shrink-0 rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
                   >
-                    {allActiveSelected ? t("Clear material") : t("Select all")}
+                    {allActiveSelected ? "Clear material" : "Select all"}
                   </button>
                 </div>
                 <div className="divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background)]/35">
@@ -462,10 +451,7 @@ export default function ReadingReferencePicker({
                             {unit.title}
                           </span>
                           <span className="mt-0.5 block text-[11px] text-[var(--muted-foreground)]">
-                            {t("{{unit}} {{locator}}", {
-                              unit: t(activeMaterial.unit),
-                              locator: unit.locator,
-                            })}
+                            {`${(activeMaterial.unit)} ${unit.locator}`}
                           </span>
                         </span>
                       </button>
@@ -480,10 +466,8 @@ export default function ReadingReferencePicker({
         <div className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-4">
           <div className="text-sm text-[var(--muted-foreground)]">
             {selectedCount
-              ? t("{{count}} reading sections selected", {
-                  count: selectedCount,
-                })
-              : t("No reading sections selected")}
+              ? `${selectedCount} reading sections selected`
+              : "No reading sections selected"}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -494,7 +478,7 @@ export default function ReadingReferencePicker({
               }}
               className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
-              {t("Clear")}
+              {"Clear"}
             </button>
             <button
               type="button"
@@ -504,7 +488,7 @@ export default function ReadingReferencePicker({
               }}
               className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
             >
-              {t("Apply")}
+              {"Apply"}
             </button>
           </div>
         </div>

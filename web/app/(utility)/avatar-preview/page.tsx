@@ -3,7 +3,7 @@
 // TEMPORARY harness for the session-avatar states. Delete once signed off.
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SessionAvatar,
@@ -56,7 +56,7 @@ function SidebarMock({
 }
 
 export default function AvatarPreview() {
-  const { t } = useTranslation();
+  
   const [phase, setPhase] = useState(0);
   const [auto, setAuto] = useState(true);
   const [size, setSize] = useState(12);
@@ -75,9 +75,9 @@ export default function AvatarPreview() {
 
   return (
     <div className="h-full overflow-y-auto bg-[var(--background)] p-8 text-[var(--foreground)]">
-      <h1 className="text-[15px] font-semibold">{t("Session avatars — states")}</h1>
+      <h1 className="text-[15px] font-semibold">{"Session avatars — states"}</h1>
       <p className="mt-1 max-w-[720px] text-[12.5px] leading-[1.7] text-[var(--muted-foreground)]">
-        {t("Avatar state preview description")}
+        {"Running uses a blue animated orb; unread uses a solid blue dot; failed uses an amber dot; idle uses a thin gray ring. Rows start at different stages and advance every 1.8 seconds so states and transitions can be compared."}
       </p>
 
       <div className="mt-5 flex items-center gap-3 text-[12.5px]">
@@ -86,16 +86,16 @@ export default function AvatarPreview() {
           onClick={() => setAuto((v) => !v)}
           className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
-          {auto ? t("Pause") : t("Play")}
+          {auto ? "Pause" : "Play"}
         </button>
         <button
           type="button"
           onClick={() => setPhase((p) => p + 1)}
           className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
-          {t("Step forward")}
+          {"Step forward"}
         </button>
-        <span className="ml-2 text-[var(--muted-foreground)]/60">{t("Size")}</span>
+        <span className="ml-2 text-[var(--muted-foreground)]/60">{"Size"}</span>
         {[11, 12, 13, 14].map((px) => (
           <button
             key={px}
@@ -115,14 +115,14 @@ export default function AvatarPreview() {
       <div className="mt-7 flex flex-wrap items-start gap-10">
         <div>
           <div className="mb-2 text-[11px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]/50">
-            {t("Sidebar 1:1")}
+            {"Sidebar 1:1"}
           </div>
           <SidebarMock marks={marks} size={size} />
         </div>
 
         <div>
           <div className="mb-2 text-[11px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]/50">
-            {t("State snapshots · 4× zoom")}
+            {"State snapshots · 4× zoom"}
           </div>
           <div className="flex gap-7 rounded-xl border border-[var(--border)]/60 p-5">
             {(
@@ -133,7 +133,7 @@ export default function AvatarPreview() {
                   <SessionAvatar sessionId={mark} mark={mark} size={size} />
                 </span>
                 <span className="text-[11px] text-[var(--muted-foreground)]/60">
-                  {t({ running: "Running", unread: "Unread", failed: "Failed", idle: "Idle" }[mark])}
+                  {({ running: "Running", unread: "Unread", failed: "Failed", idle: "Idle" }[mark])}
                 </span>
               </div>
             ))}

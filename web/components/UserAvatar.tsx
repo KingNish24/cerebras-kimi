@@ -21,7 +21,7 @@ import {
   Sun,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   AVATAR_COLOR_NAMES,
   AVATAR_COLORS,
@@ -93,7 +93,7 @@ export function UserAvatar({
   className,
   suppressTitle = false,
 }: UserAvatarProps) {
-  const { t } = useTranslation();
+  
   const [imageBroken, setImageBroken] = useState(false);
   // A re-upload changes the marker version; give the new URL a fresh chance.
   // Render-time reset (instead of an effect) per react.dev's "adjusting
@@ -134,7 +134,7 @@ export function UserAvatar({
         outlineOffset: `${Math.max(1, size / 28)}px`,
       }
     : undefined;
-  const adminLabel = t("Administrator");
+  const adminLabel = "Administrator";
 
   return (
     <span

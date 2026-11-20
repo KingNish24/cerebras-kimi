@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { StatusStripDivider } from "@/components/settings/shared";
@@ -59,22 +59,22 @@ function pressureDotClass(ratio: number | null | undefined): string {
 }
 
 export default function MemoryUsageItem() {
-  const { t } = useTranslation();
+  
   const [usage, setUsage] = useState<MemoryUsage | null>(null);
 
   const roleLabel = useCallback(
     (row: MemoryProcess) => {
       const known: Record<string, string> = {
-        backend: t("Backend"),
-        web: t("Frontend"),
-        sandbox: t("Sandbox"),
-        supervisor: t("Supervisor"),
-        other: t("Other"),
+        backend: "Backend",
+        web: "Frontend",
+        sandbox: "Sandbox",
+        supervisor: "Supervisor",
+        other: "Other",
       };
       const name = known[row.label] ?? row.label;
       return row.count > 1 ? `${name} ×${row.count}` : name;
     },
-    [t],
+    [],
   );
 
   useEffect(() => {
@@ -122,11 +122,7 @@ export default function MemoryUsageItem() {
   const summary =
     percent == null || !usage.limit_bytes
       ? used
-      : t("{{used}} · {{percent}}% of {{total}}", {
-          used,
-          percent,
-          total: formatBytes(usage.limit_bytes),
-        });
+      : `${used} · ${percent}% of ${formatBytes(usage.limit_bytes)}`;
 
   return (
     <Fragment>
@@ -137,7 +133,7 @@ export default function MemoryUsageItem() {
         />
         <div className="flex items-baseline gap-2">
           <span className="text-[13px] font-medium leading-none tracking-tight text-[var(--foreground)]">
-            {t("System memory")}
+            {"System memory"}
           </span>
           <span className="text-[12px] leading-none tabular-nums text-[var(--muted-foreground)]">
             {summary}
@@ -157,20 +153,18 @@ export default function MemoryUsageItem() {
         ))}
         <span className="tabular-nums">
           {usage.limit_source === "cgroup"
-            ? t("Container available")
-            : t("System available")}{" "}
+            ? "Container available"
+            : "System available"}{" "}
           <span className="text-[var(--foreground)]/70">
             {formatBytes(usage.available_bytes)}
           </span>
         </span>
         {usage.partial && (
           <Tooltip
-            label={t(
-              "Only the backend and its own children. Start DeepTutor through the launcher to include the web server.",
-            )}
+            label={"Only the backend and its own children. Start DeepTutor through the launcher to include the web server."}
             side="top"
           >
-            <span role="note" tabIndex={0}>{t("(backend only)")}</span>
+            <span role="note" tabIndex={0}>{"(backend only)"}</span>
           </Tooltip>
         )}
       </div>

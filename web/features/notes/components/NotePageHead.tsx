@@ -1,7 +1,7 @@
 'use client'
 
 import { useLayoutEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { ImageIcon, SmilePlus } from 'lucide-react'
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
 import type { NotePage } from '@/lib/notes-api'
@@ -64,7 +64,7 @@ export default function NotePageHead({
   onTitle: (title: string) => void
   onMetadata: (patch: Partial<NotePage>) => void
 }) {
-  const { t } = useTranslation()
+  
   const [iconOpen, setIconOpen] = useState(false)
   const [coverOpen, setCoverOpen] = useState(false)
   const [customIcon, setCustomIcon] = useState('')
@@ -85,13 +85,13 @@ export default function NotePageHead({
   }
   const coverPicker = (trigger: React.ReactNode) => (
     <Picker open={coverOpen} setOpen={setCoverOpen} trigger={trigger}>
-      <div className="dt-menu-label">{t('Cover')}</div>
+      <div className="dt-menu-label">{"Cover"}</div>
       <div className="dt-note-cover-grid">
         {PAGE_COVERS.map(cover => (
           <button
             key={cover}
             role="menuitemradio"
-            aria-label={t('Set cover color', { color: cover })}
+            aria-label={`Set cover color ${cover}`}
             aria-checked={page.cover === cover}
             style={{ background: cover }}
             onClick={() => {
@@ -112,7 +112,7 @@ export default function NotePageHead({
               onMetadata({ cover: '' })
             }}
           >
-            {t('Remove cover')}
+            {"Remove cover"}
           </button>
         </>
       )}
@@ -120,7 +120,7 @@ export default function NotePageHead({
   )
   const iconPicker = (trigger: React.ReactNode, className?: string) => (
     <Picker open={iconOpen} setOpen={openIcons} trigger={trigger} className={className}>
-      <div className="dt-menu-label">{t('Page icon')}</div>
+      <div className="dt-menu-label">{"Page icon"}</div>
       <div className="dt-note-icon-grid">
         {PAGE_ICONS.map(icon => (
           <button
@@ -142,8 +142,8 @@ export default function NotePageHead({
         }}
       >
         <input
-          aria-label={t('Any emoji')}
-          placeholder={t('Paste any emoji…')}
+          aria-label={"Any emoji"}
+          placeholder={"Paste any emoji…"}
           maxLength={10}
           value={customIcon}
           onChange={e => setCustomIcon(e.target.value)}
@@ -153,7 +153,7 @@ export default function NotePageHead({
         <>
           <div className="dt-menu-divider" />
           <button role="menuitem" className="dt-menu-item is-quiet" onClick={() => pickIcon('')}>
-            {t('Remove icon')}
+            {"Remove icon"}
           </button>
         </>
       )}
@@ -172,7 +172,7 @@ export default function NotePageHead({
                 aria-expanded={coverOpen}
                 onClick={() => setCoverOpen(!coverOpen)}
               >
-                {t('Change cover')}
+                {"Change cover"}
               </button>
             )}
           </div>
@@ -184,7 +184,7 @@ export default function NotePageHead({
             <button
               className="dt-note-page-icon"
               disabled={disabled}
-              aria-label={t('Change icon')}
+              aria-label={"Change icon"}
               aria-haspopup="menu"
               aria-expanded={iconOpen}
               onClick={() => openIcons(!iconOpen)}
@@ -204,7 +204,7 @@ export default function NotePageHead({
                 onClick={() => openIcons(!iconOpen)}
               >
                 <SmilePlus size={15} strokeWidth={1.7} />
-                {t('Add icon')}
+                {"Add icon"}
               </button>
             )}
           {!page.cover &&
@@ -217,7 +217,7 @@ export default function NotePageHead({
                 onClick={() => setCoverOpen(!coverOpen)}
               >
                 <ImageIcon size={15} strokeWidth={1.7} />
-                {t('Add cover')}
+                {"Add cover"}
               </button>
             )}
         </div>
@@ -225,8 +225,8 @@ export default function NotePageHead({
           ref={title}
           rows={1}
           disabled={disabled}
-          aria-label={t('Page title')}
-          placeholder={t('Untitled')}
+          aria-label={"Page title"}
+          placeholder={"Untitled"}
           className="dt-note-page-title"
           value={page.title}
           onKeyDown={e => {

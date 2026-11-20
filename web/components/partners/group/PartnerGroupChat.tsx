@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { useChatAutoScroll } from "@/hooks/useChatAutoScroll";
 import { TurnNavigator } from "@/components/chat/home/TurnNavigator";
@@ -53,7 +53,7 @@ export default function PartnerGroupChat({
   /** Lift the settled transcript to page-level export controls. */
   onMessagesChange?: (messages: PartnerGroupMessage[]) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [quote, setQuote] = useState<QuotedSpeech | null>(null);
   const [board, setBoard] = useState<WhiteboardEntry[]>([]);
   const [panelTab, setPanelTab] = useState<PanelTab>("reasoning");
@@ -165,15 +165,12 @@ export default function PartnerGroupChat({
   const handleAskPeer = useCallback(
     (requesterId: string, targetId: string, content: string) => {
       const excerpt = content.trim().slice(0, 400);
-      const question = t(
-        "Here is the point I just made: “{{excerpt}}”. What is your take on it?",
-        { excerpt },
-      );
+      const question = `Here is the point I just made: “${excerpt}”. What is your take on it?`;
       const ok = askPeer(requesterId, targetId, question);
-      if (!ok) setError(t("Group is reconnecting"));
+      if (!ok) setError("Group is reconnecting");
       return ok;
     },
-    [askPeer, setError, t],
+    [askPeer, setError],
   );
 
   const refreshBoard = useCallback(() => {
@@ -249,7 +246,7 @@ export default function PartnerGroupChat({
                   />
                   <div className="min-w-0">
                     <p className="text-[11.5px] font-medium text-red-500">
-                      {t("This round could not finish")}
+                      {"This round could not finish"}
                     </p>
                     <p className="mt-0.5 break-words text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                       {error}
@@ -277,7 +274,7 @@ export default function PartnerGroupChat({
           onClearQuote={() => setQuote(null)}
           onSend={(content, mentions) => {
             const ok = send(content, mentions);
-            if (!ok) setError(t("Group is reconnecting"));
+            if (!ok) setError("Group is reconnecting");
             else setError("");
             return ok;
           }}

@@ -9,7 +9,7 @@ import type { LightboxImage } from "@/lib/reading-images";
 export type { LightboxImage };
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useTranslation } from "react-i18next";
+
 
 import { PreferenceButton } from "./ReaderDisplayControls";
 
@@ -78,7 +78,7 @@ export function ReaderImageLightbox({
   const hasNeighbours = images.length > 1;
   const atFirst = index <= 0;
   const atLast = index >= images.length - 1;
-  const { t } = useTranslation();
+  
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
     pointerId: number;
@@ -254,7 +254,7 @@ export function ReaderImageLightbox({
       ref={backdropRef}
       role="dialog"
       aria-modal="true"
-      aria-label={t("Image")}
+      aria-label={"Image"}
       tabIndex={-1}
       // The EPUB reader turns pages from a `window` keydown listener on the
       // bubble phase, so a `preventDefault()` here would not stop it. That
@@ -366,13 +366,13 @@ export function ReaderImageLightbox({
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
         <div
           role="toolbar"
-          aria-label={t("Zoom level")}
+          aria-label={"Zoom level"}
           className="pointer-events-auto flex items-center gap-0.5 rounded-xl bg-white/10 px-1.5 py-1 text-white backdrop-blur"
         >
           {hasNeighbours && (
             <>
               <PreferenceButton
-                label={t("Previous image")}
+                label={"Previous image"}
                 icon={ChevronLeft}
                 // Disabled rather than wrapping: the reader can see where the
                 // list ends, and a wrap makes "left" mean two different things
@@ -384,7 +384,7 @@ export function ReaderImageLightbox({
                 {`${index + 1} / ${images.length}`}
               </span>
               <PreferenceButton
-                label={t("Next image")}
+                label={"Next image"}
                 icon={ChevronRight}
                 disabled={atLast}
                 onClick={() => stepTo(index + 1)}
@@ -393,7 +393,7 @@ export function ReaderImageLightbox({
             </>
           )}
           <PreferenceButton
-            label={t("Zoom out")}
+            label={"Zoom out"}
             icon={ZoomOut}
             disabled={view.scale <= MIN_IMAGE_ZOOM}
             onClick={() => zoomByFactor(1 / BUTTON_STEP)}
@@ -402,17 +402,17 @@ export function ReaderImageLightbox({
             {`${Math.round(view.scale * 100)}%`}
           </span>
           <PreferenceButton
-            label={t("Zoom in")}
+            label={"Zoom in"}
             icon={ZoomIn}
             disabled={view.scale >= MAX_IMAGE_ZOOM}
             onClick={() => zoomByFactor(BUTTON_STEP)}
           />
           <PreferenceButton
-            label={t("Fit")}
+            label={"Fit"}
             icon={Maximize}
             onClick={resetView}
           />
-          <PreferenceButton label={t("Close")} icon={X} onClick={onClose} />
+          <PreferenceButton label={"Close"} icon={X} onClick={onClose} />
         </div>
       </div>
     </div>,

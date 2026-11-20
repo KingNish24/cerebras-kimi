@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from '@/shared/router/link'
-import { useTranslation } from 'react-i18next'
+
 import {
   getWorkspaceResources,
   type WorkspaceResources,
@@ -18,7 +18,7 @@ export function WorkspaceResourcePicker({
   onChange: (value: WorkspaceResources) => void
   workspaceId?: string
 }) {
-  const { t } = useTranslation()
+  
   const [catalog, setCatalog] = useState<WorkspaceResourceCatalog | null>(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -44,11 +44,9 @@ export function WorkspaceResourcePicker({
   return (
     <div className="space-y-3">
       <div>
-        <h4 className="text-sm font-medium">{t('Assigned resources')}</h4>
+        <h4 className="text-sm font-medium">{"Assigned resources"}</h4>
         <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            'Resources are managed in Learning Space. Assigning them creates references; removing an assignment keeps the original resource.'
-          )}
+          {"Resources are managed in Learning Space. Assigning them creates references; removing an assignment keeps the original resource."}
         </p>
       </div>
       {error && (
@@ -63,7 +61,7 @@ export function WorkspaceResourcePicker({
               setAttempt(n => n + 1)
             }}
           >
-            {t('Retry')}
+            {"Retry"}
           </button>
         </p>
       )}
@@ -73,42 +71,40 @@ export function WorkspaceResourcePicker({
         const missing = (selected ?? []).filter(id => !items.some(item => item.id === id))
         return (
           <fieldset key={key} className="rounded-lg border border-[var(--border)] p-3">
-            <legend className="px-1 text-xs font-medium">{t(label)}</legend>
+            <legend className="px-1 text-xs font-medium">{(label)}</legend>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <select
-                aria-label={t('{{resource}} assignment mode', { resource: t(label) })}
+                aria-label={`${(label)} assignment mode`}
                 value={selected === null ? 'inherit' : 'selected'}
                 className="max-w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-xs"
                 onChange={event =>
                   onChange({ ...value, [key]: event.target.value === 'inherit' ? null : [] })
                 }
               >
-                <option value="inherit">{t('Inherit available resources')}</option>
-                <option value="selected">{t('Only selected resources')}</option>
+                <option value="inherit">{"Inherit available resources"}</option>
+                <option value="selected">{"Only selected resources"}</option>
               </select>
               <Link
                 className="text-xs underline underline-offset-2 text-[var(--muted-foreground)]"
                 href={href}
               >
-                {t('Manage library')}
+                {"Manage library"}
               </Link>
             </div>
             {selected === null ? (
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {t(
-                  'Keeps existing access rules. Newly available resources are included automatically.'
-                )}
+                {"Keeps existing access rules. Newly available resources are included automatically."}
               </p>
             ) : (
               <>
                 {!catalog && !error && (
                   <p role="status" className="mt-2 text-xs">
-                    {t('Loading resources…')}
+                    {"Loading resources…"}
                   </p>
                 )}
                 {catalog && !items.length && (
                   <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                    {t('No resources available. Add resources in Learning Space first.')}
+                    {"No resources available. Add resources in Learning Space first."}
                   </p>
                 )}
                 <div className="mt-2 max-h-52 space-y-1 overflow-y-auto">
@@ -133,7 +129,7 @@ export function WorkspaceResourcePicker({
                       <span className="min-w-0 text-xs">
                         <span className="break-words font-medium">{item.name}</span>
                         <span className="ml-2 text-[var(--muted-foreground)]">
-                          {item.provenance_label || t(item.source || 'account')}
+                          {item.provenance_label || (item.source || 'account')}
                         </span>
                         {item.description && (
                           <span className="mt-0.5 block text-[var(--muted-foreground)]">
@@ -142,7 +138,7 @@ export function WorkspaceResourcePicker({
                         )}
                         {item.available === false && (
                           <span className="ml-2 text-[var(--muted-foreground)]">
-                            {t('Currently unavailable')}
+                            {"Currently unavailable"}
                           </span>
                         )}
                       </span>
@@ -162,15 +158,15 @@ export function WorkspaceResourcePicker({
                           }
                         />
                         <span>
-                          {id} — {t('Resource missing or access removed')}
+                          {id} — {"Resource missing or access removed"}
                         </span>
                       </label>
                     ))}
                 </div>
                 <p className="mt-2 text-xs text-[var(--muted-foreground)]">
                   {selected.length
-                    ? t('{{count}} resources selected', { count: selected.length })
-                    : t('None selected. This resource type is unavailable in this workspace.')}
+                    ? `${selected.length} resources selected`
+                    : "None selected. This resource type is unavailable in this workspace."}
                 </p>
               </>
             )}

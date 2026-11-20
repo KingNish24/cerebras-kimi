@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { AlertTriangle, ClipboardList, Inbox, Loader2, Search } from "lucide-react";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
 import BankScopeRail from "./BankScopeRail";
@@ -51,7 +51,7 @@ export default function QuestionBankSection({
   onPractice?: (ids: number[]) => void;
   onChanged?: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const bank = useQuestionBank({ mistakesOnly });
   useEffect(() => {
     onChanged?.();
@@ -65,14 +65,12 @@ export default function QuestionBankSection({
     <div className="space-y-3">
       {!embedded && (
         <SpaceSectionHeader
-          title={t("Question Bank")}
-          description={t(
-            "Review and organize quiz questions across sessions. Bookmark items, group them into categories, and jump back to the original chat.",
-          )}
+          title={"Question Bank"}
+          description={"Review and organize quiz questions across sessions. Bookmark items, group them into categories, and jump back to the original chat."}
           meta={
             <>
               <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
-                {bank.stats.total} {t("questions.count.suffix")}
+                {bank.stats.total} {"questions"}
               </span>
             </>
           }
@@ -83,10 +81,8 @@ export default function QuestionBankSection({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-[var(--muted-foreground)]">
             {mistakesOnly
-              ? t(
-                  "Mistakes stay here after review. Mark a question resolved to pause its daily reviews.",
-                )
-              : t("Questions from every source, together with your own imports.")}
+              ? "Mistakes stay here after review. Mark a question resolved to pause its daily reviews."
+              : "Questions from every source, together with your own imports."}
           </p>
           <button
             type="button"
@@ -97,8 +93,8 @@ export default function QuestionBankSection({
             className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--muted)] disabled:opacity-40"
           >
             {selectedIds.length
-              ? t("Practice selected ({{count}})", { count: selectedIds.length })
-              : t("Practice this page")}
+              ? `Practice selected (${selectedIds.length})`
+              : "Practice this page"}
           </button>
         </div>
       )}
@@ -143,7 +139,7 @@ export default function QuestionBankSection({
             <AlertTriangle size={18} />
           </div>
           <p className="text-[14px] font-medium text-[var(--foreground)]">
-            {t("Failed to load entries")}
+            {"Failed to load entries"}
           </p>
           <p className="mt-1.5 max-w-xs text-[13px] text-[var(--muted-foreground)]">{bank.error}</p>
           <button
@@ -151,34 +147,34 @@ export default function QuestionBankSection({
             onClick={() => void bank.refresh()}
             className="mt-3 rounded-lg bg-[var(--primary)] px-4 py-1.5 text-[12px] font-medium text-white"
           >
-            {t("Retry")}
+            {"Retry"}
           </button>
         </div>
       ) : bank.items.length === 0 ? (
         searching ? (
           <EmptyState
             icon={Search}
-            title={t("No matching questions")}
-            hint={t("Try a different word, or clear the search to see everything.")}
+            title={"No matching questions"}
+            hint={"Try a different word, or clear the search to see everything."}
           />
         ) : bank.scope.kind === "uncategorized" ? (
           <EmptyState
             icon={Inbox}
-            title={t("Everything is filed")}
-            hint={t("No questions are waiting to be sorted into a category.")}
+            title={"Everything is filed"}
+            hint={"No questions are waiting to be sorted into a category."}
           />
         ) : bank.stats.total === 0 ? (
             <EmptyState
               icon={ClipboardList}
-              title={t("No entries yet")}
-              hint={t("Questions from your quizzes will appear here.")}
+              title={"No entries yet"}
+              hint={"Questions from your quizzes will appear here."}
             />
 
         ) : (
           <EmptyState
             icon={ClipboardList}
-            title={t("Nothing in this view")}
-            hint={t("Switch to another filter to see your other questions.")}
+            title={"Nothing in this view"}
+            hint={"Switch to another filter to see your other questions."}
           />
         )
       ) : (
@@ -201,7 +197,7 @@ export default function QuestionBankSection({
                 onToggleBookmark={() => void bank.toggleBookmark(entry)}
                 onToggleResolved={() => void bank.toggleResolved(entry)}
                 onDelete={() => {
-                  if (window.confirm(t("Delete this entry?"))) void bank.removeEntry(entry);
+                  if (window.confirm("Delete this entry?")) void bank.removeEntry(entry);
                 }}
                 onFile={categoryId => bank.fileEntries([entry.id], categoryId)}
                 onUnfile={categoryId => bank.unfileEntries([entry.id], categoryId)}
@@ -212,7 +208,7 @@ export default function QuestionBankSection({
 
           {(bank.total > 60 || bank.page > 0) && (
             <nav
-              aria-label={t("Question pages")}
+              aria-label={"Question pages"}
               className="flex items-center justify-center gap-4 py-3 text-sm"
             >
               <button
@@ -221,13 +217,10 @@ export default function QuestionBankSection({
                 onClick={() => bank.setPage(bank.page - 1)}
                 className="rounded-lg border border-[var(--border)] px-3 py-2 disabled:opacity-40"
               >
-                {t("Previous page")}
+                {"Previous page"}
               </button>
               <span className="text-[var(--muted-foreground)]">
-                {t("Page {{page}} of {{pages}}", {
-                  page: bank.page + 1,
-                  pages: Math.max(1, Math.ceil(bank.total / 60)),
-                })}
+                {`Page ${bank.page + 1} of ${Math.max(1, Math.ceil(bank.total / 60))}`}
               </span>
               <button
                 type="button"
@@ -235,7 +228,7 @@ export default function QuestionBankSection({
                 onClick={() => bank.setPage(bank.page + 1)}
                 className="rounded-lg border border-[var(--border)] px-3 py-2 disabled:opacity-40"
               >
-                {t("Next page")}
+                {"Next page"}
               </button>
             </nav>
           )}

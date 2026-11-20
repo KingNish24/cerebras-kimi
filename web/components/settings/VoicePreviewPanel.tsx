@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import { Loader2, Volume2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { useSettings } from '@/features/settings/store/SettingsStore'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { modelTestFingerprint } from '@/lib/model-settings'
@@ -40,10 +40,10 @@ function PreviewRequest({
   modelId: string
   maxChars: number
 }) {
-  const { t, i18n } = useTranslation()
+  
   const { draft } = useSettings()
   const [text, setText] = useState(() =>
-    i18n?.language?.startsWith('zh')
+    "en"?.startsWith('zh')
       ? '你好，我是你的学习伙伴。让我们一起探索新的知识。'
       : 'Hello, I am your learning companion. Let us explore something new together.'
   )
@@ -88,7 +88,7 @@ function PreviewRequest({
         throw new Error(
           typeof payload.detail === 'string' && payload.detail.trim()
             ? payload.detail
-            : t('Voice preview failed (HTTP {{status}}).', { status: response.status })
+            : `Voice preview failed (HTTP ${response.status}).`
         )
       }
       const audio = await response.blob()
@@ -106,9 +106,9 @@ function PreviewRequest({
     }
   }
   return (
-    <section aria-label={t('Voice preview')} className={`space-y-3 p-4 ${subPanelClass}`}>
+    <section aria-label={"Voice preview"} className={`space-y-3 p-4 ${subPanelClass}`}>
       <div className="flex items-center justify-between gap-3">
-        <h4 className="text-sm font-medium">{t('Voice preview')}</h4>
+        <h4 className="text-sm font-medium">{"Voice preview"}</h4>
         <button
           type="button"
           className={registryButton}
@@ -116,11 +116,11 @@ function PreviewRequest({
           disabled={pending || !text.trim() || text.length > maxChars}
         >
           {pending ? <Loader2 size={15} className="animate-spin" /> : <Volume2 size={15} />}
-          {t(pending ? 'Generating preview…' : 'Preview voice')}
+          {(pending ? 'Generating preview…' : 'Preview voice')}
         </button>
       </div>
       <label htmlFor={textId} className="block text-xs font-medium">
-        {t('Preview text')}
+        {"Preview text"}
       </label>
       <textarea
         id={textId}
@@ -135,9 +135,7 @@ function PreviewRequest({
         }}
       />
       <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Uses the current form without saving. Choose text in the voice's language. The provider may charge for this synthesis."
-        )}
+        {"Uses the current form without saving. Choose text in the voice's language. The provider may charge for this synthesis."}
       </p>
       {pending && (
         <button
@@ -148,17 +146,17 @@ function PreviewRequest({
             controller.current = null
           }}
         >
-          {t('Cancel')}
+          {"Cancel"}
         </button>
       )}
       {error && (
         <p role="alert" className="text-xs text-red-600">
-          {t(error)}
+          {(error)}
         </p>
       )}
       {url && (
         <audio
-          aria-label={t('Generated voice preview')}
+          aria-label={"Generated voice preview"}
           src={url}
           controls
           autoPlay

@@ -202,21 +202,20 @@ const ORDINAL_KEYS: Record<number, string> = {
 export function describeRule(
   text: string | null | undefined,
   start: Date,
-  locale: string,
-  t: Translate
+  locale: string
 ): string {
   const rule = parseRule(text)
-  if (!rule) return t('Does not repeat')
+  if (!rule) return "Does not repeat"
   const count = rule.interval
   let base: string
   switch (rule.freq) {
     case 'DAILY':
-      base = count > 1 ? t('Every {{count}} days', { count }) : t('Every day')
+      base = count > 1 ? `Every ${count} days` : "Every day"
       break
     case 'WEEKLY': {
       const days = rule.byDay.length ? rule.byDay : [start.getDay()]
       if (count === 1 && days.join() === WORKWEEK.join())
-        base = t('Every weekday (Monday to Friday)')
+        base = "Every weekday (Monday to Friday)"
       else {
         const names = listOf(
           days.map(day => weekdayName(day, locale, days.length > 2 ? 'short' : 'long')),
@@ -224,42 +223,37 @@ export function describeRule(
         )
         base =
           count > 1
-            ? t('Every {{count}} weeks on {{days}}', { count, days: names })
-            : t('Weekly on {{days}}', { days: names })
+            ? `Every ${count} weeks on ${names}`
+            : `Weekly on ${names}`
       }
       break
     }
     case 'MONTHLY':
       if (rule.monthlyWeekday) {
-        base = t(ORDINAL_KEYS[rule.monthlyWeekday.ordinal] ?? ORDINAL_KEYS[1], {
-          weekday: weekdayName(rule.monthlyWeekday.weekday, locale, 'long'),
-        })
-        if (count > 1) base = `${base} · ${t('every {{count}} months', { count })}`
+        base = (ORDINAL_KEYS[rule.monthlyWeekday.ordinal] ?? ORDINAL_KEYS[1])
+        if (count > 1) base = `${base} · ${`every ${count} months`}`
       } else
         base =
           count > 1
-            ? t('Every {{count}} months on day {{day}}', { count, day: start.getDate() })
-            : t('Monthly on day {{day}}', { day: start.getDate() })
+            ? `Every ${count} months on day ${start.getDate()}`
+            : `Monthly on day ${start.getDate()}`
       break
     case 'YEARLY': {
       const date = formatDate(start, locale, { month: 'long', day: 'numeric' })
       base =
         count > 1
-          ? t('Every {{count}} years on {{date}}', { count, date })
-          : t('Annually on {{date}}', { date })
+          ? `Every ${count} years on ${date}`
+          : `Annually on ${date}`
       break
     }
   }
   if (rule.end.kind === 'until')
-    return t('{{rule}}, until {{date}}', {
-      rule: base,
-      date: formatDate(fromDateKey(rule.end.date), locale, {
+    return `${base}, until ${formatDate(fromDateKey(rule.end.date), locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-      }),
-    })
+      })}`
   if (rule.end.kind === 'count')
-    return t('{{rule}}, {{count}} times', { rule: base, count: rule.end.count })
+    return `${base}, ${rule.end.count} times`
   return base
 }

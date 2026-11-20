@@ -3,7 +3,7 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Pencil, PlugZap, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { Discovery } from "@/lib/provider-registry";
 import { useOutsideClick } from "@/hooks/use-outside-click";
@@ -158,7 +158,7 @@ function ProbeForm({
   hints: string[];
   showCapabilities: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const [result, setResult] = useState(discovery);
   const [pending, setPending] = useState(false);
   const controller = useRef<AbortController | null>(null);
@@ -206,14 +206,10 @@ function ProbeForm({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-medium">
-            {t(listing ? "Provider model list" : "Provider connection")}
+            {(listing ? "Provider model list" : "Provider connection")}
           </p>
           <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
-            {t(
-              listing
-                ? "Choose a listed model or enter any model ID below."
-                : "Check access and discover the services this provider offers.",
-            )}
+            {(listing ? "Choose a listed model or enter any model ID below." : "Check access and discover the services this provider offers.")}
           </p>
         </div>
         <button
@@ -227,9 +223,7 @@ function ProbeForm({
           ) : (
             <PlugZap size={14} />
           )}{" "}
-          {t(
-            pending ? "Testing…" : listing ? "Get model list" : "Test provider",
-          )}
+          {(pending ? "Testing…" : listing ? "Get model list" : "Test provider")}
         </button>
       </div>
       {result && (
@@ -237,22 +231,22 @@ function ProbeForm({
           role="status"
           className={`text-[13px] leading-relaxed ${result.status === "connected" ? "text-emerald-700 dark:text-emerald-400" : "text-[var(--muted-foreground)]"}`}
         >
-          {t(result.status === "connected" && input.service !== "search" ? "settings.providerServices.catalogListed" : PROBE_MESSAGES[result.status] || PROBE_MESSAGES.http_error)}
-          {result.warning === "partial_models" && <p className="mt-2">{t("settings.providerServices.partial")}</p>}
+          {(result.status === "connected" && input.service !== "search" ? "settings.providerServices.catalogListed" : PROBE_MESSAGES[result.status] || PROBE_MESSAGES.http_error)}
+          {result.warning === "partial_models" && <p className="mt-2">{"The provider returned only part of the model list. Missing types remain unknown and can be added manually."}</p>}
           {result.http_status != null && ` · HTTP ${result.http_status}`}
           {result.warning === "empty_results" && (
             <p className="mt-2">
-              {t("The search API is reachable but returned no results. Check the enabled engines and their network access.")}
+              {"The search API is reachable but returned no results. Check the enabled engines and their network access."}
             </p>
           )}
           {input.binding === "searxng" && result.status !== "connected" && usesLoopbackAddress(input.base_url) && (
             <p className="mt-2">
-              {t("This test runs from the DeepTutor backend. In Docker, localhost points to the DeepTutor container. Use a shared-network service name and container port, or host.docker.internal and the published host port.")}
+              {"This test runs from the DeepTutor backend. In Docker, localhost points to the DeepTutor container. Use a shared-network service name and container port, or host.docker.internal and the published host port."}
             </p>
           )}
           {result.status === "connected" &&
             input.service !== "search" &&
-            ` · ${t("{{count}} models available", { count: result.models.length })}`}
+            ` · ${`${result.models.length} models available`}`}
         </div>
       )}
       {!listing && showCapabilities && (
@@ -273,18 +267,16 @@ function ProbeForm({
                   key={label}
                   className="rounded-lg border border-[color-mix(in_srgb,var(--border)_70%,transparent)] bg-[var(--background)] px-3 py-2"
                 >
-                  <p className="text-[13px] font-medium">{t(label)}</p>
+                  <p className="text-[13px] font-medium">{(label)}</p>
                   <p className="mt-1 text-[12px] text-[var(--muted-foreground)]">
-                    {t(status)}
+                    {(status)}
                   </p>
                 </div>
               );
             })}
           </div>
           <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "Detected describes model modalities, not API compatibility. Provider support indicates an available integration; test a specific model to verify your account access.",
-            )}
+            {"Detected describes model modalities, not API compatibility. Provider support indicates an available integration; test a specific model to verify your account access."}
           </p>
         </>
       )}
@@ -358,7 +350,7 @@ export function RegistryModelIdField({
   required?: boolean;
   invalid?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -462,7 +454,7 @@ export function RegistryModelIdField({
         {options.length > 0 && !disabled && (
           <button
             type="button"
-            aria-label={t("Show listed models")}
+            aria-label={"Show listed models"}
             // Not a tab stop: the keyboard already opens the list from the
             // field itself, so this would only be a second way to the same
             // place on the way to the next field.
@@ -520,7 +512,7 @@ export function RegistryModelIdField({
       </div>
       {invalid && (
         <p id={`${id}-error`} role="alert" className="text-[13px] text-red-600">
-          {t("Model ID is required.")}
+          {"Model ID is required."}
         </p>
       )}
     </div>

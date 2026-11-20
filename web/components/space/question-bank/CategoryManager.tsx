@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import type { NotebookCategory } from "@/lib/notebook-api";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -26,7 +26,7 @@ export default function CategoryManager({
   onRename,
   onDelete,
 }: CategoryManagerProps) {
-  const { t } = useTranslation();
+  
   const [newName, setNewName] = useState("");
   const [renaming, setRenaming] = useState<{ id: number; name: string } | null>(
     null,
@@ -76,22 +76,22 @@ export default function CategoryManager({
                   }}
                   className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
                 />
-                <Tooltip label={t("Save")}>
+                <Tooltip label={"Save"}>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => void commitRename()}
-                    aria-label={t("Save")}
+                    aria-label={"Save"}
                     className="rounded-md p-1 text-[var(--primary)] transition-colors hover:bg-[var(--muted)] disabled:opacity-40"
                   >
                     <Check size={13} />
                   </button>
                 </Tooltip>
-                <Tooltip label={t("Cancel")}>
+                <Tooltip label={"Cancel"}>
                   <button
                     type="button"
                     onClick={() => setRenaming(null)}
-                    aria-label={t("Cancel")}
+                    aria-label={"Cancel"}
                     className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]"
                   >
                     <X size={13} />
@@ -106,19 +106,19 @@ export default function CategoryManager({
                     {category.entry_count}
                   </span>
                 </span>
-                <Tooltip label={t("Rename")}>
+                <Tooltip label={"Rename"}>
                   <button
                     type="button"
                     onClick={() =>
                       setRenaming({ id: category.id, name: category.name })
                     }
-                    aria-label={t("Rename")}
+                    aria-label={"Rename"}
                     className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                   >
                     <Pencil size={13} />
                   </button>
                 </Tooltip>
-                <Tooltip label={t("Delete")}>
+                <Tooltip label={"Delete"}>
                   <button
                     type="button"
                     disabled={busy}
@@ -128,14 +128,12 @@ export default function CategoryManager({
                       // of the prompt.
                       if (
                         window.confirm(
-                          t(
-                            "Delete this tag? The questions themselves stay in your bank.",
-                          ),
+                          "Delete this tag? The questions themselves stay in your bank.",
                         )
                       )
                         void run(() => onDelete(category.id));
                     }}
-                    aria-label={t("Delete")}
+                    aria-label={"Delete"}
                     className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 dark:hover:bg-red-950/30"
                   >
                     <Trash2 size={13} />
@@ -147,7 +145,7 @@ export default function CategoryManager({
         ))}
         {categories.length === 0 && (
           <p className="py-2 text-center text-[12px] text-[var(--muted-foreground)]">
-            {t("No tags yet.")}
+            {"No tags yet."}
           </p>
         )}
       </div>
@@ -164,13 +162,13 @@ export default function CategoryManager({
               if (ok) setNewName("");
             });
           }}
-          placeholder={t("New tag name...")}
+          placeholder={"New tag name..."}
           className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)]/50"
         />
         <button
           type="button"
           disabled={busy || !newName.trim()}
-          aria-label={t("Add tag")}
+          aria-label={"Add tag"}
           onClick={() =>
             void run(() => onCreate(newName)).then((ok) => {
               if (ok) setNewName("");

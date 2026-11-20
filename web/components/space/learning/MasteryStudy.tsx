@@ -21,7 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { SelectionSpeechToolbar } from "@/components/voice/SelectionSpeechToolbar";
 import { ChatViewerBridges } from "@/components/chat/home/ChatViewerBridges";
@@ -155,7 +155,7 @@ const STARTERS: Record<
  * highlights by id, so two knowledge points that happen to share a name
  * can no longer both light up.
  */
-function currentWaypoint(topic: MasteryTopic, fallback: string, t: Translate) {
+function currentWaypoint(topic: MasteryTopic, fallback: string) {
   if (topic.next.knowledge_point_name) {
     return {
       id: topic.next.knowledge_point_id,
@@ -170,7 +170,7 @@ function currentWaypoint(topic: MasteryTopic, fallback: string, t: Translate) {
   }
   return {
     id: "",
-    name: topic.map.complete ? t("All complete") : fallback,
+    name: topic.map.complete ? "All complete" : fallback,
   };
 }
 
@@ -184,7 +184,7 @@ export function MasteryStudy({
   /** What a conversation opened here is for; ignored for an existing one. */
   requestedMode?: MasteryMode;
 }) {
-  const { t } = useTranslation();
+  
   const {
     state,
     sendMessage,
@@ -289,8 +289,8 @@ export function MasteryStudy({
   }, [scrollToBottom, shouldAutoScrollRef]);
 
   const notebookFallbackTitle = topic
-    ? topicDisplayName(topic, t)
-    : t("Mastery Path");
+    ? topicDisplayName(topic)
+    : "Mastery Path";
   const { modalMessages: notebookSaveMessages, payload: notebookSavePayload } =
     useMemo(
       () =>
@@ -476,7 +476,7 @@ export function MasteryStudy({
         return false;
       }
       sendMessage(
-        t("Let's skip this question."),
+        "Let's skip this question.",
         undefined,
         undefined,
         undefined,
@@ -486,14 +486,7 @@ export function MasteryStudy({
       shouldAutoScrollRef.current = true;
       return true;
     },
-    [
-      sendMessage,
-      sessionError,
-      sessionLoading,
-      shouldAutoScrollRef,
-      state.isStreaming,
-      t,
-    ],
+    [sendMessage, sessionError, sessionLoading, shouldAutoScrollRef, state.isStreaming],
   );
 
   const startFromPrompt = useCallback(
@@ -538,13 +531,13 @@ export function MasteryStudy({
           notify(
             reason instanceof Error
               ? reason.message
-              : t("The mode could not be changed"),
+              : "The mode could not be changed",
             { tone: "error" },
           );
         })
         .finally(() => setModeBusy(false));
     },
-    [pathId, setMasterySessionMode, state.sessionId, t],
+    [pathId, setMasterySessionMode, state.sessionId],
   );
 
   const copyAssistantMessage = useCallback(
@@ -566,7 +559,7 @@ export function MasteryStudy({
       <div className="mastery-shell flex h-full flex-col items-center justify-center px-6 text-center">
         <MapIcon className="h-10 w-10 text-[var(--muted-foreground)] opacity-40" />
         <h1 className="mt-4 text-lg font-semibold">
-          {t("This learning map could not be found")}
+          {"This learning map could not be found"}
         </h1>
         <p className="mt-2 text-sm text-[var(--muted-foreground)]">
           {topicError}
@@ -575,14 +568,14 @@ export function MasteryStudy({
           href={scopedUrl(MASTERY_HOME)}
           className="mt-5 text-sm font-medium text-[var(--primary)] hover:underline"
         >
-          {t("Back to topics")}
+          {"Back to topics"}
         </Link>
       </div>
     );
   }
 
-  const displayName = topicDisplayName(topic, t);
-  const waypoint = currentWaypoint(topic, displayName, t);
+  const displayName = topicDisplayName(topic);
+  const waypoint = currentWaypoint(topic, displayName);
   const completed = topic.map.counts.mastered;
   const total = topic.map.counts.total;
 
@@ -610,11 +603,11 @@ export function MasteryStudy({
           </PageBarSlot>
         ) : (
           <>
-            <Tooltip label={t("Learning topics")} side="bottom">
+            <Tooltip label={"Learning topics"} side="bottom">
               <Link
                 href={masteryTopicRoute(pathId)}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
-                aria-label={t("Learning topics")}
+                aria-label={"Learning topics"}
               >
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -652,13 +645,13 @@ export function MasteryStudy({
         />
 
         <div className="flex shrink-0 items-center gap-1.5 pl-2">
-          <Tooltip label={t("Save to Notebook")}>
+          <Tooltip label={"Save to favorites"}>
             <button
               type="button"
               onClick={() => setShowSaveModal(true)}
               disabled={!notebookSavePayload}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label={t("Save to Notebook")}
+              aria-label={"Save to favorites"}
             >
               <BookmarkPlus className="h-4 w-4" />
             </button>
@@ -667,7 +660,7 @@ export function MasteryStudy({
             type="button"
             onClick={() => setViewerOpen((open) => !open)}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
-            aria-label={t("Activity")}
+            aria-label={"Activity"}
             aria-pressed={viewerOpen}
           >
             <PanelRight className="h-4 w-4" />
@@ -738,19 +731,19 @@ export function MasteryStudy({
                     blank screen. */}
                 {MODE_PRESENTATION[sessionMode].noteKey && (
                   <p className="mb-6 rounded-xl bg-[rgb(var(--dt-ink,55_53_47)/0.035)] px-3.5 py-2.5 text-[12px] leading-5 text-[var(--muted-foreground)]">
-                    {t(MODE_PRESENTATION[sessionMode].noteKey)}
+                    {(MODE_PRESENTATION[sessionMode].noteKey)}
                   </p>
                 )}
                 {sessionLoading ? (
                   <div className="flex min-h-[45vh] flex-col items-center justify-center text-sm text-[var(--muted-foreground)]">
                     <Loader2 className="mb-3 h-5 w-5 animate-spin" />
-                    {t("Reopening this session…")}
+                    {"Reopening this session…"}
                   </div>
                 ) : sessionError ? (
                   <div className="mx-auto mt-20 max-w-md rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
                     <MessageCircle className="mx-auto h-8 w-8 text-red-500/60" />
                     <h2 className="mt-3 text-sm font-semibold">
-                      {t("The session did not open")}
+                      {"The session did not open"}
                     </h2>
                     <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">
                       {sessionError}
@@ -759,7 +752,7 @@ export function MasteryStudy({
                       href={masterySessionsRoute(pathId)}
                       className="mt-4 inline-flex rounded-xl bg-[var(--primary)] px-3 py-2 text-xs font-medium text-[var(--primary-foreground)]"
                     >
-                      {t("Start a new session")}
+                      {"Start a new session"}
                     </Link>
                   </div>
                 ) : !hasMessages ? (
@@ -771,20 +764,20 @@ export function MasteryStudy({
                   // surface must never reach, and it reached it twice.
                   <div className="mx-auto flex min-h-[54vh] max-w-2xl flex-col items-center justify-center text-center">
                     <div className="text-[12px] text-[var(--muted-foreground)]">
-                      {sessionMode === "study" ? t("Next up") : t("Start here")}
+                      {sessionMode === "study" ? "Next up" : "Start here"}
                     </div>
                     <h2 className="mt-1.5 font-serif text-[20px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
                       {sessionMode === "study"
                         ? waypoint.name
-                        : t(MODE_PRESENTATION[sessionMode].emptyTitleKey)}
+                        : (MODE_PRESENTATION[sessionMode].emptyTitleKey)}
                     </h2>
                     <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">
-                      {t(MODE_PRESENTATION[sessionMode].emptyBodyKey)}
+                      {(MODE_PRESENTATION[sessionMode].emptyBodyKey)}
                     </p>
                     <div className="mt-7 grid w-full gap-2 sm:grid-cols-3">
                       {STARTERS[sessionMode].map((starter) => {
                         const Icon = starter.icon;
-                        const label = t(starter.key);
+                        const label = (starter.key);
                         return (
                           <button
                             key={starter.key}
@@ -813,21 +806,17 @@ export function MasteryStudy({
                       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--primary)]/25 bg-[var(--primary)]/[0.06] px-4 py-3">
                         <div className="min-w-0">
                           <p className="text-[13px] font-medium text-[var(--foreground)]">
-                            {t("Your outline is ready — {{count}} knowledge points", {
-                              count: total,
-                            })}
+                            {`Your outline is ready — ${total} knowledge points`}
                           </p>
                           <p className="mt-0.5 text-[12px] leading-5 text-[var(--muted-foreground)]">
-                            {t(
-                              "Keep refining it here, or open a learning session to start working through it.",
-                            )}
+                            {"Keep refining it here, or open a learning session to start working through it."}
                           </p>
                         </div>
                         <Link
                           href={masterySessionRoute(pathId, "study")}
                           className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 text-[13px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
                         >
-                          {t("Start learning")}
+                          {"Start learning"}
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -852,7 +841,7 @@ export function MasteryStudy({
                       onSkipMasteryQuestion={skipMasteryQuestion}
                       onChallengeMasteryQuestion={(questionId) => {
                         if (state.isStreaming || sessionLoading || sessionError) return false;
-                        sendMessage(t('Please review assessment {{questionId}} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.', { questionId }));
+                        sendMessage(`Please review assessment ${questionId} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.`);
                         return true;
                       }}
                       onPreviewAttachment={handlePreviewMessageAttachment}
@@ -891,9 +880,7 @@ export function MasteryStudy({
               className="shrink-0 bg-[var(--background)]"
             >
               <MasteryComposer
-                placeholder={t("Ask your tutor about “{{waypoint}}”…", {
-                  waypoint: waypoint.name,
-                })}
+                placeholder={`Ask your tutor about “${waypoint.name}”…`}
                 askHint={askHint}
                 disabled={sessionLoading}
                 prefillInputRef={prefillInputRef}

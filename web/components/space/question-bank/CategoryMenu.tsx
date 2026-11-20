@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Check, FolderPlus, Loader2, Plus } from "lucide-react";
 import { notify } from "@/lib/notifications";
 import type { NotebookCategory } from "@/lib/notebook-api";
@@ -47,7 +47,7 @@ export default function CategoryMenu({
   onUnpick,
   onCreate,
 }: CategoryMenuProps) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -106,12 +106,12 @@ export default function CategoryMenu({
 
   return (
     <div ref={rootRef} className="relative">
-      <Tooltip label={t("Add tag")} suppressed={open}>
+      <Tooltip label={"Add tag"} suppressed={open}>
         <button
           type="button"
           disabled={disabled}
           onClick={() => setOpen((v) => !v)}
-          aria-label={label || t("Add tag")}
+          aria-label={label || "Add tag"}
           aria-expanded={open}
           className={`inline-flex items-center gap-1.5 rounded-lg text-[11.5px] font-medium transition-colors disabled:opacity-40 ${
             variant === "outlined" ? "border px-2 py-1.5" : "p-1.5"
@@ -139,7 +139,7 @@ export default function CategoryMenu({
           <div className="max-h-56 overflow-y-auto p-1.5">
             {categories.length === 0 && (
               <p className="px-2 py-3 text-center text-[11.5px] text-[var(--muted-foreground)]">
-                {t("No tags yet. Type a name below to create one.")}
+                {"No tags yet. Type a name below to create one."}
               </p>
             )}
             {categories.map((category) => {
@@ -185,15 +185,15 @@ export default function CategoryMenu({
                 if (event.key === "Enter" && !event.nativeEvent.isComposing)
                   void handleCreate();
               }}
-              placeholder={t("New tag…")}
+              placeholder={"New tag…"}
               className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)]/50"
             />
-            <Tooltip label={t("Create and add")}>
+            <Tooltip label={"Create and add"}>
               <button
                 type="button"
                 disabled={busy || !name.trim()}
                 onClick={() => void handleCreate()}
-                aria-label={t("Create and add")}
+                aria-label={"Create and add"}
                 className="shrink-0 rounded-lg bg-[var(--primary)] p-1.5 text-white transition-opacity disabled:opacity-30"
               >
                 {busy ? (

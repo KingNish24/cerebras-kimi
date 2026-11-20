@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import { CheckSquare, FolderMinus, X } from "lucide-react";
 import type { NotebookCategory } from "@/lib/notebook-api";
 import CategoryMenu from "./CategoryMenu";
@@ -37,13 +37,13 @@ export default function BankSelectionBar({
   onCreateAndFile,
   onUnfileFromCurrent,
 }: BankSelectionBarProps) {
-  const { t } = useTranslation();
+  
   if (count === 0) return null;
 
   return (
     <div className="sticky bottom-4 z-20 mx-auto flex w-fit max-w-full flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 shadow-lg">
       <span className="text-[12.5px] font-medium text-[var(--foreground)]">
-        {count} {t("selected")}
+        {count} {"selected"}
       </span>
 
       {count < visibleCount && (
@@ -53,7 +53,7 @@ export default function BankSelectionBar({
           className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
         >
           <CheckSquare className="h-3.5 w-3.5" />
-          {t("Select all")}
+          {"Select all"}
         </button>
       )}
 
@@ -61,7 +61,7 @@ export default function BankSelectionBar({
 
       <CategoryMenu
         categories={categories}
-        label={t("Add tag")}
+        label={"Add tag"}
         align="left"
         direction="up"
         variant="outlined"
@@ -76,15 +76,15 @@ export default function BankSelectionBar({
           className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2 py-1.5 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
         >
           <FolderMinus className="h-3.5 w-3.5" />
-          {t("Remove tag")}
+          {"Remove tag"}
         </button>
       )}
 
-      <Tooltip label={t("Clear selection")} side="top">
+      <Tooltip label={"Clear selection"} side="top">
         <button
           type="button"
           onClick={onClear}
-          aria-label={t("Clear selection")}
+          aria-label={"Clear selection"}
           className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
         >
           <X className="h-3.5 w-3.5" />

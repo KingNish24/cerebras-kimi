@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, FileQuestion } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { docIconFor } from "@/lib/doc-attachments";
 
 /**
@@ -18,7 +18,7 @@ export default function FallbackPreview({
   url: string | null;
   reason?: "legacy" | "unsupported";
 }) {
-  const { t } = useTranslation();
+  
   const spec = docIconFor(filename);
   const Icon = url ? spec.Icon : FileQuestion;
   const tint = url ? spec.tint : "text-[var(--muted-foreground)]";
@@ -34,10 +34,8 @@ export default function FallbackPreview({
         </div>
         <div className="text-[12px] text-[var(--muted-foreground)]">
           {reason === "legacy"
-            ? t(
-                "Original file is not stored (sent before preview was supported).",
-              )
-            : t("Preview is not available for this file type.")}
+            ? "Original file is not stored (sent before preview was supported)."
+            : "Preview is not available for this file type."}
         </div>
       </div>
       {url && (
@@ -47,7 +45,7 @@ export default function FallbackPreview({
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
         >
           <Download size={13} strokeWidth={1.7} />
-          {t("Download")}
+          {"Download"}
         </a>
       )}
     </div>

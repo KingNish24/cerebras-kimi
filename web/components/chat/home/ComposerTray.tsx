@@ -4,7 +4,7 @@ import Link from "@/shared/router/link";
 import { m, type MotionStyle } from "framer-motion";
 import { createElement, useId, useMemo, type ReactNode } from "react";
 import { ArrowUpRight, PencilRuler, Plug, Plus, Shapes, UserRound, Wand2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { Tooltip } from "@/shared/ui/Tooltip";
 import type { ComposerResourceCatalog } from "@/hooks/useComposerResources";
 import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
@@ -130,10 +130,10 @@ export function ComposerTray({
   /** A surface's own control for the far end, where who answers sits. */
   end?: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const rowId = useId();
   const fold = useTrayFold(Boolean(answer?.open));
-  const gripLabel = fold.away ? t("Expand") : t("Collapse");
+  const gripLabel = fold.away ? "Expand" : "Collapse";
   return (
     <m.div
       className="dt-composer-tray"
@@ -167,7 +167,7 @@ export function ComposerTray({
 }
 
 function ModeMenu({ capabilities, value, onChange, placement }: TrayMode & { placement: TrayPlacement }) {
-  const { t } = useTranslation();
+  
   const capabilityLabel = useCapabilityLabel();
   const modes = capabilities.filter((cap) => cap.value !== "" && !cap.legacy);
   const chosen = modes.find((cap) => cap.value === value);
@@ -186,14 +186,14 @@ function ModeMenu({ capabilities, value, onChange, placement }: TrayMode & { pla
         }}
         leading={<Icon size={22} strokeWidth={1.5} />}
         title={capabilityLabel(cap)}
-        meta={t(cap.description)}
+        meta={(cap.description)}
       />
     );
   };
   return (
     <TrayMenu
       icon={<Shapes size={14} strokeWidth={1.7} className="shrink-0" />}
-      label={t("Mode")}
+      label={"Mode"}
       value={chosen ? capabilityLabel(chosen) : undefined}
       valueIcon={ChosenIcon && createElement(ChosenIcon, { size: 15, strokeWidth: 1.7, className: "shrink-0" })}
       active={Boolean(chosen)}
@@ -201,7 +201,7 @@ function ModeMenu({ capabilities, value, onChange, placement }: TrayMode & { pla
       placement={placement}
     >
       {(close) => (
-        <TrayList label={t("Mode")} bare>{modes.map((cap) => row(cap, close))}</TrayList>
+        <TrayList label={"Mode"} bare>{modes.map((cap) => row(cap, close))}</TrayList>
       )}
     </TrayMenu>
   );

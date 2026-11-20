@@ -13,7 +13,7 @@
  */
 
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import type { MapKnowledgePoint, MasteryTopic } from "@/lib/learning-api";
@@ -69,7 +69,7 @@ export function StudyOutline({
   collapsed: boolean;
   onToggleCollapsed: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const { mastered, total } = topic.map.counts;
 
   // Collapsed state keeps the toggle in the same real estate rather than
@@ -81,7 +81,7 @@ export function StudyOutline({
       <button
         type="button"
         onClick={onToggleCollapsed}
-        aria-label={t("Show outline")}
+        aria-label={"Show outline"}
         className={`flex h-full w-full flex-col items-center gap-2.5 pt-4 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)] ${
           justMasteredId ? "mastery-just-mastered-strip" : ""
         }`}
@@ -91,27 +91,27 @@ export function StudyOutline({
           className="text-[10px] font-medium uppercase tracking-[0.16em]"
           style={{ writingMode: "vertical-rl" }}
         >
-          {t("Outline")}
+          {"Outline"}
         </span>
       </button>
     );
   }
 
   return (
-    <nav aria-label={t("Outline")} className="pb-10">
+    <nav aria-label={"Outline"} className="pb-10">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]/70">
-          {t("Outline")}
+          {"Outline"}
         </span>
         <div className="flex items-center gap-2">
           <span className="text-[10.5px] tabular-nums text-[var(--muted-foreground)]/55">
             {mastered}/{total}
           </span>
-          <Tooltip label={t("Hide outline")}>
+          <Tooltip label={"Hide outline"}>
             <button
               type="button"
               onClick={onToggleCollapsed}
-              aria-label={t("Hide outline")}
+              aria-label={"Hide outline"}
               className="flex h-5 w-5 items-center justify-center rounded text-[var(--muted-foreground)]/50 transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
             >
               <ChevronsLeft className="h-3.5 w-3.5" />

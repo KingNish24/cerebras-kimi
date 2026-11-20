@@ -30,7 +30,7 @@ import {
   RotateCcw,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { SelectedRecord } from "@/lib/notebook-selection-types";
 import type { SelectedHistorySession } from "@/components/chat/HistorySessionPicker";
 import type { SelectedQuestionEntry } from "@/components/chat/QuestionBankPicker";
@@ -233,7 +233,7 @@ interface KnowledgeBase {
 export default function ChatWorkspace() {
   const { router, sessionId: sessionIdParam } = useChatRouteSession();
   const requestedWorkspaceId = useActiveWorkspaceId() || null;
-  const { t } = useTranslation();
+  
   const {
     capabilities,
     visibleCapabilities,
@@ -286,7 +286,7 @@ export default function ChatWorkspace() {
     setReplyLanguageSavingKey(key);
     void pending
       .catch((error: unknown) => {
-        notify(error instanceof Error ? error.message : t("Action failed"));
+        notify(error instanceof Error ? error.message : "Action failed");
       })
       .finally(() => {
         if (replyLanguageSaveRef.current?.pending === pending) {
@@ -294,7 +294,7 @@ export default function ChatWorkspace() {
           setReplyLanguageSavingKey(null);
         }
       });
-  }, [setReplyLanguageOverride, state.sessionKey, t]);
+  }, [setReplyLanguageOverride, state.sessionKey]);
 
   const resourceReuse = useResourceReusePolicy(state.sessionKey || "draft", state.messages[0]?.id);
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
@@ -836,8 +836,8 @@ export default function ChatWorkspace() {
     if (!sid) return;
     void updateSessionOrganization(sid, { archived: false }, sessionStoreId)
       .then(applySessionOrganization)
-      .catch(() => notify(t("Couldn't update this chat"), { tone: "error" }));
-  }, [applySessionOrganization, sessionStoreId, state.sessionId, t]);
+      .catch(() => notify("Couldn't update this chat", { tone: "error" }));
+  }, [applySessionOrganization, sessionStoreId, state.sessionId]);
   const handleSessionMoved = useCallback(
     (row: SessionDetail) => {
       const destination = row.preferences?.workspace_id || null;
@@ -911,13 +911,13 @@ export default function ChatWorkspace() {
         notify(
           error instanceof Error
             ? error.message
-            : t("The tutor thread could not be deleted."),
+            : "The tutor thread could not be deleted.",
           { tone: "error" },
         );
         throw error;
       }
     },
-    [state.workspaceId, t],
+    [state.workspaceId],
   );
 
   /** Remove a thread from this message without deleting the conversation. */
@@ -941,13 +941,13 @@ export default function ChatWorkspace() {
         notify(
           error instanceof Error
             ? error.message
-            : t("The tutor thread could not be detached."),
+            : "The tutor thread could not be detached.",
           { tone: "error" },
         );
         throw error;
       }
     },
-    [state.workspaceId, t],
+    [state.workspaceId],
   );
   /** Delete a turn and release any side-chat tab the server detached from it. */
   const handleDeleteTurn = useCallback(
@@ -1465,17 +1465,17 @@ export default function ChatWorkspace() {
         const first = rejected[0];
         let msg: string;
         if (first.reason === "too_large") {
-          msg = t("File too large: {{name}}", { name: first.name });
+          msg = `File too large: ${first.name}`;
         } else if (first.reason === "quota") {
-          msg = t("Too many files, skipped some");
+          msg = "Too many files, skipped some";
         } else {
-          msg = t("Unsupported file type: {{name}}", { name: first.name });
+          msg = `Unsupported file type: ${first.name}`;
         }
         showAttachmentError(msg);
       }
       return accepted;
     },
-    [attachments, attachmentLimits, showAttachmentError, t],
+    [attachments, attachmentLimits, showAttachmentError],
   );
 
   const handlePaste = useCallback(
@@ -1871,7 +1871,7 @@ export default function ChatWorkspace() {
       if (!state.sessionId && !state.knowledgeBasesInitialized) {
         prefillInputRef.current?.(content);
         if (knowledgeBasesFailed) void refreshKnowledgeBases();
-        notify(t(knowledgeBasesFailed ? "guidedLearning.loadKbFailed" : "Loading..."), { tone: "error" });
+        notify((knowledgeBasesFailed ? "guidedLearning.loadKbFailed" : "Loading..."), { tone: "error" });
         return;
       }
       // A turn paused on a question: what the user typed is their answer, not
@@ -1883,7 +1883,7 @@ export default function ChatWorkspace() {
         try {
           if (await submitUserReply({ text: content })) return;
         } catch {
-          notify(t(COMMAND_CONFIRMATION_FAILED), { tone: "error" });
+          notify((COMMAND_CONFIRMATION_FAILED), { tone: "error" });
           prefillInputRef.current?.(content);
           return;
         }
@@ -1892,7 +1892,7 @@ export default function ChatWorkspace() {
         // they typed — while the error told them to "send a new message",
         // which is exactly what this branch was preventing them from doing.
         // Fall through and send it as one.
-        notify(t(REPLY_SENT_AS_NEW_MESSAGE));
+        notify((REPLY_SENT_AS_NEW_MESSAGE));
       }
       if (
         (!content &&
@@ -1939,10 +1939,10 @@ export default function ChatWorkspace() {
         selectedAgentSessions.length ||
         selectedQuestionEntries.length ||
         memoryPayload.length
-          ? t("Please use the selected context to help with this request.")
+          ? "Please use the selected context to help with this request."
           : "") ||
         (attachments.some((a) => a.type === "image")
-          ? t("Please analyze the attached image(s).")
+          ? "Please analyze the attached image(s)."
           : "");
       // Persona is NOT passed per-call here: it is a session-level
       // preference (state.personaSelection) that sendMessage resolves and
@@ -2005,44 +2005,7 @@ export default function ChatWorkspace() {
       if (!resourceReuse.policy.question_bank) setSelectedQuestionEntries([]);
       if (!resourceReuse.policy.memory) setSelectedMemoryFiles([]);
     },
-    [
-      draftTaskIds, state.sessionId, resourceReuse, state.knowledgeBases, state.resourceSelection, agentNameSet, setKBs, setPersonaSelection, setResourceSelection,
-      attachments,
-      bookReferencesPayload,
-      readingReferencesPayload,
-      historyReferencesPayload,
-        isResearchMode,
-      isVisualizeMode,
-      memoryReferencesPayload,
-      notebookReferencesPayload,
-      questionNotebookReferencesPayload,
-      researchConfig,
-      researchValidation,
-      ensureActivityPanelOpen,
-      selectedAgent,
-      selectedHistorySessions.length,
-      selectedAgentSessions.length,
-      selectedMemoryFiles.length,
-      selectedBookReferences.length,
-      selectedReadingReferences.length,
-      selectedNotebookRecords.length,
-      selectedQuestionEntries.length,
-      sendMessage,
-      queueMessage,
-      retrying,
-      shouldAutoScrollRef,
-      state.isStreaming,
-      state.sessionKey,
-      state.knowledgeBasesInitialized,
-      knowledgeBasesFailed,
-      refreshKnowledgeBases,
-      subagentBudget,
-      selectedPartnerGroup,
-      selectedPartner,
-      submitUserReply,
-      t,
-      visualizeConfig,
-    ],
+    [draftTaskIds, state.sessionId, resourceReuse, state.knowledgeBases, state.resourceSelection, agentNameSet, setKBs, setPersonaSelection, setResourceSelection, attachments, bookReferencesPayload, readingReferencesPayload, historyReferencesPayload, isResearchMode, isVisualizeMode, memoryReferencesPayload, notebookReferencesPayload, questionNotebookReferencesPayload, researchConfig, researchValidation, ensureActivityPanelOpen, selectedAgent, selectedHistorySessions.length, selectedAgentSessions.length, selectedMemoryFiles.length, selectedBookReferences.length, selectedReadingReferences.length, selectedNotebookRecords.length, selectedQuestionEntries.length, sendMessage, queueMessage, retrying, shouldAutoScrollRef, state.isStreaming, state.sessionKey, state.knowledgeBasesInitialized, knowledgeBasesFailed, refreshKnowledgeBases, subagentBudget, selectedPartnerGroup, selectedPartner, submitUserReply, visualizeConfig],
   );
 
   const handleConfirmOutline = useCallback(
@@ -2129,7 +2092,7 @@ export default function ChatWorkspace() {
     (questionId: string) => {
       if (!questionId || state.isStreaming) return false;
       sendMessage(
-        t("Let's skip this question."),
+        "Let's skip this question.",
         undefined,
         undefined,
         undefined,
@@ -2139,7 +2102,7 @@ export default function ChatWorkspace() {
       shouldAutoScrollRef.current = true;
       return true;
     },
-    [sendMessage, shouldAutoScrollRef, state.isStreaming, t],
+    [sendMessage, shouldAutoScrollRef, state.isStreaming],
   );
 
   const handleRegenerateMessage = useCallback(() => {
@@ -2278,7 +2241,7 @@ export default function ChatWorkspace() {
                       onCommit={() => void commitSessionTitleEdit()}
                       onCancel={cancelSessionTitleEdit}
                       disabled={sessionTitleSaving}
-                      label={t("Session title")}
+                      label={"Session title"}
                     />
                   ) : (
                     <ChatLocation
@@ -2301,7 +2264,7 @@ export default function ChatWorkspace() {
                         onBlur={() => void commitSessionTitleEdit()}
                         onKeyDown={handleSessionTitleKeyDown}
                         disabled={sessionTitleSaving}
-                        aria-label={t("Session title")}
+                        aria-label={"Session title"}
                         className="dt-chat-title min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 font-serif text-[17px] font-semibold tracking-[-0.01em] text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20 disabled:opacity-60"
                         maxLength={100}
                       />
@@ -2309,8 +2272,8 @@ export default function ChatWorkspace() {
                       <Tooltip
                         className="min-w-0 max-w-full"
                         label={canRenameSession
-                          ? t("Click to rename session")
-                          : t("Start a conversation to rename")}
+                          ? "Click to rename session"
+                          : "Start a conversation to rename"}
                         side="bottom"
                       >
                         <button
@@ -2330,7 +2293,7 @@ export default function ChatWorkspace() {
                 )}
                 {sessionTitleSaving ? (
                   <span className="shrink-0 text-xs text-[var(--muted-foreground)]">
-                    {t("Saving...")}
+                    {"Saving..."}
                   </span>
                 ) : null}
                 {sessionTitleError ? (
@@ -2343,14 +2306,14 @@ export default function ChatWorkspace() {
                   // this is where it says so, and the way back.
                   <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
                     <Archive size={12} strokeWidth={1.8} aria-hidden="true" />
-                    {t("Archived")}
+                    {"Archived"}
                     <span aria-hidden="true">·</span>
                     <button
                       type="button"
                       onClick={restoreArchivedSession}
                       className="rounded font-medium text-[var(--foreground)] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
                     >
-                      {t("Restore")}
+                      {"Restore"}
                     </button>
                   </span>
                 ) : null}
@@ -2360,15 +2323,15 @@ export default function ChatWorkspace() {
                 <HeaderActionButton
                   onClick={() => viewerPanelRef.current?.openMarkdownNoteTab()}
                   icon={NotebookPen}
-                  label={t("Markdown note")}
-                  title={t("Write Markdown in chat")}
+                  label={"Note"}
+                  title={"Write Markdown in chat"}
                 />
                 <HeaderActionButton
                   onClick={toggleViewerPanel}
                   active={viewerPanelOpen}
                   icon={PanelRight}
-                  label={t("Activity")}
-                  title={t("Session activity, attachments & previews")}
+                  label={"Activity"}
+                  title={"Session activity, attachments & previews"}
                 />
                 <ChatSessionMenu
                   sessionId={state.sessionId}
@@ -2413,7 +2376,7 @@ export default function ChatWorkspace() {
                       draggable={false}
                     />
                     <h1 className="font-serif text-[40px] font-medium leading-[1.1] tracking-[-0.015em] text-[var(--foreground)]">
-                      {t(welcomeGreeting)}
+                      {(welcomeGreeting)}
                     </h1>
                   </div>
                 </div>
@@ -2478,7 +2441,7 @@ export default function ChatWorkspace() {
                           const meta = events[0]?.metadata ?? {};
                           const key = String(meta.turn_id || meta.call_id || meta.trace_id || "");
                           if (key) viewerPanelRef.current?.openSubagentTab(
-                            key, String(meta.subagent_name || t("Subagent")), events, true,
+                            key, String(meta.subagent_name || "Subagent"), events, true,
                           );
                         }}
                         onDeleteTurn={handleDeleteTurn}
@@ -2491,7 +2454,7 @@ export default function ChatWorkspace() {
                         onSendFollowUp={handleOpenUIFollowUp}
                         onAnswerMasteryQuestion={answerMasteryQuestion}
                         onSkipMasteryQuestion={skipMasteryQuestion}
-                        onChallengeMasteryQuestion={(questionId) => handleSend(t('Please review assessment {{questionId}} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.', { questionId }))}
+                        onChallengeMasteryQuestion={(questionId) => handleSend(`Please review assessment ${questionId} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.`)}
                         onLoadMessageTrace={(messageId) =>
                           state.sessionId
                             ? loadMessageTrace(state.sessionId, messageId)
@@ -2555,24 +2518,21 @@ export default function ChatWorkspace() {
                     />
                     <span className="min-w-0 flex-1 text-[12px] leading-[1.5] text-[var(--foreground)]">
                       {state.submissionNoLlmAccess
-                        ? t(
-                            "Your account doesn't have {{model}} assigned yet. Please contact your administrator to get access.",
-                            { model: t(CAPABILITY_LABEL.llm) },
-                          )
+                        ? `Your account doesn't have ${(CAPABILITY_LABEL.llm)} assigned yet. Please contact your administrator to get access.`
                         : null}
                       {state.submissionNoLlmAccess &&
                         (state.submissionNotSaved || state.submissionNeedsReview) ? " " : null}
                       {state.submissionNotSaved
-                        ? t("This unsent message could not be saved in your browser. Copy it before leaving this page.")
+                        ? "This unsent message could not be saved in your browser. Copy it before leaving this page."
                         : state.submissionNeedsReview
-                        ? t("Message text was saved, but its attachments or settings could not be restored. Copy it and send again.")
+                        ? "Message text was saved, but its attachments or settings could not be restored. Copy it and send again."
                         : state.submissionNoLlmAccess
                         ? null
                         // An admission rejection carries the server's own
                         // reason (#2637): show it rather than claiming a
                         // network failure the server never reported.
                         : state.submissionErrorMessage ||
-                          t("Couldn't reach the server. Please check your connection and retry.")}
+                          "Couldn't reach the server. Please check your connection and retry."}
                     </span>
                     {!state.submissionNeedsReview ? (
                       <button
@@ -2580,7 +2540,7 @@ export default function ChatWorkspace() {
                         onClick={handleResendMessage}
                         className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
                       >
-                        {t("Resend")}
+                        {"Resend"}
                       </button>
                     ) : null}
                   </div>
@@ -2706,14 +2666,14 @@ export default function ChatWorkspace() {
                         className="shrink-0 text-[var(--muted-foreground)]"
                       />
                       <span className="shrink-0 font-medium text-[var(--foreground)]">
-                        {t("Retrying this turn")}
+                        {"Retrying this turn"}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[var(--muted-foreground)]">
-                        {t("The earlier attempt stays as a version you can switch back to.")}
+                        {"The earlier attempt stays as a version you can switch back to."}
                       </span>
                       <button
                         type="button"
-                        aria-label={t("Cancel retry")}
+                        aria-label={"Cancel retry"}
                         onClick={() => setRetryingTurn(null)}
                         className="-mr-1 inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                       >

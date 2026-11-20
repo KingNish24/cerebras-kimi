@@ -8,7 +8,7 @@ import {
   ShieldOff,
   SlidersHorizontal,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { GuardianReadingReport } from "@/features/multi-user/components/GuardianReadingReport";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -43,7 +43,7 @@ const permissionKeys: Record<string, string> = {
 };
 
 export default function GuardianSettingsPage() {
-  const { t } = useTranslation();
+  
   const selectionGeneration = useRef(0);
   const [relationships, setRelationships] = useState<GuardianRelationship[]>(
     [],
@@ -150,7 +150,7 @@ export default function GuardianSettingsPage() {
         newPassword,
       );
       setNewPassword("");
-      setMessage(t("Learner credentials were reset."));
+      setMessage("Learner credentials were reset.");
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -171,7 +171,7 @@ export default function GuardianSettingsPage() {
       );
       setSelectedRelationship(null);
       setReport(null);
-      setMessage(t("Guardian access revoked."));
+      setMessage("Guardian access revoked.");
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -181,9 +181,9 @@ export default function GuardianSettingsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-8">
-      <h1 className="text-xl font-semibold">{t("Guardian management")}</h1>
+      <h1 className="text-xl font-semibold">{"Guardian management"}</h1>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-        {t("Review authorized learners and their approved learning materials.")}
+        {"Review authorized learners and their approved learning materials."}
       </p>
 
       {error && (
@@ -199,11 +199,11 @@ export default function GuardianSettingsPage() {
 
       {loading ? (
         <p className="mt-8 text-sm text-[var(--muted-foreground)]">
-          {t("Loading guardian relationships…")}
+          {"Loading guardian relationships…"}
         </p>
       ) : relationships.length === 0 ? (
         <p className="mt-8 text-sm text-[var(--muted-foreground)]">
-          {t("No active learner relationships.")}
+          {"No active learner relationships."}
         </p>
       ) : (
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -222,7 +222,7 @@ export default function GuardianSettingsPage() {
               <span className="mt-1 block text-xs text-[var(--muted-foreground)]">
                 {relationship.permissions
                   .map((permission) =>
-                    t(permissionKeys[permission] ?? permission),
+                    (permissionKeys[permission] ?? permission),
                   )
                   .join(" · ")}
               </span>
@@ -245,20 +245,20 @@ export default function GuardianSettingsPage() {
               className="inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-3 py-1.5 text-xs text-red-600 disabled:opacity-50"
             >
               <ShieldOff className="h-3.5 w-3.5" />
-              {t("Revoke access")}
+              {"Revoke access"}
             </button>
           </div>
 
           {busy === "loading" ? (
             <p className="text-sm text-[var(--muted-foreground)]">
-              {t("Loading learner details…")}
+              {"Loading learner details…"}
             </p>
           ) : can("view_reports") && report ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-[var(--border)] p-4">
                 <Library className="mb-2 h-4 w-4 text-[var(--muted-foreground)]" />
                 <div className="text-xs text-[var(--muted-foreground)]">
-                  {t("Approved materials")}
+                  {"Approved materials"}
                 </div>
                 <div className="mt-1 text-lg font-semibold">
                   {report.assigned_materials.length}
@@ -266,7 +266,7 @@ export default function GuardianSettingsPage() {
               </div>
               <div className="rounded-lg border border-[var(--border)] p-4">
                 <div className="text-xs text-[var(--muted-foreground)]">
-                  {t("Enabled learning resources")}
+                  {"Enabled learning resources"}
                 </div>
                 <div className="mt-1 text-lg font-semibold">
                   {report.grant_summary.model_count +
@@ -277,7 +277,7 @@ export default function GuardianSettingsPage() {
             </div>
           ) : !can("view_reports") ? (
             <p className="text-sm text-[var(--muted-foreground)]">
-              {t("You are not authorized to view this learner report.")}
+              {"You are not authorized to view this learner report."}
             </p>
           ) : null}
 
@@ -289,13 +289,13 @@ export default function GuardianSettingsPage() {
             <div className="rounded-lg border border-[var(--border)] p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-medium">
-                  {t("Approved materials")}
+                  {"Approved materials"}
                 </h3>
 
               </div>
               {materials.length === 0 ? (
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  {t("No approved materials are available.")}
+                  {"No approved materials are available."}
                 </p>
               ) : (
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -331,14 +331,14 @@ export default function GuardianSettingsPage() {
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="inline-flex items-center gap-2 text-sm font-medium">
                   <SlidersHorizontal className="h-4 w-4" />
-                  {t("Learning restrictions")}
+                  {"Learning restrictions"}
                 </h3>
 
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-xs">
                   <span className="mb-1 block text-[var(--muted-foreground)]">
-                    {t("Age band")}
+                    {"Age band"}
                   </span>
                   <select
                     value={restrictions.age_band}
@@ -376,7 +376,7 @@ export default function GuardianSettingsPage() {
                       )
                     }
                   />
-                  {t("Allow learner uploads")}
+                  {"Allow learner uploads"}
                 </label>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -417,7 +417,7 @@ export default function GuardianSettingsPage() {
             <div className="rounded-lg border border-[var(--border)] p-4">
               <label className="text-xs">
                 <span className="mb-1 block text-[var(--muted-foreground)]">
-                  {t("New learner password")}
+                  {"New learner password"}
                 </span>
                 <input
                   type="password"
@@ -437,8 +437,8 @@ export default function GuardianSettingsPage() {
               >
                 <KeyRound className="h-4 w-4" />
                 {busy === "credentials"
-                  ? t("Resetting…")
-                  : t("Reset learner credentials")}
+                  ? "Resetting…"
+                  : "Reset learner credentials"}
               </button>
             </div>
           )}
@@ -449,13 +449,13 @@ export default function GuardianSettingsPage() {
         open={confirmAction !== null}
         title={
           confirmAction === "credentials"
-            ? t("Reset learner credentials")
-            : t("Revoke guardian access")
+            ? "Reset learner credentials"
+            : "Revoke guardian access"
         }
         confirmLabel={
           confirmAction === "credentials"
-            ? t("Reset credentials")
-            : t("Revoke access")
+            ? "Reset credentials"
+            : "Revoke access"
         }
         tone="danger"
         busy={busy !== null}
@@ -466,10 +466,8 @@ export default function GuardianSettingsPage() {
         }}
       >
         {confirmAction === "credentials"
-          ? t(
-              "This changes the learner password and revokes every learner device credential.",
-            )
-          : t("This immediately removes your access to this learner account.")}
+          ? "This changes the learner password and revokes every learner device credential."
+          : "This immediately removes your access to this learner account."}
       </ConfirmDialog>
     </main>
   );

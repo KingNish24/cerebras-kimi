@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import { ChevronDown, X, type LucideIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 /**
  * One row in the reference tree: an attachment, a Space reference, a
@@ -113,7 +113,7 @@ export default memo(function ContextReferenceTree({
   /** Translated noun for the collapsed summary ("attachments" / "references"). */
   summaryNoun: string;
 }) {
-  const { t } = useTranslation();
+  
   const [expanded, setExpanded] = useState(false);
   if (items.length === 0) return null;
 
@@ -174,7 +174,7 @@ export default memo(function ContextReferenceTree({
               <button
                 type="button"
                 onClick={item.onRemove}
-                aria-label={t("Remove")}
+                aria-label={"Remove"}
                 className="shrink-0 rounded p-0.5 text-[var(--muted-foreground)]/60 opacity-0 transition-opacity hover:text-[var(--foreground)] focus-visible:opacity-100 group-hover/ref:opacity-100"
               >
                 <X size={11} strokeWidth={2} />

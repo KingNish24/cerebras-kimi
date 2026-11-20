@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Loader2 } from 'lucide-react'
 import PartnerGroupChat from '@/components/partners/group/PartnerGroupChat'
 import { getPartnerGroup, type PartnerGroup } from '@/lib/partner-groups-api'
@@ -18,14 +18,14 @@ export default function ConsultationTabBody({
   tabEvents: StreamEvent[]
   sessionId: string | null
 }) {
-  const { t } = useTranslation()
+  
   const meta = [...tabEvents].reverse().map(event => event.metadata ?? {}).find(meta => meta.partner_group_id)
   if (meta)
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         {typeof meta.partner_group_idle_seconds === 'number' && meta.partner_group_idle_seconds > 0 && (
           <p role="status" className="shrink-0 border-b border-[var(--border)] px-4 py-2 text-xs text-[var(--muted-foreground)]">
-            {t('DeepTutor will respond in {{count}}s. Continue here to keep discussing.', { count: meta.partner_group_idle_seconds })}
+            {`DeepTutor will respond in ${meta.partner_group_idle_seconds}s. Continue here to keep discussing.`}
           </p>
         )}
         <GroupDiscussionBody
@@ -53,7 +53,7 @@ export default function ConsultationTabBody({
 }
 
 function GroupDiscussionBody({ groupId, sessionKey, consultationActive }: { groupId: string; sessionKey: string; consultationActive: boolean }) {
-  const { t } = useTranslation()
+  
   const [group, setGroup] = useState<PartnerGroup | null>(null)
   const [error, setError] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
@@ -73,7 +73,7 @@ function GroupDiscussionBody({ groupId, sessionKey, consultationActive }: { grou
   if (error)
     return (
       <p role="alert" className="p-4 text-sm">
-        {t('Could not load partner groups')}: {error}
+        {"Could not load partner groups"}: {error}
       </p>
     )
   if (!group)

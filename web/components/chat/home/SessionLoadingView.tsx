@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Loader2, RotateCw, TriangleAlert, X } from "lucide-react";
 
 /**
@@ -33,7 +33,7 @@ export default function SessionLoadingView({
   failed = false,
   onRetry,
 }: SessionLoadingViewProps) {
-  const { t } = useTranslation();
+  
   const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function SessionLoadingView({
       {onCancel ? (
         <button
           type="button"
-          aria-label={t("Cancel")}
+          aria-label={"Cancel"}
           onClick={onCancel}
           className="absolute end-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
         >
@@ -75,7 +75,7 @@ export default function SessionLoadingView({
 
       {/* Primary message */}
       <p className="text-sm font-medium text-[var(--foreground)]">
-        {failed ? t("Failed to load session") : t("Loading conversation")}
+        {failed ? "Failed to load session" : "Loading conversation…"}
       </p>
 
       {/* Terminal state: the one action that can still succeed */}
@@ -86,14 +86,14 @@ export default function SessionLoadingView({
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] transition hover:bg-[var(--muted)]"
         >
           <RotateCw className="h-3.5 w-3.5" />
-          {t("Retry")}
+          {"Retry"}
         </button>
       ) : null}
 
       {/* Slow-load hint */}
       {showHint ? (
         <p className="animate-fade-in text-[12px] text-[var(--muted-foreground)]">
-          {t("Still loading…")}
+          {"Still loading…"}
         </p>
       ) : null}
     </div>

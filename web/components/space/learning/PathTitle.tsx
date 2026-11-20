@@ -2,7 +2,7 @@
 
 import { PAGE_TITLE_CLASS } from '@/components/layout/FeaturePage'
 import { Check, Pencil, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useEffect, useRef, useState } from "react";
 import Tooltip from "@/shared/ui/Tooltip";
 
@@ -42,7 +42,7 @@ export function PathTitle({
   /** Resolves once the new name is committed; may reject. */
   onRename: (name: string) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(storedName);
   const [saving, setSaving] = useState(false);
@@ -90,11 +90,11 @@ export function PathTitle({
         <h1 className={`truncate ${TITLE_TYPE}`}>{displayName}</h1>
         {/* Always present, like the reset/delete controls beside it. A
             hover-revealed affordance does not exist on a touch screen. */}
-        <Tooltip label={t("Rename")}>
+        <Tooltip label={"Rename"}>
           <button
             type="button"
             onClick={() => setEditing(true)}
-            aria-label={t("Rename")}
+            aria-label={"Rename"}
             className="shrink-0 cursor-pointer rounded-lg p-1.5 text-[var(--muted-foreground)]/60 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           >
             <Pencil className="h-4 w-4" />
@@ -120,32 +120,32 @@ export function PathTitle({
           if (draft.trim() === storedName.trim()) setEditing(false);
         }}
         maxLength={200}
-        aria-label={t("Topic name")}
-        placeholder={t("What is this path called?")}
+        aria-label={"Topic name"}
+        placeholder={"What is this path called?"}
         className={`min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-1 outline-none focus:border-[var(--primary)] disabled:opacity-60 ${TITLE_TYPE}`}
       />
       {/* mousedown, not click: blur fires first and would commit-then-cancel. */}
-      <Tooltip label={t("Save")}>
+      <Tooltip label={"Save"}>
         <button
           type="button"
           onMouseDown={(event) => {
             event.preventDefault();
             void commit();
           }}
-          aria-label={t("Save")}
+          aria-label={"Save"}
           className="shrink-0 cursor-pointer rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
         >
           <Check className="h-4 w-4" />
         </button>
       </Tooltip>
-      <Tooltip label={t("Cancel")}>
+      <Tooltip label={"Cancel"}>
         <button
           type="button"
           onMouseDown={(event) => {
             event.preventDefault();
             cancel();
           }}
-          aria-label={t("Cancel")}
+          aria-label={"Cancel"}
           className="shrink-0 cursor-pointer rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
         >
           <X className="h-4 w-4" />

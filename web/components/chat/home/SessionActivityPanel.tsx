@@ -26,7 +26,7 @@ import {
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { docIconFor, formatBytes, isSvgFilename } from "@/lib/doc-attachments";
 import type { MessageAttachment } from "@/features/chat/ChatStateAdapter";
 import { listSessions, type SessionSummary } from "@/lib/session-api";
@@ -204,7 +204,7 @@ export function ActivityBody({
   onOpenAttachment: (a: MessageAttachment) => void;
   configSection?: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const { tools, knowledgeBases, space, attachments, artifacts } = activity;
   const { sessions, notebooks, books } = useResolvedTitles(activity, open);
 
@@ -239,7 +239,7 @@ export function ActivityBody({
             <SpaceItemRow
               key={id}
               title={books.get(id) ?? id}
-              subtitle={t("{{n}} page(s)", { n: pages })}
+              subtitle={`${pages} page(s)`}
             />
           );
         })}
@@ -267,7 +267,7 @@ export function ActivityBody({
         count={space.questionEntryIds.length}
       >
         {space.questionEntryIds.map((id) => (
-          <SpaceItemRow key={id} title={t("Question #{{n}}", { n: id })} />
+          <SpaceItemRow key={id} title={`Question #${id}`} />
         ))}
       </SpaceSubsection>,
     );
@@ -302,7 +302,7 @@ export function ActivityBody({
   if (activity.isEmpty && !configSection) {
     return (
       <section>
-        <h2 className={ACTIVITY_LABEL}>{t("Session activity")}</h2>
+        <h2 className={ACTIVITY_LABEL}>{"Session activity"}</h2>
         <div className={`${ACTIVITY_TILE} flex items-start gap-3 px-3.5 py-3`}>
           <Wrench
             size={15}
@@ -311,9 +311,7 @@ export function ActivityBody({
             className="mt-[3px] shrink-0 text-[var(--muted-foreground)]"
           />
           <p className="min-w-0 text-[12.5px] leading-[1.65] text-[var(--muted-foreground)]">
-            {t(
-              "As you chat, the tools and references you use — and the files the tutor generates — will appear here.",
-            )}
+            {"As you chat, the tools and references you use — and the files the tutor generates — will appear here."}
           </p>
         </div>
       </section>
@@ -324,10 +322,10 @@ export function ActivityBody({
     <div className="space-y-5">
       {!activity.isEmpty ? (
         <section>
-        <h2 className={ACTIVITY_LABEL}>{t("Session activity")}</h2>
+        <h2 className={ACTIVITY_LABEL}>{"Session activity"}</h2>
         <div className={`${ACTIVITY_TILE} divide-y divide-[color-mix(in_srgb,var(--border)_55%,transparent)] overflow-hidden`}>
         {tools.length > 0 ? (
-          <SectionCard icon={Wrench} title={t("Tools used")} count={tools.length}>
+          <SectionCard icon={Wrench} title={"Tools used"} count={tools.length}>
             <ul className="px-2 pb-2">
               {tools.map((tool) => (
                 <li
@@ -347,7 +345,7 @@ export function ActivityBody({
         {knowledgeBases.length > 0 ? (
           <SectionCard
             icon={Database}
-            title={t("Knowledge bases")}
+            title={"Knowledge bases"}
             count={knowledgeBases.length}
           >
             <ul className="px-2 pb-2">
@@ -364,7 +362,7 @@ export function ActivityBody({
         ) : null}
 
         {spaceSubsections.length > 0 ? (
-          <SectionCard icon={AtSign} title={t("Space")}>
+          <SectionCard icon={AtSign} title={"Space"}>
             <div className="space-y-1 px-2 pb-2">{spaceSubsections}</div>
           </SectionCard>
         ) : null}
@@ -374,7 +372,7 @@ export function ActivityBody({
         {artifacts.length > 0 ? (
           <SectionCard
             icon={Sparkles}
-            title={t("Generated files")}
+            title={"Generated files"}
             count={artifacts.length}
           >
             <ul className="px-2 pb-2">
@@ -392,7 +390,7 @@ export function ActivityBody({
         {attachments.length > 0 ? (
           <SectionCard
             icon={Paperclip}
-            title={t("Attachments")}
+            title={"Attachments"}
             count={attachments.length}
           >
             <ul className="px-2 pb-2">
@@ -462,7 +460,7 @@ function SpaceSubsection({
   children: ReactNode;
 }) {
   const Icon = category.icon;
-  const { t } = useTranslation();
+  
   return (
     <div>
       <Link
@@ -475,7 +473,7 @@ function SpaceSubsection({
           className="shrink-0 text-[var(--muted-foreground)]"
         />
         <span className="flex-1 truncate text-[11.5px] font-medium text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]">
-          {t(category.label)}
+          {(category.label)}
         </span>
         <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]">
           {count}

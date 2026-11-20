@@ -3,7 +3,7 @@
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExternalLink, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import Button from "@/components/ui/Button";
 import { invalidateLLMOptionsCache } from "@/lib/llm-options";
@@ -30,7 +30,7 @@ import {
 import { useSettings } from "@/features/settings/store/SettingsStore";
 
 export function CodexOAuthCard() {
-  const { t } = useTranslation();
+  
   const { catalogEditable, reloadSettings, hasUnsavedChanges, setToast } =
     useSettings();
   const [liveEfforts, setLiveEfforts] = useState<Record<string, string | null>>({});
@@ -140,11 +140,11 @@ export function CodexOAuthCard() {
     // even when the catalog reload below is deferred.
     invalidateLLMOptionsCache();
     if (hasUnsavedChanges) {
-      setToast(t("codex.oauth.reloadDeferred"));
+      setToast("Codex is connected. Apply your pending changes to see its models in the list.");
       return;
     }
     await reloadSettings();
-  }, [hasUnsavedChanges, reloadSettings, setToast, t]);
+  }, [hasUnsavedChanges, reloadSettings, setToast]);
 
   useEffect(() => {
     if (
@@ -218,9 +218,9 @@ export function CodexOAuthCard() {
     if (!sshCommand) return;
     try {
       await navigator.clipboard.writeText(sshCommand);
-      setToast(t("codex.oauth.commandCopied"));
+      setToast("SSH tunnel command copied.");
     } catch {
-      setToast(t("codex.oauth.copyFailed"));
+      setToast("Could not copy the SSH tunnel command.");
     }
   };
 
@@ -330,31 +330,29 @@ export function CodexOAuthCard() {
       <div className="flex items-start gap-3">
         <ShieldCheck className="mt-0.5 h-5 w-5 text-[var(--primary)]" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{t("codex.oauth.title")}</p>
+          <p className="text-sm font-medium">{"OpenAI Codex OAuth"}</p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {t("codex.oauth.isolated")}
+            {"Credentials are stored only by DeepTutor. This does not read or modify your Codex CLI login."}
           </p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {t("codex.oauth.ownerBound")}
+            {"Signs in with your own ChatGPT plan. It stays with your account and is never shared with other users of this deployment."}
           </p>
           {!connected && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {t("codex.oauth.localOnly")}
+              {"Local access opens authorization directly. Remote access first shows an SSH tunnel command."}
             </p>
           )}
           <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-            {t("codex.oauth.experimental")}
+            {"Experimental connection: the upstream Codex compatibility surface may change."}
           </p>
           {displayMessageKey && (
             <p className="mt-3 text-sm text-[var(--foreground)]">
-              {t(displayMessageKey, {
-                port: callbackPort,
-              })}
+              {(displayMessageKey)}
             </p>
           )}
           {connected && status?.model_count !== undefined && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {t("codex.oauth.modelCount", { count: status.model_count })}
+              {`Models: ${status.model_count}`}
             </p>
           )}
           {connected &&
@@ -362,10 +360,10 @@ export function CodexOAuthCard() {
             status.models.length > 0 && (
               <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
                 <p className="text-sm font-medium">
-                  {t("codex.oauth.reasoningTitle")}
+                  {"Reasoning effort"}
                 </p>
                 <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                  {t("codex.oauth.reasoningDescription")}
+                  {"Choose a default for each Codex model. Only levels supported by that model are available."}
                 </p>
                 <div className="mt-3 space-y-3">
                   {status.models.map((model) => {
@@ -394,7 +392,7 @@ export function CodexOAuthCard() {
                               key={option.value || "auto"}
                               value={option.value}
                             >
-                              {t(option.label)}
+                              {(option.label)}
                             </option>
                           ))}
                         </select>
@@ -407,21 +405,19 @@ export function CodexOAuthCard() {
           {remoteAccess && remoteGuidance && (
             <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
               <p className="text-sm font-medium">
-                {t("codex.oauth.remoteTitle")}
+                {"Remote OAuth authorization"}
               </p>
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {t("codex.oauth.remoteSteps")}
+                {"First run the command below and keep the SSH tunnel running. Then click Open authorization."}
               </p>
               <p className="mt-3 text-xs font-medium">
-                {t("codex.oauth.callbackAddress")}
+                {"OAuth callback address"}
               </p>
               <code className="mt-1 block break-all text-xs">
                 {remoteGuidance.redirect_uri}
               </code>
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {t("codex.oauth.expiresIn", {
-                  seconds: remoteGuidance.expires_in,
-                })}
+                {`Expires in ${remoteGuidance.expires_in} seconds.`}
               </p>
               <pre className="mt-3 overflow-x-auto rounded-md bg-[var(--muted)] p-2 text-xs">
                 <code>{sshCommand}</code>
@@ -433,7 +429,7 @@ export function CodexOAuthCard() {
                   variant="secondary"
                   onClick={() => void copyCommand()}
                 >
-                  {t("codex.oauth.copyCommand")}
+                  {"Copy command"}
                 </Button>
                 <Button
                   type="button"
@@ -441,7 +437,7 @@ export function CodexOAuthCard() {
                   onClick={openAuthorization}
                   icon={<ExternalLink className="h-4 w-4" />}
                 >
-                  {t("codex.oauth.openAuthorization")}
+                  {"Open authorization"}
                 </Button>
                 <Button
                   type="button"
@@ -450,7 +446,7 @@ export function CodexOAuthCard() {
                   disabled={pending}
                   onClick={() => void cancel()}
                 >
-                  {t("codex.oauth.cancel")}
+                  {"Cancel"}
                 </Button>
               </div>
             </div>
@@ -458,16 +454,16 @@ export function CodexOAuthCard() {
           {remoteGuidance && (
             <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
               <p className="text-sm font-medium">
-                {t("codex.oauth.callbackRecoveryTitle")}
+                {"Finish sign-in from the callback address"}
               </p>
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {t("codex.oauth.callbackRecoveryHint")}
+                {"If your browser lands on a page that cannot load — the usual case in Docker, where the callback port is not published — copy that page's whole address and paste it here."}
               </p>
               <label
                 className="mt-3 block text-xs font-medium"
                 htmlFor="codex-callback-url"
               >
-                {t("codex.oauth.callbackUrlLabel")}
+                {"Callback address"}
               </label>
               <input
                 id="codex-callback-url"
@@ -488,7 +484,7 @@ export function CodexOAuthCard() {
                   disabled={!callbackUrl.trim()}
                   onClick={() => void submitCallbackUrl()}
                 >
-                  {t("codex.oauth.completeSignIn")}
+                  {"Finish sign-in"}
                 </Button>
               </div>
             </div>
@@ -502,7 +498,7 @@ export function CodexOAuthCard() {
                 onClick={() => void signIn()}
                 icon={<ExternalLink className="h-4 w-4" />}
               >
-                {t("codex.oauth.signIn")}
+                {"Sign in with Codex"}
               </Button>
             )}
             {polling && !(remoteAccess && remoteGuidance) && (
@@ -513,7 +509,7 @@ export function CodexOAuthCard() {
                 disabled={pending}
                 onClick={() => void cancel()}
               >
-                {t("codex.oauth.cancel")}
+                {"Cancel"}
               </Button>
             )}
             {connected && (
@@ -526,7 +522,7 @@ export function CodexOAuthCard() {
                   onClick={() => void refresh()}
                   icon={<RefreshCw className="h-4 w-4" />}
                 >
-                  {t("codex.oauth.refresh")}
+                  {"Refresh models"}
                 </Button>
                 <Button
                   type="button"
@@ -536,7 +532,7 @@ export function CodexOAuthCard() {
                   onClick={() => void logout()}
                   icon={<Unplug className="h-4 w-4" />}
                 >
-                  {t("codex.oauth.logout")}
+                  {"Sign out"}
                 </Button>
               </>
             )}

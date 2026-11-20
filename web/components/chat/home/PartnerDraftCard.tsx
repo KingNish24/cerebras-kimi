@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 
 import type { PartnerDraftData } from "@/lib/partner-draft";
 import { confirmPartnerDraft } from "@/lib/partners-api";
@@ -20,7 +20,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
 }: {
   data: PartnerDraftData;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [showSoul, setShowSoul] = useState(false);
@@ -51,7 +51,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
       setEditing(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t("Failed to create partner"),
+        err instanceof Error ? err.message : "Failed to create partner",
       );
     } finally {
       setCreating(false);
@@ -74,7 +74,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                {t("Partner draft")}
+                {"Partner draft"}
               </div>
               {!editing ? (
                 <div className="mt-0.5 text-[15px] font-semibold text-[var(--foreground)]">
@@ -88,7 +88,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 onClick={() => setEditing((value) => !value)}
                 className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] text-[var(--muted-foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
               >
-                <Pencil size={12} /> {editing ? t("Done") : t("Edit")}
+                <Pencil size={12} /> {editing ? "Done" : "Edit"}
               </button>
             ) : null}
           </div>
@@ -96,42 +96,42 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
           {editing ? (
             <div className="mt-3 space-y-2.5">
               <input
-                aria-label={t("Partner name")}
+                aria-label={"Partner name"}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 className={fieldClass}
-                placeholder={t("Partner name")}
+                placeholder={"Partner name"}
               />
               <textarea
-                aria-label={t("Description")}
+                aria-label={"Description"}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 className={`${fieldClass} min-h-16 resize-y`}
-                placeholder={t("Description")}
+                placeholder={"Description"}
               />
               <div className="grid grid-cols-[72px_1fr_80px] gap-2">
                 <input
-                  aria-label={t("Emoji")}
+                  aria-label={"Emoji"}
                   value={emoji}
                   onChange={(event) => setEmoji(event.target.value)}
                   className={fieldClass}
                 />
                 <input
-                  aria-label={t("Language")}
+                  aria-label={"Language"}
                   value={language}
                   onChange={(event) => setLanguage(event.target.value)}
                   className={fieldClass}
-                  placeholder={t("Auto / zh / en")}
+                  placeholder={"Auto / zh / en"}
                 />
                 <input
-                  aria-label={t("Color")}
+                  aria-label={"Color"}
                   value={color}
                   onChange={(event) => setColor(event.target.value)}
                   className={fieldClass}
                 />
               </div>
               <textarea
-                aria-label={t("Soul profile")}
+                aria-label={"Soul profile"}
                 value={soul}
                 onChange={(event) => setSoul(event.target.value)}
                 className={`${fieldClass} min-h-48 resize-y font-mono leading-relaxed`}
@@ -148,7 +148,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               >
                 {showSoul ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                {t("Soul profile")}
+                {"Soul profile"}
               </button>
               {showSoul ? (
                 <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] p-3 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
@@ -170,7 +170,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 }
                 className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[11.5px] font-medium text-[var(--background)]"
               >
-                <Check size={13} /> {t("Open partner")}
+                <Check size={13} /> {"Open partner"}
               </button>
             ) : (
               <button
@@ -184,13 +184,13 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 ) : (
                   <Users size={13} />
                 )}
-                {creating ? t("Creating…") : t("Confirm & create")}
+                {creating ? "Creating…" : "Confirm & create"}
               </button>
             )}
             <span className="text-[10.5px] text-[var(--muted-foreground)]">
               {createdId
-                ? t("Partner created")
-                : t("Nothing is created until you confirm")}
+                ? "Partner created"
+                : "Nothing is created until you confirm"}
             </span>
           </div>
         </div>

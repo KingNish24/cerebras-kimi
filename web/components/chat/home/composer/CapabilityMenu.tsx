@@ -1,6 +1,6 @@
 import { useState, type RefObject } from "react";
 import { Check, ChevronDown, ChevronRight, Sparkles } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { CapabilityDef } from "@/features/capabilities/presentation";
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -16,7 +16,7 @@ function CapMenuItem({
   selected: boolean;
   onSelect: (value: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const capabilityLabel = useCapabilityLabel();
 
   const Icon = cap.icon;
@@ -38,7 +38,7 @@ function CapMenuItem({
           {capabilityLabel(cap)}
         </div>
         <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
-          {t(cap.description)}
+          {(cap.description)}
         </div>
       </div>
       {selected && (
@@ -74,7 +74,7 @@ export function CapabilityMenu({
   onSetCapMenuOpen,
   onSelectCapability,
 }: CapabilityMenuProps) {
-  const { t } = useTranslation();
+  
   const capabilityLabel = useCapabilityLabel();
   const [moreCapsOpen, setMoreCapsOpen] = useState(false);
   const [lastCapMenuOpen, setLastCapMenuOpen] = useState(capMenuOpen);
@@ -175,10 +175,10 @@ export function CapabilityMenu({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
-                      {t("More Capabilities")}
+                      {"More Capabilities"}
                     </div>
                     <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
-                      {t("Agent-loop driven modes")}
+                      {"Agent-loop driven modes"}
                     </div>
                   </div>
                   <ChevronRight

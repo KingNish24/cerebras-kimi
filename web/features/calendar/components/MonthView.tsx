@@ -9,7 +9,7 @@ import {
   type DragEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import {
   addDays,
   dateKey,
@@ -77,8 +77,8 @@ export function MonthView({
   onReschedule: (item: EventItem, start: Date, end: Date) => void
   onDropTask: (taskId: string, target: GridDraft) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const bodyRef = useRef<HTMLDivElement>(null)
   const [lanes, setLanes] = useState(4)
   const [drag, setDrag] = useState<Drag | null>(null)
@@ -233,7 +233,7 @@ export function MonthView({
             onTaskOver={taskOver}
             onTaskLeave={() => setDropDay(null)}
             onTaskDrop={taskDropped}
-            moreLabel={count => t('{{count}} more', { count })}
+            moreLabel={count => `${count} more`}
           />
         ))}
       </div>

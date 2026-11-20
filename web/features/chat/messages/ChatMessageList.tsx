@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertCircle, Bot, RefreshCcw, RotateCcw, Square } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { SelectedHistorySession } from "@/components/chat/HistorySessionPicker";
 import type { SelectedQuestionEntry } from "@/components/chat/QuestionBankPicker";
 import type { SelectedBookReference } from "@/lib/book-references";
@@ -175,7 +175,7 @@ export const ChatMessageList = memo(function ChatMessageList({
    *  companion threads, whose answers are saved into a Markdown-based page. */
   renderMarkdown?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   // One lookup for both bubbles; the map is memoized by the chat page, so a
   // message without threads costs a miss and no render branch.
   const threadsForMessage = (messageId?: number) =>
@@ -433,7 +433,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 >
                   <AlertCircle className="h-4 w-4 shrink-0 text-[var(--destructive)]" />
                   <span className="min-w-0 flex-1 text-[12px] leading-[1.5] text-[var(--foreground)]">
-                    {orphanedFailure.error || t("The turn was interrupted.")}
+                    {orphanedFailure.error || "The turn was interrupted."}
                   </span>
                   {!isStreaming && rowIndex === messageRows.length - 1 &&
                     canResendLastTurn && orphanedFailure.retryable && onResendLastTurn ? (
@@ -442,7 +442,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                       onClick={onResendLastTurn}
                       className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
                     >
-                      {t("Retry")}
+                      {"Retry"}
                     </button>
                   ) : null}
                 </div>
@@ -562,7 +562,7 @@ export const ChatMessageList = memo(function ChatMessageList({
               if (stopped) return (
                 <div role="status" className="mt-3 flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
                   <Square className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>{t("Stopped")}</span>
+                  <span>{"Stopped"}</span>
                 </div>
               );
               if (!terminalError && !emptyResponse) return null;
@@ -571,8 +571,8 @@ export const ChatMessageList = memo(function ChatMessageList({
                   <AlertCircle className="h-4 w-4 shrink-0 text-[var(--destructive)]" />
                   <span className="min-w-0 flex-1 text-[12px] leading-[1.5] text-[var(--foreground)]">
                     {terminalError?.content || (terminalError
-                      ? t("The turn was interrupted.")
-                      : t("No response was generated. Please try again."))}
+                      ? "The turn was interrupted."
+                      : "No response was generated. Please try again.")}
                   </span>
                   {showRegenerate ? (
                     <button
@@ -580,7 +580,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                       onClick={() => onRegenerateMessage()}
                       className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
                     >
-                      {t("Retry")}
+                      {"Retry"}
                     </button>
                   ) : null}
                   {showResend && !showRegenerate ? (
@@ -589,7 +589,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                       onClick={() => onResendLastTurn?.()}
                       className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
                     >
-                      {t("Resend")}
+                      {"Resend"}
                     </button>
                   ) : null}
                 </div>
@@ -617,7 +617,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                         />
                         {i === lastRenderedAssistantIndex && (
                           <select
-                            aria-label={t("Playback speed")}
+                            aria-label={"Playback speed"}
                             className="rounded bg-transparent px-1 text-xs text-[var(--muted-foreground)]"
                             value={voiceRate}
                             onChange={(event) => setVoiceRate(Number(event.target.value))}
@@ -637,19 +637,19 @@ export const ChatMessageList = memo(function ChatMessageList({
                     {retryTarget ? (
                       <RoughActionButton
                         icon={RotateCcw}
-                        label={t("Retry")}
+                        label={"Retry"}
                         onClick={() => onRetryTurn?.(retryTarget)}
                       />
                     ) : showActions && showRegenerate ? (
                       <RoughActionButton
                         icon={RefreshCcw}
-                        label={t("Regenerate")}
+                        label={"Regenerate"}
                         onClick={() => onRegenerateMessage()}
                       />
                     ) : showResend ? (
                       <RoughActionButton
                         icon={RefreshCcw}
-                        label={t("Resend")}
+                        label={"Resend"}
                         onClick={() => onResendLastTurn?.()}
                       />
                     ) : null}

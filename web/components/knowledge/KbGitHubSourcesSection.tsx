@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Github, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import {
   addGitHubSource,
@@ -21,7 +21,7 @@ interface KbGitHubSourcesSectionProps {
 export default function KbGitHubSourcesSection({
   kbName,
 }: KbGitHubSourcesSectionProps) {
-  const { t } = useTranslation();
+  
   const [sources, setSources] = useState<GitHubSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -121,12 +121,10 @@ export default function KbGitHubSourcesSection({
       <div className="flex items-center justify-between gap-3">
         <div>
           <div className="text-[13px] font-medium text-[var(--foreground)]">
-            {t("GitHub Sources")}
+            {"GitHub Sources"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-            {t(
-              "Track a GitHub repo's Markdown docs. DeepTutor auto-syncs daily; you can also trigger a sync manually.",
-            )}
+            {"Track a GitHub repo's Markdown docs. DeepTutor auto-syncs daily; you can also trigger a sync manually."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -141,7 +139,7 @@ export default function KbGitHubSourcesSection({
             ) : (
               <RefreshCw className="h-3 w-3" />
             )}
-            {syncing ? t("Syncing…") : t("Sync now")}
+            {syncing ? "Syncing…" : "Sync now"}
           </button>
           <button
             type="button"
@@ -149,7 +147,7 @@ export default function KbGitHubSourcesSection({
             className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
           >
             <Plus className="h-3 w-3" />
-            {t("Add source")}
+            {"Add source"}
           </button>
         </div>
       </div>
@@ -165,42 +163,42 @@ export default function KbGitHubSourcesSection({
       {showForm && (
         <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label={t("Repo (owner/name)")}>
+            <FormField label={"Repo (owner/name)"}>
               <input
                 type="text"
                 value={repoInput}
                 onChange={(e) => setRepoInput(e.target.value)}
-                placeholder={t("e.g. HKUDS/DeepTutor")}
+                placeholder={"e.g. HKUDS/DeepTutor"}
                 className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
-            <FormField label={t("Branch")}>
+            <FormField label={"Branch"}>
               <input
                 type="text"
                 value={branchInput}
                 onChange={(e) => setBranchInput(e.target.value)}
-                placeholder={t("main")}
+                placeholder={"main"}
                 className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
             <FormField
-              label={t("Path prefix")}
-              help={t("e.g. docs/ — leave empty for root")}
+              label={"Path prefix"}
+              help={"e.g. docs/ — leave empty for root"}
             >
               <input
                 type="text"
                 value={pathInput}
                 onChange={(e) => setPathInput(e.target.value)}
-                placeholder={t("docs/")}
+                placeholder={"docs/"}
                 className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
-            <FormField label={t("Glob pattern")}>
+            <FormField label={"Glob pattern"}>
               <input
                 type="text"
                 value={globInput}
                 onChange={(e) => setGlobInput(e.target.value)}
-                placeholder={t("*.md")}
+                placeholder={"*.md"}
                 className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
@@ -213,14 +211,14 @@ export default function KbGitHubSourcesSection({
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-3 w-3 animate-spin" />}
-              {t("Add")}
+              {"Add"}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
               className="rounded-md px-3 py-1.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
             >
-              {t("Cancel")}
+              {"Cancel"}
             </button>
           </div>
         </div>
@@ -231,7 +229,7 @@ export default function KbGitHubSourcesSection({
         <div className="rounded-lg border border-dashed border-[var(--border)] py-8 text-center">
           <Github className="mx-auto mb-2 h-6 w-6 text-[var(--muted-foreground)]" />
           <p className="text-[12px] text-[var(--muted-foreground)]">
-            {t('No GitHub sources yet. Click "Add source" to track a repo.')}
+            {"No GitHub sources yet. Click \"Add source\" to track a repo."}
           </p>
         </div>
       ) : (
@@ -256,7 +254,7 @@ function SourceCard({
   source: GitHubSource;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
+  
 
   const statusColor =
     source.last_sync_status === "success"
@@ -281,22 +279,22 @@ function SourceCard({
         </div>
         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-[var(--muted-foreground)]">
           <span>
-            {t("Path")}: <code className="font-mono">{source.path || "/"}</code>
+            {"Path"}: <code className="font-mono">{source.path || "/"}</code>
           </span>
           <span>
-            {t("Glob")}: <code className="font-mono">{source.glob}</code>
+            {"Glob"}: <code className="font-mono">{source.glob}</code>
           </span>
           <span className={statusColor}>
-            {t("Status")}: {source.last_sync_status}
+            {"Status"}: {source.last_sync_status}
           </span>
           {source.files_synced > 0 && (
             <span>
-              {t("Files")}: {source.files_synced}
+              {"Files"}: {source.files_synced}
             </span>
           )}
           {lastSync && (
             <span>
-              {t("Synced")}: {lastSync}
+              {"Synced"}: {lastSync}
             </span>
           )}
         </div>
@@ -306,11 +304,11 @@ function SourceCard({
           </p>
         )}
       </div>
-      <Tooltip label={t("Remove source")} side="top">
+      <Tooltip label={"Remove source"} side="top">
         <button
           type="button"
           onClick={onRemove}
-          aria-label={t("Remove source")}
+          aria-label={"Remove source"}
           className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600"
         >
           <Trash2 className="h-3.5 w-3.5" />

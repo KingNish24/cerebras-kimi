@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import type {
   IndexingLLMSelection,
   LightRagConfig,
@@ -97,7 +97,7 @@ export default function IndexingModelSelector({
   disabled = false,
   onChange,
 }: IndexingModelSelectorProps) {
-  const { t } = useTranslation();
+  
   const selected = options.find(
     (option) =>
       option.profile_id === selection?.profile_id &&
@@ -134,23 +134,21 @@ export default function IndexingModelSelector({
   if (loading && options.length === 0) {
     return (
       <p className="text-[12px] text-[var(--muted-foreground)]">
-        {t("Loading model catalog…")}
+        {"Loading model catalog…"}
       </p>
     );
   }
   if (error && options.length === 0) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-        {t(
-          "The model catalog could not be loaded. Check model settings and try again.",
-        )}
+        {"The model catalog could not be loaded. Check model settings and try again."}
       </div>
     );
   }
   if (options.length === 0) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-        {t("No indexing model is available. Configure an LLM model first.")}
+        {"No indexing model is available. Configure an LLM model first."}
       </div>
     );
   }
@@ -159,15 +157,15 @@ export default function IndexingModelSelector({
     <div className="space-y-3">
       {!reasoningOnly && <label className="block">
         <span className={`mb-1.5 block ${labelClassName}`}>
-          {t(label)}
+          {(label)}
         </span>
         {description && (
           <span className="mb-1.5 block text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(description)}
+            {(description)}
           </span>
         )}
         <select
-          aria-label={t(label)}
+          aria-label={(label)}
           value={
             usesDefault
               ? "__engine_default__"
@@ -190,11 +188,11 @@ export default function IndexingModelSelector({
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] disabled:opacity-50"
         >
           <option value="" disabled>
-            {t("Select an indexing model")}
+            {"Select an indexing model"}
           </option>
           {unavailableSelectionKey && (
             <option value={unavailableSelectionKey} disabled>
-              {t("Unavailable model")} · {selection?.model_id}
+              {"Unavailable model"} · {selection?.model_id}
             </option>
           )}
           {defaultSelection && defaultLabel && (
@@ -215,16 +213,12 @@ export default function IndexingModelSelector({
 
       {!reasoningOnly && defaultUnavailable && !selection && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-          {t(
-            "The current LightRAG query model is unavailable here. Choose an accessible indexing model.",
-          )}
+          {"The current LightRAG query model is unavailable here. Choose an accessible indexing model."}
         </div>
       )}
       {!reasoningOnly && defaultLoadError && !selection && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-          {t(
-            "The LightRAG query-model setting could not be loaded. Choose an indexing model or try again.",
-          )}
+          {"The LightRAG query-model setting could not be loaded. Choose an indexing model or try again."}
         </div>
       )}
 
@@ -232,10 +226,10 @@ export default function IndexingModelSelector({
         (reasoningOptions.length > 0 || selection?.reasoning_effort) && (
           <label className="block">
             <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-              {t("Reasoning effort")}
+              {"Reasoning effort"}
             </span>
             <select
-              aria-label={t("Reasoning effort")}
+              aria-label={"Reasoning effort"}
               value={selection?.reasoning_effort ?? ""}
               disabled={disabled}
               onChange={(event) =>
@@ -245,15 +239,15 @@ export default function IndexingModelSelector({
             >
               <option value="">
                 {inheritBaseReasoning !== undefined
-                  ? t("Inherit base reasoning")
-                  : t("Provider default (Auto)")}
+                  ? "Inherit base reasoning"
+                  : "Provider default (Auto)"}
               </option>
               {selection?.reasoning_effort &&
                 !reasoningOptions.some(
                   (option) => option.value === selection.reasoning_effort,
                 ) && (
                   <option value={selection.reasoning_effort} disabled>
-                    {t("Unsupported reasoning effort")}:{" "}
+                    {"Unsupported reasoning effort"}:{" "}
                     {selection.reasoning_effort}
                   </option>
                 )}
@@ -261,17 +255,15 @@ export default function IndexingModelSelector({
                 .filter((option) => option.value)
                 .map((option) => (
                   <option key={option.value || "auto"} value={option.value}>
-                    {t(option.label)}
+                    {(option.label)}
                   </option>
                 ))}
             </select>
             {showReasoningHint && (
               <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
                 {inheritBaseReasoning !== undefined
-                  ? t("With no role override, reasoning follows the LightRAG base.")
-                  : t(
-                      "Sets this model's default reasoning depth. Auto leaves the choice to the provider.",
-                    )}
+                  ? "With no role override, reasoning follows the LightRAG base."
+                  : "Sets this model's default reasoning depth. Auto leaves the choice to the provider."}
               </p>
             )}
           </label>

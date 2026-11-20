@@ -76,10 +76,9 @@ export interface ProgressInfo {
  */
 export function progressMessage(
   progress: Pick<ProgressInfo, "message" | "message_key" | "message_params">,
-  t: (key: string, options?: Record<string, unknown>) => string,
 ): string | undefined {
   if (!progress.message_key) return progress.message;
-  return t(progress.message_key, progress.message_params ?? {});
+  return (progress.message_key);
 }
 
 export interface KnowledgeIndexFailure {
@@ -519,7 +518,6 @@ export const resolveProgressPercent = (progress?: ProgressInfo): number => {
 export function validateFiles(
   files: File[],
   uploadPolicy: KnowledgeUploadPolicy,
-  t: TFunction,
 ): ValidatedFileSelection {
   const allowedExtensions = new Set(
     uploadPolicy.extensions.map((ext) => ext.toLowerCase()),
@@ -534,17 +532,15 @@ export function validateFiles(
       allowedExtensions.size > 0 &&
       !allowedExtensions.has(extension)
     ) {
-      error = t("Unsupported file type");
+      error = "Unsupported file type";
     } else if (file.size > uploadPolicy.max_file_size_bytes) {
-      error = t("This file exceeds the maximum size of {{size}}.", {
-        size: formatFileSize(uploadPolicy.max_file_size_bytes),
-      });
+      error = `This file exceeds the maximum size of ${formatFileSize(uploadPolicy.max_file_size_bytes)}.`;
     }
 
     return {
       id: selectionFileId(file),
       file,
-      extension: extension || t("No extension"),
+      extension: extension || "No extension",
       sizeLabel: formatFileSize(file.size),
       valid: !error,
       error,

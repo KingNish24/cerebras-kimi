@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import {
   summarizeVisualizeConfig,
@@ -38,7 +38,7 @@ export default memo(function VisualizeConfigPanel({
   collapsed,
   onToggleCollapsed,
 }: VisualizeConfigPanelProps) {
-  const { t } = useTranslation();
+  
   const [catalog, setCatalog] = useState<VisualizerCatalogItem[]>([]);
   const [catalogError, setCatalogError] = useState("");
   const [busy, setBusy] = useState("");
@@ -97,7 +97,7 @@ export default memo(function VisualizeConfigPanel({
 
   const body = (
     <>
-      <Field label={t("Render Mode")} width="w-[140px]">
+      <Field label={"Render Mode"} width="w-[140px]">
         <select
           value={value.render_mode}
           onChange={(e) =>
@@ -108,28 +108,28 @@ export default memo(function VisualizeConfigPanel({
           }
           className={`${INPUT_CLS} w-full`}
         >
-          <option value="auto">{t("Auto")}</option>
+          <option value="auto">{"Auto"}</option>
           {enabledTypes.length > 0 ? (
             enabledTypes.map((item) => (
               <option key={item.id} value={item.id}>
-                {t(item.display_name)}
+                {(item.display_name)}
               </option>
             ))
           ) : (
             <>
-              <option value="chartjs">{t("Chart.js")}</option>
-              <option value="svg">{t("SVG")}</option>
-              <option value="mermaid">{t("Mermaid")}</option>
-              <option value="mindmap">{t("Mind map")}</option>
-              <option value="html">{t("HTML")}</option>
-              <option value="manim_video">{t("Animation")}</option>
-              <option value="manim_image">{t("Storyboard")}</option>
+              <option value="chartjs">{"Chart.js"}</option>
+              <option value="svg">{"SVG"}</option>
+              <option value="mermaid">{"Mermaid"}</option>
+              <option value="mindmap">{"Mind map"}</option>
+              <option value="html">{"HTML"}</option>
+              <option value="manim_video">{"Animation"}</option>
+              <option value="manim_image">{"Storyboard"}</option>
             </>
           )}
           {value.render_mode !== "auto" &&
           !enabledTypes.some((item) => item.id === value.render_mode) ? (
             <option value={value.render_mode} disabled>
-              {value.render_mode} ({t("Unavailable")})
+              {value.render_mode} ({"Unavailable"})
             </option>
           ) : null}
         </select>
@@ -137,7 +137,7 @@ export default memo(function VisualizeConfigPanel({
 
       {isManim ? (
         <>
-          <Field label={t("Quality")} width="w-[100px]">
+          <Field label={"Quality"} width="w-[100px]">
             <select
               value={value.quality}
               onChange={(e) =>
@@ -148,28 +148,28 @@ export default memo(function VisualizeConfigPanel({
               }
               className={`${INPUT_CLS} w-full`}
             >
-              <option value="low">{t("Low")}</option>
-              <option value="medium">{t("Medium")}</option>
-              <option value="high">{t("High")}</option>
+              <option value="low">{"Low"}</option>
+              <option value="medium">{"Medium"}</option>
+              <option value="high">{"High"}</option>
             </select>
           </Field>
 
-          <Field label={t("Style Hint")} width="min-w-[160px] flex-1">
+          <Field label={"Style Hint"} width="min-w-[160px] flex-1">
             <input
               type="text"
               value={value.style_hint}
               onChange={(e) => update("style_hint", e.target.value)}
-              placeholder={t("Style, pacing, color...")}
+              placeholder={"Style, pacing, color..."}
               className={`${INPUT_CLS} w-full`}
             />
           </Field>
         </>
       ) : null}
 
-      <Field label={t("Visualizer Types")} width="min-w-[210px] flex-1">
+      <Field label={"Visualizer Types"} width="min-w-[210px] flex-1">
         <div className="flex min-h-8 flex-wrap items-center gap-1.5">
           {installableTypes.map((item) => (
-            <Tooltip key={item.id} label={t(item.display_name)} description={item.description}>
+            <Tooltip key={item.id} label={(item.display_name)} description={item.description}>
               <button
                 type="button"
                 disabled={Boolean(busy)}
@@ -180,7 +180,7 @@ export default memo(function VisualizeConfigPanel({
                 }
                 className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
               >
-                + {t(item.display_name)}
+                + {(item.display_name)}
               </button>
             </Tooltip>
           ))}
@@ -196,7 +196,7 @@ export default memo(function VisualizeConfigPanel({
               }
               className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
-              {t("Enable")} {t(item.display_name)}
+              {"Enable"} {(item.display_name)}
             </button>
           ))}
           <button
@@ -205,7 +205,7 @@ export default memo(function VisualizeConfigPanel({
             onClick={() => importRef.current?.click()}
             className="rounded-md border border-dashed border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
-            {t("Import .zip")}
+            {"Import .zip"}
           </button>
           <input
             ref={importRef}
@@ -232,7 +232,7 @@ export default memo(function VisualizeConfigPanel({
               }}
               className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
-              {t("Disable selected")}
+              {"Disable selected"}
             </button>
           ) : null}
           {selected?.installed && selected.uninstallable ? (
@@ -247,12 +247,12 @@ export default memo(function VisualizeConfigPanel({
               }}
               className="rounded-md border border-red-300/60 px-2 py-1 text-[10px] text-red-500 disabled:opacity-50"
             >
-              {t("Uninstall selected")}
+              {"Uninstall selected"}
             </button>
           ) : null}
           {busy ? (
             <span className="text-[10px] text-[var(--muted-foreground)]">
-              {t("Updating...")}
+              {"Updating..."}
             </span>
           ) : null}
         </div>

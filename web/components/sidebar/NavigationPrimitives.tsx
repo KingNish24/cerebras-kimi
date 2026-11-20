@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import Link from '@/shared/router/link'
 import { usePathname, useSearchParams } from '@/shared/router/navigation'
 import type { LucideIcon } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { useSidebarDrawer } from '@/components/layout/AppShell'
 
@@ -114,7 +114,7 @@ export function Status({
   error: boolean
   retry: () => void
 }) {
-  const { t } = useTranslation()
+  
   if (loading)
     return (
       <div aria-busy="true" className="space-y-3 px-3 py-4">
@@ -125,9 +125,9 @@ export function Status({
     )
   return error ? (
     <div className="px-3 py-2 text-xs text-muted-foreground" role="status">
-      {t('navigation.loadError')}{' '}
+      {"Some records could not be loaded."}{' '}
       <button className="underline" onClick={retry}>
-        {t('Retry')}
+        {"Retry"}
       </button>
     </div>
   ) : null

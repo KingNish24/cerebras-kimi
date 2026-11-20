@@ -15,7 +15,7 @@
 
 import { memo, useCallback, useMemo } from "react";
 import { MessageSquare } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import StandaloneComposer, {
   type StandaloneComposerSubmission,
@@ -48,15 +48,14 @@ const FOLLOWUP_CAPABILITIES = [
  *  read it, since that is the one thing that changes what to write. */
 export function followupPlaceholder(
   context: QuizFollowupTabContext,
-  t: (key: string, options?: Record<string, unknown>) => string,
 ): string {
   const side = context.sideChat;
   if (!side) {
-    return t("Ask anything about this question, your answer, or the AI judgment.");
+    return "Ask anything about this question, your answer, or the AI judgment.";
   }
   return side.responder.kind === "dito"
-    ? t("Ask Dito…")
-    : t("Ask {{name}}…", { name: side.responder.name });
+    ? "Ask Dito…"
+    : `Ask ${side.responder.name}…`;
 }
 
 interface FollowupChatComposerProps {
@@ -75,7 +74,7 @@ function FollowupChatComposerImpl({
   agents = [],
   onResponderChange,
 }: FollowupChatComposerProps) {
-  const { t } = useTranslation();
+  
   const controller = useQuizFollowupController();
   const thread = useFollowupThread(context.questionKey);
 
@@ -211,7 +210,7 @@ function FollowupChatComposerImpl({
       awaitingUserReply={awaitingUserReply}
       onSubmit={handleSubmit}
       onCancelStreaming={handleCancelStreaming}
-      inputPlaceholder={followupPlaceholder(context, t)}
+      inputPlaceholder={followupPlaceholder(context)}
       seedAttachments={seedAttachments}
       // A pane's composer: one line tall, lists opening upward, and no mode
       // picker for a thread that only ever chats.

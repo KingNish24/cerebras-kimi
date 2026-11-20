@@ -1,7 +1,7 @@
 'use client'
 
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { loadPdfjs, outputScale, type PdfDocument } from '@/lib/pdfjs-loader'
 import type { AnnotationItem } from '@/lib/reading-api'
 import {
@@ -112,7 +112,7 @@ export function PdfPage({
   onImageClick,
   inkKey = `${doc ? 'doc' : 'none'}:${locator}`,
 }: PdfPageProps) {
-  const { t } = useTranslation()
+  
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const textLayerRef = useRef<HTMLDivElement | null>(null)
   // Whether this page was ever drawn, so only those are handed back.
@@ -465,7 +465,7 @@ export function PdfPage({
               <button
                 key={`image-${index}`}
                 type="button"
-                aria-label={t('Zoom image')}
+                aria-label={"Zoom image"}
                 // No `onMouseUp` guard: a selection that ends on the picture must
                 // still reach the reader, or dragging across an image loses the
                 // quote. The click is what opens the viewer.
@@ -512,7 +512,7 @@ export function PdfPage({
       {canvasFailed && textFailed && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/90 px-6 text-center">
           <span className="text-[12px] text-[var(--muted-foreground)]">
-            {t('This page could not be rendered.')}
+            {"This page could not be rendered."}
           </span>
         </div>
       )}

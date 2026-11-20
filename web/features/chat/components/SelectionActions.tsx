@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, MessagesSquare, TextQuote } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import ResponderList from "@/components/chat/home/ResponderList";
 import { DITO, type SideChatResponder } from "@/lib/side-chat";
 import { PlayAudioButton } from "@/components/voice/SpeechButton";
@@ -62,7 +62,7 @@ export default function SelectionActions({
   onAsk: (responder: SideChatResponder) => void;
   onDismiss: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const { left, top, menuAbove } = place(anchor);
 
@@ -83,7 +83,7 @@ export default function SelectionActions({
   return (
     <div
       role="toolbar"
-      aria-label={t("Selected text")}
+      aria-label={"Selected text"}
       // Keep the selection: a press here must not collapse it before the click.
       onPointerDown={(event) => event.preventDefault()}
       className="fixed z-[45]"
@@ -108,7 +108,7 @@ export default function SelectionActions({
           className={`${segment} flex-1 justify-center`}
         >
           <TextQuote size={14} strokeWidth={1.8} aria-hidden="true" />
-          {t("Add to chat")}
+          {"Add to chat"}
         </button>
         <span
           aria-hidden="true"
@@ -120,11 +120,11 @@ export default function SelectionActions({
           className={`${segment} pr-1.5`}
         >
           <MessagesSquare size={14} strokeWidth={1.8} aria-hidden="true" />
-          {t("Ask Dito")}
+          {"Ask Dito"}
         </button>
         <button
           type="button"
-          aria-label={t("Ask someone else")}
+          aria-label={"Ask someone else"}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((value) => !value)}

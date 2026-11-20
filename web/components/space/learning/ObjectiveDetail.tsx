@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type { ObjectiveReport } from "@/lib/learning-api";
 
@@ -23,7 +23,7 @@ export function ObjectiveDetail({
   report: ObjectiveReport;
   zh: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const qualitative = report.gate === "qualitative";
   const evidence = report.evidence ?? [];
   const evidenceCount = report.evidence_count ?? evidence.length;
@@ -32,24 +32,15 @@ export function ObjectiveDetail({
       <GateBar report={report} />
 
       {report.review && (
-        <Row label={t("Spaced review")}>
+        <Row label={"Spaced review"}>
           {report.review.due_at
-            ? t("Due {{relative}} · {{absolute}}", {
-                relative: formatRelative(report.review.due_at, zh),
-                absolute: formatAbsolute(report.review.due_at, zh),
-              })
-            : t("Not scheduled")}
+            ? `Due ${formatRelative(report.review.due_at, zh)} · ${formatAbsolute(report.review.due_at, zh)}`
+            : "Not scheduled"}
           <span className="ml-2 text-[var(--muted-foreground)]">
-            {t("memory {{retrievability}}% · stability {{stability}} days", {
-              retrievability: Math.round(report.review.retrievability * 100),
-              stability: report.review.stability.toFixed(1),
-            })}
+            {`memory ${Math.round(report.review.retrievability * 100)}% · stability ${report.review.stability.toFixed(1)} days`}
           </span>
           <span className="block text-[var(--muted-foreground)]">
-            {t("risk {{risk}}% · {{lapses}} lapses", {
-              risk: Math.round(report.review.forgetting_risk * 100),
-              lapses: report.review.lapse_count,
-            })}
+            {`risk ${Math.round(report.review.forgetting_risk * 100)}% · ${report.review.lapse_count} lapses`}
           </span>
           {report.review.reason && (
             <span className="block text-[var(--muted-foreground)]">
@@ -60,7 +51,7 @@ export function ObjectiveDetail({
       )}
 
       {qualitative && report.explanation && (
-        <Row label={t("Your explanation")}>
+        <Row label={"Your explanation"}>
           <span className="italic">{report.explanation}</span>
         </Row>
       )}
@@ -68,10 +59,7 @@ export function ObjectiveDetail({
       {report.attempts.length > 0 && (
         <div>
           <div className="text-xs text-[var(--muted-foreground)]">
-            {t("Attempts ({{correct}}/{{total}} correct)", {
-              correct: report.correct_count,
-              total: report.attempts.length,
-            })}
+            {`Attempts (${report.correct_count}/${report.attempts.length} correct)`}
           </div>
           <ul className="mt-1 space-y-1.5">
             {[...report.attempts].reverse().map((attempt, index) => (
@@ -86,11 +74,11 @@ export function ObjectiveDetail({
                 )}
                 <div className="min-w-0">
                   <div className="text-[var(--foreground)]">
-                    {attempt.prompt || t("(prompt unavailable)")}
+                    {attempt.prompt || "(prompt unavailable)"}
                   </div>
                   <div className="text-[var(--muted-foreground)]">
-                    {t("You said: ")}
-                    {attempt.answer || t("(blank)")}
+                    {"You said: "}
+                    {attempt.answer || "(blank)"}
                     <span className="ml-2">
                       {formatRelative(attempt.at, zh)}
                     </span>
@@ -103,28 +91,26 @@ export function ObjectiveDetail({
       )}
 
       {report.errors.length > 0 && (
-        <Row label={t("Error diagnosis")}>
+        <Row label={"Error diagnosis"}>
           {report.errors.map((record) => (
             <span key={record.id} className="mr-2">
-              {t(record.error_type)}
+              {(record.error_type)}
               {record.retries > 0 &&
-                t(" · {{count}} retries", { count: record.retries })}
-              {record.status === "graduated" && t(" · cleared")}
+                ` · ${record.retries} retries`}
+              {record.status === "graduated" && " · cleared"}
             </span>
           ))}
         </Row>
       )}
 
-      {report.explained && <Row label={t("Explained")}>{report.explained.summary}</Row>}
-      {!!report.required_visual_tasks?.length && <Row label={t("Independent visual evidence")}>{report.demonstrated_visual_tasks?.length ?? 0} / {report.required_visual_tasks.length}</Row>}
-      {!!report.required_visual_tasks?.some((task) => !report.demonstrated_visual_tasks?.includes(task)) && <p className="text-xs text-[var(--muted-foreground)]">{t("Independent visual evidence is still required for this objective.")}</p>}
-      {report.attempts.some((attempt) => attempt.independent === false) && <p className="text-xs text-[var(--muted-foreground)]">{t("Assisted practice is recorded separately from independent mastery.")}</p>}
+      {report.explained && <Row label={"Explained"}>{report.explained.summary}</Row>}
+      {!!report.required_visual_tasks?.length && <Row label={"Independent visual evidence"}>{report.demonstrated_visual_tasks?.length ?? 0} / {report.required_visual_tasks.length}</Row>}
+      {!!report.required_visual_tasks?.some((task) => !report.demonstrated_visual_tasks?.includes(task)) && <p className="text-xs text-[var(--muted-foreground)]">{"Independent visual evidence is still required for this objective."}</p>}
+      {report.attempts.some((attempt) => attempt.independent === false) && <p className="text-xs text-[var(--muted-foreground)]">{"Assisted practice is recorded separately from independent mastery."}</p>}
       {evidence.length > 0 && (
         <div>
           <div className="text-xs text-[var(--muted-foreground)]">
-            {t("Retention evidence ({{count}})", {
-              count: evidenceCount,
-            })}
+            {`Retention evidence (${evidenceCount})`}
           </div>
           <ul className="mt-1 space-y-1">
             {evidence.map((evidence, index) => (
@@ -133,8 +119,8 @@ export function ObjectiveDetail({
                 className="flex items-center justify-between gap-2 text-[11px] text-[var(--muted-foreground)]"
               >
                 <span>
-                  {t(evidence.result)} · {t(evidence.assessment_type)}
-                  {evidence.visual_context?.task && ` · ${t("Visual practice")}${evidence.hints_used ? ` · ${t("Assisted")}` : ""}`}
+                  {(evidence.result)} · {(evidence.assessment_type)}
+                  {evidence.visual_context?.task && ` · ${"Visual practice"}${evidence.hints_used ? ` · ${"Assisted"}` : ""}`}
                   {evidence.quality !== null &&
                     ` · ${Math.round(evidence.quality * 100)}%`}
                 </span>
@@ -144,7 +130,7 @@ export function ObjectiveDetail({
           </ul>
           {evidenceCount > evidence.length && (
             <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
-              {t("Showing the latest 20 events")}
+              {"Showing the latest 20 events"}
             </p>
           )}
         </div>
@@ -152,9 +138,7 @@ export function ObjectiveDetail({
 
       {report.attempts.length === 0 && !report.explanation && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          {t(
-            "No attempts yet. Once you work through this waypoint, its questions, your answers, and the grading evidence will appear here.",
-          )}
+          {"No attempts yet. Once you work through this waypoint, its questions, your answers, and the grading evidence will appear here."}
         </p>
       )}
     </div>
@@ -163,7 +147,7 @@ export function ObjectiveDetail({
 
 /** Mastery against the gate it has to clear. */
 function GateBar({ report }: { report: ObjectiveReport }) {
-  const { t } = useTranslation();
+  
   const qualitative = report.gate === "qualitative";
   // A qualitative gate is a boolean, so all-or-nothing is the only honest
   // fill. `mastery` carries quiz accuracy for these objectives too, and
@@ -185,8 +169,8 @@ function GateBar({ report }: { report: ObjectiveReport }) {
       <div className="flex items-baseline justify-between text-xs">
         <span className="text-[var(--muted-foreground)]">
           {report.gate === "qualitative"
-            ? t("Qualitative gate: explain it in your own words")
-            : t("Quantitative gate: {{pct}}%", { pct: thresholdPct })}
+            ? "Qualitative gate: explain it in your own words"
+            : `Quantitative gate: ${thresholdPct}%`}
         </span>
         <span
           className={
@@ -212,17 +196,12 @@ function GateBar({ report }: { report: ObjectiveReport }) {
       </div>
       {perfectButBelowGate && (
         <p className="mt-1.5 text-[11px] leading-4 text-[var(--muted-foreground)]">
-          {t(
-            "Even with {{correct}}/{{total}} correct so far, mastery also weighs evidence volume, difficulty, and recent consistency. One more discriminating practice can raise it further.",
-            { correct: report.correct_count, total: report.attempts.length },
-          )}
+          {`Even with ${report.correct_count}/${report.attempts.length} correct so far, mastery also weighs evidence volume, difficulty, and recent consistency. One more discriminating practice can raise it further.`}
         </p>
       )}
       {qualitative && !report.mastered && report.attempts.length > 0 && (
         <p className="mt-1.5 text-[11px] leading-4 text-[var(--muted-foreground)]">
-          {t(
-            "Practice questions do not open this gate — it opens when you explain the idea in your own words and your tutor records that. Your answers here still count as practice.",
-          )}
+          {"Practice questions do not open this gate — it opens when you explain the idea in your own words and your tutor records that. Your answers here still count as practice."}
         </p>
       )}
     </div>

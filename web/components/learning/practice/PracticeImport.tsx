@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Download, FileSpreadsheet, Loader2, X } from "lucide-react";
 import {
   commitPracticeImport,
@@ -19,7 +19,7 @@ export function PracticeImport({
   onImported: (message: string) => void;
   initialTarget: "bank" | "mistakes";
 }) {
-  const { t } = useTranslation();
+  
   const [target, setTarget] = useState(initialTarget);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [filename, setFilename] = useState("");
@@ -49,7 +49,7 @@ export function PracticeImport({
     setError("");
     try {
       const result = await commitPracticeImport(preview.token);
-      onImported(t("Imported {{created}} questions; skipped {{duplicates}} duplicates.", result));
+      onImported(`Imported {{created}} questions; skipped {{duplicates}} duplicates.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -65,26 +65,24 @@ export function PracticeImport({
       <div className="flex items-center justify-between gap-3">
         <h2 id="practice-import-title" className="flex items-center gap-2 text-base font-semibold">
           <FileSpreadsheet size={18} />
-          {t("Import questions")}
+          {"Import questions"}
         </h2>
         <button
           type="button"
           onClick={onClose}
           disabled={busy}
-          aria-label={t("Close import")}
+          aria-label={"Close import"}
           className="rounded-lg p-2 hover:bg-muted disabled:opacity-50"
         >
           <X size={17} />
         </button>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        {t(
-          "Import XLSX, CSV, TSV or JSON. Up to 500 questions and 5 MB per file. XLSX uses the active sheet. Chinese and English column names are supported.",
-        )}
+        {"Import XLSX, CSV, TSV or JSON. Up to 500 questions and 5 MB per file. XLSX uses the active sheet. Chinese and English column names are supported."}
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          {t("Import into")}
+          {"Import into"}
           <select
             value={target}
             disabled={busy}
@@ -95,8 +93,8 @@ export function PracticeImport({
             }}
             className="rounded-lg border border-border bg-background p-2"
           >
-            <option value="bank">{t("Question Bank")}</option>
-            <option value="mistakes">{t("Mistakes")}</option>
+            <option value="bank">{"Question Bank"}</option>
+            <option value="mistakes">{"Mistakes"}</option>
           </select>
         </label>
         {(["xlsx", "csv"] as const).map(format => (
@@ -109,12 +107,12 @@ export function PracticeImport({
             className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs hover:bg-muted"
           >
             <Download size={14} />
-            {t("Download {{format}} template", { format: format.toUpperCase() })}
+            {`Download ${format.toUpperCase()} template`}
           </button>
         ))}
       </div>
       <label className="mt-4 block rounded-xl border border-dashed border-border bg-muted/20 p-5 text-sm">
-        <span className="mb-2 block font-medium">{t("Choose a question file")}</span>
+        <span className="mb-2 block font-medium">{"Choose a question file"}</span>
         <input
           key={target}
           type="file"
@@ -127,15 +125,13 @@ export function PracticeImport({
           className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-primary"
         />
         <span className="mt-2 block text-xs text-muted-foreground">
-          {t(
-            "Question and answer are required. Use tags to organize imported questions. Review the preview before saving.",
-          )}
+          {"Question and answer are required. Use tags to organize imported questions. Review the preview before saving."}
         </span>
       </label>
       {busy && (
         <p role="status" className="mt-3 flex items-center gap-2 text-sm">
           <Loader2 size={16} className="animate-spin" />
-          {t("Processing…")}
+          {"Processing…"}
         </p>
       )}
       {error && (
@@ -147,10 +143,7 @@ export function PracticeImport({
         <div className="mt-4 space-y-3">
           <p className="break-all text-sm font-medium">
             {filename} ·{" "}
-            {t("{{valid}} of {{total}} rows are valid", {
-              valid: preview.valid,
-              total: preview.total,
-            })}
+            {`${preview.valid} of ${preview.total} rows are valid`}
           </p>
           {preview.errors.length > 0 && (
             <div
@@ -158,11 +151,11 @@ export function PracticeImport({
               className="max-h-40 overflow-auto rounded-lg bg-destructive/5 p-3 text-sm text-destructive"
             >
               <p className="mb-2 font-medium">
-                {t("Nothing has been imported. Fix these rows and select the file again.")}
+                {"Nothing has been imported. Fix these rows and select the file again."}
               </p>
               {preview.errors.map(error => (
                 <p key={error.row}>
-                  {t("Row {{row}}", { row: error.row })}: {error.message}
+                  {`Row ${error.row}`}: {error.message}
                 </p>
               ))}
             </div>
@@ -172,16 +165,14 @@ export function PracticeImport({
               <li key={index} className="py-3 text-sm">
                 <p className="line-clamp-2">{question.question}</p>
                 <p className="mt-1 truncate text-xs text-muted-foreground">
-                  {t("Correct answer")}: {question.correct_answer}
+                  {"Correct answer"}: {question.correct_answer}
                   {question.tags.length ? ` · ${question.tags.join(" / ")}` : ""}
                 </p>
               </li>
             ))}
           </ol>
           <p className="text-xs text-muted-foreground">
-            {t(
-              "Existing questions are kept. Identical imports are skipped and their tags are combined.",
-            )}
+            {"Existing questions are kept. Identical imports are skipped and their tags are combined."}
           </p>
           <button
             type="button"
@@ -189,7 +180,7 @@ export function PracticeImport({
             onClick={() => void commit()}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-40"
           >
-            {t("Confirm import")}
+            {"Confirm import"}
           </button>
         </div>
       )}

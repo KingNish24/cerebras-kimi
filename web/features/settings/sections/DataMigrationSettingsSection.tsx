@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Download, FolderInput, RefreshCw } from 'lucide-react'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { useChatWorkspaces } from '@/hooks/useChatWorkspaces'
@@ -72,11 +72,11 @@ async function request<T>(path: string, body?: object): Promise<T> {
 }
 
 export default function DataMigrationSettingsSection() {
-  const { t, i18n } = useTranslation()
-  const zh = i18n.language.startsWith('zh')
-  const text = (en: string, cn: string) => (zh ? cn : t(en))
+  
+  const zh = "en".startsWith('zh')
+  const text = (en: string, cn: string) => (zh ? cn : (en))
   const counted = (count: number, en: string, cn: string) =>
-    zh ? `${count} ${cn}` : t(en, { count })
+    zh ? `${count} ${cn}` : (en)
   const { workspaces } = useChatWorkspaces()
   const [source, setSource] = useState(activeWorkspaceId)
   const [target, setTarget] = useState('')

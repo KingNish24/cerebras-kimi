@@ -3,7 +3,7 @@
 import { useState, type MouseEvent } from 'react'
 import Link from '@/shared/router/link'
 import { ChevronRight, FileText, Plus } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import type { NoteSummary } from '@/lib/notes-api'
 
@@ -23,7 +23,7 @@ export default function NotePageTree({
   onClose?: () => void
   onCreate: (parentId: string | null) => void
 }) {
-  const { t } = useTranslation()
+  
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set())
   const rows = (parent: string | null, depth: number, ancestors = new Set<string>()): React.ReactNode => {
     const children = pages
@@ -33,7 +33,7 @@ export default function NotePageTree({
     return (
       <ul className={parent ? 'dt-note-tree-children' : 'dt-note-tree-roots'}>
         {children.map(page => {
-          const title = page.title || t('Untitled')
+          const title = page.title || "Untitled"
           const hasChildren = pages.some(p => p.parent_id === page.id)
           const expanded = !collapsed.has(page.id)
           return (
@@ -45,7 +45,7 @@ export default function NotePageTree({
                 {hasChildren ? (
                   <button
                     className="dt-note-tree-toggle"
-                    aria-label={t(expanded ? 'Collapse {{page}}' : 'Expand {{page}}', { page: title })}
+                    aria-label={(expanded ? 'Collapse {{page}}' : 'Expand {{page}}')}
                     aria-expanded={expanded}
                     onClick={() =>
                       setCollapsed(previous => {
@@ -71,10 +71,10 @@ export default function NotePageTree({
                   </span>
                   <span className="truncate">{title}</span>
                 </Link>
-                <Tooltip label={t('Add a page inside')}>
+                <Tooltip label={"Add a page inside"}>
                   <button
                     className="dt-note-tree-add"
-                    aria-label={t('Add a page inside {{page}}', { page: title })}
+                    aria-label={`Add a page inside ${title}`}
                     disabled={busy}
                     onClick={() => onCreate(page.id)}
                   >
@@ -90,17 +90,17 @@ export default function NotePageTree({
     )
   }
   return (
-    <nav id="note-page-tree" className="dt-note-page-tree" aria-label={t('Page tree')}>
+    <nav id="note-page-tree" className="dt-note-page-tree" aria-label={"Page tree"}>
       <div className="dt-note-tree-heading">
         {embedded ? (
-          <span>{t('Learning notebook')}</span>
+          <span>{"Notebook"}</span>
         ) : (
-          <Link href="/co-writer">{t('Learning notebook')}</Link>
+          <Link href="/co-writer">{"Notebook"}</Link>
         )}
-        <Tooltip label={t('New page')}>
+        <Tooltip label={"New page"}>
           <button
             className="dt-note-icon-button"
-            aria-label={t('New page')}
+            aria-label={"New page"}
             disabled={busy}
             onClick={() => onCreate(null)}
           >

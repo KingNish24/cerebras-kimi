@@ -8,7 +8,7 @@
  * included. Built from the live blocks, so it follows typing.
  */
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { PanelLeftClose, TableOfContents } from 'lucide-react'
 import Tooltip from '@/shared/ui/Tooltip'
 import type { NoteBlock } from '@/lib/notes-api'
@@ -52,7 +52,7 @@ export default function NoteOutline({
   onToggle: () => void
   onJump: (id: string) => void
 }) {
-  const { t } = useTranslation()
+  
   const headings = useMemo(() => pageHeadings(blocks), [blocks])
   const [current, setCurrent] = useState<string | null>(null)
   const [peek, setPeek] = useState(false)
@@ -91,17 +91,17 @@ export default function NoteOutline({
         className="dt-note-outline"
         data-expanded={expanded || undefined}
         data-pinned={(open && roomy) || undefined}
-        aria-label={t('On this page')}
+        aria-label={"On this page"}
         onPointerEnter={() => (!open || !roomy ? setPeek(true) : undefined)}
         onPointerLeave={() => setPeek(false)}
       >
         <div className="dt-note-outline-head">
-          <span>{t('On this page')}</span>
+          <span>{"On this page"}</span>
           {roomy && (
-            <Tooltip label={t(open ? 'Fold the outline' : 'Keep the outline open')} side="right">
+            <Tooltip label={(open ? 'Fold the outline' : 'Keep the outline open')} side="right">
               <button
                 className="dt-note-icon-button"
-                aria-label={t(open ? 'Fold the outline' : 'Keep the outline open')}
+                aria-label={(open ? 'Fold the outline' : 'Keep the outline open')}
                 aria-pressed={open}
                 onClick={() => {
                   setPeek(false)

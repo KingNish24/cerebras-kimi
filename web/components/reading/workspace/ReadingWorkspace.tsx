@@ -18,7 +18,7 @@ import {
   StickyNote,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import type { JumpRequest } from "@/components/reading/PdfDocumentView";
 import { ReadingActionsProvider } from "@/components/reading/ReadingActionsProvider";
@@ -135,7 +135,7 @@ export function ReadingWorkspacePage() {
   // and `useParams` does not follow that — `usePathname` does.
   const sessionIdParam = readingSessionIdFromPath(usePathname());
   const router = useRouter();
-  const { t } = useTranslation();
+  
   // The shell only needs to *send* (guided one-click prompts). Rendering the
   // transcript, editing, branching and cancelling all belong to the companion,
   // which reads them off the same context.
@@ -222,23 +222,23 @@ export function ReadingWorkspacePage() {
       {
         key: "organize",
         icon: StickyNote,
-        label: t("Organize notes"),
+        label: "Organize notes",
         onSelect: () => void organizeNotes(),
       },
       {
         key: "notebook",
         icon: NotebookPen,
-        label: t("Send to Notebook"),
+        label: "Send to favorites",
         onSelect: () => setShowNotebook(true),
       },
       {
         key: "mastery",
         icon: GraduationCap,
-        label: t("Build Mastery Path"),
+        label: "Build Mastery Path",
         onSelect: () => setShowMastery(true),
       },
     ],
-    [organizeNotes, t],
+    [organizeNotes],
   );
   const [removeTarget, setRemoveTarget] =
     useState<ReadingLibraryMaterial | null>(null);
@@ -369,27 +369,20 @@ export function ReadingWorkspacePage() {
     toggleCompanion(true);
     setReadingViewport({ locator: activeLocator, selection: "" });
     sendMessage(
-      t("Quiz me on this page"),
+      "Quiz me on this page",
       undefined,
       { ...PAGE_QUIZ_CONFIG },
       undefined,
       linkedSessionIds,
       { capability: PAGE_QUIZ_CAPABILITY },
     );
-  }, [
-    activeLocator,
-    linkedSessionIds,
-    sendMessage,
-    state.isStreaming,
-    t,
-    toggleCompanion,
-  ]);
+  }, [activeLocator, linkedSessionIds, sendMessage, state.isStreaming, toggleCompanion]);
 
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center gap-2 bg-[var(--background)] text-[12px] text-[var(--muted-foreground)] dark:bg-[var(--background)]">
         <Loader2 size={16} className="animate-spin" />
-        {t("Opening collection…")}
+        {"Opening collection…"}
       </div>
     );
   }
@@ -403,7 +396,7 @@ export function ReadingWorkspacePage() {
           href={scopedUrl(READING_HOME)}
           className="mt-5 rounded-xl bg-[var(--primary)] px-4 py-2 text-[11px] font-semibold text-[var(--primary-foreground)]"
         >
-          {t("Back to library")}
+          {"Back to library"}
         </Link>
       </div>
     );
@@ -500,7 +493,7 @@ export function ReadingWorkspacePage() {
               }
               setCompanionOpen(false);
             }}
-            aria-label={t("Close panels")}
+            aria-label={"Close panels"}
           />
         )}
         <SourceNavigator
@@ -557,7 +550,7 @@ export function ReadingWorkspacePage() {
 
         {panels.showNavigatorHandle && (
           <ReadingPanelSeparator
-            label={t("Resize contents navigator")}
+            label={"Resize contents navigator"}
             width={panels.navigatorWidth}
             min={panels.navigatorMin}
             max={panels.navigatorMax}
@@ -623,7 +616,7 @@ export function ReadingWorkspacePage() {
 
         {panels.showCompanionHandle && (
           <ReadingPanelSeparator
-            label={t("Resize reading companion")}
+            label={"Resize reading companion"}
             width={panels.companionWidth}
             min={panels.companionMin}
             max={panels.companionMax}
@@ -659,12 +652,9 @@ export function ReadingWorkspacePage() {
 
       {removeTarget && (
         <WorkspaceConfirmDialog
-          title={t("Remove from collection")}
-          body={t(
-            "Remove “{{title}}” from this collection? It stays in your library.",
-            { title: removeTarget.title },
-          )}
-          actionLabel={t("Remove")}
+          title={"Remove from collection"}
+          body={`Remove “${removeTarget.title}” from this collection? It stays in your library.`}
+          actionLabel={"Remove"}
           onClose={() => setRemoveTarget(null)}
           onConfirm={async () => {
             await removeMaterial(removeTarget);
@@ -675,10 +665,10 @@ export function ReadingWorkspacePage() {
 
       {showRename && (
         <WorkspaceValueDialog
-          title={t("Rename collection")}
-          label={t("Collection name")}
+          title={"Rename collection"}
+          label={"Collection name"}
           initialValue={workspace.title}
-          actionLabel={t("Save")}
+          actionLabel={"Save"}
           onClose={() => setShowRename(false)}
           onSubmit={async (value) => {
             await renameWorkspace(value);
@@ -689,10 +679,10 @@ export function ReadingWorkspacePage() {
 
       {showMastery && (
         <WorkspaceValueDialog
-          title={t("Build Mastery Path")}
-          label={t("Choose a Mastery Path ID for this collection")}
+          title={"Build Mastery Path"}
+          label={"Choose a Mastery Path ID for this collection"}
           initialValue={`reading-${workspace.workspace_id.slice(0, 8)}`}
-          actionLabel={t("Build Mastery Path")}
+          actionLabel={"Build Mastery Path"}
           onClose={() => setShowMastery(false)}
           onSubmit={async (value) => {
             await buildMasteryPath(value);
@@ -749,7 +739,7 @@ export function ReadingWorkspacePage() {
           onClose={() => setShowNotebook(false)}
           onSaved={() => {
             setShowNotebook(false);
-            setNotice(t("Reading notes sent to Notebook."));
+            setNotice("Reading notes sent to favorites.");
           }}
         />
       )}

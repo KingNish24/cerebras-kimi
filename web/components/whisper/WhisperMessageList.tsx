@@ -1,7 +1,7 @@
 "use client";
 
 import { Lock } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { WhisperMessage, WhisperSeat } from "@/lib/whisper-transcript";
 
@@ -41,42 +41,38 @@ export default function WhisperMessageList({
   messages,
   seat,
 }: WhisperMessageListProps) {
-  const { t } = useTranslation();
+  
 
   if (messages.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--background)]/50 p-4 text-xs leading-6 text-[var(--muted-foreground)]">
         <p className="mb-2 font-medium text-[var(--foreground)]">
-          {t("Dual-seat whisper — 3 steps")}
+          {"Dual-seat whisper — 3 steps"}
         </p>
         <ol className="list-decimal space-y-1.5 pl-4">
           <li>
             <span className="font-medium text-[var(--foreground)]">
-              {t("Visitor")}:
+              {"Visitor"}:
             </span>{" "}
-            {t("send the first message to get a room id.")}
+            {"send the first message to get a room id."}
           </li>
           <li>
             <span className="font-medium text-[var(--foreground)]">
-              {t("Trainee")}:
+              {"Trainee"}:
             </span>{" "}
-            {t(
-              "switch seats and send counselor lines. Private notes show with a lock.",
-            )}
+            {"switch seats and send counselor lines. Private notes show with a lock."}
           </li>
           <li>
             <span className="font-medium text-[var(--foreground)]">
-              {t("End session")}:
+              {"End session"}:
             </span>{" "}
-            {t("on Trainee, end the room for a debrief.")}
+            {"on Trainee, end the room for a debrief."}
           </li>
         </ol>
         <p className="mt-3 opacity-80">
           {seat === "visitor"
-            ? t("You are on Visitor — start with step 1.")
-            : t(
-                "You are on Trainee — complete step 1 as Visitor first if there is no room yet.",
-              )}
+            ? "You are on Visitor — start with step 1."
+            : "You are on Trainee — complete step 1 as Visitor first if there is no room yet."}
         </p>
       </div>
     );
@@ -107,14 +103,14 @@ export default function WhisperMessageList({
                   {isWhisper && (
                     <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
                       <Lock className="h-3 w-3" aria-hidden />
-                      {t("whisper")}
+                      {"whisper"}
                     </span>
                   )}
                   {metaStage && <span>{metaStage}</span>}
                   {metaSource && <span>· {metaSource}</span>}
                   {msg.localSeat && (
                     <span>
-                      · {t("you")} ({msg.localSeat})
+                      · {"you"} ({msg.localSeat})
                     </span>
                   )}
                 </div>

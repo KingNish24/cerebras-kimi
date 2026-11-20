@@ -1,7 +1,7 @@
 'use client'
 
 import Image from '@/shared/router/image'
-import { useTranslation } from 'react-i18next'
+
 import {
   ArrowDown,
   ArrowUpRight,
@@ -29,7 +29,7 @@ export default function NoteBlockPreview({
   kind: BlockPreviewKind
   title?: string
 }) {
-  const { t } = useTranslation()
+  
   const heading = (level: number, toggle = false) => (
     <div className="dt-note-preview-section">
       <div className={`dt-note-preview-heading level-${level}`}>
@@ -37,11 +37,11 @@ export default function NoteBlockPreview({
         {t(`Heading ${level}`)}
       </div>
       <p className={toggle ? 'dt-note-preview-toggle-body' : ''}>
-        {t('Give this section a clear place in your notes.')}
+        {"Give this section a clear place in your notes."}
       </p>
     </div>
   )
-  const tasks = [t('Review the concept'), t('Try an example')]
+  const tasks = ["Review the concept", "Try an example"]
   const checklist = (
     <div className="dt-note-preview-checks">
       {tasks.map((task, i) => (
@@ -54,11 +54,11 @@ export default function NoteBlockPreview({
   )
   const diagram = (
     <div className="dt-note-preview-diagram">
-      <span>{t('Question')}</span>
+      <span>{"Question"}</span>
       <ArrowDown size={16} />
-      <span>{t('Explore the details')}</span>
+      <span>{"Explore the details"}</span>
       <ArrowDown size={16} />
-      <span>{t('Key idea')}</span>
+      <span>{"Key idea"}</span>
     </div>
   )
   const audio = (
@@ -72,14 +72,14 @@ export default function NoteBlockPreview({
   const image = (
     <div className="dt-note-preview-image">
       <Image src="/brand/color-full.png" alt="" width={1600} height={313} unoptimized />
-      <small>{t('Image caption')}</small>
+      <small>{"Image caption"}</small>
     </div>
   )
   switch (kind) {
     case 'paragraph':
       return (
         <p className="dt-note-preview-paragraph">
-          {t('Write a thought, connect it to what you know, and let the next idea follow.')}
+          {"Write a thought, connect it to what you know, and let the next idea follow."}
         </p>
       )
     case 'heading':
@@ -101,9 +101,9 @@ export default function NoteBlockPreview({
       const List = kind === 'numbered_list' ? 'ol' : 'ul'
       return (
         <List>
-          <li>{t('Ask a question')}</li>
-          <li>{t('Connect the ideas')}</li>
-          <li>{t('Test your understanding')}</li>
+          <li>{"Ask a question"}</li>
+          <li>{"Connect the ideas"}</li>
+          <li>{"Test your understanding"}</li>
         </List>
       )
     }
@@ -114,32 +114,32 @@ export default function NoteBlockPreview({
         <>
           <p className="dt-note-preview-row">
             <ChevronDown size={14} />
-            {t('Explore the details')}
+            {"Explore the details"}
           </p>
           <div className="dt-note-preview-toggle-body">
-            {t('Hide supporting notes until you need them.')}
+            {"Hide supporting notes until you need them."}
           </div>
         </>
       )
     case 'quote':
-      return <blockquote>{t('A useful passage, kept in context.')}</blockquote>
+      return <blockquote>{"A useful passage, kept in context."}</blockquote>
     case 'table':
       return (
         <table>
           <thead>
             <tr>
-              <th>{t('Concept')}</th>
-              <th>{t('Notes')}</th>
+              <th>{"Concept"}</th>
+              <th>{"Notes"}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>{t('Fourier transform')}</td>
-              <td>{t('Frequency')}</td>
+              <td>{"Fourier transform"}</td>
+              <td>{"Frequency"}</td>
             </tr>
             <tr>
-              <td>{t('Derivative')}</td>
-              <td>{t('Rate of change')}</td>
+              <td>{"Derivative"}</td>
+              <td>{"Rate of change"}</td>
             </tr>
           </tbody>
         </table>
@@ -147,9 +147,9 @@ export default function NoteBlockPreview({
     case 'divider':
       return (
         <>
-          <p>{t('Key idea')}</p>
+          <p>{"Key idea"}</p>
           <hr />
-          <p className="dt-note-preview-muted">{t('Try an example')}</p>
+          <p className="dt-note-preview-muted">{"Try an example"}</p>
         </>
       )
     case 'code_block':
@@ -165,7 +165,7 @@ export default function NoteBlockPreview({
       return (
         <div className="dt-note-callout" data-tone="tip">
           <Lightbulb size={19} />
-          <p>{t('Keep the key idea in sight.')}</p>
+          <p>{"Keep the key idea in sight."}</p>
         </div>
       )
     case 'pageLink':
@@ -173,10 +173,10 @@ export default function NoteBlockPreview({
         <>
           <div className="dt-note-preview-page-link">
             <FileText size={17} />
-            <span>{title || t('Fourier transform')}</span>
+            <span>{title || "Fourier transform"}</span>
             <ArrowUpRight size={13} />
           </div>
-          <small className="dt-note-preview-muted">{t('Open linked page')}</small>
+          <small className="dt-note-preview-muted">{"Open linked page"}</small>
         </>
       )
     case 'image':
@@ -186,7 +186,7 @@ export default function NoteBlockPreview({
         <>
           <div className="dt-note-preview-video">
             <Play size={25} />
-            <span>{t('Learning video')}</span>
+            <span>{"Learning video"}</span>
           </div>
           <div className="dt-note-preview-player">
             <Play size={12} />
@@ -198,7 +198,7 @@ export default function NoteBlockPreview({
     case 'audio':
       return (
         <>
-          <strong>{t('Audio recording')}</strong>
+          <strong>{"Audio recording"}</strong>
           {audio}
         </>
       )
@@ -208,7 +208,7 @@ export default function NoteBlockPreview({
           <FileText size={26} />
           <div>
             <strong>
-              {t('Notes')}
+              {"Notes"}
               {'.pdf'}
             </strong>
             <small>{'PDF · 2.4 MB'}</small>
@@ -219,8 +219,8 @@ export default function NoteBlockPreview({
     case 'bookmark':
       return (
         <div className="dt-note-preview-bookmark">
-          <strong>{t('Fourier transform')}</strong>
-          <p>{t('From signals to frequencies.')}</p>
+          <strong>{"Fourier transform"}</strong>
+          <p>{"From signals to frequencies."}</p>
           <small>
             <Globe size={12} />
             {'wikipedia.org'}
@@ -233,7 +233,7 @@ export default function NoteBlockPreview({
         <div className="dt-note-preview-window">
           <small>
             <Globe size={12} />
-            {t('Embedded page')}
+            {"Embedded page"}
           </small>
           <div>{diagram}</div>
         </div>
@@ -243,11 +243,11 @@ export default function NoteBlockPreview({
         <div className="dt-note-preview-window">
           <small>
             {'HTML · '}
-            {t('Preview')}
+            {"Preview"}
           </small>
           <div>
-            <h3>{t('Key idea')}</h3>
-            <p>{t('From signals to frequencies.')}</p>
+            <h3>{"Key idea"}</h3>
+            <p>{"From signals to frequencies."}</p>
             <span className="dt-note-preview-tag">{'f(x) → F(ω)'}</span>
           </div>
         </div>
@@ -257,8 +257,8 @@ export default function NoteBlockPreview({
         <table>
           <thead>
             <tr>
-              <th>{t('Task')}</th>
-              <th>{t('Status')}</th>
+              <th>{"Task"}</th>
+              <th>{"Status"}</th>
             </tr>
           </thead>
           <tbody>
@@ -266,7 +266,7 @@ export default function NoteBlockPreview({
               <tr key={task}>
                 <td>{task}</td>
                 <td>
-                  <span className="dt-note-preview-tag">{t(i ? 'To do' : 'Done')}</span>
+                  <span className="dt-note-preview-tag">{(i ? 'To do' : 'Done')}</span>
                 </td>
               </tr>
             ))}
@@ -278,7 +278,7 @@ export default function NoteBlockPreview({
         <div className="dt-note-preview-board">
           {tasks.map((task, i) => (
             <div key={task}>
-              <small>{t(i ? 'Done' : 'To do')} · 1</small>
+              <small>{(i ? 'Done' : 'To do')} · 1</small>
               <article>{task}</article>
             </div>
           ))}
@@ -288,16 +288,16 @@ export default function NoteBlockPreview({
       return (
         <div className="dt-note-preview-task-list">
           {checklist}
-          <small>{t('Add task')}</small>
+          <small>{"Add task"}</small>
         </div>
       )
     case 'toc':
       return (
         <div className="dt-note-preview-toc">
-          <strong>{t('Table of contents')}</strong>
-          <span>{t('Fourier transform')}</span>
-          <span>{t('Key idea')}</span>
-          <span>{t('Try an example')}</span>
+          <strong>{"Table of contents"}</strong>
+          <span>{"Fourier transform"}</span>
+          <span>{"Key idea"}</span>
+          <span>{"Try an example"}</span>
         </div>
       )
     case 'math':
@@ -305,7 +305,7 @@ export default function NoteBlockPreview({
     case 'inlineMath':
       return (
         <p>
-          {t('For example')}, <NoteMath formula="x^2 + y^2 = r^2" />.
+          {"For example"}, <NoteMath formula="x^2 + y^2 = r^2" />.
         </p>
       )
     case 'columns_2':
@@ -328,7 +328,7 @@ export default function NoteBlockPreview({
     case 'date':
       return (
         <p>
-          {t('Review on')}{' '}
+          {"Review on"}{' '}
           <span className="dt-note-preview-date">
             <CalendarDays size={13} />
             2026-10-17
@@ -340,25 +340,25 @@ export default function NoteBlockPreview({
     case 'quiz':
       return (
         <div className="dt-note-preview-quiz">
-          <strong>{t('What does a derivative measure?')}</strong>
+          <strong>{"What does a derivative measure?"}</strong>
           <div>
             <span>A</span>
-            {t('Frequency')}
+            {"Frequency"}
           </div>
           <div className="answer">
             <span>B</span>
-            {t('Rate of change')}
+            {"Rate of change"}
             <Check size={12} />
           </div>
-          <small>{t('Check answer')}</small>
+          <small>{"Check answer"}</small>
         </div>
       )
     case 'flashcards':
       return (
         <div className="dt-note-preview-flashcard">
           <small>1 / 8</small>
-          <strong>{t('Fourier transform')}</strong>
-          <span>{t('Tap to reveal the answer')}</span>
+          <strong>{"Fourier transform"}</strong>
+          <span>{"Tap to reveal the answer"}</span>
         </div>
       )
     case 'timeline':
@@ -367,7 +367,7 @@ export default function NoteBlockPreview({
           {['1807', '1822', '1965'].map((year, i) => (
             <div key={year}>
               <b>{year}</b>
-              <span>{['Fourier', t('Heat theory'), 'FFT'][i]}</span>
+              <span>{['Fourier', "Heat theory", 'FFT'][i]}</span>
             </div>
           ))}
         </div>
@@ -375,12 +375,12 @@ export default function NoteBlockPreview({
     case 'research':
       return (
         <div className="dt-note-preview-research">
-          <strong>{t('Fourier transform')}</strong>
+          <strong>{"Fourier transform"}</strong>
           <p>
-            {t('From signals to frequencies.')} <sup>[1]</sup>
+            {"From signals to frequencies."} <sup>[1]</sup>
           </p>
           <hr />
-          <small>[1] {t('Sources and references')}</small>
+          <small>[1] {"Sources and references"}</small>
         </div>
       )
     case 'task':
@@ -388,11 +388,11 @@ export default function NoteBlockPreview({
         <>
           <div className="dt-note-preview-row">
             <Check size={15} />
-            <strong>{t('Study plan')}</strong>
+            <strong>{"Study plan"}</strong>
           </div>
           {checklist}
           <small className="dt-note-preview-muted">
-            {t('To do')} · {t('Task')}
+            {"To do"} · {"Task"}
           </small>
         </>
       )
@@ -413,10 +413,10 @@ export default function NoteBlockPreview({
     case 'concept_map':
       return (
         <div className="dt-note-preview-concepts">
-          <strong>{t('Fourier transform')}</strong>
+          <strong>{"Fourier transform"}</strong>
           <div>
-            <span>{t('Frequency')}</span>
-            <span>{t('Signals')}</span>
+            <span>{"Frequency"}</span>
+            <span>{"Signals"}</span>
           </div>
         </div>
       )
@@ -445,39 +445,39 @@ export default function NoteBlockPreview({
           {image}
           <small className="dt-note-preview-row">
             <Sparkles size={12} />
-            {t('Generate image')}
+            {"Generate image"}
           </small>
         </>
       )
     case 'podcast':
       return (
         <>
-          <strong>{t('Fourier transform')}</strong>
-          <small className="dt-note-preview-muted">{t('Podcast')} · 3:24</small>
+          <strong>{"Fourier transform"}</strong>
+          <small className="dt-note-preview-muted">{"Podcast"} · 3:24</small>
           {audio}
-          <p className="dt-note-preview-transcript">{t('From signals to frequencies.')}</p>
+          <p className="dt-note-preview-transcript">{"From signals to frequencies."}</p>
         </>
       )
     case 'ai':
       return (
         <div className="dt-note-preview-ai">
-          <p>{t('Photosynthesis turns light into chemical energy.')}</p>
+          <p>{"Photosynthesis turns light into chemical energy."}</p>
           <p className="is-suggested">
-            {t('Plants capture light in chlorophyll, then use it to build sugar from water and carbon dioxide.')}
+            {"Plants capture light in chlorophyll, then use it to build sugar from water and carbon dioxide."}
           </p>
           <small className="dt-note-preview-row">
             <Sparkles size={12} />
-            {t('Dito suggests · you accept or dismiss')}
+            {"Dito suggests · you accept or dismiss"}
           </small>
         </div>
       )
     case 'source':
       return (
         <>
-          <blockquote>{t('A useful passage, kept in context.')}</blockquote>
+          <blockquote>{"A useful passage, kept in context."}</blockquote>
           <small className="dt-note-preview-row">
             <BookOpen size={13} />
-            {t('Source')} · {t('Page')} 12
+            {"Source"} · {"Page"} 12
           </small>
         </>
       )
@@ -485,15 +485,15 @@ export default function NoteBlockPreview({
       return (
         <div className="dt-note-preview-research">
           <small>
-            {t('Chat')} · {t('Saved original')}
+            {"Chat"} · {"Saved original"}
           </small>
           <div className="dt-note-preview-row">
             <ChevronRight size={14} />
-            <strong>{t('Saved answer')}</strong>
+            <strong>{"Saved answer"}</strong>
           </div>
-          <p>{t('Keep the key idea in sight.')}</p>
+          <p>{"Keep the key idea in sight."}</p>
           <small>
-            {t('Show original content')} · {t('Return to source')}
+            {"Show original content"} · {"Return to source"}
           </small>
         </div>
       )

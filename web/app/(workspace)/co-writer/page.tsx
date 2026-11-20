@@ -4,7 +4,7 @@ import dynamic from "@/shared/router/dynamic";
 import Link from "@/shared/router/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import {
   FileText,
   Loader2,
@@ -50,7 +50,7 @@ function PageCard({
   onPin: () => void;
   onDelete: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpenState] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const setOpen = (value: boolean | ((current: boolean) => boolean)) => {
@@ -59,7 +59,7 @@ function PageCard({
     if (!next) setConfirming(false);
   };
   const menu = useMenuPopover<HTMLDivElement>(open, setOpen);
-  const title = page.title || t("Untitled");
+  const title = page.title || "Untitled";
   return (
     <article className={`dt-notes-card ${page.cover ? "has-cover" : ""} ${open ? "is-menu-open" : ""}`}>
       <Link href={`/co-writer/${page.id}`} className="dt-notes-card-link" aria-label={title}>
@@ -69,16 +69,16 @@ function PageCard({
             {page.icon || <FileText size={18} strokeWidth={1.6} />}
           </span>
           <h3>{title}</h3>
-          <p className={page.preview ? "" : "is-empty"}>{page.preview || t("Empty page")}</p>
+          <p className={page.preview ? "" : "is-empty"}>{page.preview || "Empty page"}</p>
           <footer>
-            {page.pinned && <Pin size={11} aria-label={t("Pinned page")} />}
-            {parent && <span className="truncate">{parent.title || t("Untitled")}</span>}
+            {page.pinned && <Pin size={11} aria-label={"Pinned page"} />}
+            {parent && <span className="truncate">{parent.title || "Untitled"}</span>}
             {parent && <span aria-hidden>·</span>}
             <span>{formatRelativeTime(page.updated_at, locale)}</span>
             {childCount > 0 && (
               <>
                 <span aria-hidden>·</span>
-                <span>{t("{{count}} subpages", { count: childCount })}</span>
+                <span>{(childCount === 1 ? `${childCount} subpage` : `${childCount} subpages`)}</span>
               </>
             )}
           </footer>
@@ -87,7 +87,7 @@ function PageCard({
       <div ref={menu} className="dt-notes-card-menu">
         <button
           className="dt-note-icon-button"
-          aria-label={t("Page actions for {{page}}", { page: title })}
+          aria-label={`Page actions for ${title}`}
           aria-haspopup="menu"
           aria-expanded={open}
           disabled={busy}
@@ -106,15 +106,15 @@ function PageCard({
               }}
             >
               {page.pinned ? <PinOff size={14} /> : <Pin size={14} />}
-              {t(page.pinned ? "Unpin" : "Pin to top")}
+              {(page.pinned ? "Unpin" : "Pin to top")}
             </button>
             <div className="dt-menu-divider" />
             {confirming ? (
               <>
                 <p className="dt-notes-confirm">
                   {childCount > 0
-                    ? t("Delete this page? Its subpages move up one level.")
-                    : t("Delete this page? This cannot be undone.")}
+                    ? "Delete this page? Its subpages move up one level."
+                    : "Delete this page? This cannot be undone."}
                 </p>
                 <button
                   role="menuitem"
@@ -125,13 +125,13 @@ function PageCard({
                   }}
                 >
                   <Trash2 size={14} />
-                  {t("Delete page")}
+                  {"Delete page"}
                 </button>
               </>
             ) : (
               <button role="menuitem" className="dt-menu-item is-danger" onClick={() => setConfirming(true)}>
                 <Trash2 size={14} />
-                {t("Delete")}
+                {"Delete"}
               </button>
             )}
           </div>
@@ -143,7 +143,7 @@ function PageCard({
 
 export default function CoWriterHomePage() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  
   const [pages, setPages] = useState<NoteSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -248,7 +248,7 @@ export default function CoWriterHomePage() {
       page={page}
       parent={needle && page.parent_id ? byId.get(page.parent_id) : undefined}
       childCount={childCounts.get(page.id) ?? 0}
-      locale={i18n.language}
+      locale={"en"}
       busy={busyId === page.id}
       onPin={() => void handlePin(page)}
       onDelete={() => void handleDelete(page)}
@@ -270,8 +270,8 @@ export default function CoWriterHomePage() {
       />
       <PageHeader
         icon={PenLine}
-        title={t("Learning notebook")}
-        description={t("Pages for what you are learning — write, link, and study them with Dito.")}
+        title={"Notebook"}
+        description={"Pages for what you are learning — write, link, and study them with Dito."}
         action={
           <div className="flex shrink-0 items-center gap-2">
             <NoteReview />
@@ -282,7 +282,7 @@ export default function CoWriterHomePage() {
               className={pageActionClass("secondary")}
             >
               {importing ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-              {t("Import Word")}
+              {"Import Word"}
             </button>
             <button
               type="button"
@@ -291,7 +291,7 @@ export default function CoWriterHomePage() {
               className={pageActionClass()}
             >
               {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              {t("New page")}
+              {"New page"}
             </button>
           </div>
         }
@@ -300,7 +300,7 @@ export default function CoWriterHomePage() {
       {error ? <div className="dt-notes-error" role="alert">{error}</div> : null}
 
       {loading ? (
-        <div className="dt-notes-skeleton" aria-busy="true" aria-label={t("Loading pages…")}>
+        <div className="dt-notes-skeleton" aria-busy="true" aria-label={"Loading pages…"}>
           {Array.from({ length: 6 }, (_, i) => (
             <div key={i} />
           ))}
@@ -308,8 +308,8 @@ export default function CoWriterHomePage() {
       ) : pages.length === 0 ? (
         <div className="dt-notes-empty">
           <span aria-hidden>📓</span>
-          <h2>{t("Your notebook is empty")}</h2>
-          <p>{t("Start a page for a topic, a lecture or a paper. Dito can help you write and turn it into practice.")}</p>
+          <h2>{"Your notebook is empty"}</h2>
+          <p>{"Start a page for a topic, a lecture or a paper. Dito can help you write and turn it into practice."}</p>
           <div>
             <button
               type="button"
@@ -318,7 +318,7 @@ export default function CoWriterHomePage() {
               className={pageActionClass()}
             >
               <Plus size={14} />
-              {t("New page")}
+              {"New page"}
             </button>
             <button
               type="button"
@@ -327,7 +327,7 @@ export default function CoWriterHomePage() {
               className={pageActionClass("secondary")}
             >
               <Upload size={14} />
-              {t("Import Word")}
+              {"Import Word"}
             </button>
           </div>
         </div>
@@ -340,26 +340,26 @@ export default function CoWriterHomePage() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search pages…")}
-                aria-label={t("Search pages")}
+                placeholder={"Search pages…"}
+                aria-label={"Search pages"}
               />
             </label>
             <span className="dt-notes-count">
-              {t("{{count}} pages", { count: pages.length })}
+              {`${pages.length} pages`}
             </span>
           </div>
           {!visible.length && (
-            <p className="dt-notes-none">{t("No pages match “{{query}}”.", { query: query.trim() })}</p>
+            <p className="dt-notes-none">{`No pages match “${query.trim()}”.`}</p>
           )}
           {!!pinned.length && (
-            <section className="dt-notes-section" aria-label={t("Pinned pages")}>
-              <h2>{t("Pinned pages")}</h2>
+            <section className="dt-notes-section" aria-label={"Pinned pages"}>
+              <h2>{"Pinned pages"}</h2>
               <div className="dt-notes-grid">{pinned.map(card)}</div>
             </section>
           )}
           {!!rest.length && (
-            <section className="dt-notes-section" aria-label={t(needle ? "Results" : "Recently edited")}>
-              {(pinned.length > 0 || needle) && <h2>{t(needle ? "Results" : "Recently edited")}</h2>}
+            <section className="dt-notes-section" aria-label={(needle ? "Results" : "Recently edited")}>
+              {(pinned.length > 0 || needle) && <h2>{(needle ? "Results" : "Recently edited")}</h2>}
               <div className="dt-notes-grid">{rest.map(card)}</div>
             </section>
           )}

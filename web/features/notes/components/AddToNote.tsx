@@ -3,7 +3,7 @@ import Link from '@/shared/router/link'
 import type { FavoriteSnapshot } from '@/lib/favorite-content'
 import { useState } from 'react'
 import { FilePlus2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import {
   listNotes,
   createNote,
@@ -31,7 +31,7 @@ export default function AddToNote({
   /** The wrapper's box; a toolbar passes its own. */
   className?: string
 }) {
-  const { t } = useTranslation()
+  
   const [pages, setPages] = useState<NoteSummary[] | null>(null)
   const [target, setTarget] = useState('')
   const [busy, setBusy] = useState(false)
@@ -86,12 +86,12 @@ export default function AddToNote({
           }}
         >
           <FilePlus2 size={14} strokeWidth={1.7} />
-          {t('Add to a note')}
+          {"Add to a note"}
         </button>
       ) : (
         <div className="flex flex-wrap items-center gap-2">
           <select
-            aria-label={t('Target page')}
+            aria-label={"Target page"}
             className="max-w-64 rounded bg-[var(--secondary)] p-2"
             value={target}
             onChange={e => {
@@ -99,7 +99,7 @@ export default function AddToNote({
               setSaved(false)
             }}
           >
-            <option value="">{t('New page')}</option>
+            <option value="">{"New page"}</option>
             {pages.map(p => (
               <option key={p.id} value={p.id}>
                 {p.title}
@@ -111,14 +111,14 @@ export default function AddToNote({
             disabled={busy || saved || !markdown.trim()}
             onClick={() => void save()}
           >
-            {t(saved ? 'Added to note' : busy ? 'Saving…' : 'Add to a note')}
+            {(saved ? 'Added to note' : busy ? 'Saving…' : 'Add to a note')}
           </button>
           {saved && target && (
             <Link
               href={`/co-writer/${target}`}
               className="rounded px-2 py-1.5 text-[var(--primary)] hover:underline"
             >
-              {t('Open note')}
+              {"Open note"}
             </Link>
           )}
         </div>

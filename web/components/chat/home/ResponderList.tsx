@@ -10,7 +10,7 @@
 
 import type { ReactNode } from "react";
 import { Bot, MessagesSquare, UsersRound } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { agentGlyph } from "@/components/agents/agent-icons";
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import { usePartnerGroups } from "@/hooks/usePartnerGroups";
@@ -28,23 +28,23 @@ export default function ResponderList({
   aboutConversation?: boolean;
   onPick: (responder: SideChatResponder) => void;
 }) {
-  const { t } = useTranslation();
+  
   const { partners } = usePartnerRoster(true);
   const { groups } = usePartnerGroups(true);
   return (
     <>
-      <MenuSection label={t("Open a side chat with")}>
+      <MenuSection label={"Open a side chat with"}>
         <MenuRow
           icon={<MessagesSquare size={15} strokeWidth={1.7} />}
           label="Dito"
           detail={
-            aboutConversation ? t("Has read this conversation") : undefined
+            aboutConversation ? "Has read this conversation" : undefined
           }
           onClick={() => onPick(DITO)}
         />
       </MenuSection>
       {agents.length > 0 ? (
-        <MenuSection label={t("Agents")}>
+        <MenuSection label={"Agents"}>
           {agents.map((agent) => {
             // Held in an object: the glyph is a module constant, not a component made here.
             const glyph = { Icon: agentGlyph(agent.kind) ?? Bot };
@@ -62,7 +62,7 @@ export default function ResponderList({
         </MenuSection>
       ) : null}
       {groups.length > 0 ? (
-        <MenuSection label={t("Partner groups")}>
+        <MenuSection label={"Partner groups"}>
           {groups.map((group) => (
             <MenuRow
               key={group.group_id}
@@ -88,7 +88,7 @@ export default function ResponderList({
         </MenuSection>
       ) : null}
       {partners.length > 0 ? (
-        <MenuSection label={t("Partners")}>
+        <MenuSection label={"Partners"}>
           {partners.map((partner) => (
             <MenuRow
               key={partner.partner_id}

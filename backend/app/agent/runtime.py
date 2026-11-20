@@ -894,16 +894,7 @@ class AgentRuntime:
         if handle is not None:
             return [e for e in handle.events if (e.get("seq") or 0) > after_seq]
         # Fall back to the persisted log (turn finished or server restarted).
-        for path in self._store._settings.sessions_dir.glob("*.json"):
-            session = self._store.get(path.stem)
-            if not session:
-                continue
-            turn = session.get("turns", {}).get(turn_id)
-            if turn:
-                return [
-                    e for e in turn.get("events", []) if (e.get("seq") or 0) > after_seq
-                ]
-        return []
+        return self._store.turn_events(turn_id, after_seq)
 
     def latest_turn_for_session(self, session_id: str) -> str | None:
         session = self._store.get(session_id)

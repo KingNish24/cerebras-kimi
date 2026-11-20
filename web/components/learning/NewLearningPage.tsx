@@ -3,7 +3,7 @@
 import { useRouter } from '@/shared/router/navigation'
 import { ArrowUpRight, Plus, Settings2 } from 'lucide-react'
 import { m, useReducedMotion } from 'framer-motion'
-import { useTranslation } from 'react-i18next'
+
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { useModules } from '@/hooks/useModules'
 import { usePageCustomization } from '@/context/PageCustomizationContext'
@@ -18,7 +18,7 @@ import {
 } from './LearningShell'
 
 export default function NewLearningPage() {
-  const { t } = useTranslation()
+  
   const router = useRouter()
   const reduced = useReducedMotion()
   const auth = useAuthStatus()
@@ -39,15 +39,15 @@ export default function NewLearningPage() {
   const loading = auth.loading || preferences.loading || (!inventory.modules && !inventory.error)
   return (
     <LearningShell
-      title={t('navigation.createLearning')}
-      subtitle={t('navigation.createLearningDescription')}
+      title={"New learning activity"}
+      subtitle={"Choose how you want to learn. Your work stays in its workspace."}
       icon={Plus}
       back={false}
       action={<PageCustomizeButton page="learning" learningKinds={learningKinds} />}
     >
       {(inventory.error || preferences.error) && (
         <LearningErrorState
-          message={t('customize.loadError')}
+          message={"Could not load page settings. Retry to continue."}
           onRetry={() => {
             inventory.reload()
             preferences.reload()
@@ -82,10 +82,10 @@ export default function NewLearningPage() {
                   />
                 </span>
                 <span className="font-serif text-xl font-semibold tracking-tight">
-                  {t(item.title)}
+                  {(item.title)}
                 </span>
                 <span className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {t(item.description)}
+                  {(item.description)}
                 </span>
               </button>
             </m.div>
@@ -95,15 +95,15 @@ export default function NewLearningPage() {
         !inventory.error && (
           <LearningEmptyState
             icon={<Settings2 size={28} />}
-            title={t('customize.emptyLearning')}
-            description={t('customize.emptyLearningHint')}
+            title={"Make room for your next learning goal"}
+            description={"Customize this page to show learning methods. Unavailable modules can be reviewed in Settings → Runtime."}
             action={<PageCustomizeButton page="learning" learningKinds={learningKinds} />}
           />
         )
       )}
       {!loading && (
         <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-          {t('customize.learningFooter')}
+          {"Your choices are saved to your account. Only learning methods available in this environment are shown."}
         </p>
       )}
     </LearningShell>

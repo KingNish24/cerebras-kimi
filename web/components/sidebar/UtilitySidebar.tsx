@@ -4,7 +4,7 @@ import { activeWorkspaceId, navigateTask } from "@/lib/workspace-scope";
 import { sessionWorkspaceId } from "@/lib/session-api";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { LayoutSidebarShell } from "@/features/ui-layout/slots";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { AdminLink } from "@/components/auth/AdminLink";
@@ -30,7 +30,7 @@ import { sessionRoute } from "@/lib/mastery-session";
 import { subscribeSessionChanges } from "@/lib/session-events";
 
 export default function UtilitySidebar() {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const { activeSessionId, setActiveSessionId } = useAppShell();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -107,7 +107,7 @@ export default function UtilitySidebar() {
 
   const handleDeleteSession = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm("Permanently delete this chat and its tutor threads? This cannot be undone.")) return;
       await deleteSession(sessionId, sessionWorkspaceId(sessions.find(item => item.session_id === sessionId)));
       setSessions((prev) =>
         prev.filter((session) => session.session_id !== sessionId),
@@ -116,7 +116,7 @@ export default function UtilitySidebar() {
         setActiveSessionId(null);
       }
     },
-    [activeSessionId, setActiveSessionId, t, sessions],
+    [activeSessionId, setActiveSessionId, sessions],
   );
 
   const handleOrganizeSession = useCallback(

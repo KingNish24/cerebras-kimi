@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { CheckCircle2, Loader2, Server, XCircle } from "lucide-react";
 import {
   getGraphRagConfig,
@@ -42,7 +42,7 @@ export function GraphRagForm({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const { form, setLoaded, setForm, saving, setSaving, dirty, patch } =
     useEngineForm<GraphRagConfig>(
       () => getGraphRagConfig({ force: true }),
@@ -77,8 +77,8 @@ export function GraphRagForm({
           onChange={(v) => patch({ response_type: v })}
         />
         <NumberField
-          label={t("Community level")}
-          hint={t("Graph traversal granularity (local / drift)")}
+          label={"Community level"}
+          hint={"Graph traversal granularity (local / drift)"}
           value={form.community_level}
           min={0}
           max={5}
@@ -86,8 +86,8 @@ export function GraphRagForm({
         />
       </div>
       <ToggleField
-        label={t("Dynamic community selection")}
-        hint={t("Global mode only")}
+        label={"Dynamic community selection"}
+        hint={"Global mode only"}
         checked={form.dynamic_community_selection}
         onChange={(v) => patch({ dynamic_community_selection: v })}
       />
@@ -103,7 +103,7 @@ export function LightRagForm({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const auth = useAuthStatus();
   const canEdit = auth.statusAvailable && (!auth.enabled || auth.isAdmin);
   const { form, setLoaded, setForm, saving, setSaving, dirty, patch } =
@@ -140,12 +140,12 @@ export function LightRagForm({
     >
       {!auth.loading && !canEdit && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          {t("Only administrators can change shared LightRAG engine settings.")}
+          {"Only administrators can change shared LightRAG engine settings."}
         </p>
       )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <NumberField
-          label={t("Results per query")}
+          label={"Results per query"}
           value={form.top_k}
           min={1}
           max={200}
@@ -163,32 +163,32 @@ export function LightRagForm({
       <div className="space-y-4 border-t border-[var(--border)] pt-4">
         <div className="space-y-0.5">
           <div className="text-[12px] font-medium text-[var(--foreground)]">
-            {t("Indexing")}
+            {"Indexing"}
           </div>
           <div className="text-[11px] text-[var(--muted-foreground)]">
-            {t("Applies the next time a knowledge base is built or rebuilt.")}
+            {"Applies the next time a knowledge base is built or rebuilt."}
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <NumberField
-            label={t("Files in parallel")}
-            hint={t("Higher finishes sooner but uses more memory")}
+            label={"Files in parallel"}
+            hint={"Higher finishes sooner but uses more memory"}
             value={form.max_concurrent_files}
             min={1}
             max={16}
             onChange={(v) => patch({ max_concurrent_files: v })}
           />
           <NumberField
-            label={t("Extra extraction passes")}
-            hint={t("Recovers missed entities; each pass costs another call")}
+            label={"Extra extraction passes"}
+            hint={"Recovers missed entities; each pass costs another call"}
             value={form.entity_extract_max_gleaning}
             min={0}
             max={5}
             onChange={(v) => patch({ entity_extract_max_gleaning: v })}
           />
           <NumberField
-            label={t("LLM timeout (seconds)")}
-            hint={t("Maximum time per LightRAG LLM call")}
+            label={"LLM timeout (seconds)"}
+            hint={"Maximum time per LightRAG LLM call"}
             value={form.llm_timeout}
             min={60}
             max={3600}
@@ -209,7 +209,7 @@ export function LightRagModelsForm({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const catalog = useLLMOptions(getLightRagModelOptions);
   const auth = useAuthStatus();
   const canEdit = auth.statusAvailable && (!auth.enabled || auth.isAdmin);
@@ -246,7 +246,7 @@ export function LightRagModelsForm({
 
   const save = async () => {
     if (!roleModels) {
-      onError(t("Choose a LightRAG base model before saving."));
+      onError("Choose a LightRAG base model before saving.");
       return;
     }
     setSaving(true);
@@ -269,7 +269,7 @@ export function LightRagModelsForm({
     >
       {!auth.loading && !canEdit && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          {t("Only administrators can change shared LightRAG engine settings.")}
+          {"Only administrators can change shared LightRAG engine settings."}
         </p>
       )}
       <LightRagRoleModelsEditor
@@ -282,12 +282,10 @@ export function LightRagModelsForm({
         onChange={(role_models) => patch({ role_models })}
       />
       <p className="text-xs text-[var(--muted-foreground)]">
-        {t(
-          "KEYWORD and QUERY apply to subsequent queries. EXTRACT and VLM apply to new or fully rebuilt indexes; published indexes keep their pinned models.",
-        )}
+        {"KEYWORD and QUERY apply to subsequent queries. EXTRACT and VLM apply to new or fully rebuilt indexes; published indexes keep their pinned models."}
       </p>
       {validationError && (
-        <p className="text-xs text-red-600">{t(validationError)}</p>
+        <p className="text-xs text-red-600">{(validationError)}</p>
       )}
       <SaveButton
         dirty={dirty || (!form.role_models && roleModels !== null)}
@@ -306,7 +304,7 @@ export function LightRagServerForm({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [loaded, setLoaded] = useState<LightRagServerConfig | null>(null);
   const [serverUrl, setServerUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -378,7 +376,7 @@ export function LightRagServerForm({
     <div className="space-y-4 rounded-2xl border border-[var(--border)] p-4">
       <div>
         <label className="mb-1 block text-[12px] font-medium text-[var(--foreground)]">
-          {t("Server URL")}
+          {"Server URL"}
         </label>
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
@@ -387,7 +385,7 @@ export function LightRagServerForm({
               setServerUrl(event.target.value);
               setProbe(null);
             }}
-            placeholder={t("LightRAG server URL placeholder")}
+            placeholder={"http://localhost:9621"}
             className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
           />
           <button
@@ -401,14 +399,14 @@ export function LightRagServerForm({
             ) : (
               <Server className="h-3.5 w-3.5" />
             )}
-            {t("Test connection")}
+            {"Test connection"}
           </button>
         </div>
       </div>
 
       <label className="flex flex-col gap-1">
         <span className="text-[12px] font-medium text-[var(--foreground)]">
-          {t("API key")} · {t("optional")}
+          {"API key"} · {"optional"}
         </span>
         <input
           type="password"
@@ -420,8 +418,8 @@ export function LightRagServerForm({
           }}
           placeholder={
             loaded.api_key_set
-              ? t("Saved key · leave blank to keep")
-              : t("Only if your server requires one")
+              ? "Saved key · leave blank to keep"
+              : "Only if your server requires one"
           }
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
         />
@@ -442,17 +440,15 @@ export function LightRagServerForm({
           )}
           <span>
             {probe.ok
-              ? t("Connected to LightRAG server")
-              : probe.error || t("Could not connect")}
+              ? "Connected to LightRAG server"
+              : probe.error || "Could not connect"}
           </span>
         </div>
       )}
 
       <div className="flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
         <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "New knowledge bases inherit this connection. You can override it without changing the saved default.",
-          )}
+          {"New knowledge bases inherit this connection. You can override it without changing the saved default."}
         </p>
         <button
           type="button"
@@ -461,7 +457,7 @@ export function LightRagServerForm({
           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {t("Save as default")}
+          {"Save as default"}
         </button>
       </div>
     </div>

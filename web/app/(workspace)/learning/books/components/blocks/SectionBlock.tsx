@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { Block } from "@/lib/book-types";
 
@@ -18,7 +18,7 @@ interface Subsection {
 }
 
 export default function SectionBlock({ block }: SectionBlockProps) {
-  const { t } = useTranslation();
+  
   const payload = block.payload || {};
   const intro = String(payload.intro ?? "").trim();
   const keyTakeaway = String(payload.key_takeaway ?? "").trim();
@@ -36,7 +36,7 @@ export default function SectionBlock({ block }: SectionBlockProps) {
 
       {focus && (
         <div className="mb-4 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
-          {t("Section focus")} · {focus}
+          {"Section focus"} · {focus}
         </div>
       )}
 
@@ -57,7 +57,7 @@ export default function SectionBlock({ block }: SectionBlockProps) {
           <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--muted-foreground)]" />
           <div className="flex-1 text-[var(--foreground)]">
             <MarkdownRenderer
-              content={`**${t("Key takeaway:")}** ${keyTakeaway}`}
+              content={`**${"Key takeaway:"}** ${keyTakeaway}`}
               variant="compact"
               className="font-sans text-sm [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_p]:my-0"
               allowHtml={false}

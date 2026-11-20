@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { useTranslation } from "react-i18next";
+
 import { usePageBarOffers } from "@/components/layout/PageChrome";
 import type { MessageItem } from "@/features/chat/ChatStateAdapter";
 import { isPlaceholderSessionTitle } from "@/lib/session-title";
@@ -17,7 +17,7 @@ export function useChatSessionTitle({
   sessionTitle: string;
   renameSessionTitle: (title: string) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
 
   const firstUserTitle = useMemo(
     () =>
@@ -30,7 +30,7 @@ export function useChatSessionTitle({
   );
   const persistedSessionTitle = sessionTitle.trim();
   const displaySessionTitle = isPlaceholderSessionTitle(persistedSessionTitle)
-    ? firstUserTitle || t("New chat")
+    ? firstUserTitle || "New chat"
     : persistedSessionTitle;
   const canRenameSession = Boolean(sessionId);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -95,19 +95,12 @@ export function useChatSessionTitle({
       setSessionTitleEditing(false);
     } catch (error) {
       console.error("Failed to rename session:", error);
-      setSessionTitleError(t("Rename failed"));
+      setSessionTitleError("Rename failed");
       titleInputRef.current?.focus();
     } finally {
       setSessionTitleSaving(false);
     }
-  }, [
-    canRenameSession,
-    displaySessionTitle,
-    persistedSessionTitle,
-    renameSessionTitle,
-    sessionTitleDraft,
-    t,
-  ]);
+  }, [canRenameSession, displaySessionTitle, persistedSessionTitle, renameSessionTitle, sessionTitleDraft]);
 
   const handleSessionTitleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {

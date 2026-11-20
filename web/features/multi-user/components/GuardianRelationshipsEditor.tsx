@@ -4,7 +4,7 @@ import { GuardianReadingReport } from "./GuardianReadingReport";
 
 import { useEffect, useMemo, useState } from "react";
 import { KeyRound, ShieldCheck, ShieldOff, UserPlus } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { UserRecord } from "@/lib/admin-api";
@@ -41,7 +41,7 @@ export function GuardianRelationshipsEditor({
   learnerUsername: string;
   users: UserRecord[];
 }) {
-  const { t } = useTranslation();
+  
   const [relationships, setRelationships] = useState<GuardianRelationship[]>(
     [],
   );
@@ -110,7 +110,7 @@ export function GuardianRelationshipsEditor({
       );
       setRelationships((current) => [...current, relationship]);
       setGuardianId("");
-      setMessage(t("Guardian relationship added."));
+      setMessage("Guardian relationship added.");
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -128,7 +128,7 @@ export function GuardianRelationshipsEditor({
       setRelationships((current) =>
         current.filter((item) => item.id !== relationship.id),
       );
-      setMessage(t("Guardian access revoked."));
+      setMessage("Guardian access revoked.");
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -145,7 +145,7 @@ export function GuardianRelationshipsEditor({
     try {
       await resetLearnerCredentials(learnerId, newPassword);
       setNewPassword("");
-      setMessage(t("Learner credentials were reset."));
+      setMessage("Learner credentials were reset.");
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -157,25 +157,23 @@ export function GuardianRelationshipsEditor({
     <section className="border-t border-[var(--border)] bg-[var(--background)]/40 px-5 py-4">
       <div className="mb-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-          <ShieldCheck className="h-4 w-4" /> {t("Guardian relationships")}
+          <ShieldCheck className="h-4 w-4" /> {"Guardian relationships"}
         </h3>
         <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-          {t("Authorize ordinary accounts to supervise {{username}}.", {
-            username: learnerUsername,
-          })}
+          {`Authorize ordinary accounts to supervise ${learnerUsername}.`}
         </p>
       </div>
 
       {loading ? (
         <p className="text-xs text-[var(--muted-foreground)]">
-          {t("Loading guardian relationships…")}
+          {"Loading guardian relationships…"}
         </p>
       ) : (
         <>
           <div className="mb-3 grid gap-2">
             {relationships.length === 0 ? (
               <p className="rounded-lg border border-dashed border-[var(--border)] p-3 text-xs text-[var(--muted-foreground)]">
-                {t("No active guardian relationships.")}
+                {"No active guardian relationships."}
               </p>
             ) : (
               relationships.map((relationship) => (
@@ -190,11 +188,9 @@ export function GuardianRelationshipsEditor({
                     <div className="mt-0.5 truncate text-[11px] text-[var(--muted-foreground)]">
                       {relationship.permissions
                         .map((permission) =>
-                          t(
-                            permissionLabels[
+                          (permissionLabels[
                               permission as (typeof PERMISSIONS)[number]
-                            ] ?? permission,
-                          ),
+                            ] ?? permission),
                         )
                         .join(" · ")}
                     </div>
@@ -204,7 +200,7 @@ export function GuardianRelationshipsEditor({
                     disabled={busy}
                     onClick={() => setConfirm({ kind: "revoke", relationship })}
                     className="rounded-md p-1.5 text-red-600 hover:bg-red-500/10 disabled:opacity-40"
-                    aria-label={t("Revoke access")}
+                    aria-label={"Revoke access"}
                   >
                     <ShieldOff className="h-4 w-4" />
                   </button>
@@ -221,7 +217,7 @@ export function GuardianRelationshipsEditor({
                 onChange={(event) => setGuardianId(event.target.value)}
                 className="h-9 rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-xs"
               >
-                <option value="">{t("Select a guardian")}</option>
+                <option value="">{"Select a guardian"}</option>
                 {candidates.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.username}
@@ -234,7 +230,7 @@ export function GuardianRelationshipsEditor({
                 onClick={() => void addRelationship()}
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-[var(--primary)] px-3 text-xs text-[var(--primary-foreground)] disabled:opacity-40"
               >
-                <UserPlus className="h-3.5 w-3.5" /> {t("Authorize guardian")}
+                <UserPlus className="h-3.5 w-3.5" /> {"Authorize guardian"}
               </button>
             </div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -255,7 +251,7 @@ export function GuardianRelationshipsEditor({
                       )
                     }
                   />
-                  {t(permissionLabels[permission])}
+                  {(permissionLabels[permission])}
                 </label>
               ))}
             </div>
@@ -263,16 +259,9 @@ export function GuardianRelationshipsEditor({
 
           {report && (
             <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-              {t(
-                "{{materials}} approved materials · {{resources}} enabled resources",
-                {
-                  materials: report.assigned_materials.length,
-                  resources:
-                    report.grant_summary.model_count +
+              {`${report.assigned_materials.length} approved materials · ${report.grant_summary.model_count +
                     report.grant_summary.knowledge_base_count +
-                    report.grant_summary.skill_count,
-                },
-              )}
+                    report.grant_summary.skill_count} enabled resources`}
             </p>
           )}
 
@@ -281,7 +270,7 @@ export function GuardianRelationshipsEditor({
           <div className="mt-3 rounded-lg border border-[var(--border)] p-3">
             <label className="text-xs">
               <span className="mb-1 block text-[var(--muted-foreground)]">
-                {t("New learner password")}
+                {"New learner password"}
               </span>
               <input
                 type="password"
@@ -300,7 +289,7 @@ export function GuardianRelationshipsEditor({
               className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-3 py-1.5 text-xs text-red-600 disabled:opacity-40"
             >
               <KeyRound className="h-3.5 w-3.5" />
-              {t("Reset learner credentials")}
+              {"Reset learner credentials"}
             </button>
           </div>
         </>
@@ -315,13 +304,13 @@ export function GuardianRelationshipsEditor({
         open={confirm !== null}
         title={
           confirm?.kind === "reset"
-            ? t("Reset learner credentials")
-            : t("Revoke guardian access")
+            ? "Reset learner credentials"
+            : "Revoke guardian access"
         }
         confirmLabel={
           confirm?.kind === "reset"
-            ? t("Reset credentials")
-            : t("Revoke access")
+            ? "Reset credentials"
+            : "Revoke access"
         }
         tone="danger"
         busy={busy}
@@ -332,10 +321,8 @@ export function GuardianRelationshipsEditor({
         }}
       >
         {confirm?.kind === "reset"
-          ? t(
-              "This changes the learner password and revokes every learner device credential.",
-            )
-          : t("This immediately removes access to this learner account.")}
+          ? "This changes the learner password and revokes every learner device credential."
+          : "This immediately removes access to this learner account."}
       </ConfirmDialog>
     </section>
   );

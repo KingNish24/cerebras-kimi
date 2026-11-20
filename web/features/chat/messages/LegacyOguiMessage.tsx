@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import OpenUIMessage from "@/features/chat/messages/OpenUIMessage";
 import {
   buildLegacyOguiDocument,
@@ -29,7 +29,7 @@ function colorSchemeForTheme(theme: Theme): LegacyOguiColorScheme {
  * libraries it asked for, but cannot read this page, its cookies or its storage.
  */
 function LegacyOguiFrame({ widget }: { widget: LegacyOguiWidget }) {
-  const { t } = useTranslation();
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [theme, setTheme] = useState<Theme>(() =>
     resolveTheme(getStoredThemePreference()),
@@ -66,7 +66,7 @@ function LegacyOguiFrame({ widget }: { widget: LegacyOguiWidget }) {
     <figure className="my-3 w-full">
       <iframe
         ref={iframeRef}
-        title={t("Interactive")}
+        title={"Interactive"}
         sandbox="allow-scripts allow-popups"
         loading="lazy"
         className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)]"

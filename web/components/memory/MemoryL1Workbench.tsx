@@ -16,7 +16,7 @@ import {
   Workflow,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { L1View } from "@/components/memory/MemorySection";
@@ -61,7 +61,7 @@ export default function MemoryL1Workbench({
   initialSurface,
   initialFocusRef,
 }: MemoryL1WorkbenchProps) {
-  const { t } = useTranslation();
+  
   // ``initialSurface`` and ``initialFocusRef`` seed the picker + entity
   // highlight on first mount. The URL only drives initial state; once the
   // user clicks around the rail it's all local state again.
@@ -135,8 +135,8 @@ export default function MemoryL1Workbench({
 
   const nicelabel = useMemo(() => {
     const entry = L1_NAV.find((n) => n.key === surface);
-    return entry ? t(entry.label) : surface;
-  }, [surface, t]);
+    return entry ? (entry.label) : surface;
+  }, [surface]);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 px-6 py-4 md:px-10">
@@ -169,12 +169,12 @@ export default function MemoryL1Workbench({
                     }
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="flex-1 truncate">{t(label)}</span>
+                    <span className="flex-1 truncate">{(label)}</span>
                     {p > 0 ? (
                       <span
                         className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400"
                       >
-                        {t("{{n}} pending", { n: p })}
+                        {`${p} pending`}
                       </span>
                     ) : typeof c === "number" ? (
                       <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
@@ -223,9 +223,9 @@ function LayerSwitcher({ t }: { t: (k: string) => string }) {
     icon: LucideIcon;
     label: string;
   }[] = [
-    { key: "L1", href: "/memory/l1", icon: Layers, label: t("L1") },
-    { key: "L2", href: "/memory/l2", icon: Workflow, label: t("L2") },
-    { key: "L3", href: "/memory/l3", icon: Network, label: t("L3") },
+    { key: "L1", href: "/memory/l1", icon: Layers, label: "L1" },
+    { key: "L2", href: "/memory/l2", icon: Workflow, label: "L2" },
+    { key: "L3", href: "/memory/l3", icon: Network, label: "L3" },
   ];
   return (
     <nav className="flex items-center gap-0.5 rounded-full border border-[var(--border)] bg-[var(--card)] p-0.5">
@@ -265,12 +265,12 @@ function Breadcrumb({ label, t }: { label: string; t: (k: string) => string }) {
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {t("Memory")}
+        {"Memory"}
       </Link>
       <span className="text-[var(--muted-foreground)]">/</span>
       <span className="inline-flex items-center gap-1.5 text-[var(--foreground)]">
         <Layers className="h-3.5 w-3.5" />
-        {t("L1 · Workspace mirror")}
+        {"L1 · Workspace mirror"}
       </span>
       <span className="text-[var(--muted-foreground)]">/</span>
       <span className="text-[var(--foreground)]">{label}</span>

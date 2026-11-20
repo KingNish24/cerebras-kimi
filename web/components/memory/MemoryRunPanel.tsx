@@ -21,7 +21,7 @@ import {
   Undo2,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   listLLMOptions,
@@ -62,7 +62,7 @@ export default function MemoryRunPanel({
   onRunComplete,
   onDocUpdated,
 }: MemoryRunPanelProps) {
-  const { t, i18n } = useTranslation();
+  
   const { run, events, status, error, isRunning, start, cancel, undo, clear } =
     useMemoryRun(layer, docKey);
 
@@ -150,14 +150,14 @@ export default function MemoryRunPanel({
         mode,
         iterations: typeof iterations === "number" ? iterations : undefined,
         llmSelection,
-        language: i18n.language || "en",
+        language: "en" || "en",
       });
     } else {
       void start({
         mode,
         budget: typeof budget === "number" ? budget : undefined,
         llmSelection,
-        language: i18n.language || "en",
+        language: "en" || "en",
       });
     }
   }, [
@@ -166,7 +166,7 @@ export default function MemoryRunPanel({
     iterations,
     budget,
     effectiveSelection,
-    i18n.language,
+    "en",
     start,
   ]);
 
@@ -227,9 +227,7 @@ export default function MemoryRunPanel({
     const ok =
       typeof window !== "undefined" &&
       window.confirm(
-        t(
-          "Reset will delete the current memory file AND its seen-id state. The next Update will re-ingest every L1 entity from scratch. Continue?",
-        ),
+        "Reset will delete the current memory file AND its seen-id state. The next Update will re-ingest every L1 entity from scratch. Continue?",
       );
     if (!ok) return;
     try {
@@ -240,7 +238,7 @@ export default function MemoryRunPanel({
       if (!res.ok) {
         const detail = await res.text();
         throw new Error(
-          detail || t("reset failed: {{status}}", { status: res.status }),
+          detail || `reset failed: ${res.status}`,
         );
       }
       // Clear local run trace + tell the parent workbench to re-fetch the
@@ -250,13 +248,11 @@ export default function MemoryRunPanel({
     } catch (e) {
       if (typeof window !== "undefined") {
         window.alert(
-          t("Reset failed: {{msg}}", {
-            msg: e instanceof Error ? e.message : t("unknown error"),
-          }),
+          `Reset failed: ${e instanceof Error ? e.message : "unknown error"}`,
         );
       }
     }
-  }, [isRunning, t, layer, docKey, clear, onDocUpdated]);
+  }, [isRunning, layer, docKey, clear, onDocUpdated]);
 
   const turns = useMemo(() => groupByTurn(events), [events]);
 
@@ -266,46 +262,46 @@ export default function MemoryRunPanel({
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-2">
         <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--foreground)]">
           <Bot className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
-          {t("LLM workspace")}
+          {"LLM workspace"}
         </div>
         <div className="flex items-center gap-1">
           {run && events.length > 0 && (
             <>
-              <Tooltip label={t("Undo last memory edit")} side="top">
+              <Tooltip label={"Undo last memory edit"} side="top">
                 <button
                   type="button"
                   onClick={handleUndo}
                   disabled={isRunning || undoDepth <= 0}
                   className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
-                  aria-label={t("Undo last memory edit")}
+                  aria-label={"Undo last memory edit"}
                 >
                   <Undo2 className="h-3 w-3" />
                   {undoDepth > 0 && <span>{undoDepth}</span>}
                 </button>
               </Tooltip>
-              <Tooltip label={t("Clear trace")} side="top">
+              <Tooltip label={"Clear trace"} side="top">
                 <button
                   type="button"
                   onClick={clear}
                   disabled={isRunning}
                   className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
-                  aria-label={t("Clear trace")}
+                  aria-label={"Clear trace"}
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
               </Tooltip>
             </>
           )}
-          <Tooltip label={t("Reset memory (delete md + seen-id state)")} side="top">
+          <Tooltip label={"Reset memory (delete md + seen-id state)"} side="top">
             <button
               type="button"
               onClick={() => void handleReset()}
               disabled={isRunning}
               className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 hover:bg-amber-500/20 hover:text-amber-800 disabled:opacity-40 dark:text-amber-300 dark:hover:text-amber-200"
-              aria-label={t("Reset memory (delete md + seen-id state)")}
+              aria-label={"Reset memory (delete md + seen-id state)"}
             >
               <RotateCcw className="h-3 w-3" />
-              <span>{t("Reset")}</span>
+              <span>{"Reset"}</span>
             </button>
           </Tooltip>
         </div>
@@ -328,7 +324,7 @@ export default function MemoryRunPanel({
               }
             >
               <Icon className="h-3 w-3 shrink-0" />
-              <span className="truncate">{t(tKey)}</span>
+              <span className="truncate">{(tKey)}</span>
             </button>
           ))}
         </div>
@@ -337,7 +333,7 @@ export default function MemoryRunPanel({
             <NumberInput
               value={iterations}
               setValue={(v) => setIterationsOverride(v === "" ? null : v)}
-              label={t("Iter")}
+              label={"Iter"}
               min={1}
               max={20}
               disabled={isRunning}
@@ -347,7 +343,7 @@ export default function MemoryRunPanel({
             <NumberInput
               value={budget}
               setValue={(v) => setBudgetOverride(v === "" ? null : v)}
-              label={t("Budget")}
+              label={"Budget"}
               min={1}
               max={200}
               disabled={isRunning}
@@ -364,23 +360,23 @@ export default function MemoryRunPanel({
             t={t}
           />
           {isRunning ? (
-            <Tooltip label={t("Cancel")} side="top">
+            <Tooltip label={"Cancel"} side="top">
               <button
                 type="button"
                 onClick={() => void cancel()}
                 className="inline-flex h-7 w-9 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--foreground)] transition hover:opacity-90"
-                aria-label={t("Cancel")}
+                aria-label={"Cancel"}
               >
                 <Octagon className="h-3.5 w-3.5" />
               </button>
             </Tooltip>
           ) : (
-            <Tooltip label={t("Run")} side="top">
+            <Tooltip label={"Run"} side="top">
               <button
                 type="button"
                 onClick={handleRun}
                 className="inline-flex h-7 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] transition hover:opacity-90"
-                aria-label={t("Run")}
+                aria-label={"Run"}
               >
                 <Send className="h-3.5 w-3.5" />
               </button>
@@ -401,7 +397,7 @@ export default function MemoryRunPanel({
             {isRunning && (
               <li className="flex items-center gap-2 rounded-md bg-[var(--muted)]/40 px-2.5 py-1.5 text-[11.5px] text-[var(--muted-foreground)]">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                {t("Working…")}
+                {"Working…"}
               </li>
             )}
             {error && (
@@ -508,7 +504,7 @@ function SystemEventRow({
   t: (k: string) => string;
 }) {
   const stage = String(event.stage || "");
-  const display = systemEventDisplay(stage, event, t);
+  const display = systemEventDisplay(stage, event);
   if (!display) return null;
   return (
     <li
@@ -539,7 +535,6 @@ function SystemEventRow({
 function systemEventDisplay(
   stage: string,
   event: RunEvent["payload"],
-  t: (k: string) => string,
 ): {
   icon: LucideIcon;
   title: string;
@@ -554,7 +549,7 @@ function systemEventDisplay(
     case "run_started":
       return {
         icon: PlayCircle,
-        title: t("Run started"),
+        title: "Run started",
         detail: `${event.mode}`,
         tone: "muted",
       };
@@ -567,7 +562,7 @@ function systemEventDisplay(
       ].filter(Boolean);
       return {
         icon: PlayCircle,
-        title: t("Traces loaded"),
+        title: "Traces loaded",
         detail: parts.join(" · "),
         tone: "muted",
       };
@@ -575,7 +570,7 @@ function systemEventDisplay(
     case "chunked":
       return {
         icon: PlayCircle,
-        title: t("Chunked"),
+        title: "Chunked",
         detail: [
           num("chunks") ? `chunks=${num("chunks")}` : null,
           num("budget") ? `budget=${num("budget")}` : null,
@@ -590,7 +585,7 @@ function systemEventDisplay(
       const total = num("total");
       return {
         icon: PlayCircle,
-        title: t("Progress"),
+        title: "Progress",
         detail: turn && total ? `${turn}/${total}` : "",
         tone: "muted",
       };
@@ -598,7 +593,7 @@ function systemEventDisplay(
     case "facts_extracted":
       return {
         icon: CheckCircle2,
-        title: t("Facts extracted"),
+        title: "Facts extracted",
         detail: [
           num("kept") ? `kept=${num("kept")}` : null,
           num("added") ? `added=${num("added")}` : null,
@@ -610,28 +605,28 @@ function systemEventDisplay(
     case "refs_dropped":
       return {
         icon: CircleSlash,
-        title: t("Ref dropped"),
+        title: "Ref dropped",
         detail: `${str("reason") || "?"} :: ${str("text") || ""}`,
         tone: "warn",
       };
     case "op_applied":
       return {
         icon: CheckCircle2,
-        title: t("Edit applied"),
+        title: "Edit applied",
         detail: [str("op"), str("detail")].filter(Boolean).join(" · "),
         tone: "ok",
       };
     case "op_rejected":
       return {
         icon: CircleSlash,
-        title: t("Edit rejected"),
+        title: "Edit rejected",
         detail: [str("op"), str("detail")].filter(Boolean).join(" · "),
         tone: "warn",
       };
     case "doc_updated":
       return {
         icon: CheckCircle2,
-        title: t("Markdown updated"),
+        title: "Markdown updated",
         detail: [
           str("action"),
           num("turn") ? `turn=${num("turn")}` : null,
@@ -644,7 +639,7 @@ function systemEventDisplay(
     case "undo_applied":
       return {
         icon: Undo2,
-        title: t("Undo applied"),
+        title: "Undo applied",
         detail: [
           str("action"),
           num("undo_depth") ? `remaining=${num("undo_depth")}` : "remaining=0",
@@ -656,7 +651,7 @@ function systemEventDisplay(
     case "done":
       return {
         icon: CheckCircle2,
-        title: t("Done"),
+        title: "Done",
         detail: [
           num("facts_added") ? `+${num("facts_added")} facts` : null,
           num("edits_applied") ? `+${num("edits_applied")} edits` : null,
@@ -669,21 +664,21 @@ function systemEventDisplay(
     case "run_ended":
       return {
         icon: CheckCircle2,
-        title: t("Run ended"),
+        title: "Run ended",
         detail: str("status") || "",
         tone: "muted",
       };
     case "cancelled":
       return {
         icon: CircleSlash,
-        title: t("Cancelled"),
+        title: "Cancelled",
         detail: "",
         tone: "warn",
       };
     case "error":
       return {
         icon: AlertCircle,
-        title: t("Error"),
+        title: "Error",
         detail: str("message") || "",
         tone: "warn",
       };
@@ -717,13 +712,13 @@ function LLMTurnCard({
       <Disclosure
         open={systemOpen}
         setOpen={setSystemOpen}
-        label={t("System prompt")}
+        label={"System prompt"}
         body={turn.system_prompt}
       />
       <Disclosure
         open={userOpen}
         setOpen={setUserOpen}
-        label={t("User prompt")}
+        label={"User prompt"}
         body={turn.user_prompt}
       />
 
@@ -739,7 +734,7 @@ function LLMTurnCard({
         ) : (
           <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3 w-3 animate-spin" />
-            {t("Streaming…")}
+            {"Streaming…"}
           </div>
         )}
       </div>
@@ -864,10 +859,10 @@ function ModelPill({
     [options, value],
   );
   const label = loading
-    ? t("Loading models")
+    ? "Loading models"
     : error
-      ? t("Models unavailable")
-      : selectedOption?.model_name || t("Default model");
+      ? "Models unavailable"
+      : selectedOption?.model_name || "Default model";
   const inactive = disabled || loading || error || options.length === 0;
 
   return (
@@ -924,7 +919,7 @@ function ModelPill({
                 </span>
                 {opt.is_active_default && (
                   <span className="shrink-0 rounded bg-[var(--primary)]/10 px-1 py-0.5 text-[9.5px] uppercase text-[var(--primary)]">
-                    {t("default")}
+                    {"default"}
                   </span>
                 )}
               </button>
@@ -942,9 +937,7 @@ function EmptyTrace({ t }: { t: (k: string) => string }) {
       <div className="max-w-xs space-y-1.5">
         <Bot className="mx-auto h-6 w-6 opacity-60" />
         <p>
-          {t(
-            "Pick a mode and click Run. The LLM trace — system prompt, user prompt, response — appears here, turn by turn.",
-          )}
+          {"Pick a mode and click Run. The LLM trace — system prompt, user prompt, response — appears here, turn by turn."}
         </p>
       </div>
     </div>

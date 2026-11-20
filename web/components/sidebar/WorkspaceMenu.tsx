@@ -4,7 +4,7 @@ import Image from '@/shared/router/image'
 import Link from '@/shared/router/link'
 import { useId, useState, type ReactNode } from 'react'
 import { Check, ChevronDown, Settings, Settings2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
 import Tooltip from '@/shared/ui/Tooltip'
 import { useWorkspaceChoices } from '@/components/workspaces/useWorkspaceChoices'
@@ -36,11 +36,11 @@ export function WorkspaceGlyph({ name, general, size = 22 }: { name: string; gen
 
 /** The workspaces as menu items, the current one checked. */
 export function WorkspaceChoiceList({ onChoose }: { onChoose?: () => void }) {
-  const { t } = useTranslation()
+  
   const { active, choices, choose } = useWorkspaceChoices()
   return (
     <>
-      <div className="dt-menu-label">{t('Workspace')}</div>
+      <div className="dt-menu-label">{"WORKSPACE"}</div>
       {choices.map(row => (
         <button
           key={row.workspace_id || 'general'}
@@ -60,7 +60,7 @@ export function WorkspaceChoiceList({ onChoose }: { onChoose?: () => void }) {
       ))}
       <Link role="menuitem" href="/settings/workspace" prefetch={false} onClick={onChoose} className="dt-menu-item is-quiet">
         <Settings2 size={16} strokeWidth={1.6} />
-        <span>{t('Manage workspaces')}</span>
+        <span>{"Manage workspaces"}</span>
       </Link>
     </>
   )
@@ -80,7 +80,7 @@ export function WorkspaceMenu({
   /** The collapsed rail's form: the workspace's mark alone, opening beside the rail. */
   compact?: boolean
 }) {
-  const { t } = useTranslation()
+  
   const { active, currentName } = useWorkspaceChoices()
   const [open, setOpen] = useState(false)
   const rootRef = useMenuPopover<HTMLDivElement>(open, setOpen)
@@ -92,7 +92,7 @@ export function WorkspaceMenu({
   return (
     <div ref={rootRef} className={`dt-workspace-menu ${compact ? 'is-rail' : ''}`}>
       {compact ? (
-        <Tooltip label={currentName} description={t('Manage workspaces')} side="right" suppressed={open}>
+        <Tooltip label={currentName} description={"Manage workspaces"} side="right" suppressed={open}>
           <button
             type="button"
             aria-haspopup="menu"
@@ -120,12 +120,12 @@ export function WorkspaceMenu({
         </button>
       )}
       {open && (
-        <div id={menuId} role="menu" aria-label={t('Manage workspaces')} className="dt-popover dt-workspace-panel">
+        <div id={menuId} role="menu" aria-label={"Manage workspaces"} className="dt-popover dt-workspace-panel">
           <WorkspaceChoiceList onChoose={close} />
           <div className="dt-menu-divider" />
           <Link role="menuitem" href="/settings" prefetch={false} onClick={close} className="dt-menu-item">
             <Settings size={16} strokeWidth={1.6} />
-            <span className="flex-1">{t('Settings')}</span>
+            <span className="flex-1">{"Settings"}</span>
           </Link>
           {accountSlot ? <div className="dt-menu-slot">{accountSlot}</div> : null}
           <div className="dt-menu-divider" />

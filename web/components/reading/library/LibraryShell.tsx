@@ -8,7 +8,7 @@ import { READING_HOME, READING_MATERIALS } from '@/lib/learning-routes'
 import Link from '@/shared/router/link'
 import { Plus } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+
 
 import { learningLibrary } from '@/lib/learning-library'
 
@@ -33,7 +33,7 @@ export function LibraryShell({
   onAction: () => void
   children: ReactNode
 }) {
-  const { t } = useTranslation()
+  
   // Each view knows its own count; the other one is fetched once so the tabs
   // never show a blank where a number belongs.
   const [otherCount, setOtherCount] = useState<number | null>(null)
@@ -66,10 +66,8 @@ export function LibraryShell({
   return (
     <LearningShell
       className="reading-v2"
-      title={t('Immersive Reading')}
-      subtitle={t(
-        'Put PDFs, web pages and lectures into one collection and read them with an AI companion that can always point back to the source.'
-      )}
+      title={"Immersive Reading"}
+      subtitle={"Put PDFs, web pages and lectures into one collection and read them with an AI companion that can always point back to the source."}
       action={
         <button
           type="button"
@@ -84,13 +82,13 @@ export function LibraryShell({
         <nav className="mt-5 flex gap-1 border-b border-[var(--border)]">
           <ViewTab
             href={scopedUrl(READING_HOME)}
-            label={t('Collections')}
+            label={"Collections"}
             count={collections}
             active={view === 'collections'}
           />
           <ViewTab
             href={scopedUrl(READING_MATERIALS)}
-            label={t('Material library')}
+            label={"Material library"}
             count={materials}
             active={view === 'materials'}
           />

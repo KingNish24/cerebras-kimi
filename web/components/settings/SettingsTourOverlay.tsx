@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "@/shared/router/navigation";
 import { ChevronLeft, ChevronRight, Sparkles, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   TOUR_STEPS,
@@ -31,7 +31,7 @@ const SCROLL_PADDING = 80;
 const HIGHLIGHT_PAD = 10;
 
 export function SettingsTourOverlay() {
-  const { t } = useTranslation();
+  
   const pathname = usePathname();
   const { tourStepIndex, advanceTour, goBackTour, skipTour } = useSettings();
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -189,16 +189,13 @@ export function SettingsTourOverlay() {
             <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)]/50 px-2.5 py-1 text-[11px] font-medium text-[var(--muted-foreground)]">
               <Sparkles className="h-3 w-3" />
               <span>
-                {t("Step {{current}} of {{total}}", {
-                  current: tourStepIndex + 1,
-                  total: totalSteps,
-                })}
+                {`Step ${tourStepIndex + 1} of ${totalSteps}`}
               </span>
             </div>
             <button
               type="button"
               onClick={skipTour}
-              aria-label={t("Skip tour")}
+              aria-label={"Skip tour"}
               className="rounded-md p-1 text-[var(--muted-foreground)]/60 transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)]"
             >
               <X className="h-3.5 w-3.5" />
@@ -209,10 +206,10 @@ export function SettingsTourOverlay() {
             id="tour-title"
             className="mb-1.5 text-[14px] font-semibold text-[var(--foreground)]"
           >
-            {t(guideStep.titleKey)}
+            {(guideStep.titleKey)}
           </h2>
           <p className="text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(guideStep.descKey)}
+            {(guideStep.descKey)}
           </p>
         </div>
 
@@ -225,21 +222,21 @@ export function SettingsTourOverlay() {
             className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="h-3 w-3" />
-            {t("Back")}
+            {"Back"}
           </button>
           <button
             type="button"
             onClick={skipTour}
             className="text-[12px] text-[var(--muted-foreground)]/60 transition-colors hover:text-[var(--muted-foreground)]"
           >
-            {t("Skip tour")}
+            {"Skip tour"}
           </button>
           <button
             type="button"
             onClick={advanceTour}
             className="inline-flex items-center gap-1 rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-[12px] font-medium text-[var(--background)] transition-opacity hover:opacity-80"
           >
-            {isLast ? t("Got it") : t("Next")}
+            {isLast ? "Got it" : "Next"}
             <ChevronRight className="h-3 w-3" />
           </button>
         </div>

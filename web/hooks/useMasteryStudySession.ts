@@ -4,7 +4,7 @@ import { masterySessionRoute as existingMasterySessionRoute } from "@/lib/learni
 
 import { useRouter } from "@/shared/router/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   useChatStateAdapter,
@@ -47,7 +47,7 @@ export function useMasteryStudySession(
   requestedMode: MasteryMode = "study",
 ) {
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const {
     state,
     newSession,
@@ -99,13 +99,13 @@ export function useMasteryStudySession(
         setTopicError(
           reason instanceof Error
             ? reason.message
-            : t("The learning map could not be loaded"),
+            : "The learning map could not be loaded",
         );
       });
     return () => {
       active = false;
     };
-  }, [activity.revision, pathId, t]);
+  }, [activity.revision, pathId]);
 
   // A turn that just ended is the moment the map is most likely to have moved:
   // grading an answer and recording an assessment both happen inside one. The
@@ -211,9 +211,7 @@ export function useMasteryStudySession(
           )
         ) {
           throw new Error(
-            t(
-              "This session belongs to a different topic. Open a session from this topic instead.",
-            ),
+            "This session belongs to a different topic. Open a session from this topic instead.",
           );
         }
         const cached = showCachedSession(routeSessionId);
@@ -243,23 +241,10 @@ export function useMasteryStudySession(
           error:
             reason instanceof Error
               ? reason.message
-              : t("This learning session could not be opened"),
+              : "This learning session could not be opened",
         });
       });
-  }, [
-    configureSession,
-    currentRouteKey,
-    loadSession,
-    newSession,
-    pathId,
-    requestedMode,
-    routeSessionId,
-    sessionConfiguration,
-    showCachedSession,
-    state.sessionId,
-    t,
-    topic,
-  ]);
+  }, [configureSession, currentRouteKey, loadSession, newSession, pathId, requestedMode, routeSessionId, sessionConfiguration, showCachedSession, state.sessionId, topic]);
 
   useEffect(() => {
     const newSessionId = state.sessionId;

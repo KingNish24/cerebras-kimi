@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+
 import type { MessageAttachment } from "@/features/chat/ChatStateAdapter";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import {
@@ -80,7 +80,7 @@ export function GeneratedFileCards({
   content?: string;
   onOpen?: (attachment: MessageAttachment) => void;
 }) {
-  const { t } = useTranslation();
+  
   const files = useMemo(() => {
     const merged = mergeGeneratedFiles(attachments, events);
     if (!content) return merged;
@@ -93,7 +93,7 @@ export function GeneratedFileCards({
   return (
     <div className="mt-3 flex flex-col gap-2">
       {files.map((a, i) => {
-        const filename = a.filename || t("File");
+        const filename = a.filename || "File";
         const key = a.workspace_item_id || a.id || a.url || `gen-${i}`;
         const mime = a.mime_type || "";
         const mediaSrc = imageSrcForAttachment(a);
@@ -127,7 +127,7 @@ export function GeneratedFileCards({
                     ) : null}
                   </span>
                   <span className="shrink-0 text-[11px] text-[var(--muted-foreground)] transition group-hover:text-[var(--foreground)]">
-                    {t("Open")}
+                    {"Open"}
                   </span>
                 </span>
               </button>
@@ -169,7 +169,7 @@ export function GeneratedFileCards({
                   ) : null}
                 </span>
                 <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
-                  {t("Open")}
+                  {"Open"}
                 </span>
               </button>
               {supportsGeneratedOutputActions(a) ? (
@@ -207,7 +207,7 @@ export function GeneratedFileCards({
                   ) : null}
                 </span>
                 <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
-                  {t("Open")}
+                  {"Open"}
                 </span>
               </button>
               {supportsGeneratedOutputActions(a) ? (
@@ -240,7 +240,7 @@ export function GeneratedFileCards({
                 </span>
               </span>
               <span className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--foreground)] transition group-hover:bg-[var(--muted)]/40">
-                {t("Open")}
+                {"Open"}
               </span>
             </button>
             {supportsGeneratedOutputActions(a) ? (

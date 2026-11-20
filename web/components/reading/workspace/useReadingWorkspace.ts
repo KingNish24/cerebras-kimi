@@ -4,7 +4,7 @@ import { readingCollectionRoute, readingSessionRoute } from "@/lib/learning-rout
 
 import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { useReading } from "@/context/ReadingContext";
 import { useChatStateAdapter } from "@/features/chat/ChatStateAdapter";
@@ -53,7 +53,7 @@ export function useReadingWorkspace(
   sessionIdParam: string | null,
 ) {
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const { material, annotations, openMaterial, closeMaterial, reportViewport } =
     useReading();
   const {
@@ -102,7 +102,7 @@ export function useReadingWorkspace(
           setError(
             caught instanceof Error
               ? caught.message
-              : t("This collection could not be opened."),
+              : "This collection could not be opened.",
           );
       })
       .finally(() => {
@@ -111,7 +111,7 @@ export function useReadingWorkspace(
     return () => {
       cancelled = true;
     };
-  }, [refresh, t]);
+  }, [refresh]);
 
   useEffect(() => {
     setReadingWorkspace(workspaceId);
@@ -212,22 +212,11 @@ export function useReadingWorkspace(
         setError(
           caught instanceof Error
             ? caught.message
-            : t("The reading conversation could not be loaded."),
+            : "The reading conversation could not be loaded.",
         );
       }
     })();
-  }, [
-    configureSession,
-    loadSession,
-    loading,
-    newSession,
-    sessionIdParam,
-    sessionConfiguration,
-    state.sessionId,
-    t,
-    workspace,
-    workspaceId,
-  ]);
+  }, [configureSession, loadSession, loading, newSession, sessionIdParam, sessionConfiguration, state.sessionId, workspace, workspaceId]);
 
   useEffect(() => {
     if (!material || material.unit !== "segment") return;
@@ -253,9 +242,9 @@ export function useReadingWorkspace(
       .catch(() => {
         if (transcriptRequestRef.current !== requestId) return;
         setTranscript([]);
-        setNotice(t("This transcript could not be loaded."));
+        setNotice("This transcript could not be loaded.");
       });
-  }, [material, t]);
+  }, [material]);
 
   const activeConversation = useMemo(
     () =>
@@ -325,11 +314,11 @@ export function useReadingWorkspace(
         setNotice(
           caught instanceof Error
             ? caught.message
-            : t("That bookmark could not be saved."),
+            : "That bookmark could not be saved.",
         );
       }
     },
-    [bookmarks, materialId, t],
+    [bookmarks, materialId],
   );
 
   const removeBookmark = useCallback(
@@ -345,11 +334,11 @@ export function useReadingWorkspace(
         setNotice(
           caught instanceof Error
             ? caught.message
-            : t("That bookmark could not be removed."),
+            : "That bookmark could not be removed.",
         );
       }
     },
-    [materialId, t],
+    [materialId],
   );
 
   const switchMaterial = useCallback(
@@ -370,11 +359,11 @@ export function useReadingWorkspace(
         setNotice(
           caught instanceof Error
             ? caught.message
-            : t("This material could not be opened."),
+            : "This material could not be opened.",
         );
       }
     },
-    [reportViewport, t, workspace],
+    [reportViewport, workspace],
   );
 
   useEffect(() => {
@@ -467,39 +456,39 @@ export function useReadingWorkspace(
   const organizeNotes = useCallback(async () => {
     if (!workspace) return;
     try {
-      setNotice(t("Organizing notes…"));
+      setNotice("Organizing notes…");
       const notes = await organizeReadingNotes(workspace.workspace_id);
       setOrganizedNotes(notes);
-      setNotice(t("Notes organized, each one citing where it came from."));
+      setNotice("Notes organized, each one citing where it came from.");
     } catch (caught) {
       setNotice(
         caught instanceof Error
           ? caught.message
-          : t("Could not organize notes."),
+          : "Could not organize notes.",
       );
     }
-  }, [t, workspace]);
+  }, [workspace]);
 
   const buildMasteryPath = useCallback(
     async (bookId: string) => {
       if (!workspace) return;
       try {
-        setNotice(t("Building Mastery Path…"));
+        setNotice("Building Mastery Path…");
         await generateMasteryPathFromReading(
           workspace.workspace_id,
           bookId.trim(),
         );
-        setNotice(t("Mastery Path created. Open Learning Space to begin."));
+        setNotice("Mastery Path created. Open Learning Space to begin.");
       } catch (caught) {
         setNotice(
           caught instanceof Error
             ? caught.message
-            : t("Mastery Path creation failed."),
+            : "Mastery Path creation failed.",
         );
         throw caught;
       }
     },
-    [t, workspace],
+    [workspace],
   );
 
   const renameWorkspace = useCallback(

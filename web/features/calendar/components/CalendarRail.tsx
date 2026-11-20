@@ -16,7 +16,7 @@ import {
   Repeat2,
   Trash2,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
 import type { TaskCard, TaskColors } from '@/lib/task-board-api'
@@ -37,8 +37,8 @@ export const CALENDAR_COLORS = [
   '#787774',
 ]
 
-export function calendarName(calendar: CalendarEntry, t: (key: string) => string): string {
-  return calendar.is_default && !calendar.name ? t('My calendar') : calendar.name
+export function calendarName(calendar: CalendarEntry): string {
+  return calendar.is_default && !calendar.name ? "My calendar" : calendar.name
 }
 
 export function CalendarRail({
@@ -81,22 +81,22 @@ export function CalendarRail({
   notifications: NotificationPermission | 'unsupported'
   onEnableNotifications: () => void
 }) {
-  const { t } = useTranslation()
+  
   const unscheduled = (tasks ?? []).filter(
     card => !card.archived && card.status !== 'done' && !card.due_date
   )
   return (
-    <aside className="dt-cal-rail" aria-label={t('Calendar sidebar')}>
+    <aside className="dt-cal-rail" aria-label={"Calendar sidebar"}>
       <MiniMonth cursor={cursor} range={range} weekStart={weekStart} today={now} onPick={onPick} />
 
       <section className="dt-cal-rail-section">
         <div className="dt-cal-rail-label">
           <span>
-            {t('Unscheduled tasks')}
+            {"Unscheduled tasks"}
             {unscheduled.length > 0 && <span className="dt-cal-rail-count">{unscheduled.length}</span>}
           </span>
           <Link href="/kanban" prefetch={false} className="dt-cal-rail-link">
-            {t('Task Board')}
+            {"Task Board"}
           </Link>
         </div>
         {tasks === null ? null : unscheduled.length ? (
@@ -117,18 +117,18 @@ export function CalendarRail({
                 </li>
               ))}
             </ul>
-            <p className="dt-cal-rail-hint">{t('Drag onto the calendar to schedule it.')}</p>
+            <p className="dt-cal-rail-hint">{"Drag onto the calendar to schedule it."}</p>
           </>
         ) : (
-          <p className="dt-cal-rail-hint">{t('Every open task has a date.')}</p>
+          <p className="dt-cal-rail-hint">{"Every open task has a date."}</p>
         )}
       </section>
 
       <section className="dt-cal-rail-section">
         <div className="dt-cal-rail-label">
-          <span>{t('Calendars')}</span>
+          <span>{"Calendars"}</span>
           <button type="button" className="dt-cal-rail-link" onClick={onExportAll}>
-            {t('Export all calendars')}
+            {"Export all calendars"}
           </button>
         </div>
         <ul className="dt-cal-calendar-list">
@@ -147,12 +147,12 @@ export function CalendarRail({
 
       <section className="dt-cal-rail-section">
         <div className="dt-cal-rail-label">
-          <span>{t('From this workspace')}</span>
+          <span>{"From this workspace"}</span>
         </div>
         <ul className="dt-cal-calendar-list">
           <LayerRow
             id="tasks"
-            label={t('Task due dates')}
+            label={"Task due dates"}
             color={taskColors.todo}
             icon={CircleDashed}
             toggles={layers}
@@ -160,7 +160,7 @@ export function CalendarRail({
           />
           <LayerRow
             id="reviews"
-            label={t('Reviews coming due')}
+            label={"Reviews coming due"}
             color={LAYER_COLORS.review}
             icon={Repeat2}
             toggles={layers}
@@ -168,7 +168,7 @@ export function CalendarRail({
           />
           <LayerRow
             id="automations"
-            label={t('Automations')}
+            label={"Automations"}
             color={LAYER_COLORS.automation}
             icon={AlarmClock}
             toggles={layers}
@@ -176,7 +176,7 @@ export function CalendarRail({
           />
           <LayerRow
             id="footprints"
-            label={t('Learning footprints')}
+            label={"Learning footprints"}
             color="#787774"
             icon={Footprints}
             toggles={layers}
@@ -187,21 +187,21 @@ export function CalendarRail({
 
       <footer className="dt-cal-rail-foot">
         {notifications === 'default' ? (
-          <Tooltip label={t('Reminders work while DeepTutor is open.')}>
+          <Tooltip label={"Reminders work while DeepTutor is open."}>
             <button type="button" className="dt-cal-rail-notify" onClick={onEnableNotifications}>
               <Bell aria-hidden size={14} strokeWidth={1.8} />
-              {t('Turn on reminders')}
+              {"Turn on reminders"}
             </button>
           </Tooltip>
         ) : notifications === 'denied' ? (
           <p className="dt-cal-rail-hint">
             <BellOff aria-hidden size={13} strokeWidth={1.8} />
-            {t('Notifications are blocked; reminders show inside DeepTutor.')}
+            {"Notifications are blocked; reminders show inside DeepTutor."}
           </p>
         ) : notifications === 'granted' ? (
           <p className="dt-cal-rail-hint">
             <Bell aria-hidden size={13} strokeWidth={1.8} />
-            {t('Reminders work while DeepTutor is open.')}
+            {"Reminders work while DeepTutor is open."}
           </p>
         ) : null}
       </footer>
@@ -265,12 +265,12 @@ function CalendarRow({
   onDelete: () => void
   onExport: () => void
 }) {
-  const { t } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [name, setName] = useState('')
   const rootRef = useMenuPopover<HTMLLIElement>(open, setOpen)
-  const label = calendarName(calendar, t)
+  const label = calendarName(calendar)
 
   if (renaming)
     return (
@@ -286,7 +286,7 @@ function CalendarRow({
           <Swatch color={calendar.color} checked={calendar.visible} />
           <input
             autoFocus
-            aria-label={t('Calendar name')}
+            aria-label={"Calendar name"}
             value={name}
             maxLength={80}
             onChange={event => setName(event.target.value)}
@@ -311,10 +311,10 @@ function CalendarRow({
         <Swatch color={calendar.color} checked={calendar.visible} />
         <span className="dt-cal-calendar-name">{label}</span>
       </button>
-      <Tooltip label={t('Calendar options')} suppressed={open}>
+      <Tooltip label={"Calendar options"} suppressed={open}>
         <button
           type="button"
-          aria-label={t('Calendar options')}
+          aria-label={"Calendar options"}
           aria-haspopup="menu"
           aria-expanded={open}
           className="dt-cal-icon-button dt-cal-calendar-more"
@@ -325,7 +325,7 @@ function CalendarRow({
       </Tooltip>
       {open && (
         <div role="menu" aria-label={label} className="dt-popover dt-cal-calendar-menu">
-          <div className="dt-cal-color-grid" role="group" aria-label={t('Color')}>
+          <div className="dt-cal-color-grid" role="group" aria-label={"Color"}>
             {CALENDAR_COLORS.map(color => (
               <button
                 key={color}
@@ -354,7 +354,7 @@ function CalendarRow({
             }}
           >
             <Download size={14} strokeWidth={1.8} />
-            {t('Export .ics')}
+            {"Export .ics"}
           </button>
           <button
             type="button"
@@ -366,7 +366,7 @@ function CalendarRow({
               setOpen(false)
             }}
           >
-            {t('Rename')}
+            {"Rename"}
           </button>
           {!calendar.is_default && (
             <button
@@ -379,7 +379,7 @@ function CalendarRow({
               }}
             >
               <Trash2 size={14} strokeWidth={1.8} />
-              {t('Delete calendar')}
+              {"Delete calendar"}
             </button>
           )}
         </div>
@@ -395,7 +395,7 @@ function NewCalendar({
   used: string[]
   onCreate: (name: string, color: string) => void
 }) {
-  const { t } = useTranslation()
+  
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState('')
   const color = CALENDAR_COLORS.find(candidate => !used.includes(candidate)) ?? CALENDAR_COLORS[0]
@@ -413,7 +413,7 @@ function NewCalendar({
         onClick={() => setEditing(true)}
       >
         <Plus aria-hidden size={14} strokeWidth={1.8} />
-        <span>{t('New calendar')}</span>
+        <span>{"New calendar"}</span>
       </button>
     )
   return (
@@ -421,8 +421,8 @@ function NewCalendar({
       <Swatch color={color} checked />
       <input
         autoFocus
-        aria-label={t('Calendar name')}
-        placeholder={t('Calendar name')}
+        aria-label={"Calendar name"}
+        placeholder={"Calendar name"}
         value={name}
         maxLength={80}
         onChange={event => setName(event.target.value)}

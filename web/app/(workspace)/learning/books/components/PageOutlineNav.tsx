@@ -19,7 +19,7 @@ import {
   Sparkles,
   Sticker,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type { Block, BlockType, BlockStatus } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -103,10 +103,10 @@ export default function PageOutlineNav({
   collapsed,
   onCollapsedChange,
 }: PageOutlineNavProps) {
-  const { t } = useTranslation();
-  const headerText = t("On this page");
-  const collapseTip = t("Hide outline");
-  const expandTip = t("Show outline");
+  
+  const headerText = "On this page";
+  const collapseTip = "Hide outline";
+  const expandTip = "Show outline";
 
   /**
    * Parked unless the reader opens it, and the choice is theirs for the
@@ -240,7 +240,7 @@ export default function PageOutlineNav({
           <ol className="flex-1 overflow-y-auto px-1.5 py-1.5">
             {visibleBlocks.map((block, idx) => {
               const Icon = TYPE_ICON[block.type] || FileText;
-              const fallbackLabel = t(TYPE_LABEL_EN[block.type] || block.type);
+              const fallbackLabel = (TYPE_LABEL_EN[block.type] || block.type);
               const label = shortLabel(block, fallbackLabel);
               const isActive = block.id === activeId;
               const isError = block.status === "error";

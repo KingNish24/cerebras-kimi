@@ -5,7 +5,7 @@ import { sessionWorkspaceId } from "@/lib/session-api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { LayoutSidebarShell } from "@/features/ui-layout/slots";
 import { reconcileUnread } from "@/lib/session-unread";
 import { LogoutButton } from "@/components/auth/LogoutButton";
@@ -33,7 +33,7 @@ import { readingCollectionRoute } from "@/lib/learning-routes";
 import { subscribeSessionChanges } from "@/lib/session-events";
 
 export default function WorkspaceSidebar() {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const {
     newSession,
@@ -178,7 +178,7 @@ export default function WorkspaceSidebar() {
 
   const handleDeleteSession = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm("Permanently delete this chat and its tutor threads? This cannot be undone.")) return;
       const deleted = sessions.find(item => item.session_id === sessionId);
       await deleteSession(sessionId, sessionWorkspaceId(deleted));
       setSessions((prev) =>
@@ -198,7 +198,7 @@ export default function WorkspaceSidebar() {
         );
       }
     },
-    [cancelStreamingTurn, newSession, router, selectedSessionId, t, sessions],
+    [cancelStreamingTurn, newSession, router, selectedSessionId, sessions],
   );
 
   const handleOrganizeSession = useCallback(

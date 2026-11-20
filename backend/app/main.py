@@ -31,7 +31,8 @@ def _use_deeptutor_vtx_sessions() -> None:
     ConversationRuntime.initialize() creates a Session via Session.create().
     Redirecting that factory to DeepTutorSession keeps the full vtx session
     protocol (append-only, resumable, checkpoints) while persisting entries in
-    ``data/sessions/<id>.json``. No vtx session files are read or written.
+    a WAL-mode SQLite database (``data/deeptutor.sqlite3``). No vtx session
+    files are read or written.
     """
     from vtx.agent.session import Session
 

@@ -2,7 +2,7 @@
 
 import Link from "@/shared/router/link";
 import { stageRegistryAction, type RegistryEdit } from "@/lib/provider-registry";
-import { useTranslation } from "react-i18next";
+
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { flattenModels, modelProvider } from "@/lib/provider-registry";
 import { SettingRow, SettingSection, selectClass } from "./shared";
@@ -122,7 +122,7 @@ function choiceValue(
 }
 
 export function TaskModelsWorkspace() {
-  const { t } = useTranslation();
+  
   const { draft: catalog, taskKinds, catalogEditable, mutateCatalog, applying } =
     useSettings();
 
@@ -133,7 +133,7 @@ export function TaskModelsWorkspace() {
   if (!catalogEditable)
     return (
       <p className="text-sm text-[var(--muted-foreground)]">
-        {t("Only administrators can manage models.")}
+        {"Only administrators can manage models."}
       </p>
     );
 
@@ -198,14 +198,14 @@ export function TaskModelsWorkspace() {
         <option value={leading.value}>{leading.label}</option>
         {!known && (
           <option value={value} disabled>
-            {t("Selected model is unavailable — choose another")}
+            {"Selected model is unavailable — choose another"}
           </option>
         )}
         {rows.map((row) => (
           <option key={row.key} value={row.key}>
             {row.model!.name || row.model!.model} ·{" "}
             {modelProvider(catalog, row.service, row.profile, row.model)?.name ||
-              t("Provider unavailable")}
+              "Provider unavailable"}
           </option>
         ))}
       </select>
@@ -224,31 +224,27 @@ export function TaskModelsWorkspace() {
   return (
     <div>
       <SettingSection
-        title={t("Global task model")}
-        description={t(
-          "Every call DeepTutor makes on its own runs here unless the task below names its own model.",
-        )}
+        title={"Global task model"}
+        description={"Every call DeepTutor makes on its own runs here unless the task below names its own model."}
       >
         <SettingRow
-          title={t("Background task model")}
-          description={t(
-            "A smaller, cheaper model is usually the right choice: these calls are short, frequent, and never the answer a learner is reading.",
-          )}
+          title={"Background task model"}
+          description={"A smaller, cheaper model is usually the right choice: these calls are short, frequent, and never the answer a learner is reading."}
           control={modelSelect(
-            t("Background task model"),
+            "Background task model",
             globalValue,
-            { value: INHERIT, label: t("Follow the chat model") },
+            { value: INHERIT, label: "Follow the chat model" },
             (value) => save(value),
           )}
         />
         {!rows.length && (
           <p className="pb-3.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t("No models configured yet.")}{" "}
+            {"No models configured yet."}{" "}
             <Link
               href="/settings/llm"
               className="underline underline-offset-4 transition-colors hover:text-[var(--foreground)]"
             >
-              {t("Add a language model")}
+              {"Add a language model"}
             </Link>
           </p>
         )}
@@ -257,20 +253,20 @@ export function TaskModelsWorkspace() {
       {groups.map((entry) => (
         <SettingSection
           key={entry.group}
-          title={t(GROUP_TEXT[entry.group] ?? entry.group)}
+          title={(GROUP_TEXT[entry.group] ?? entry.group)}
         >
           {entry.kinds.map((kind) => {
             const text = TASK_TEXT[kind];
-            const label = text ? t(text.label) : kind;
+            const label = text ? (text.label) : kind;
             return (
               <SettingRow
                 key={kind}
                 title={label}
-                description={text ? t(text.detail) : undefined}
+                description={text ? (text.detail) : undefined}
                 control={modelSelect(
                   label,
                   choiceValue(task.overrides?.[kind] ?? null, GLOBAL),
-                  { value: GLOBAL, label: t("Follow the global task model") },
+                  { value: GLOBAL, label: "Follow the global task model" },
                   (value) => save(value, kind),
                 )}
               />

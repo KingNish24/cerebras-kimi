@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 /** Native preview for generated and workspace video files. */
 export default function VideoPreview({
@@ -12,7 +12,7 @@ export default function VideoPreview({
   url: string;
   filename: string;
 }) {
-  const { t } = useTranslation();
+  
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
   return (
@@ -24,7 +24,7 @@ export default function VideoPreview({
       )}
       {state === "error" ? (
         <div className="text-[12px] text-white/70">
-          {t("Failed to load video.")}
+          {"Failed to load video."}
         </div>
       ) : (
         <video

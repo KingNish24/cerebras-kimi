@@ -4,7 +4,7 @@ import Link from '@/shared/router/link'
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
 import type { NoteCompanionProps } from './note-companion-props'
 import { useRouter } from '@/shared/router/navigation'
-import { useTranslation } from 'react-i18next'
+
 import {
   getNote,
   saveNote,
@@ -53,7 +53,7 @@ export default function NoteWorkspace({
   embedded?: boolean
   companion?: ComponentType<NoteCompanionProps>
 }) {
-  const { t } = useTranslation()
+  
   const router = useRouter()
   const auth = useAuthStatus()
   const owner =
@@ -293,11 +293,11 @@ export default function NoteWorkspace({
       if (block.type === 'learning') {
         const kind = String(block.props.kind || '')
         const prompt = String(block.props.prompt || '').trim()
-        return `${t(learningKind(kind).label)}${prompt ? ` · ${prompt}` : ''}`
+        return `${(learningKind(kind).label)}${prompt ? ` · ${prompt}` : ''}`
       }
       return inlineText(block.content).trim()
     },
-    [findBlock, t]
+    [findBlock]
   )
   const scrollToBlock = useCallback((blockId: string, flash = true) => {
     const el = root.current?.querySelector<HTMLElement>(
@@ -445,9 +445,7 @@ export default function NoteWorkspace({
       setReviewErrors(previous => ({
         ...previous,
         [suggestion.id]: message.includes('The suggested block changed')
-          ? t(
-              'This block has changed. Your edits are safe. Discuss a new suggestion or dismiss this one.'
-            )
+          ? "This block has changed. Your edits are safe. Discuss a new suggestion or dismiss this one."
           : message,
       }))
     } finally {
@@ -556,9 +554,9 @@ export default function NoteWorkspace({
   if (missing)
     return (
       <div className="flex h-full min-h-full flex-col items-center justify-center gap-4 bg-[var(--background)] p-10 text-center">
-        <p className="text-lg font-medium text-[var(--foreground)]">{t('Document not found')}</p>
+        <p className="text-lg font-medium text-[var(--foreground)]">{"Document not found"}</p>
         <p className="text-sm text-[var(--muted-foreground)]">
-          {t('This document may have been deleted, or the link is incorrect.')}
+          {"This document may have been deleted, or the link is incorrect."}
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           <button
@@ -566,7 +564,7 @@ export default function NoteWorkspace({
             onClick={() => router.replace('/co-writer')}
             className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
           >
-            {t('Back to Co-Writer')}
+            {"Back to Notebook"}
           </button>
           <button
             type="button"
@@ -574,7 +572,7 @@ export default function NoteWorkspace({
             onClick={() => void createPage()}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-90 disabled:opacity-45"
           >
-            {mutating ? t('Creating…') : t('New page')}
+            {mutating ? "Creating…" : "New page"}
           </button>
         </div>
       </div>
@@ -633,7 +631,7 @@ export default function NoteWorkspace({
         <div role="alert" className="dt-note-banner is-error">
           <span className="flex-1">{error}</span>
           <button className="dt-note-button" onClick={() => void flush().catch(() => {})}>
-            {t('Retry')}
+            {"Retry"}
           </button>
           <button
             className="dt-note-button"
@@ -655,17 +653,17 @@ export default function NoteWorkspace({
                 })
             }}
           >
-            {t('Reload page')}
+            {"Reload page"}
           </button>
         </div>
       )}
       {recovery && (
         <div className="dt-note-banner">
-          <span className="flex-1">{t('A local draft differs from this page.')}</span>
+          <span className="flex-1">{"A local draft differs from this page."}</span>
           <button
             className="dt-note-button"
             onClick={async () => {
-              const doc = await createNote(`${recovery.title} (${t('Recovered draft')})`)
+              const doc = await createNote(`${recovery.title} (${"Recovered draft"})`)
               await saveNote(doc.id, { blocks: recovery.blocks, expected_revision: doc.revision })
               if (draftKey) browserStorage.removeRaw('local', draftKey)
               setRecovery(null)
@@ -673,7 +671,7 @@ export default function NoteWorkspace({
               router.push(`/co-writer/${doc.id}`)
             }}
           >
-            {t('Save draft as a new page')}
+            {"Save draft as a new page"}
           </button>
         </div>
       )}
@@ -722,9 +720,9 @@ export default function NoteWorkspace({
                   suggestion.block_id
                     ? ask({
                         blockId: suggestion.block_id,
-                        prompt: `${t('Discuss this feedback')}: ${suggestion.explanation}`,
+                        prompt: `${"Discuss this feedback"}: ${suggestion.explanation}`,
                       })
-                    : askAtCursor(`${t('Discuss this feedback')}: ${suggestion.explanation}`)
+                    : askAtCursor(`${"Discuss this feedback"}: ${suggestion.explanation}`)
                 }
                 onChange={blocks => changed({ blocks })}
                 onReady={handle => {
@@ -744,12 +742,12 @@ export default function NoteWorkspace({
                 onFocusBlock={threads.open && !embedded ? focusBlock : undefined}
               />
               {!!backlinks.length && (
-                <section className="dt-note-backlinks" aria-label={t('Linked from')}>
-                  <h2>{t('Linked from')}</h2>
+                <section className="dt-note-backlinks" aria-label={"Linked from"}>
+                  <h2>{"Linked from"}</h2>
                   {backlinks.map(p => (
                     <Link key={p.id} href={`/co-writer/${p.id}`} onClick={e => navigate(e, p.id)}>
                       <span aria-hidden>{p.icon || '↗'}</span>
-                      {p.title || t('Untitled')}
+                      {p.title || "Untitled"}
                     </Link>
                   ))}
                 </section>
@@ -784,12 +782,12 @@ export default function NoteWorkspace({
                 if (again && anchor && redo) {
                   // Another version of the block itself, filed for review.
                   if (!editor.current?.hasBlock(anchor)) {
-                    setError(t('The line this conversation was about has been deleted.'))
+                    setError("The line this conversation was about has been deleted.")
                     return
                   }
                   editor.current.updateLearningPrompt(anchor, prompt)
                   threads.send(
-                    `${t('Regenerate')} · ${t(learningKind(redo.kind).label)} · ${prompt || t('Generate this learning block from the page')}`,
+                    `${"Regenerate"} · ${(learningKind(redo.kind).label)} · ${prompt || "Generate this learning block from the page"}`,
                     { generate: { blockId: anchor, kind: redo.kind, config: redo.config } }
                   )
                   return
@@ -799,11 +797,11 @@ export default function NoteWorkspace({
                     ? editor.current.insertLearningAfter(anchor, kind, prompt)
                     : null
                 if (!blockId) {
-                  setError(t('The line this conversation was about has been deleted.'))
+                  setError("The line this conversation was about has been deleted.")
                   return
                 }
                 threads.send(
-                  `${t(learningKind(kind).label)} · ${prompt || t('Generate this learning block from the page')}`,
+                  `${(learningKind(kind).label)} · ${prompt || "Generate this learning block from the page"}`,
                   { generate: { blockId, kind } }
                 )
               }}
@@ -831,7 +829,7 @@ export default function NoteWorkspace({
               ask({
                 blockId,
                 knowledgeRef: name,
-                prompt: `${t('Find source passages in this knowledge base and suggest cited notes')}: ${name}`,
+                prompt: `${"Find source passages in this knowledge base and suggest cited notes"}: ${name}`,
               })
           }}
         />
@@ -840,7 +838,7 @@ export default function NoteWorkspace({
         <FavoritesPicker
           onSynthesize={sources =>
             askAtCursor(
-              `${t('Organize these favorites into a coherent note. Cite the source of each section.')}\n\n${sources}`
+              `${"Organize these favorites into a coherent note. Cite the source of each section."}\n\n${sources}`
             )
           }
           onClose={() => setFavorites(false)}

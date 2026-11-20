@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 
 import {
   brandIconFor,
@@ -72,14 +72,12 @@ export default function BrandIcon({
  * per row: it is a legal notice, not a caption.
  */
 export function TrademarkNote({ className = "" }: { className?: string }) {
-  const { t } = useTranslation();
+  
   return (
     <p
       className={`text-[11px] leading-relaxed text-[var(--muted-foreground)]/70 ${className}`}
     >
-      {t(
-        "Product names and logos are trademarks of their respective owners, shown for identification only.",
-      )}
+      {"Product names and logos are trademarks of their respective owners, shown for identification only."}
     </p>
   );
 }

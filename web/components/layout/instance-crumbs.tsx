@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { InstanceCrumb, type CrumbItem } from '@/components/layout/LocationCrumbs'
 import { PageBarSlot } from '@/components/layout/PageChrome'
 import { learningLibrary } from '@/lib/learning-library'
@@ -39,31 +39,31 @@ function inBar(bare: boolean | undefined, crumb: ReactNode) {
 }
 
 export function ReadingFolderCrumb({ id, label, onRename, bare }: CrumbProps) {
-  const { t } = useTranslation()
+  
   const load = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await fetchReadingCollectionIndex()).map(collection => ({
         id: collection.workspace_id,
-        label: collection.title || t('Untitled collection'),
+        label: collection.title || "Untitled collection",
         href: readingFolderRoute(collection.workspace_id),
       })),
-    [t]
+    []
   )
   return inBar(
     bare,
     <InstanceCrumb
       label={label}
-      menuLabel={t('Collections')}
+      menuLabel={"Collections"}
       currentId={id}
       load={load}
       onRename={onRename}
-      all={{ label: t('All collections'), href: READING_HOME }}
+      all={{ label: "All collections", href: READING_HOME }}
     />
   )
 }
 
 export function MasteryPathCrumb({ id, label, onRename, bare }: CrumbProps) {
-  const { t } = useTranslation()
+  
   const load = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await fetchMasteryTopicIndex()).map(topic => ({
@@ -77,17 +77,17 @@ export function MasteryPathCrumb({ id, label, onRename, bare }: CrumbProps) {
     bare,
     <InstanceCrumb
       label={label}
-      menuLabel={t('Mastery Path')}
+      menuLabel={"Mastery Path"}
       currentId={id}
       load={load}
       onRename={onRename}
-      all={{ label: t('All paths'), href: MASTERY_HOME }}
+      all={{ label: "All paths", href: MASTERY_HOME }}
     />
   )
 }
 
 export function BookCrumb({ id, label, onRename, bare }: CrumbProps) {
-  const { t } = useTranslation()
+  
   const load = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await learningLibrary<Book>('books')).items
@@ -95,27 +95,27 @@ export function BookCrumb({ id, label, onRename, bare }: CrumbProps) {
         .sort((a, b) => b.updated_at - a.updated_at)
         .map(book => ({
           id: book.id,
-          label: book.title || t('Untitled book'),
+          label: book.title || "Untitled book",
           href: bookRoute(book.id, null, book.content_workspace_id),
           updatedAt: book.updated_at,
         })),
-    [t]
+    []
   )
   return inBar(
     bare,
     <InstanceCrumb
       label={label}
-      menuLabel={t('Books')}
+      menuLabel={"Books"}
       currentId={id}
       load={load}
       onRename={onRename}
-      all={{ label: t('All books'), href: BOOKS_HOME }}
+      all={{ label: "All books", href: BOOKS_HOME }}
     />
   )
 }
 
 export function KnowledgeBaseCrumb({ id, label, bare }: CrumbProps) {
-  const { t } = useTranslation()
+  
   const load = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await listKnowledgeBases())
@@ -127,10 +127,10 @@ export function KnowledgeBaseCrumb({ id, label, bare }: CrumbProps) {
     bare,
     <InstanceCrumb
       label={label}
-      menuLabel={t('Knowledge bases')}
+      menuLabel={"Knowledge bases"}
       currentId={id}
       load={load}
-      all={{ label: t('Knowledge Center'), href: knowledgeBaseRoute() }}
+      all={{ label: "Knowledge Center", href: knowledgeBaseRoute() }}
     />
   )
 }
@@ -142,7 +142,7 @@ export function PartnerCrumb({
   lead,
   trail,
 }: CrumbProps & { lead?: ReactNode; trail?: ReactNode }) {
-  const { t } = useTranslation()
+  
   const load = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await listPartners()).map(partner => ({
@@ -158,11 +158,11 @@ export function PartnerCrumb({
       label={label}
       lead={lead}
       trail={trail}
-      menuLabel={t('Partners')}
+      menuLabel={"Partners"}
       currentId={id}
       load={load}
-      create={{ label: t('New partner'), href: '/partners/new' }}
-      all={{ label: t('All partners'), href: '/partners' }}
+      create={{ label: "New partner", href: '/partners/new' }}
+      all={{ label: "All partners", href: '/partners' }}
     />
   )
 }

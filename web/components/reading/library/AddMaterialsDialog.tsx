@@ -18,7 +18,7 @@ import {
   useState,
   type DragEvent,
 } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { WatchingBrowser } from "@/components/watching/WatchingBrowser";
 import { uploadMaterial } from "@/lib/reading-api";
@@ -77,7 +77,7 @@ export function AddMaterialsDialog({
   onClose: () => void;
   onDone: (result: { workspace?: ReadingWorkspace }) => void;
 }) {
-  const { t } = useTranslation();
+  
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [title, setTitle] = useState("");
   const [items, setItems] = useState<PendingItem[]>([]);
@@ -100,10 +100,10 @@ export function AddMaterialsDialog({
 
   const heading =
     mode === "create"
-      ? t("New collection")
+      ? "New collection"
       : mode === "add"
-        ? t("Add material")
-        : t("Upload material");
+        ? "Add material"
+        : "Upload material";
 
   const addFiles = useCallback((files: File[]) => {
     if (!files.length) return;
@@ -157,12 +157,12 @@ export function AddMaterialsDialog({
         const workspace = imported.workspace;
         onDone({ workspace });
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : t("Import failed."));
+        setError(caught instanceof Error ? caught.message : "Import failed.");
       } finally {
         setWorking(false);
       }
     },
-    [mode, onDone, t, title, workspaceId, working],
+    [mode, onDone, title, workspaceId, working],
   );
 
   // Hash new files in the browser and ask the server what it already holds, so
@@ -350,7 +350,7 @@ export function AddMaterialsDialog({
 
       onDone({ workspace });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("Import failed."));
+      setError(caught instanceof Error ? caught.message : "Import failed.");
     } finally {
       setWorking(false);
     }
@@ -364,20 +364,16 @@ export function AddMaterialsDialog({
             <h2 className="font-serif text-[18px] font-semibold">{heading}</h2>
             <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
               {mode === "create"
-                ? t(
-                    "A collection holds several materials you read and discuss together.",
-                  )
+                ? "A collection holds several materials you read and discuss together."
                 : mode === "add"
-                  ? t("Files, links and materials already in your library.")
-                  : t(
-                      "Uploaded material stays in your library until you put it in a collection.",
-                    )}
+                  ? "Files, links and materials already in your library."
+                  : "Uploaded material stays in your library until you put it in a collection."}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label={t("Close")}
+            aria-label={"Close"}
             className="flex size-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             <X size={14} />
@@ -387,11 +383,11 @@ export function AddMaterialsDialog({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {mode === "create" && (
             <label className="block text-[11px] text-[var(--muted-foreground)]">
-              {t("Collection name")}
+              {"Collection name"}
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder={t("Optional — taken from the first material")}
+                placeholder={"Optional — taken from the first material"}
                 className="mt-1.5 h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
               />
             </label>
@@ -428,10 +424,10 @@ export function AddMaterialsDialog({
             >
               <Upload size={18} className="text-[var(--primary)]" />
               <span className="mt-2.5 text-[12.5px] font-semibold">
-                {t("Drop PDF, EPUB, Word, slides, audio or video here")}
+                {"Drop PDF, EPUB, Word, slides, audio or video here"}
               </span>
               <span className="mt-1 text-[10.5px] text-[var(--muted-foreground)]">
-                {t("or click to choose files")}
+                {"or click to choose files"}
               </span>
             </button>
             <div className="mx-auto mt-3.5 flex h-8 max-w-[340px] items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5">
@@ -449,7 +445,7 @@ export function AddMaterialsDialog({
                   }
                 }}
                 onBlur={addLink}
-                placeholder={t("or paste a link — web page, YouTube, Bilibili")}
+                placeholder={"or paste a link — web page, YouTube, Bilibili"}
                 className="min-w-0 flex-1 bg-transparent text-[11.5px] outline-none placeholder:text-[var(--muted-foreground)]"
               />
               {!!linkDraft && (
@@ -458,7 +454,7 @@ export function AddMaterialsDialog({
                   onClick={addLink}
                   className="shrink-0 text-[11px] font-semibold text-[var(--primary)]"
                 >
-                  {t("Add")}
+                  {"Add"}
                 </button>
               )}
             </div>
@@ -470,7 +466,7 @@ export function AddMaterialsDialog({
             className="mt-3 flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[11.5px] text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
           >
             <Rss size={13} />
-            {t("Browse Invidious")}
+            {"Browse Invidious"}
           </button>
 
           {!!items.length && (
@@ -489,7 +485,7 @@ export function AddMaterialsDialog({
           {checking && (
             <p className="mt-2.5 flex items-center gap-1.5 text-[10.5px] text-[var(--muted-foreground)]">
               <Loader2 size={11} className="animate-spin" />
-              {t("Checking your library for duplicates…")}
+              {"Checking your library for duplicates…"}
             </p>
           )}
 
@@ -500,7 +496,7 @@ export function AddMaterialsDialog({
             className="mt-4 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3.5 text-[11.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <Library size={13} />
-            {t("Choose from material you already uploaded")}
+            {"Choose from material you already uploaded"}
             <span className="ml-auto">{showPicker ? "−" : "›"}</span>
           </button>
           {showPicker && (
@@ -520,7 +516,7 @@ export function AddMaterialsDialog({
             onClick={onClose}
             className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -530,10 +526,10 @@ export function AddMaterialsDialog({
           >
             {working && <Loader2 size={12} className="animate-spin" />}
             {mode === "create"
-              ? t("Create and start reading")
+              ? "Create and start reading"
               : mode === "add"
-                ? t("Add to a collection")
-                : t("Upload")}
+                ? "Add to a collection"
+                : "Upload"}
           </button>
         </div>
       </div>
@@ -558,7 +554,7 @@ function PendingRow({
   onRemove: () => void;
   onDecide: (decision: "reuse" | "separate") => void;
 }) {
-  const { t } = useTranslation();
+  
   const matched = item.match?.material;
   const collections = item.match?.collections ?? [];
   const where = collections.map((row) => row.title).join("、");
@@ -594,7 +590,7 @@ function PendingRow({
         <button
           type="button"
           onClick={onRemove}
-          aria-label={t("Remove")}
+          aria-label={"Remove"}
           className="shrink-0 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
         >
           <X size={12} />
@@ -607,14 +603,8 @@ function PendingRow({
           {/* Naming the match matters: the file the user picked and the copy
               already in the library often have different names. */}
           {where
-            ? t(
-                "Already in your library as “{{title}}”, used by {{where}}. It will be reused, with its annotations.",
-                { title: matched.title, where },
-              )
-            : t(
-                "Already in your library as “{{title}}”. It will be reused, with its annotations.",
-                { title: matched.title },
-              )}
+            ? `Already in your library as “${matched.title}”, used by ${where}. It will be reused, with its annotations.`
+            : `Already in your library as “${matched.title}”. It will be reused, with its annotations.`}
           <button
             type="button"
             onClick={() =>
@@ -623,8 +613,8 @@ function PendingRow({
             className="font-semibold text-[var(--primary)]"
           >
             {item.decision === "reuse"
-              ? t("Add a separate copy instead")
-              : t("Reuse the existing one")}
+              ? "Add a separate copy instead"
+              : "Reuse the existing one"}
           </button>
         </p>
       )}
@@ -633,25 +623,18 @@ function PendingRow({
         <div className="mt-1.5 pl-5">
           <p className="text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
             {where
-              ? t(
-                  "A material with this name is already in {{where}}, but its content differs.",
-                  {
-                    where,
-                  },
-                )
-              : t(
-                  "A material with this name is already in your library, but its content differs.",
-                )}
+              ? `A material with this name is already in ${where}, but its content differs.`
+              : "A material with this name is already in your library, but its content differs."}
           </p>
           <div className="mt-1.5 flex gap-1.5">
             <DecisionChip
               active={item.decision === "reuse"}
-              label={t("Reuse the existing one")}
+              label={"Reuse the existing one"}
               detail={[
                 matched.title,
                 formatBytes(matched.size_bytes),
                 matched.unit_count
-                  ? t("{{count}} pages", { count: matched.unit_count })
+                  ? `${matched.unit_count} pages`
                   : "",
               ]
                 .filter(Boolean)
@@ -660,7 +643,7 @@ function PendingRow({
             />
             <DecisionChip
               active={item.decision === "separate"}
-              label={t("Upload as a new one")}
+              label={"Upload as a new one"}
               detail={formatBytes(item.sizeBytes)}
               onClick={() => onDecide("separate")}
             />
@@ -712,7 +695,7 @@ function LibraryPicker({
   onPick: (material: ReadingLibraryMaterial) => void;
   selectedIds: ReadonlySet<string>;
 }) {
-  const { t } = useTranslation();
+  
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<ReadingLibraryMaterial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -749,18 +732,18 @@ function LibraryPicker({
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={t("Search your library")}
+          placeholder={"Search your library"}
           className="min-w-0 flex-1 bg-transparent text-[11.5px] outline-none placeholder:text-[var(--muted-foreground)]"
         />
       </label>
       <div className="max-h-44 overflow-y-auto">
         {loading ? (
           <p className="px-3 py-3 text-[10.5px] text-[var(--muted-foreground)]">
-            {t("Loading…")}
+            {"Loading…"}
           </p>
         ) : !filtered.length ? (
           <p className="px-3 py-3 text-[10.5px] text-[var(--muted-foreground)]">
-            {t("Nothing here yet.")}
+            {"Nothing here yet."}
           </p>
         ) : (
           filtered.map((material) => (
@@ -782,7 +765,7 @@ function LibraryPicker({
                 </span>
                 <span className="block truncate text-[10px] text-[var(--muted-foreground)]">
                   {materialDetail(material) ||
-                    t(sourceKindKey[material.source_kind])}
+                    (sourceKindKey[material.source_kind])}
                 </span>
               </span>
               {selectedIds.has(material.material_id) && (

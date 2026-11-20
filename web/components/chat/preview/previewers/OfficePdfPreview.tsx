@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { apiFetch } from "@/shared/api/client";
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import PdfPreview from "./PdfPreview";
@@ -29,7 +29,7 @@ export default function OfficePdfPreview({
   filename: string;
   fallback: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const [state, setState] = useState<PreviewState>({
     kind: "loading",
     sourceUrl: url,
@@ -105,7 +105,7 @@ export default function OfficePdfPreview({
   return (
     <div className="flex h-full items-center justify-center gap-2 bg-[var(--muted)]/30 text-[12px] text-[var(--muted-foreground)]">
       <Loader2 size={14} className="animate-spin" />
-      <span>{t("Loading preview…")}</span>
+      <span>{"Loading preview…"}</span>
     </div>
   );
 }

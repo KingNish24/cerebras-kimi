@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Loader2, Terminal } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 interface ProcessLogsProps {
   logs: string[];
@@ -17,8 +17,8 @@ export default function ProcessLogs({
   title,
   emptyMessage = "Waiting for output...",
 }: ProcessLogsProps) {
-  const { t } = useTranslation();
-  const resolvedTitle = title ?? t("Process Logs");
+  
+  const resolvedTitle = title ?? "Process Logs";
   const [open, setOpen] = useState(true);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);

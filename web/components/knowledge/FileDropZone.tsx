@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useCallback, useMemo, useRef, useState, type DragEvent } from "react";
-import { useTranslation } from "react-i18next";
+
 import { AlertTriangle, CheckCircle2, FileText, Files, X } from "lucide-react";
 import type { KnowledgeUploadPolicy } from "@/features/knowledge/model/types";
 import {
@@ -42,7 +42,7 @@ export default function FileDropZone({
   compact = false,
   hidePolicyHint = false,
 }: FileDropZoneProps) {
-  const { t } = useTranslation();
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const dirInputRef = useRef<HTMLInputElement>(null);
   const depthRef = useRef(0);
@@ -59,19 +59,19 @@ export default function FileDropZone({
   }, []);
 
   const selection = useMemo<ValidatedFileSelection>(
-    () => validateFiles(files, uploadPolicy, t),
-    [files, uploadPolicy, t],
+    () => validateFiles(files, uploadPolicy),
+    [files, uploadPolicy],
   );
 
   const previewDropped = useCallback(
     (incoming: File[]) => {
-      const validated = validateFiles(incoming, uploadPolicy, t);
+      const validated = validateFiles(incoming, uploadPolicy);
       return {
         count: incoming.length,
         invalid: validated.invalidFiles.length > 0,
       };
     },
-    [t, uploadPolicy],
+    [uploadPolicy],
   );
 
   const reset = useCallback(() => {
@@ -184,28 +184,22 @@ export default function FileDropZone({
           <div className="text-[13px] font-medium text-[var(--foreground)]">
             {dropState.active
               ? dropState.invalid
-                ? t("Some dragged files are not supported")
-                : t("Drop files to add them")
+                ? "Some dragged files are not supported"
+                : "Drop files to add them"
               : files.length
                 ? selection.invalidFiles.length > 0
-                  ? t("{{count}} invalid files", {
-                      count: selection.invalidFiles.length,
-                    })
-                  : t("{{count}} files ready", {
-                      count: selection.validFiles.length,
-                    })
-                : t("Choose files...")}
+                  ? `${selection.invalidFiles.length} invalid files`
+                  : `${selection.validFiles.length} files ready`
+                : "Choose files..."}
           </div>
           <p className="text-[11px] text-[var(--muted-foreground)]">
             {dropState.active
               ? dropState.draggedCount > 0
-                ? t("{{count}} files detected", {
-                    count: dropState.draggedCount,
-                  })
-                : t("Release to attach the files")
+                ? `${dropState.draggedCount} files detected`
+                : "Release to attach the files"
               : files.length
                 ? formatFileSize(selection.totalBytes)
-                : t("Click to browse supported documents")}
+                : "Click to browse supported documents"}
           </p>
         </div>
       </button>
@@ -216,16 +210,14 @@ export default function FileDropZone({
           onClick={() => dirInputRef.current?.click()}
           className="text-[11px] font-medium text-[var(--muted-foreground)] underline-offset-2 transition-colors hover:text-[var(--foreground)] hover:underline"
         >
-          {t("Or upload a folder (one-time import)")}
+          {"Or upload a folder (one-time import)"}
         </button>
       )}
 
       {!hidePolicyHint && (
         <p className="text-[11px] text-[var(--muted-foreground)]">
-          {uploadPolicy.extensions.length} {t("types")} ·{" "}
-          {t("Maximum file size: {{size}}", {
-            size: formatFileSize(uploadPolicy.max_file_size_bytes),
-          })}
+          {uploadPolicy.extensions.length} {"types"} ·{" "}
+          {`Maximum file size: ${formatFileSize(uploadPolicy.max_file_size_bytes)}`}
         </p>
       )}
 
@@ -276,7 +268,7 @@ function SelectionSummary({
   onRemove: (id: string) => void;
   onClear: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const invalidCount = selection.invalidFiles.length;
   const readyCount = selection.validFiles.length;
   const hasIssues = invalidCount > 0;
@@ -298,16 +290,13 @@ function SelectionSummary({
               <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             )}
             {hasIssues
-              ? t("{{ready}} ready, {{skip}} will be skipped", {
-                  ready: readyCount,
-                  skip: invalidCount,
-                })
-              : t("{{count}} files ready", { count: readyCount })}
+              ? `${readyCount} ready, ${invalidCount} will be skipped`
+              : `${readyCount} files ready`}
           </div>
           <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
             {hasIssues
-              ? t("Unsupported files are skipped; the rest will be indexed.")
-              : t("Ready to upload")}{" "}
+              ? "Unsupported files are skipped; the rest will be indexed."
+              : "Ready to upload"}{" "}
             · {formatFileSize(selection.totalBytes)}
           </p>
         </div>
@@ -316,7 +305,7 @@ function SelectionSummary({
           onClick={onClear}
           className="rounded-md border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)] hover:text-[var(--foreground)]"
         >
-          {t("Clear selection")}
+          {"Clear selection"}
         </button>
       </div>
 
@@ -353,7 +342,7 @@ function SelectionSummary({
                       : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
                   }`}
                 >
-                  {item.valid ? t("Supported") : t("Needs attention")}
+                  {item.valid ? "Supported" : "Needs attention"}
                 </span>
               </div>
               {item.error && (
@@ -362,11 +351,11 @@ function SelectionSummary({
                 </p>
               )}
             </div>
-            <Tooltip label={t("Remove")} side="top">
+            <Tooltip label={"Remove"} side="top">
               <button
                 type="button"
                 onClick={() => onRemove(item.id)}
-                aria-label={t("Remove")}
+                aria-label={"Remove"}
                 className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)] hover:text-[var(--foreground)]"
               >
                 <X className="h-3.5 w-3.5" />

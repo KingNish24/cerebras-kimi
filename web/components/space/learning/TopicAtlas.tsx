@@ -9,7 +9,7 @@ import {
 } from '@/components/learning/LearningShell'
 
 import Link from '@/shared/router/link'
-import { useTranslation } from 'react-i18next'
+
 import { ArrowRight, Compass, Plus, Sparkles } from 'lucide-react'
 
 import type { MasteryTopic } from '@/lib/learning-api'
@@ -37,7 +37,7 @@ export function TopicAtlas({
   onCreate: (trigger: HTMLButtonElement) => void
   onRetry: () => void
 }) {
-  const { t } = useTranslation()
+  
   const activeTopics = topics.filter(topic => topic.metadata.status === 'active')
   const dueCount = activeTopics.reduce(
     (count, topic) => count + topic.reviews.filter(review => review.due).length,
@@ -49,10 +49,8 @@ export function TopicAtlas({
   return (
     <LearningShell
       className="mastery-shell"
-      title={t('Mastery Path')}
-      subtitle={t(
-        "Work through each topic's knowledge points, then pick up any session where you left off."
-      )}
+      title={"Mastery Path"}
+      subtitle={"Work through each topic's knowledge points, then pick up any session where you left off."}
       action={
         <button
           type="button"
@@ -60,7 +58,7 @@ export function TopicAtlas({
           className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-medium text-[var(--primary-foreground)]  transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
         >
           <Plus className="h-4 w-4" />
-          {t('New topic')}
+          {"New topic"}
         </button>
       }
     >
@@ -71,13 +69,10 @@ export function TopicAtlas({
           </span>
           <div className="min-w-0 flex-1">
             <div className="font-medium">
-              {t('{{beacons}} reviews are due across {{count}} topics', {
-                beacons: dueCount,
-                count: dueTopics.length,
-              })}
+              {`${dueCount} reviews are due across ${dueTopics.length} topics`}
             </div>
             <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-              {t('Open their maps for a short review without losing your main route.')}
+              {"Open their maps for a short review without losing your main route."}
             </div>
           </div>
           {firstDueTopic && (
@@ -100,7 +95,7 @@ export function TopicAtlas({
               href={masterySessionRoute(firstDueTopic.path_id, 'review', firstDueTopic.content_workspace_id ?? '')}
               className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[var(--primary)] px-3.5 text-xs font-semibold text-white transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 "
             >
-              {t('Start review')}: {topicDisplayName(firstDueTopic, t)}
+              {"Start review"}: {topicDisplayName(firstDueTopic)}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}
@@ -112,7 +107,7 @@ export function TopicAtlas({
         <LearningSkeleton count={6} />
       ) : activeTopics.length > 0 ? (
         <section
-          aria-label={t('Active learning topics')}
+          aria-label={"Active learning topics"}
           className={`mt-9 ${pageGridClass(3)}`}
         >
           {activeTopics.map(topic => (
@@ -122,10 +117,8 @@ export function TopicAtlas({
       ) : !error ? (
         <LearningEmptyState
           icon={<Compass size={28} />}
-          title={t('Your atlas is still uncharted')}
-          description={t(
-            'Tell DeepTutor what you want to learn, mix in your books, notes, and knowledge bases, and it will draft the first outline.'
-          )}
+          title={"Your atlas is still uncharted"}
+          description={"Tell DeepTutor what you want to learn, mix in your books, notes, and knowledge bases, and it will draft the first outline."}
           action={
             <button
               type="button"
@@ -133,7 +126,7 @@ export function TopicAtlas({
               className="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--primary)] px-4 text-sm text-[var(--primary-foreground)]"
             >
               <Plus size={14} />
-              {t('Chart the first map')}
+              {"Chart the first map"}
             </button>
           }
         />

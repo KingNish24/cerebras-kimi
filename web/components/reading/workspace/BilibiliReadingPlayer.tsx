@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 
 import type { ReadingMediaController } from '@/lib/reading-media-controller'
 import { bilibiliEmbedUrl, type BilibiliSource } from '@/lib/reading-video-sources'
@@ -36,7 +36,7 @@ export function BilibiliReadingPlayer({
   onTime(seconds: number, duration: number): void
   onError(error: string): void
 }) {
-  const { t } = useTranslation()
+  
   const [playerStart, setPlayerStart] = useState(startSeconds)
   const [loaded, setLoaded] = useState(false)
   const timeRef = useRef(startSeconds)
@@ -77,13 +77,11 @@ export function BilibiliReadingPlayer({
     if (loaded) return
     const timer = window.setTimeout(() => {
       onError(
-        t(
-          'This Bilibili video would not load in an embedded player. Open it on Bilibili; DeepTutor can still use its captions.'
-        )
+        "This Bilibili video would not load in an embedded player. Open it on Bilibili; DeepTutor can still use its captions."
       )
     }, EMBED_LOAD_TIMEOUT_MS)
     return () => window.clearTimeout(timer)
-  }, [loaded, onError, t])
+  }, [loaded, onError])
 
   return (
     <iframe
@@ -95,7 +93,7 @@ export function BilibiliReadingPlayer({
       loading="eager"
       referrerPolicy="strict-origin-when-cross-origin"
       onLoad={() => setLoaded(true)}
-      onError={() => onError(t('This Bilibili video could not be loaded.'))}
+      onError={() => onError("This Bilibili video could not be loaded.")}
     />
   )
 }

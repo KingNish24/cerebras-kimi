@@ -4,7 +4,7 @@ import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -84,7 +84,7 @@ function normalizeDraft(payload: MinerUPayload): MinerUSettings {
 }
 
 export function MinerUEngineSettings() {
-  const { t } = useTranslation();
+  
   const { draftRevision } = useSettings();
   const [payload, setPayload] = useState<MinerUPayload | null>(null);
   const [liveDraft, setLiveDraft] = useState<MinerUSettings | null>(null);
@@ -119,7 +119,7 @@ export function MinerUEngineSettings() {
           throw new Error(
             "detail" in data && data.detail
               ? data.detail
-              : t("Failed to load MinerU settings."),
+              : "Failed to load MinerU settings.",
           );
         }
         if (cancelled) return;
@@ -137,7 +137,7 @@ export function MinerUEngineSettings() {
     return () => {
       cancelled = true;
     };
-  }, [t, draftRevision]);
+  }, [draftRevision]);
 
   function patch(next: Partial<MinerUSettings>) {
     setDraft((current) => (current ? { ...current, ...next } : current));
@@ -164,12 +164,12 @@ export function MinerUEngineSettings() {
         detail?: string;
       };
       if (!response.ok) {
-        throw new Error(data.detail || t("Connection test failed."));
+        throw new Error(data.detail || "Connection test failed.");
       }
       setTestResult({
         ok: Boolean(data.ok),
         message:
-          data.message || (data.ok ? t("OK") : t("Connection test failed.")),
+          data.message || (data.ok ? "OK" : "Connection test failed."),
       });
     } catch (err) {
       setTestResult({
@@ -242,7 +242,7 @@ export function MinerUEngineSettings() {
         setDownload({
           state: "failed",
           lines: [],
-          message: data.message || data.detail || t("Download failed."),
+          message: data.message || data.detail || "Download failed.",
         });
         return;
       }
@@ -303,7 +303,7 @@ export function MinerUEngineSettings() {
     return (
       <div className="flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
         <Loader2 className="h-4 w-4 animate-spin" />
-        {t("Loading MinerU settings...")}
+        {"Loading MinerU settings..."}
       </div>
     );
   }
@@ -327,17 +327,15 @@ export function MinerUEngineSettings() {
       )}
 
       <SettingSection
-        title={t("Parsing backend")}
-        description={t("Choose where PDF parsing runs.")}
+        title={"Parsing backend"}
+        description={"Choose where PDF parsing runs."}
       >
         <SettingRow
-          title={t("Mode")}
+          title={"Mode"}
           description={
             isCloud
-              ? t("Documents are uploaded to mineru.net for parsing.")
-              : t(
-                  "Parsing runs on this machine using the local MinerU install.",
-                )
+              ? "Documents are uploaded to mineru.net for parsing."
+              : "Parsing runs on this machine using the local MinerU install."
           }
           control={
             <div className="inline-flex rounded-lg border border-[var(--border)] p-0.5">
@@ -355,7 +353,7 @@ export function MinerUEngineSettings() {
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {m === "local" ? t("Local") : t("Cloud API")}
+                  {m === "local" ? "Local" : "Cloud API"}
                 </button>
               ))}
             </div>
@@ -365,37 +363,31 @@ export function MinerUEngineSettings() {
 
       {!isCloud && (
         <SettingSection
-          title={t("Local install")}
-          description={t(
-            "The MinerU CLI must be reachable by the DeepTutor server process. Reserve >=20 GB of free disk (official guidance): ~2-4 GB install, ~1-2 GB models lazily downloaded on first parse, plus parsing cache.",
-          )}
+          title={"Local install"}
+          description={"The MinerU CLI must be reachable by the DeepTutor server process. Reserve >=20 GB of free disk (official guidance): ~2-4 GB install, ~1-2 GB models lazily downloaded on first parse, plus parsing cache."}
         >
           <SettingRow
             title={
               localCli?.found
-                ? t("MinerU CLI detected.")
+                ? "MinerU CLI detected."
                 : localCli?.source === "configured"
-                  ? t("Configured CLI path is not executable.")
-                  : t("MinerU CLI not found on PATH.")
+                  ? "Configured CLI path is not executable."
+                  : "MinerU CLI not found on PATH."
             }
             description={
               localCli?.found
                 ? localCli.path
-                : t(
-                    'Install into any Python environment: uv pip install -U "mineru[all]>=3.4.5" — then set the CLI path below, or install into the server environment for PATH auto-detection.',
-                  )
+                : "Install into any Python environment: uv pip install -U \"mineru[all]>=3.4.5\" — then set the CLI path below, or install into the server environment for PATH auto-detection."
             }
-            control={renderTestControl(t("Check"))}
+            control={renderTestControl("Check")}
           />
           <SettingRow
-            title={t("CLI path")}
-            description={t(
-              "Optional. Point to a mineru executable in an isolated environment (uv tool, pipx, conda) to avoid dependency conflicts. Leave blank to auto-detect from PATH.",
-            )}
+            title={"CLI path"}
+            description={"Optional. Point to a mineru executable in an isolated environment (uv tool, pipx, conda) to avoid dependency conflicts. Leave blank to auto-detect from PATH."}
             control={
               <input
                 className={`${inputClass} w-[320px] max-w-[48vw] font-mono text-[12px]`}
-                placeholder={t("Auto-detect from PATH")}
+                placeholder={"Auto-detect from PATH"}
                 value={draft.local_cli_path}
                 onChange={(e) => patch({ local_cli_path: e.target.value })}
               />
@@ -406,16 +398,12 @@ export function MinerUEngineSettings() {
 
       {!isCloud && (
         <SettingSection
-          title={t("Model weights")}
-          description={t(
-            "Local parsing needs ~1-2 GB of model weights. By default they are NOT downloaded automatically — download them explicitly below, or allow automatic download on first parse.",
-          )}
+          title={"Model weights"}
+          description={"Local parsing needs ~1-2 GB of model weights. By default they are NOT downloaded automatically — download them explicitly below, or allow automatic download on first parse."}
         >
           <SettingRow
-            title={t("Allow automatic model download")}
-            description={t(
-              "Off by default. When off, a local parse fails with guidance instead of silently downloading multi-GB weights on first run. Turn on to let the first parse fetch models, or use the explicit download below.",
-            )}
+            title={"Allow automatic model download"}
+            description={"Off by default. When off, a local parse fails with guidance instead of silently downloading multi-GB weights on first run. Turn on to let the first parse fetch models, or use the explicit download below."}
             control={
               <Toggle
                 checked={draft.allow_local_model_download}
@@ -424,8 +412,8 @@ export function MinerUEngineSettings() {
             }
           />
           <SettingRow
-            title={t("Download source")}
-            description={t("ModelScope is usually faster in mainland China.")}
+            title={"Download source"}
+            description={"ModelScope is usually faster in mainland China."}
             control={
               <select
                 className={`${nativeSelectClass} w-44`}
@@ -447,10 +435,8 @@ export function MinerUEngineSettings() {
           />
           {draft.model_download_source === "huggingface" && (
             <SettingRow
-              title={t("Download address")}
-              description={t(
-                "Custom HuggingFace endpoint or mirror (e.g. a regional mirror). Leave blank for the official address.",
-              )}
+              title={"Download address"}
+              description={"Custom HuggingFace endpoint or mirror (e.g. a regional mirror). Leave blank for the official address."}
               control={
                 <input
                   className={`${inputClass} w-[320px] max-w-[48vw] font-mono text-[12px]`}
@@ -464,10 +450,8 @@ export function MinerUEngineSettings() {
             />
           )}
           <SettingRow
-            title={t("Download models")}
-            description={t(
-              "Runs mineru-models-download on the server using the source and address above.",
-            )}
+            title={"Download models"}
+            description={"Runs mineru-models-download on the server using the source and address above."}
             control={
               <div className="flex items-center gap-2">
                 <select
@@ -490,7 +474,7 @@ export function MinerUEngineSettings() {
                     onClick={cancelDownload}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-80"
                   >
-                    {t("Cancel")}
+                    {"Cancel"}
                   </button>
                 ) : (
                   <button
@@ -502,7 +486,7 @@ export function MinerUEngineSettings() {
                     {startingDownload && (
                       <Loader2 className="h-3 w-3 animate-spin" />
                     )}
-                    {t("Download")}
+                    {"Download"}
                   </button>
                 )}
               </div>
@@ -527,7 +511,7 @@ export function MinerUEngineSettings() {
                   <XCircle className="h-3.5 w-3.5" />
                 )}
                 {download.state === "running"
-                  ? t("Downloading models...")
+                  ? "Downloading models..."
                   : download.message || download.state}
               </div>
               {download.lines.length > 0 && (
@@ -542,14 +526,12 @@ export function MinerUEngineSettings() {
 
       {isCloud && (
         <SettingSection
-          title={t("Cloud API")}
-          description={t("Get an API token from mineru.net → API management.")}
+          title={"Cloud API"}
+          description={"Get an API token from mineru.net → API management."}
         >
           <SettingRow
-            title={t("API base URL")}
-            description={t(
-              "Override only if you use a self-hosted MinerU endpoint.",
-            )}
+            title={"API base URL"}
+            description={"Override only if you use a self-hosted MinerU endpoint."}
             control={
               <input
                 className={`${inputClass} w-[320px] max-w-[48vw]`}
@@ -560,13 +542,11 @@ export function MinerUEngineSettings() {
             }
           />
           <SettingRow
-            title={t("API token")}
+            title={"API token"}
             description={
               tokenSet
-                ? t(
-                    "A token is saved. Type to replace it; leave blank to keep it.",
-                  )
-                : t("No token saved yet.")
+                ? "A token is saved. Type to replace it; leave blank to keep it."
+                : "No token saved yet."
             }
             control={
               <div className="relative inline-flex items-center">
@@ -579,7 +559,7 @@ export function MinerUEngineSettings() {
                   data-1p-ignore="true"
                   data-lpignore="true"
                   className={`${inputClass} w-[320px] max-w-[48vw] pr-9 font-mono`}
-                  placeholder={tokenSet ? TOKEN_MASK : t("Paste API token")}
+                  placeholder={tokenSet ? TOKEN_MASK : "Paste API token"}
                   value={tokenDraft}
                   onChange={(e) => {
                     const val = e.target.value.trim();
@@ -589,7 +569,7 @@ export function MinerUEngineSettings() {
                 <button
                   type="button"
                   onClick={() => setShowToken((v) => !v)}
-                  aria-label={showToken ? t("Hide API token") : t("Show API token")}
+                  aria-label={showToken ? "Hide API token" : "Show API token"}
                   className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   {showToken ? (
@@ -602,24 +582,20 @@ export function MinerUEngineSettings() {
             }
           />
           <SettingRow
-            title={t("Test connection")}
-            description={t(
-              "Verifies the token against the MinerU API (no quota used).",
-            )}
-            control={renderTestControl(t("Test"))}
+            title={"Test connection"}
+            description={"Verifies the token against the MinerU API (no quota used)."}
+            control={renderTestControl("Test")}
           />
         </SettingSection>
       )}
 
       <SettingSection
-        title={t("Parsing options")}
-        description={t("Forwarded to MinerU for each document.")}
+        title={"Parsing options"}
+        description={"Forwarded to MinerU for each document."}
       >
         <SettingRow
-          title={t("Model version")}
-          description={t(
-            "pipeline is faster; vlm is the vision-language model.",
-          )}
+          title={"Model version"}
+          description={"pipeline is faster; vlm is the vision-language model."}
           control={
             <select
               className={`${nativeSelectClass} w-40`}
@@ -637,10 +613,8 @@ export function MinerUEngineSettings() {
           }
         />
         <SettingRow
-          title={t("Language")}
-          description={t(
-            'Document language hint. Use "auto" to let MinerU detect it.',
-          )}
+          title={"Language"}
+          description={"Document language hint. Use \"auto\" to let MinerU detect it."}
           control={
             <input
               className={`${inputClass} w-40`}
@@ -651,7 +625,7 @@ export function MinerUEngineSettings() {
           }
         />
         <SettingRow
-          title={t("Extract formulas")}
+          title={"Extract formulas"}
           control={
             <Toggle
               checked={draft.enable_formula}
@@ -660,7 +634,7 @@ export function MinerUEngineSettings() {
           }
         />
         <SettingRow
-          title={t("Extract tables")}
+          title={"Extract tables"}
           control={
             <Toggle
               checked={draft.enable_table}
@@ -669,10 +643,8 @@ export function MinerUEngineSettings() {
           }
         />
         <SettingRow
-          title={t("Force OCR")}
-          description={t(
-            "Treat the PDF as scanned images. Slower; only for non-text PDFs.",
-          )}
+          title={"Force OCR"}
+          description={"Treat the PDF as scanned images. Slower; only for non-text PDFs."}
           control={
             <Toggle
               checked={draft.is_ocr}

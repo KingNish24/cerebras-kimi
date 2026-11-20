@@ -23,7 +23,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import {
@@ -68,7 +68,7 @@ const RING_LINE: Record<Layer, string> = {
 };
 
 export default function MemoryGraph() {
-  const { t } = useTranslation();
+  
   const [graph, setGraph] = useState<MemoryGraph | null>(null);
   const [loading, setLoading] = useState(true);
   const [layerOn, setLayerOn] = useState<Record<Layer, boolean>>({
@@ -267,7 +267,7 @@ export default function MemoryGraph() {
             <div className="pointer-events-none absolute inset-0 grid place-items-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)]/80 px-3 py-1.5 text-[12px] text-[var(--muted-foreground)] shadow-sm backdrop-blur">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                {t("Composing memory graph…")}
+                {"Composing memory graph…"}
               </div>
             </div>
           )}
@@ -300,7 +300,7 @@ function Header({
   onRefresh: () => void;
   loading: boolean;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--background)]/80 px-6 py-3 backdrop-blur md:px-10">
       <div className="flex items-center gap-3">
@@ -309,16 +309,14 @@ function Header({
           className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          {t("Memory")}
+          {"Memory"}
         </Link>
         <div className="flex flex-col">
           <h1 className="font-serif text-[16px] font-semibold tracking-tight text-[var(--foreground)]">
-            {t("Memory graph")}
+            {"Memory graph"}
           </h1>
           <p className="text-[11.5px] text-[var(--muted-foreground)]">
-            {t(
-              "L3 synthesis at the centre, L2 facts in the middle ring, L1 traces on the outside.",
-            )}
+            {"L3 synthesis at the centre, L2 facts in the middle ring, L1 traces on the outside."}
           </p>
         </div>
       </div>
@@ -331,7 +329,7 @@ function Header({
         <RefreshCw
           className={loading ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"}
         />
-        {t("Refresh")}
+        {"Refresh"}
       </button>
     </div>
   );
@@ -362,7 +360,7 @@ function GraphView({
   setSelected,
   highlight,
 }: GraphViewProps) {
-  const { t } = useTranslation();
+  
   // ── Cluster halos: large blurred translucent ellipses behind each
   // slice so users see the cluster outlines before they read labels.
   const haloPaths = useMemo(() => {
@@ -397,7 +395,7 @@ function GraphView({
       width="100%"
       height="100%"
       style={{ position: "absolute", inset: 0 }}
-      aria-label={t("Memory graph")}
+      aria-label={"Memory graph"}
     >
       <defs>
         <radialGradient id="halo-l3" cx="50%" cy="50%" r="50%">
@@ -505,7 +503,7 @@ function GraphView({
                   dominantBaseline="central"
                   style={{ userSelect: "none" }}
                 >
-                  {t(c.label)}
+                  {(c.label)}
                 </text>
                 <text
                   x={x}
@@ -518,7 +516,7 @@ function GraphView({
                   style={{ userSelect: "none" }}
                 >
                   {c.count.toLocaleString()}{" "}
-                  {c.layer === "L2" ? t("facts") : t("traces")}
+                  {c.layer === "L2" ? "facts" : "traces"}
                 </text>
               </g>
             );
@@ -560,7 +558,7 @@ function GraphView({
               dominantBaseline="central"
               style={{ letterSpacing: "0.04em", userSelect: "none" }}
             >
-              {t("synthesis")}
+              {"synthesis"}
             </text>
             {graph.clusters
               .filter((c) => c.layer === "L3")
@@ -583,7 +581,7 @@ function GraphView({
                     dominantBaseline="central"
                     style={{ letterSpacing: "0.04em", userSelect: "none" }}
                   >
-                    {t(c.label)}
+                    {(c.label)}
                   </text>
                 );
               })}
@@ -803,17 +801,17 @@ function Controls({
   zoomBy: (factor: number) => void;
   fit: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="pointer-events-none absolute right-4 top-4 flex flex-col items-end gap-2">
       <div className="pointer-events-auto inline-flex items-center overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)]/95 shadow-sm backdrop-blur">
-        <IconButton onClick={() => zoomBy(1.25)} title={t("Zoom in")}>
+        <IconButton onClick={() => zoomBy(1.25)} title={"Zoom in"}>
           <ZoomIn className="h-3.5 w-3.5" />
         </IconButton>
-        <IconButton onClick={() => zoomBy(1 / 1.25)} title={t("Zoom out")}>
+        <IconButton onClick={() => zoomBy(1 / 1.25)} title={"Zoom out"}>
           <ZoomOut className="h-3.5 w-3.5" />
         </IconButton>
-        <IconButton onClick={fit} title={t("Fit")}>
+        <IconButton onClick={fit} title={"Fit"}>
           <Maximize2 className="h-3.5 w-3.5" />
         </IconButton>
         <span className="px-2 text-[11px] tabular-nums text-[var(--muted-foreground)]">
@@ -836,10 +834,10 @@ function Controls({
             <span className="font-medium">{layer}</span>
             <span className="text-[var(--muted-foreground)]">
               {layer === "L3"
-                ? t("Synthesis")
+                ? "Synthesis"
                 : layer === "L2"
-                  ? t("Per-surface")
-                  : t("Raw traces")}
+                  ? "Per-surface"
+                  : "Raw traces"}
             </span>
             {layerOn[layer] ? (
               <Eye className="ml-1 h-3 w-3 text-[var(--muted-foreground)]" />
@@ -879,7 +877,7 @@ function IconButton({
 // ──────────────────────────────────────────────────────────── Legend
 
 function Legend({ graph }: { graph: MemoryGraph }) {
-  const { t } = useTranslation();
+  
   // Aggregate counts.
   const byLayer = useMemo(() => {
     const out: Record<Layer, number> = { L1: 0, L2: 0, L3: 0 };
@@ -907,9 +905,7 @@ function Legend({ graph }: { graph: MemoryGraph }) {
         ))}
       </div>
       <p className="leading-relaxed text-[var(--muted-foreground)]">
-        {t(
-          "Hover a node to preview the memory. Click to lock the highlight and trace its references inward (L1 → L2 → L3) or outward.",
-        )}
+        {"Hover a node to preview the memory. Click to lock the highlight and trace its references inward (L1 → L2 → L3) or outward."}
       </p>
     </div>
   );
@@ -918,7 +914,7 @@ function Legend({ graph }: { graph: MemoryGraph }) {
 // ─────────────────────────────────────────────────────── HoverCard
 
 function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
-  const { t } = useTranslation();
+  
   const { node } = hover;
   // Anchor the tooltip to the *node's* screen position (not the
   // cursor), so we don't have to handle mousemove for every dot. The
@@ -931,7 +927,7 @@ function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
     left: screenX + offset,
     top: screenY + offset,
   };
-  const meta = nodeMeta(node, t);
+  const meta = nodeMeta(node);
   return (
     <div
       className="pointer-events-none fixed z-50 max-w-sm rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-[12px] shadow-lg"
@@ -956,7 +952,7 @@ function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
         {node.preview || node.label}
       </p>
       <p className="mt-2 text-[10.5px] text-[var(--muted-foreground)]">
-        {t("Click to lock · open in workbench")}
+        {"Click to lock · open in workbench"}
       </p>
     </div>
   );
@@ -964,28 +960,23 @@ function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
 
 function nodeMeta(
   n: GraphNode,
-  t: (key: string) => string,
 ): { layerLabel: string; clusterLabel: string } {
   const [, cluster] = n.cluster.split(":");
   if (n.layer === "L3") {
     return {
-      layerLabel: t("L3 · synthesis"),
-      clusterLabel: t(L3_LABEL[cluster as keyof typeof L3_LABEL] || cluster),
+      layerLabel: "L3 · synthesis",
+      clusterLabel: (L3_LABEL[cluster as keyof typeof L3_LABEL] || cluster),
     };
   }
   if (n.layer === "L2") {
     return {
-      layerLabel: t("L2 · curated"),
-      clusterLabel: t(
-        SURFACE_LABEL[cluster as keyof typeof SURFACE_LABEL] || cluster,
-      ),
+      layerLabel: "L2 · curated",
+      clusterLabel: (SURFACE_LABEL[cluster as keyof typeof SURFACE_LABEL] || cluster),
     };
   }
   return {
-    layerLabel: t("L1 · raw trace"),
-    clusterLabel: t(
-      SURFACE_LABEL[cluster as keyof typeof SURFACE_LABEL] || cluster,
-    ),
+    layerLabel: "L1 · raw trace",
+    clusterLabel: (SURFACE_LABEL[cluster as keyof typeof SURFACE_LABEL] || cluster),
   };
 }
 

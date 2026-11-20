@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Activity, Plus, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import ResponderFace from "@/components/chat/home/ResponderFace";
 import Tooltip from "@/shared/ui/Tooltip";
 import { tabIcon } from "./helpers";
@@ -39,7 +39,7 @@ export function ViewerTabBar({
   onClosePanel: () => void;
   actions?: ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex h-12 shrink-0 items-center gap-1 pl-2.5 pr-2">
       <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -50,7 +50,7 @@ export function ViewerTabBar({
           className={`${TAB_PILL} ${TAB_FOCUS} gap-1.5 px-2.5 ${homeActive ? TAB_ACTIVE : TAB_IDLE}`}
         >
           <Activity size={13} strokeWidth={1.8} className="shrink-0" />
-          <span>{t("Activity")}</span>
+          <span>{"Activity"}</span>
         </button>
         {tabs.map((tab) => {
           const active = tab.id === activeTabId;
@@ -78,7 +78,7 @@ export function ViewerTabBar({
                 )}
                 <span className="truncate">{tab.label}</span>
               </button>
-              <Tooltip label={t("Close tab")} side="bottom">
+              <Tooltip label={"Close tab"} side="bottom">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -88,7 +88,7 @@ export function ViewerTabBar({
                   className={`mr-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-[opacity,background-color,color] hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] hover:text-[var(--foreground)] focus-visible:opacity-100 ${TAB_FOCUS} ${
                     active ? "opacity-70" : "opacity-0 group-hover:opacity-70"
                   }`}
-                  aria-label={t("Close tab")}
+                  aria-label={"Close tab"}
                 >
                   <X size={12} strokeWidth={2} />
                 </button>
@@ -106,22 +106,22 @@ export function ViewerTabBar({
           />
         </>
       ) : null}
-      <Tooltip label={t("New tab")} side="bottom">
+      <Tooltip label={"New tab"} side="bottom">
         <button
           type="button"
           onClick={onNewTab}
           className={HEADER_ICON}
-          aria-label={t("New tab")}
+          aria-label={"New tab"}
         >
           <Plus size={16} strokeWidth={1.8} />
         </button>
       </Tooltip>
-      <Tooltip label={t("Close viewer")} side="bottom">
+      <Tooltip label={"Close viewer"} side="bottom">
         <button
           type="button"
           onClick={onClosePanel}
           className={HEADER_ICON}
-          aria-label={t("Close viewer")}
+          aria-label={"Close viewer"}
         >
           <X size={15} strokeWidth={1.8} />
         </button>

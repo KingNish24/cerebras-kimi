@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { nativeSelectClass, selectOptionClass } from '@/components/settings/shared'
 import { listLLMOptions, type LLMOption } from '@/lib/llm-options'
 
@@ -16,7 +16,7 @@ export function ImageDescriptionModelSetting({
   disabled: boolean
   onChange: (selection: Selection | null) => void
 }) {
-  const { t } = useTranslation()
+  
   const [models, setModels] = useState<LLMOption[]>([])
   const [failed, setFailed] = useState(false)
 
@@ -42,7 +42,7 @@ export function ImageDescriptionModelSetting({
   return (
     <section className="mb-10">
       <label htmlFor="image-description-model" className="mb-2 block text-[13px] font-medium">
-        {t('Image description model')}
+        {"Image description model"}
       </label>
       <select
         id="image-description-model"
@@ -55,11 +55,11 @@ export function ImageDescriptionModelSetting({
         }}
       >
         <option value="" className={selectOptionClass}>
-          {t('Use main LLM (fallback)')}
+          {"Use main LLM (fallback)"}
         </option>
         {missing && (
           <option value={selected} disabled>
-            {t('Selected model unavailable')}
+            {"Selected model unavailable"}
           </option>
         )}
         {models.map(model => (
@@ -69,13 +69,11 @@ export function ImageDescriptionModelSetting({
         ))}
       </select>
       <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-        {t(
-          'Select a vision model for image descriptions in documents.'
-        )}
+        {"Select a vision model for image descriptions in documents."}
       </p>
       {failed && (
         <p role="alert" className="mt-2 text-xs text-red-600">
-          {t('Failed to load image description models.')}
+          {"Failed to load image description models."}
         </p>
       )}
     </section>

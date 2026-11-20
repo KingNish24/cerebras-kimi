@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Loader2, Play, Square, Volume2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { notify } from '@/lib/notifications'
@@ -45,7 +45,7 @@ export function PlayAudioButton({
   selection?: boolean
   className?: string
 }) {
-  const { t } = useTranslation()
+  
   const { autoplayEnabled } = useVoiceAutoplay(conversationKey)
   const [state, setState] = useState<'idle' | 'loading' | 'playing'>('idle')
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -112,10 +112,8 @@ export function PlayAudioButton({
         const detail = await ttsErrorMessage(resp)
         if (gen !== genRef.current) return
         notify(
-          t(
-            detail ||
-              (resp.status === 504 ? SPEECH_TIMEOUT_MESSAGE : SPEECH_PLAYBACK_FAILURE_MESSAGE)
-          ),
+          (detail ||
+              (resp.status === 504 ? SPEECH_TIMEOUT_MESSAGE : SPEECH_PLAYBACK_FAILURE_MESSAGE)),
           { tone: 'error' }
         )
         stop()
@@ -141,7 +139,7 @@ export function PlayAudioButton({
       }
       audio.onerror = () => {
         if (gen !== genRef.current) return
-        notify(t(SPEECH_PLAYBACK_FAILURE_MESSAGE), {
+        notify((SPEECH_PLAYBACK_FAILURE_MESSAGE), {
           tone: 'error',
         })
         stop()
@@ -155,12 +153,12 @@ export function PlayAudioButton({
     } catch (err) {
       if (gen !== genRef.current) return
       if (err instanceof Error && err.name === 'AbortError') return
-      notify(t(SPEECH_PLAYBACK_FAILURE_MESSAGE), {
+      notify((SPEECH_PLAYBACK_FAILURE_MESSAGE), {
         tone: 'error',
       })
       stop()
     }
-  }, [cleanup, content, stop, t])
+  }, [cleanup, content, stop])
 
   const handleClick = useCallback(() => {
     if (state === 'playing' || state === 'loading') {
@@ -192,13 +190,13 @@ export function PlayAudioButton({
   return (
     <div className={`relative inline-flex ${selection ? 'h-full' : ''}`}>
       <Tooltip
-        label={state !== 'idle' ? t('Stop') : t(selection ? 'Read aloud' : 'Play aloud')}
+        label={state !== 'idle' ? "Stop" : (selection ? 'Read aloud' : 'Play aloud')}
         side="top"
       >
         <button
           type="button"
           onClick={handleClick}
-          aria-label={state !== 'idle' ? t('Stop') : t(selection ? 'Read aloud' : 'Play aloud')}
+          aria-label={state !== 'idle' ? "Stop" : (selection ? 'Read aloud' : 'Play aloud')}
           aria-busy={state === 'loading'}
           className={
             className ??

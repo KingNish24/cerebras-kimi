@@ -4,7 +4,7 @@ import dynamic from "@/shared/router/dynamic";
 import Link from "@/shared/router/link";
 import { useEffect } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useSettingsAccess } from "@/features/settings/navigation/SettingsAccessProvider";
 import {
@@ -214,7 +214,7 @@ const AGENTS = {
 } as const;
 
 export default function SettingsPageContent({ section }: { section: string }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const access = useSettingsAccess();
   const { settingsLoading, saving, applying } = useSettings();
@@ -236,10 +236,10 @@ export default function SettingsPageContent({ section }: { section: string }) {
     return (
       <div className="space-y-4">
         <h1 className="text-xl font-semibold">
-          {t("This settings page is unavailable.")}
+          {"This settings page is unavailable."}
         </h1>
         <Link href="/settings/general" className="text-sm underline">
-          {t("Back to settings")}
+          {"Back to settings"}
         </Link>
       </div>
     );
@@ -249,7 +249,7 @@ export default function SettingsPageContent({ section }: { section: string }) {
     <fieldset disabled={saving || applying} aria-busy={saving || applying} className="min-w-0" data-settings-page={key}>
       {family.length > 1 && (
         <nav
-          aria-label={t("Related settings")}
+          aria-label={"Related settings"}
           className="mb-8 flex flex-wrap gap-1 border-b border-[var(--border)]/60 pb-3"
         >
           {family.map((item) => (
@@ -260,7 +260,7 @@ export default function SettingsPageContent({ section }: { section: string }) {
               aria-current={item.key === key ? "page" : undefined}
               className={`rounded-lg px-3 py-2 text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${item.key === key ? "bg-[var(--accent)] font-medium" : "text-[var(--muted-foreground)] hover:bg-[var(--accent)]/50"}`}
             >
-              {t(item.label)}
+              {(item.label)}
             </Link>
           ))}
         </nav>

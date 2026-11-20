@@ -4,7 +4,7 @@ import { pageGridClass } from '@/components/layout/FeaturePage'
 import Link from '@/shared/router/link'
 import { useState } from 'react'
 import { BookOpen, Route } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { useLearningIndex } from '@/hooks/useLearningIndex'
 import { LearningCreateMenu } from './LearningCreateMenu'
 import { scopedUrl } from '@/lib/workspace-scope'
@@ -31,7 +31,7 @@ import { LearningWays } from './LearningWays'
 import { LEARNING_SURFACES, learningSurface } from './surfaces'
 
 export function LearningDashboard() {
-  const { t } = useTranslation()
+  
   const { sources, failed, loading, retry } = useLearningIndex()
   const [kind, setKind] = useState<LearningKind | 'all'>('all')
   const [query, setQuery] = useState('')
@@ -44,24 +44,22 @@ export function LearningDashboard() {
   return (
     <LearningShell
       back={false}
-      title={t('navigation.learning')}
-      subtitle={t('navigation.learningDescription')}
+      title={"Learning"}
+      subtitle={"Your books, paths, practice and reading, all in one place."}
       action={<LearningCreateMenu />}
     >
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <div className="flex flex-wrap gap-1" role="group" aria-label={t('navigation.learningFilter')}>
-          {[{ kind: 'all', title: 'navigation.allLearning' }, ...LEARNING_SURFACES].map(surface => <button key={surface.kind} type="button" aria-pressed={kind === surface.kind} onClick={() => { setKind(surface.kind as LearningKind | 'all'); setLimit(24) }} className={`rounded-full px-3 py-1.5 text-xs transition-colors ${kind === surface.kind ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}>{t(surface.title)}</button>)}
+        <div className="flex flex-wrap gap-1" role="group" aria-label={"Learning type"}>
+          {[{ kind: 'all', title: 'navigation.allLearning' }, ...LEARNING_SURFACES].map(surface => <button key={surface.kind} type="button" aria-pressed={kind === surface.kind} onClick={() => { setKind(surface.kind as LearningKind | 'all'); setLimit(24) }} className={`rounded-full px-3 py-1.5 text-xs transition-colors ${kind === surface.kind ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}>{(surface.title)}</button>)}
         </div>
-        <input aria-label={t('navigation.searchLearning')} placeholder={t('navigation.searchLearning')} value={query} onChange={event => { setQuery(event.target.value); setLimit(24) }} className="ml-auto h-9 rounded-lg border border-border bg-transparent px-3 text-xs outline-none focus:border-ring" />
+        <input aria-label={"Search your learning"} placeholder={"Search your learning"} value={query} onChange={event => { setQuery(event.target.value); setLimit(24) }} className="ml-auto h-9 rounded-lg border border-border bg-transparent px-3 text-xs outline-none focus:border-ring" />
       </div>
-      {selectedSurface && <Link href={scopedUrl(selectedSurface.href)} prefetch={false} className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{t('Open')} {t(selectedSurface.title)} <span aria-hidden>↗</span></Link>}
+      {selectedSurface && <Link href={scopedUrl(selectedSurface.href)} prefetch={false} className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{"Open"} {(selectedSurface.title)} <span aria-hidden>↗</span></Link>}
       {failed.length > 0 && (
         <LearningErrorState
-          message={t('Some learning activity could not be loaded: {{sources}}.', {
-            sources: LEARNING_SURFACES.filter(surface => failed.includes(surface.kind))
-              .map(surface => t(surface.title))
-              .join(t('source list separator')),
-          })}
+          message={`Some learning activity could not be loaded: ${LEARNING_SURFACES.filter(surface => failed.includes(surface.kind))
+              .map(surface => (surface.title))
+              .join("source list separator")}.`}
           onRetry={retry}
         />
       )}
@@ -72,7 +70,7 @@ export function LearningDashboard() {
           {(todos.reviews.length > 0 || todos.books.length > 0) && (
             <section aria-labelledby="learning-todos" className="mb-9">
               <h2 id="learning-todos" className="mb-3 text-[13.5px] font-semibold">
-                {t('What needs your attention')}
+                {"What needs your attention"}
               </h2>
               <div className={pageGridClass(2)}>
                 {todos.reviews.map(topic => (
@@ -81,9 +79,7 @@ export function LearningDashboard() {
                     href={scopedUrl(masterySessionRoute(topic.path_id, 'review', topic.content_workspace_id || ''), topic.content_workspace_id || '')}
                     title={topic.name || topic.metadata.goal}
                     icon={<Route size={19} />}
-                    subtitle={t('{{count}} reviews due', {
-                      count: topic.reviews.filter(review => review.due).length,
-                    })}
+                    subtitle={`${topic.reviews.filter(review => review.due).length} reviews due`}
                     onClick={() =>
                       setPendingPrompt(
                         masteryOpeningMessage('review', t, {
@@ -105,7 +101,7 @@ export function LearningDashboard() {
                     icon={<BookOpen size={19} />}
                     subtitle={
                       <>
-                        {book.status === 'paused' ? t('Paused') : t('Compiling')}
+                        {book.status === 'paused' ? "Paused" : "Compiling"}
                         {book.status === 'paused' && book.metadata.pause_reason
                           ? ` · ${book.metadata.pause_reason}`
                           : ''}
@@ -119,7 +115,7 @@ export function LearningDashboard() {
           {recent.length > 0 && (
             <section aria-labelledby="learning-recent">
               <h2 id="learning-recent" className="mb-3 text-[13.5px] font-semibold">
-                {t('navigation.learningRecords')}
+                {"Your learning"}
               </h2>
               <div className={pageGridClass(2)}>
                 {recent.slice(0, limit).map(item => {
@@ -131,7 +127,7 @@ export function LearningDashboard() {
                       title={item.title}
                       updatedAt={item.updatedAt}
                       progress={item.progress}
-                      subtitle={t(surface.title)}
+                      subtitle={(surface.title)}
                       icon={<surface.icon size={19} />}
                     />
                   )
@@ -139,12 +135,12 @@ export function LearningDashboard() {
               </div>
             </section>
           )}
-          {recent.length > limit && <button className="mt-5 rounded-lg border border-border px-4 py-2 text-sm" onClick={() => setLimit(value => value + 24)}>{t('Show more')}</button>}
+          {recent.length > limit && <button className="mt-5 rounded-lg border border-border px-4 py-2 text-sm" onClick={() => setLimit(value => value + 24)}>{"Show more"}</button>}
           {!all.length && failed.length === 0 && <LearningWays />}
           {!recent.length && failed.length === 0 && (
             <LearningEmptyState
-              title={t(all.length ? 'navigation.noResults' : 'Your next learning journey starts here')}
-              description={t('Choose a book, a topic, a collection or a video to begin.')}
+              title={(all.length ? 'navigation.noResults' : 'Your next learning journey starts here')}
+              description={"Choose a book, a topic, a collection or a video to begin."}
             />
           )}
         </>

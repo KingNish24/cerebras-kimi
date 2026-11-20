@@ -3,7 +3,7 @@
 import { browserStorage } from '@/shared/storage'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CalendarDays, ChevronLeft, ChevronRight, Plus, Search, PanelLeft, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { PageHeader } from '@/components/layout/FeaturePage'
 import HeaderActionButton from '@/features/chat/components/HeaderActionButton'
 import { PageBarSlot, usePageBarOffers } from '@/components/layout/PageChrome'
@@ -75,7 +75,7 @@ type Panel = { anchor: Anchor } & (
 const center: Anchor = { top: 110, bottom: 140, left: 280, right: 280 }
 
 export default function CalendarPage() {
-  const { t, i18n } = useTranslation()
+  
   const hasInstance = usePageBarOffers('instance')
   const hasActions = usePageBarOffers('actions')
   const inBar = hasInstance && hasActions
@@ -102,7 +102,7 @@ export default function CalendarPage() {
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
     'unsupported'
   )
-  const weekStart = weekStartsOn(i18n.language)
+  const weekStart = weekStartsOn("en")
   const weeks = useMemo(() => monthWeeks(cursor, weekStart), [cursor, weekStart])
   const first =
     view === 'month'
@@ -170,7 +170,7 @@ export default function CalendarPage() {
         .catch(() => {
           if (!controller.signal.aborted) {
             setSearching(false)
-            setError(t('Could not load calendar.'))
+            setError("Could not load calendar.")
           }
         })
     }, 250)
@@ -178,7 +178,7 @@ export default function CalendarPage() {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [query, t])
+  }, [query])
   useEffect(() => {
     setError('')
     setScope('this')
@@ -265,7 +265,7 @@ export default function CalendarPage() {
       setError(
         e instanceof api.CalendarRequestError && e.detail
           ? e.detail
-          : t('Could not save calendar changes.')
+          : "Could not save calendar changes."
       )
     } finally {
       lock.current = false
@@ -300,7 +300,7 @@ export default function CalendarPage() {
       setError(
         e instanceof api.CalendarRequestError && e.detail
           ? e.detail
-          : t('Could not export the calendar.')
+          : "Could not export the calendar."
       )
     }
   }
@@ -338,7 +338,7 @@ export default function CalendarPage() {
     onReschedule: move,
     onDropTask: drop,
   }
-  const heading = formatDate(cursor, i18n.language, {
+  const heading = formatDate(cursor, "en", {
     year: 'numeric',
     month: 'long',
     ...(view === 'day' ? { day: 'numeric' } : {}),
@@ -350,7 +350,7 @@ export default function CalendarPage() {
     <>
       <HeaderActionButton
         icon={PanelLeft}
-        label={t('Calendar sidebar')}
+        label={"Calendar sidebar"}
         active={rail}
         onClick={() => setRail(!rail)}
       />
@@ -361,11 +361,11 @@ export default function CalendarPage() {
           setQuery('')
         }}
       >
-        {t('Today')}
+        {"Today"}
       </button>
       <div className="dt-cal-step">
-        <HeaderActionButton icon={ChevronLeft} label={t('Previous')} onClick={() => navigate(-1)} />
-        <HeaderActionButton icon={ChevronRight} label={t('Next')} onClick={() => navigate(1)} />
+        <HeaderActionButton icon={ChevronLeft} label={"Previous"} onClick={() => navigate(-1)} />
+        <HeaderActionButton icon={ChevronRight} label={"Next"} onClick={() => navigate(1)} />
       </div>
       <h2>{heading}</h2>
     </>
@@ -379,8 +379,8 @@ export default function CalendarPage() {
             <input
               ref={searchRef}
               autoFocus
-              aria-label={t('Search calendar')}
-              placeholder={t('Search events…')}
+              aria-label={"Search calendar"}
+              placeholder={"Search events…"}
               value={query}
               maxLength={200}
               onChange={e => setQuery(e.target.value)}
@@ -397,7 +397,7 @@ export default function CalendarPage() {
             {query && (
               <HeaderActionButton
                 icon={X}
-                label={t('Clear search')}
+                label={"Clear search"}
                 onClick={() => {
                   setQuery('')
                   setSearchOpen(false)
@@ -408,13 +408,13 @@ export default function CalendarPage() {
         ) : (
           <HeaderActionButton
             icon={Search}
-            label={t('Search calendar')}
-            title={`${t('Search calendar')}  /`}
+            label={"Search calendar"}
+            title={`${"Search calendar"}  /`}
             onClick={() => setSearchOpen(true)}
           />
         )}
       </div>
-      <div className="dt-cal-views" role="tablist" aria-label={t('Calendar view')}>
+      <div className="dt-cal-views" role="tablist" aria-label={"Calendar view"}>
         {(['day', 'week', 'month', 'agenda'] as const).map(v => (
           <button
             key={v}
@@ -425,7 +425,7 @@ export default function CalendarPage() {
               setPanel(null)
             }}
           >
-            {t({ day: 'Day', week: 'Week', month: 'Month', agenda: 'Agenda' }[v])}
+            {({ day: 'Day', week: 'Week', month: 'Month', agenda: 'Agenda' }[v])}
           </button>
         ))}
       </div>
@@ -435,18 +435,18 @@ export default function CalendarPage() {
         onClick={event => newEvent(anchorOf(event.currentTarget) ?? undefined)}
       >
         <Plus size={15} strokeWidth={2} />
-        <span>{t('New event')}</span>
+        <span>{"New event"}</span>
       </button>
     </>
   )
   return (
     <section
       className={`dt-calendar ${inBar ? 'has-bar-toolbar' : ''}`}
-      aria-label={t('Calendar')}
+      aria-label={"Calendar"}
       aria-busy={busy}
     >
       <div className="dt-cal-page-title">
-        <PageHeader title={t('Calendar')} icon={CalendarDays} />
+        <PageHeader title={"Calendar"} icon={CalendarDays} />
       </div>
       {inBar ? (
         <>
@@ -465,7 +465,7 @@ export default function CalendarPage() {
       )}
       {(calendarError || occurrences.error || layers.error) && (
         <div role="alert" className="dt-cal-alert is-error">
-          <span>{t('Could not load calendar.')}</span>
+          <span>{"Could not load calendar."}</span>
           <button
             onClick={() => {
               void refreshCalendars()
@@ -473,7 +473,7 @@ export default function CalendarPage() {
               layers.reload()
             }}
           >
-            {t('Retry')}
+            {"Retry"}
           </button>
         </div>
       )}
@@ -484,7 +484,7 @@ export default function CalendarPage() {
       )}
       {undo && (
         <div role="status" className="dt-cal-alert">
-          <span>{t('Event deleted')}</span>
+          <span>{"Event deleted"}</span>
           <button
             disabled={busy}
             onClick={() =>
@@ -494,9 +494,9 @@ export default function CalendarPage() {
               )
             }
           >
-            {t('Undo')}
+            {"Undo"}
           </button>
-          <button onClick={() => setUndo(null)}>{t('Dismiss')}</button>
+          <button onClick={() => setUndo(null)}>{"Dismiss"}</button>
         </div>
       )}
       <div className="dt-cal-workspace">
@@ -558,7 +558,7 @@ export default function CalendarPage() {
           anchor={panel.anchor}
           onClose={close}
           width={panel.kind === 'edit' ? 410 : 350}
-          label={t(panel.kind === 'edit' ? 'Edit event' : 'Calendar details')}
+          label={(panel.kind === 'edit' ? 'Edit event' : 'Calendar details')}
         >
           {panel.kind === 'edit' ? (
             <EventEditor
@@ -703,20 +703,14 @@ export default function CalendarPage() {
           ) : (
             <div className="dt-cal-editor">
               <strong>
-                {t(
-                  panel.kind === 'move'
-                    ? 'Reschedule event'
-                    : panel.kind === 'calendar-delete'
-                      ? 'Delete calendar and its events?'
-                      : 'Delete event?'
-                )}
+                {(panel.kind === 'move' ? 'Reschedule event' : panel.kind === 'calendar-delete' ? 'Delete calendar and its events?' : 'Delete event?')}
               </strong>
               {panel.kind !== 'calendar-delete' && panel.item.occurrence.recurring && (
                 <ScopeSelect scope={scope} onChange={setScope} />
               )}
               <div className="dt-cal-editor-footer">
                 <button disabled={busy} onClick={close}>
-                  {t('Cancel')}
+                  {"Cancel"}
                 </button>
                 <button
                   className="dt-cal-primary"
@@ -748,7 +742,7 @@ export default function CalendarPage() {
                     )
                   }
                 >
-                  {t(panel.kind === 'move' ? 'Save' : 'Delete')}
+                  {(panel.kind === 'move' ? 'Save' : 'Delete')}
                 </button>
               </div>
             </div>

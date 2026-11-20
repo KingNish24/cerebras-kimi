@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Check, Loader2, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import type { PartnerInvocation } from "@/lib/partner-groups-api";
 
@@ -27,7 +27,7 @@ export default function InvocationCard({
   onApprove: () => void;
   onReject: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const { status } = invocation;
 
   return (
@@ -56,7 +56,7 @@ export default function InvocationCard({
             ) : (
               <Check size={11} />
             )}
-            {t("Let them discuss")}
+            {"Let them discuss"}
           </button>
           <button
             type="button"
@@ -64,7 +64,7 @@ export default function InvocationCard({
             disabled={busy}
             className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 text-[11px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
           >
-            {t("Not now")}
+            {"Not now"}
           </button>
         </div>
       ) : (
@@ -72,23 +72,21 @@ export default function InvocationCard({
           {status === "approved" ? (
             <>
               <Loader2 size={11} className="animate-spin" />
-              {t("Waiting for {{name}}", {
-                name: invocation.target_partner_name,
-              })}
+              {`Waiting for ${invocation.target_partner_name}`}
             </>
           ) : status === "completed" ? (
             <>
               <Check size={11} />
-              {t("Discussed")}
+              {"Discussed"}
             </>
           ) : status === "failed" ? (
             <span className="text-red-500">
-              {invocation.error || t("Follow-up failed")}
+              {invocation.error || "Follow-up failed"}
             </span>
           ) : (
             <>
               <X size={11} />
-              {t("Declined")}
+              {"Declined"}
             </>
           )}
         </div>

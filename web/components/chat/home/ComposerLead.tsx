@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import { X, type LucideIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 export interface LeadToken {
@@ -43,7 +43,7 @@ export function ComposerLead({
   hidden: boolean;
   onWidth: (width: number) => void;
 }) {
-  const { t } = useTranslation();
+  
   const ref = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const node = ref.current;
@@ -64,16 +64,16 @@ export function ComposerLead({
     <div
       ref={ref}
       role="group"
-      aria-label={t("composer.lead.label")}
+      aria-label={"Used by this message"}
       className="dt-composer-lead"
       data-hidden={hidden || undefined}
     >
       {shown.map((token, index) => (
-        <Tooltip key={token.key} label={`${t("Remove")} ${token.label}`} description={token.kind} side="top">
+        <Tooltip key={token.key} label={`${"Remove"} ${token.label}`} description={token.kind} side="top">
           <button
             type="button"
             onClick={token.onRemove}
-            aria-label={`${t("Remove")} ${token.kind} · ${token.label}`}
+            aria-label={`${"Remove"} ${token.kind} · ${token.label}`}
             data-armed={(armed && !rest.length && index === shown.length - 1) || undefined}
             className="dt-lead-token"
           >

@@ -12,7 +12,7 @@ import {
   useState,
   type RefObject,
 } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Bot, Check, Languages, UserRound } from "lucide-react";
 import ChatSpaceMenu, {
   type ChatSpaceSelectionCounts,
@@ -190,7 +190,7 @@ export const ComposerInput = memo(
     },
     ref,
   ) {
-    const { t } = useTranslation();
+    
     const [input, setInput] = useState("");
     const [leadWidth, setLeadWidth] = useState(0);
     const [armed, setArmed] = useState(false);
@@ -212,10 +212,10 @@ export const ComposerInput = memo(
     const languageChoices = useMemo(() => [
       {
         value: "",
-        label: `${t("Account default")} (${replyLanguageDefaultLabel})`,
+        label: `${"Account default"} (${replyLanguageDefaultLabel})`,
       },
       ...replyLanguageOptions,
-    ], [replyLanguageDefaultLabel, replyLanguageOptions, t]);
+    ], [replyLanguageDefaultLabel, replyLanguageOptions]);
     // Main chat passes ``onSelectAgent`` → ``@`` picks a connected agent. Other
     // surfaces (quiz follow-up) omit it and keep the @ Space menu.
     const agentMentionMode = Boolean(onSelectAgent);
@@ -552,10 +552,8 @@ export const ComposerInput = memo(
     const basePlaceholder =
       placeholder ??
       (isVisualizeMode
-        ? t(
-            "Describe the chart, diagram, or animation you want to visualize...",
-          )
-        : t("How can I help you today?"));
+        ? "Describe the chart, diagram, or animation you want to visualize..."
+        : "How can I help you today?");
     // The Tab hint used to be a separate pill under the textarea — its own
     // block that appeared and disappeared as the offer came and went,
     // nudging the composer's height around it. Rendered as an overlay over
@@ -576,17 +574,17 @@ export const ComposerInput = memo(
           >
             <div
               role="listbox"
-              aria-label={t("Talk to an agent")}
+              aria-label={"Talk to an agent"}
               className="w-[300px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1 shadow-lg backdrop-blur-md"
             >
               <div className="px-3 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--muted-foreground)]">
-                {t("Talk to an agent")}
+                {"Talk to an agent"}
               </div>
               {filteredAgents.length === 0 ? (
                 <div className="px-3 py-2 text-[12px] text-[var(--muted-foreground)]">
                   {connectedAgents.length === 0
-                    ? t("No connected agents — connect one in My Agents.")
-                    : t("No matching agent")}
+                    ? "No connected agents — connect one in My Agents."
+                    : "No matching agent"}
                 </div>
               ) : (
                 <div className="max-h-[260px] overflow-y-auto">
@@ -649,7 +647,7 @@ export const ComposerInput = memo(
             <div
               id={slashListId}
               role="listbox"
-              aria-label={t("Commands")}
+              aria-label={"Commands"}
               className="w-[300px] rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1.5 shadow-lg backdrop-blur-md"
             >
               {slashCommands.map((command, index) => {
@@ -680,8 +678,8 @@ export const ComposerInput = memo(
                     </span>
                     <span className="min-w-0 truncate text-[var(--muted-foreground)]">
                       {command === "persona"
-                        ? t("Switch the persona for this chat session")
-                        : t("Switch the reply language for this chat session")}
+                        ? "Switch the persona for this chat session"
+                        : "Switch the reply language for this chat session"}
                     </span>
                   </button>
                 );
@@ -699,11 +697,11 @@ export const ComposerInput = memo(
             <div
               id={languageListId}
               role="listbox"
-              aria-label={t("Reply language")}
+              aria-label={"Reply language"}
               className="w-[300px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1.5 shadow-lg backdrop-blur-md"
             >
               <div className="px-3 pb-1 pt-1 text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--muted-foreground)]">
-                {t("Reply language")}
+                {"Reply language"}
               </div>
               <div ref={languageListRef} className="max-h-[280px] overflow-y-auto">
                 {languageChoices.map((choice, index) => {
@@ -772,7 +770,7 @@ export const ComposerInput = memo(
             // what's on screen.
             aria-label={
               placeholderCompletion
-                ? `${placeholderCompletion} — ${t("Tab to complete")}`
+                ? `${placeholderCompletion} — ${"Tab to complete"}`
                 : undefined
             }
             className="w-full resize-none overflow-hidden bg-transparent text-[16px] leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
@@ -791,7 +789,7 @@ export const ComposerInput = memo(
                 {placeholderCompletion}
               </span>
               <span className="shrink-0 whitespace-nowrap">
-                → {t("Tab to complete")}
+                → {"Tab to complete"}
               </span>
             </div>
           ) : null}

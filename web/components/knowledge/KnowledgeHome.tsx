@@ -3,7 +3,7 @@
 import { FeaturePage, PageHeader, pageActionClass, pageGridClass } from '@/components/layout/FeaturePage'
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   BookOpen,
   Check,
@@ -48,32 +48,32 @@ interface KnowledgeHomeProps {
 }
 
 function EngineStatusBadge({ status }: { status: ProviderConnectionStatus }) {
-  const { t } = useTranslation();
+  
   if (status === "ready") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
         <Check className="h-3 w-3" />
-        {t("Ready")}
+        {"Ready"}
       </span>
     );
   }
   if (status === "needs_key") {
     return (
       <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-        {t("Needs key")}
+        {"Needs key"}
       </span>
     );
   }
   if (status === "needs_setup") {
     return (
       <span className="inline-flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
-        {t("Needs setup")}
+        {"Needs setup"}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-      {t("Not installed")}
+      {"Not installed"}
     </span>
   );
 }
@@ -104,7 +104,7 @@ export default function KnowledgeHome({
   activeSection,
   onSectionChange,
 }: KnowledgeHomeProps) {
-  const { t } = useTranslation();
+  
   const [query, setQuery] = useState("");
   const providerName = (id: string) =>
     providers.find((p) => p.id === id)?.name ??
@@ -142,31 +142,27 @@ export default function KnowledgeHome({
     () => [
       {
         id: "obsidian" as const,
-        name: t("Obsidian"),
-        description: t(
-          "A live Obsidian vault — browsed and edited in place, no index.",
-        ),
-        action: t("Connect vault"),
+        name: "Obsidian",
+        description: "A live Obsidian vault — browsed and edited in place, no index.",
+        action: "Connect vault",
         count: kbs.filter((kb) => kb.metadata?.type === "obsidian").length,
       },
       {
         id: "marginnote4" as const,
-        name: t("MarginNote 4"),
-        description: t(
-          "Notes, excerpts and cards pushed in by the MarginNote 4 add-on.",
-        ),
-        action: t("Connect library"),
+        name: "MarginNote 4",
+        description: "Notes, excerpts and cards pushed in by the MarginNote 4 add-on.",
+        action: "Connect library",
         count: kbs.filter((kb) => kb.metadata?.type === "marginnote4").length,
       },
       {
         id: "kiwix" as const,
-        name: t("Kiwix / ZIM"),
-        description: t("Search an existing ZIM archive through kiwix-serve. Articles stay on the server."),
-        action: t("Connect archive"),
+        name: "Kiwix / ZIM",
+        description: "Search an existing ZIM archive through kiwix-serve. Articles stay on the server.",
+        action: "Connect archive",
         count: kbs.filter((kb) => kb.metadata?.type === "kiwix").length,
       },
     ],
-    [kbs, t],
+    [kbs],
   );
 
   const renderProvider = (provider: RagProviderSummary) => {
@@ -199,7 +195,7 @@ export default function KnowledgeHome({
                 {provider.default_mode}
               </span>
             )}
-          {count > 0 && <span>{t("{{count}} KB", { count })}</span>}
+          {count > 0 && <span>{`${count} KB`}</span>}
           <ChevronRight className="ml-auto h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-60" />
         </div>
       </button>
@@ -225,7 +221,7 @@ export default function KnowledgeHome({
       <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-[var(--muted-foreground)]">
         <span>{source.action}</span>
         {source.count > 0 && (
-          <span>{t("{{count}} connected", { count: source.count })}</span>
+          <span>{`${source.count} connected`}</span>
         )}
         <ChevronRight className="ml-auto h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-60" />
       </div>
@@ -236,8 +232,8 @@ export default function KnowledgeHome({
     <FeaturePage>
         <PageHeader
           icon={BookOpen}
-          title={t("Knowledge Center")}
-          description={t("Manage your knowledge bases and retrieval engines.")}
+          title={"Knowledge Center"}
+          description={"Manage your knowledge bases and retrieval engines."}
           action={
           <button
             type="button"
@@ -245,26 +241,26 @@ export default function KnowledgeHome({
             className={pageActionClass()}
           >
             <Plus size={14} />
-            {t("New knowledge base")}
+            {"New knowledge base"}
           </button>
           }
         />
 
         <div
           role="tablist"
-          aria-label={t("Knowledge Center")}
+          aria-label={"Knowledge Center"}
           className="mt-6 flex border-b border-[var(--border)]"
         >
           {[
             {
               id: "knowledge-bases" as const,
-              label: t("Knowledge bases"),
+              label: "Knowledge bases",
               count: kbs.length,
               icon: Database,
             },
             {
               id: "knowledge-engines" as const,
-              label: t("Knowledge engines"),
+              label: "Knowledge engines",
               count: providers.length + externalSources.length,
               icon: Cpu,
             },
@@ -311,7 +307,7 @@ export default function KnowledgeHome({
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                 <Database className="h-3.5 w-3.5" />
-                {t("Knowledge bases")}
+                {"Knowledge bases"}
                 <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
                   {kbs.length}
                 </span>
@@ -325,7 +321,7 @@ export default function KnowledgeHome({
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder={t("Search knowledge bases…")}
+                    placeholder={"Search knowledge bases…"}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-1.5 pl-8 pr-3 text-[12px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--foreground)]/25"
                   />
                 </div>
@@ -336,12 +332,10 @@ export default function KnowledgeHome({
               <div className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-12 text-center">
                 <Database className="mx-auto mb-2 h-6 w-6 text-[var(--muted-foreground)]" />
                 <div className="text-[13px] font-medium text-[var(--foreground)]">
-                  {t("No knowledge bases yet")}
+                  {"No knowledge bases yet"}
                 </div>
                 <p className="mx-auto mt-1 max-w-sm text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-                  {t(
-                    "Create one to upload documents and retrieve grounded context in chat.",
-                  )}
+                  {"Create one to upload documents and retrieve grounded context in chat."}
                 </p>
                 <button
                   type="button"
@@ -349,12 +343,12 @@ export default function KnowledgeHome({
                   className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
                 >
                   <Plus size={14} />
-                  {t("New knowledge base")}
+                  {"New knowledge base"}
                 </button>
               </div>
             ) : filteredKbs.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-[12px] text-[var(--muted-foreground)]">
-                {t("No matches")}
+                {"No matches"}
               </div>
             ) : (
               <div className={pageGridClass(2)}>
@@ -395,7 +389,7 @@ export default function KnowledgeHome({
                             </span>
                             {docs !== null && (
                               <span>
-                                {docs} {t("docs")}
+                                {docs} {"docs"}
                               </span>
                             )}
                           </div>
@@ -419,10 +413,10 @@ export default function KnowledgeHome({
                 <HardDrive className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                 <div>
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
-                    {t("Local engines")}
+                    {"Local engines"}
                   </h2>
                   <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-                    {t("Indexes and retrieves on this device.")}
+                    {"Indexes and retrieves on this device."}
                   </p>
                 </div>
               </div>
@@ -436,10 +430,10 @@ export default function KnowledgeHome({
                 <Server className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                 <div>
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
-                    {t("Server engines")}
+                    {"Server engines"}
                   </h2>
                   <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-                    {t("Connects to a retrieval server you operate.")}
+                    {"Connects to a retrieval server you operate."}
                   </p>
                 </div>
               </div>
@@ -453,10 +447,10 @@ export default function KnowledgeHome({
                 <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                 <div>
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
-                    {t("Cloud services")}
+                    {"Cloud services"}
                   </h2>
                   <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-                    {t("Managed providers connected with account credentials.")}
+                    {"Managed providers connected with account credentials."}
                   </p>
                 </div>
               </div>
@@ -470,12 +464,10 @@ export default function KnowledgeHome({
                 <Library className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                 <div>
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
-                    {t("External knowledge sources")}
+                    {"External knowledge sources"}
                   </h2>
                   <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-                    {t(
-                      "Connect live libraries and note apps without rebuilding an index.",
-                    )}
+                    {"Connect live libraries and note apps without rebuilding an index."}
                   </p>
                 </div>
               </div>

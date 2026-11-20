@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   cancelCodeBuddyLogin,
@@ -23,7 +23,7 @@ import {
 } from "@/lib/codebuddy-auth";
 
 export function CodeBuddyAuthCard() {
-  const { t } = useTranslation();
+  
   const [status, setStatus] = useState<CodeBuddyAuthStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
@@ -109,19 +109,19 @@ export function CodeBuddyAuthCard() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[13px] font-medium text-[var(--foreground)]">
-            {t("codebuddy.auth.title")}
+            {"CodeBuddy account"}
           </p>
           <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-            {t("codebuddy.auth.description")}
+            {"Uses the CodeBuddy login stored on this machine. No API key is sent to DeepTutor."}
           </p>
         </div>
-        <Tooltip label={t("codebuddy.auth.checkAgain")} side="top">
+        <Tooltip label={"Check login status"} side="top">
           <button
             type="button"
             onClick={() => void refresh()}
             disabled={loading || working}
             className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
-            aria-label={t("codebuddy.auth.checkAgain")}
+            aria-label={"Check login status"}
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -132,15 +132,15 @@ export function CodeBuddyAuthCard() {
         {loading ? (
           <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {t("codebuddy.auth.checking")}
+            {"Checking local CodeBuddy login…"}
           </span>
         ) : status?.connection === "connected" ? (
           <>
             <span className="inline-flex items-center gap-1.5 text-[12px] text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-3.5 w-3.5" />
               {status.user_label
-                ? t("codebuddy.auth.loggedInAs", { user: status.user_label })
-                : t("codebuddy.auth.loggedIn")}
+                ? `Logged in as ${status.user_label}`
+                : "Logged in"}
             </span>
             <button
               type="button"
@@ -153,14 +153,14 @@ export function CodeBuddyAuthCard() {
               ) : (
                 <LogOut className="h-3.5 w-3.5" />
               )}
-              {t("codebuddy.auth.logout")}
+              {"Sign out"}
             </button>
           </>
         ) : status && shouldPollCodeBuddyAuth(status) ? (
           <>
             <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              {t("codebuddy.auth.waiting")}
+              {"Waiting for browser authorization…"}
             </span>
             {status.authorize_url && (
               <a
@@ -170,7 +170,7 @@ export function CodeBuddyAuthCard() {
                 className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] px-2.5 py-1.5 text-[12px] hover:bg-[var(--muted)]"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                {t("codebuddy.auth.openAuthorization")}
+                {"Open authorization"}
               </a>
             )}
             <button
@@ -180,7 +180,7 @@ export function CodeBuddyAuthCard() {
               className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
             >
               <X className="h-3.5 w-3.5" />
-              {t("codebuddy.auth.cancel")}
+              {"Cancel"}
             </button>
           </>
         ) : (
@@ -195,14 +195,14 @@ export function CodeBuddyAuthCard() {
             ) : (
               <LogIn className="h-3.5 w-3.5" />
             )}
-            {t("codebuddy.auth.signIn")}
+            {"Sign in with CodeBuddy"}
           </button>
         )}
       </div>
 
       {(requestError || status?.connection === "error") && (
         <p className="mt-2 text-[11px] text-red-500">
-          {requestError || t(errorKey)}
+          {requestError || (errorKey)}
         </p>
       )}
     </div>

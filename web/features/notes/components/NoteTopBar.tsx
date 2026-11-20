@@ -2,7 +2,7 @@
 
 import { useState, type MouseEvent } from 'react'
 import Link from '@/shared/router/link'
-import { useTranslation } from 'react-i18next'
+
 import {
   ArrowLeft,
   Bookmark,
@@ -33,7 +33,7 @@ function Crumb({
   page: Pick<NoteSummary, 'id' | 'title' | 'icon'>
   onNavigate: (event: MouseEvent<HTMLAnchorElement>, id: string) => void
 }) {
-  const { t } = useTranslation()
+  
   return (
     <Link
       href={`/co-writer/${page.id}`}
@@ -41,7 +41,7 @@ function Crumb({
       onClick={event => onNavigate(event, page.id)}
     >
       {page.icon && <span aria-hidden>{page.icon}</span>}
-      <span className="truncate">{page.title || t('Untitled')}</span>
+      <span className="truncate">{page.title || "Untitled"}</span>
     </Link>
   )
 }
@@ -82,7 +82,7 @@ export default function NoteTopBar({
   onInsertFavorite: () => void
   onExport: (format: 'md' | 'docx' | 'anki') => void
 }) {
-  const { t } = useTranslation()
+  
   const feature = useShelfFeature('/co-writer')
   const [open, setOpenState] = useState(false)
   const [moving, setMoving] = useState(false)
@@ -115,10 +115,10 @@ export default function NoteTopBar({
   }
   return (
     <header className="dt-note-topbar">
-      <Tooltip label={t(treeOpen ? 'Hide pages' : 'Show pages')} side="bottom">
+      <Tooltip label={(treeOpen ? 'Hide pages' : 'Show pages')} side="bottom">
         <button
           className="dt-note-icon-button"
-          aria-label={t('Page tree')}
+          aria-label={"Page tree"}
           aria-expanded={treeOpen}
           aria-controls="note-page-tree"
           onClick={onToggleTree}
@@ -128,7 +128,7 @@ export default function NoteTopBar({
       </Tooltip>
       {/* 「笔记本 / … / this page」: the feature opens onto the home shelf,
           the page onto every other page of the notebook. */}
-      <nav className="dt-note-breadcrumb" aria-label={t('Breadcrumb')}>
+      <nav className="dt-note-breadcrumb" aria-label={"Breadcrumb"}>
         {!embedded && feature && (
           <span className="dt-note-feature">
             <FeatureCrumb section={feature.section} page={feature.page} />
@@ -154,26 +154,26 @@ export default function NoteTopBar({
               label={
                 <>
                   {page.icon && <span aria-hidden>{page.icon} </span>}
-                  {page.title || t('Untitled')}
+                  {page.title || "Untitled"}
                 </>
               }
               separator={shown.length > 0 || (!embedded && Boolean(feature))}
-              menuLabel={t('Notebook pages')}
+              menuLabel={"Pages"}
               currentId={page.id}
               load={async () =>
                 [...pages]
                   .sort((a, b) => (b.updated_at ?? 0) - (a.updated_at ?? 0))
                   .map(entry => ({
                     id: entry.id,
-                    label: `${entry.icon ? `${entry.icon} ` : ''}${entry.title || t('Untitled')}`,
+                    label: `${entry.icon ? `${entry.icon} ` : ''}${entry.title || "Untitled"}`,
                     updatedAt: entry.updated_at,
                   }))
               }
               onSelect={item => onOpenPage(item.id)}
-              create={{ label: t('New page'), onSelect: onCreatePage }}
-              all={embedded ? undefined : { label: t('All pages'), href: '/co-writer' }}
+              create={{ label: "New page", onSelect: onCreatePage }}
+              all={embedded ? undefined : { label: "All pages", href: '/co-writer' }}
             />
-            {page.pinned && <Pin size={11} className="shrink-0 opacity-50" aria-label={t('Pinned page')} />}
+            {page.pinned && <Pin size={11} className="shrink-0 opacity-50" aria-label={"Pinned page"} />}
           </span>
         )}
       </nav>
@@ -181,7 +181,7 @@ export default function NoteTopBar({
         className={`dt-note-status ${status === 'Save failed' ? 'is-error' : ''} ${status === 'Saved' ? 'is-idle' : ''}`}
         role="status"
       >
-        {t(status)}
+        {(status)}
       </span>
       <button
         className={`dt-note-ask ${companionOpen ? 'is-active' : ''}`}
@@ -189,13 +189,13 @@ export default function NoteTopBar({
         onClick={onToggleCompanion}
       >
         <Sparkles size={14} strokeWidth={1.8} />
-        {t('Ask Dito')}
+        {"Ask Dito"}
       </button>
       <div ref={menu} className="relative">
-        <Tooltip label={t('More')} side="bottom" suppressed={open}>
+        <Tooltip label={"More"} side="bottom" suppressed={open}>
           <button
             className="dt-note-icon-button"
-            aria-label={t('More page actions')}
+            aria-label={"More page actions"}
             aria-haspopup="menu"
             aria-expanded={open}
             disabled={!page}
@@ -210,12 +210,12 @@ export default function NoteTopBar({
               <>
                 <button role="menuitem" className="dt-menu-item is-quiet" onClick={() => setMoving(false)}>
                   <ArrowLeft size={14} />
-                  {t('Move to')}
+                  {"Move to"}
                 </button>
                 <input
                   className="dt-note-menu-search"
-                  aria-label={t('Search pages')}
-                  placeholder={t('Search pages…')}
+                  aria-label={"Search pages"}
+                  placeholder={"Search pages…"}
                   value={query}
                   autoFocus
                   onChange={e => setQuery(e.target.value)}
@@ -229,7 +229,7 @@ export default function NoteTopBar({
                       onClick={() => move(null)}
                     >
                       <FileText size={14} />
-                      <span className="flex-1 truncate">{t('Top level')}</span>
+                      <span className="flex-1 truncate">{"Top level"}</span>
                       {!page.parent_id && <Check size={14} />}
                     </button>
                   )}
@@ -244,12 +244,12 @@ export default function NoteTopBar({
                       <span className="dt-note-menu-glyph" aria-hidden>
                         {target.icon || <FileText size={14} />}
                       </span>
-                      <span className="flex-1 truncate">{target.title || t('Untitled')}</span>
+                      <span className="flex-1 truncate">{target.title || "Untitled"}</span>
                       {page.parent_id === target.id && <Check size={14} />}
                     </button>
                   ))}
                   {!targets.length && query.trim() && (
-                    <p className="dt-note-menu-empty">{t('No matching pages')}</p>
+                    <p className="dt-note-menu-empty">{"No matching pages"}</p>
                   )}
                 </div>
               </>
@@ -265,7 +265,7 @@ export default function NoteTopBar({
                   }}
                 >
                   {page.pinned ? <PinOff size={14} /> : <Pin size={14} />}
-                  {t(page.pinned ? 'Unpin' : 'Pin to top')}
+                  {(page.pinned ? 'Unpin' : 'Pin to top')}
                 </button>
                 <button
                   role="menuitem"
@@ -274,7 +274,7 @@ export default function NoteTopBar({
                   onClick={() => setMoving(true)}
                 >
                   <CornerUpRight size={14} />
-                  <span className="flex-1">{t('Move to')}</span>
+                  <span className="flex-1">{"Move to"}</span>
                   <ChevronRight size={13} className="opacity-50" />
                 </button>
                 <button
@@ -286,7 +286,7 @@ export default function NoteTopBar({
                   }}
                 >
                   <Bookmark size={14} />
-                  {t('Insert favorite')}
+                  {"Insert favorite"}
                 </button>
                 <div className="dt-menu-divider" />
                 <button
@@ -298,7 +298,7 @@ export default function NoteTopBar({
                   }}
                 >
                   <FileDown size={14} />
-                  {t('Export Markdown')}
+                  {"Export Markdown"}
                 </button>
                 <button
                   role="menuitem"
@@ -309,7 +309,7 @@ export default function NoteTopBar({
                   }}
                 >
                   <FileDown size={14} />
-                  <span className="flex-1">{t('Export Word')}</span>
+                  <span className="flex-1">{"Export Word"}</span>
                 </button>
                 {pageHasFlashcards(page.blocks) && (
                   <button
@@ -321,11 +321,11 @@ export default function NoteTopBar({
                     }}
                   >
                     <FileDown size={14} />
-                    {t('Export flashcards (Anki)')}
+                    {"Export flashcards (Anki)"}
                   </button>
                 )}
                 <p className="dt-note-menu-note">
-                  {t('Word export keeps text and source links; interactive blocks become static.')}
+                  {"Word export keeps text and source links; interactive blocks become static."}
                 </p>
               </>
             )}

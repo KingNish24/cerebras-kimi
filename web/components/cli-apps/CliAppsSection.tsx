@@ -17,7 +17,7 @@ import {
   Terminal,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { normalizeLanguage } from "@/i18n/languages";
 import { formatDate } from "@/lib/datetime";
 
@@ -52,8 +52,8 @@ type Tab = "installed" | "store";
  * store read-only and the page says so rather than offering a button that 403s.
  */
 export default function CliAppsSection() {
-  const { t, i18n } = useTranslation();
-  const zh = i18n.language?.toLowerCase().startsWith("zh");
+  
+  const zh = "en"?.toLowerCase().startsWith("zh");
   const { isAdmin, loading: authLoading } = useAuthStatus();
 
   const [state, setState] = useState<CliAppState | null>(null);
@@ -89,13 +89,11 @@ export default function CliAppsSection() {
   return (
     <div className="space-y-6">
       <SpaceSectionHeader
-        title={t("CLI Apps")}
-        description={t(
-          "Command-line tools from the CLI-Anything catalog. Once enabled, the chat agent can call them directly.",
-        )}
+        title={"CLI Apps"}
+        description={"Command-line tools from the CLI-Anything catalog. Once enabled, the chat agent can call them directly."}
         meta={
           <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
-            {t("{{count}} available to you", { count: usable })}
+            {`${usable} available to you`}
           </span>
         }
       />
@@ -103,13 +101,13 @@ export default function CliAppsSection() {
       <div className="border-b border-[var(--border)]">
         <div className="flex gap-1">
           <TabButton
-            label={t("Installed")}
+            label={"Installed"}
             count={apps.length}
             active={tab === "installed"}
             onClick={() => setTab("installed")}
           />
           <TabButton
-            label={t("Store")}
+            label={"Store"}
             active={tab === "store"}
             onClick={() => setTab("store")}
           />
@@ -117,7 +115,7 @@ export default function CliAppsSection() {
       </div>
 
       {loadError !== null && (
-        <Banner tone="error">{loadError || t("Something went wrong.")}</Banner>
+        <Banner tone="error">{loadError || "Something went wrong."}</Banner>
       )}
 
       {tab === "store" ? (
@@ -156,7 +154,7 @@ function Installed({
   onChanged: (next: CliAppState) => void;
   onBrowse: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -179,19 +177,15 @@ function Installed({
   if (apps.length === 0) {
     return (
       <Empty
-        title={t("No CLI apps installed")}
+        title={"No CLI apps installed"}
         body={
           isAdmin
-            ? t(
-                "Browse the store to install one. Installing runs the app's own installer on this server, so it stays an administrator action.",
-              )
-            : t(
-                "An administrator installs these, then assigns them to accounts. Browse the store to see what you could ask for by name.",
-              )
+            ? "Browse the store to install one. Installing runs the app's own installer on this server, so it stays an administrator action."
+            : "An administrator installs these, then assigns them to accounts. Browse the store to see what you could ask for by name."
         }
         action={
           <button type="button" onClick={onBrowse} className={secondaryButton}>
-            {t("Browse the store")}
+            {"Browse the store"}
           </button>
         }
       />
@@ -201,13 +195,11 @@ function Installed({
   return (
     <div className="space-y-4">
       {error !== null && (
-        <Banner tone="error">{error || t("Something went wrong.")}</Banner>
+        <Banner tone="error">{error || "Something went wrong."}</Banner>
       )}
       {state?.access.exec_denied && (
         <Banner tone="warn">
-          {t(
-            "Your account cannot run code, so no CLI app is available to the chat agent — even the ones listed below.",
-          )}
+          {"Your account cannot run code, so no CLI app is available to the chat agent — even the ones listed below."}
         </Banner>
       )}
 
@@ -236,7 +228,7 @@ function Installed({
                   {!app.in_catalog && (
                     <span className={warnChip}>
                       <AlertTriangle size={9} />
-                      {t("No longer in the catalog")}
+                      {"No longer in the catalog"}
                     </span>
                   )}
                 </div>
@@ -247,18 +239,14 @@ function Installed({
                 )}
                 <p className="mt-1.5 text-[11px] text-[var(--muted-foreground)]/80">
                   {app.installed_at
-                    ? t("Installed {{when}}", {
-                        when: formatDay(app.installed_at, i18n.language),
-                      })
+                    ? `Installed ${formatDay(app.installed_at, "en")}`
                     : ""}
                   {app.pin ? ` · ${app.pin.slice(0, 12)}` : ""}
                 </p>
                 {!app.granted && (
                   <p className="mt-2 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
                     <Lock size={11} />
-                    {t(
-                      "Not assigned to your account. An administrator has to grant it before you can use it.",
-                    )}
+                    {"Not assigned to your account. An administrator has to grant it before you can use it."}
                   </p>
                 )}
               </div>
@@ -268,7 +256,7 @@ function Installed({
                   <Toggle
                     on={app.enabled}
                     busy={busy === app.id}
-                    label={app.enabled ? t("On") : t("Off")}
+                    label={app.enabled ? "On" : "Off"}
                     onToggle={() =>
                       void act(app.id, () =>
                         setCliAppEnabled(app.id, !app.enabled),
@@ -277,7 +265,7 @@ function Installed({
                   />
                 )}
                 {isAdmin && (
-                  <Tooltip label={t("Uninstall")} side="top">
+                  <Tooltip label={"Uninstall"} side="top">
                     <button
                       type="button"
                       disabled={busy === app.id}
@@ -285,16 +273,14 @@ function Installed({
                         if (
                           typeof window !== "undefined" &&
                           !window.confirm(
-                            t('Remove "{{name}}" from this deployment?', {
-                              name: app.display_name,
-                            }),
+                            `Remove "${app.display_name}" from this deployment?`,
                           )
                         ) {
                           return;
                         }
                         void act(app.id, () => uninstallCliApp(app.id));
                       }}
-                      aria-label={t("Uninstall")}
+                      aria-label={"Uninstall"}
                       className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500 disabled:opacity-50"
                     >
                       <Trash2 size={14} />
@@ -308,12 +294,12 @@ function Installed({
       </ul>
 
       <p className="text-[11.5px] text-[var(--muted-foreground)]">
-        {t("Installed under")}{" "}
+        {"Installed under"}{" "}
         <span className="font-mono text-[var(--foreground)]/65">
           {"data/cli-apps"}
         </span>
         {" — "}
-        {t("mounted read-only into the sandbox that runs them.")}
+        {"mounted read-only into the sandbox that runs them."}
       </p>
       <TrademarkNote />
     </div>
@@ -331,7 +317,7 @@ function Store({
   adminKnown: boolean;
   onChanged: (next: CliAppState) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -447,9 +433,7 @@ function Store({
     <div className="space-y-4">
       {!isAdmin && adminKnown && (
         <Banner tone="info">
-          {t(
-            "Installing runs the app's own installer on this server, so it is an administrator action. You can browse here and ask for an app by name.",
-          )}
+          {"Installing runs the app's own installer on this server, so it is an administrator action. You can browse here and ask for an app by name."}
         </Banner>
       )}
 
@@ -461,7 +445,7 @@ function Store({
         <input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder={t("Search CLI apps…")}
+          placeholder={"Search CLI apps…"}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-2 pl-9 pr-3 text-[13px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/70 focus:border-[var(--ring)]"
           spellCheck={false}
         />
@@ -469,7 +453,7 @@ function Store({
 
       <div className="flex flex-wrap items-center gap-1.5">
         <FilterChip
-          label={t("All")}
+          label={"All"}
           active={category === ""}
           onClick={() => setCategory("")}
         />
@@ -484,7 +468,7 @@ function Store({
         ))}
         <span className="mx-1 h-4 w-px bg-[var(--border)]" aria-hidden />
         <FilterChip
-          label={t("Include unavailable")}
+          label={"Include unavailable"}
           active={showAll}
           muted
           onClick={() => setShowAll((prev) => !prev)}
@@ -492,15 +476,15 @@ function Store({
       </div>
 
       {error !== null && (
-        <Banner tone="warn">{error || t("Something went wrong.")}</Banner>
+        <Banner tone="warn">{error || "Something went wrong."}</Banner>
       )}
 
       {loading ? (
         <Spinner />
       ) : entries.length === 0 ? (
         <Empty
-          title={t("Nothing matches")}
-          body={t("Try a different search or clear the filters.")}
+          title={"Nothing matches"}
+          body={"Try a different search or clear the filters."}
         />
       ) : (
         <>
@@ -515,10 +499,7 @@ function Store({
           </ul>
           <div className="flex items-center justify-center gap-3 pt-1">
             <span className="text-[11.5px] text-[var(--muted-foreground)]">
-              {t("{{shown}} of {{total}} apps", {
-                shown: entries.length,
-                total,
-              })}
+              {`${entries.length} of ${total} apps`}
             </span>
             {cursor && (
               <button
@@ -528,7 +509,7 @@ function Store({
                 className={secondaryButton}
               >
                 {loadingMore && <Loader2 className="h-3 w-3 animate-spin" />}
-                {t("Load more")}
+                {"Load more"}
               </button>
             )}
           </div>
@@ -545,7 +526,7 @@ function EntryCard({
   entry: CliCatalogEntry;
   onOpen: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <li
       role="button"
@@ -569,11 +550,11 @@ function EntryCard({
             {entry.installed && (
               <span className={okChip}>
                 <CheckCircle2 size={9} />
-                {t("Installed")}
+                {"Installed"}
               </span>
             )}
             {!entry.installable && (
-              <span className={warnChip}>{t("Unavailable here")}</span>
+              <span className={warnChip}>{"Unavailable here"}</span>
             )}
           </div>
           <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
@@ -602,7 +583,7 @@ function EntryDetail({
   onBack: () => void;
   onInstalled: (next: CliAppState) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [installing, setInstalling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [log, setLog] = useState<string | null>(null);
@@ -636,7 +617,7 @@ function EntryDetail({
           strokeWidth={1.8}
           className="transition-transform group-hover:-translate-x-0.5"
         />
-        {t("Back to the store")}
+        {"Back to the store"}
       </button>
 
       <div className="flex items-start gap-3.5">
@@ -655,7 +636,7 @@ function EntryDetail({
             {entry.installed && (
               <span className={okChip}>
                 <CheckCircle2 size={9} />
-                {t("Installed")}
+                {"Installed"}
               </span>
             )}
           </div>
@@ -671,27 +652,25 @@ function EntryDetail({
       </div>
 
       {entry.requires && (
-        <Field label={t("Requirements")}>{entry.requires}</Field>
+        <Field label={"Requirements"}>{entry.requires}</Field>
       )}
       {entry.install_notes && (
-        <Field label={t("Notes")}>{entry.install_notes}</Field>
+        <Field label={"Notes"}>{entry.install_notes}</Field>
       )}
       {entry.installable && (
-        <Field label={t("Installs")}>
+        <Field label={"Installs"}>
           <code className="break-all font-mono text-[11.5px] text-[var(--foreground)]/80">
             {entry.install_target}
           </code>
           {!entry.pinned && (
             <span className="mt-1.5 block text-[11.5px] text-amber-700 dark:text-amber-400">
-              {t(
-                "This resolves to whatever that source publishes today — it is not pinned to a reviewed revision.",
-              )}
+              {"This resolves to whatever that source publishes today — it is not pinned to a reviewed revision."}
             </span>
           )}
         </Field>
       )}
       {entry.installable && (
-        <Field label={t("Tool name in chat")}>
+        <Field label={"Tool name in chat"}>
           <code className="font-mono text-[11.5px] text-[var(--foreground)]/80">
             {`cli_${entry.id}`}
           </code>
@@ -708,7 +687,7 @@ function EntryDetail({
               className="inline-flex items-center gap-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
             >
               <ExternalLink size={13} />
-              {t("Website")}
+              {"Website"}
             </a>
           )}
           {entry.source_url && (
@@ -719,7 +698,7 @@ function EntryDetail({
               className="inline-flex items-center gap-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
             >
               <BookOpen size={13} />
-              {t("Source")}
+              {"Source"}
             </a>
           )}
         </div>
@@ -727,19 +706,17 @@ function EntryDetail({
 
       {!entry.installable ? (
         <Banner tone="warn">
-          <span className="font-medium">{t("Not installable here.")}</span>{" "}
+          <span className="font-medium">{"Not installable here."}</span>{" "}
           {entry.unsupported_reason}
         </Banner>
       ) : !adminKnown ? null : !isAdmin ? (
         <Banner tone="info">
-          {t(
-            "Only an administrator can install this. Once installed they can assign it to your account.",
-          )}
+          {"Only an administrator can install this. Once installed they can assign it to your account."}
         </Banner>
       ) : (
         <div className="space-y-3 rounded-xl border border-[var(--border)]/60 bg-[var(--card)]/40 px-5 py-5">
           {error !== null && (
-            <Banner tone="error">{error || t("Something went wrong.")}</Banner>
+            <Banner tone="error">{error || "Something went wrong."}</Banner>
           )}
           <div className="flex flex-wrap items-center gap-3">
             <button
@@ -755,20 +732,18 @@ function EntryDetail({
               ) : (
                 <Download className="h-3.5 w-3.5" />
               )}
-              {entry.installed ? t("Reinstall") : t("Install")}
+              {entry.installed ? "Reinstall" : "Install"}
             </button>
             <span className="text-[11.5px] text-[var(--muted-foreground)]">
               {installing
-                ? t(
-                    "This can take a few minutes — it builds a fresh environment.",
-                  )
-                : t("Runs on this server as the application user.")}
+                ? "This can take a few minutes — it builds a fresh environment."
+                : "Runs on this server as the application user."}
             </span>
           </div>
           {log && (
             <details className="rounded-lg border border-[var(--border)]/60 bg-[var(--background)]/60">
               <summary className="cursor-pointer px-3 py-2 text-[12px] font-medium text-[var(--muted-foreground)]">
-                {t("Install output")}
+                {"Install output"}
               </summary>
               <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all px-3 pb-3 font-mono text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                 {log}
@@ -800,18 +775,18 @@ const warnChip =
  * default branch holds today" is invisible otherwise.
  */
 function TrustChip({ trust, pinned }: { trust: string; pinned: boolean }) {
-  const { t } = useTranslation();
+  
   if (trust === "first-party") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400">
         <ShieldCheck size={9} />
-        {t("Pinned")}
+        {"Pinned"}
       </span>
     );
   }
   return (
     <span className={warnChip}>
-      {pinned ? t("Third-party") : t("Third-party, unpinned")}
+      {pinned ? "Third-party" : "Third-party, unpinned"}
     </span>
   );
 }

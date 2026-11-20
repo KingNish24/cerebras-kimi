@@ -12,7 +12,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { bookApi } from "@/lib/book-api";
-import { useTranslation } from "react-i18next";
+
 import { ActivityMark } from "@/components/activity";
 import type { ActivityState, MarkTone } from "@/components/activity";
 import type { Book, Page } from "@/lib/book-types";
@@ -75,7 +75,7 @@ export default function BookSidebar({
   visitedPageIds,
   bookmarkedPageIds,
 }: BookSidebarProps) {
-  const { t } = useTranslation();
+  
   const [collapsed, setCollapsed] = useState(false);
   const [confirmRebuild, setConfirmRebuild] = useState(false);
 
@@ -90,19 +90,19 @@ export default function BookSidebar({
   if (collapsed) {
     return (
       <aside className="flex h-full w-14 flex-col items-center gap-3 bg-[rgb(var(--dt-ink,55_53_47)/0.022)] px-2 py-4">
-        <Tooltip label={t("All books")}>
+        <Tooltip label={"All books"}>
           <button
             onClick={onBackToLibrary}
-            aria-label={t("All books")}
+            aria-label={"All books"}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)]"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
         </Tooltip>
-        <Tooltip label={t("Expand chapters")}>
+        <Tooltip label={"Expand chapters"}>
           <button
             onClick={() => setCollapsed(false)}
-            aria-label={t("Expand chapters")}
+            aria-label={"Expand chapters"}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)]"
           >
             <ChevronRight className="h-4 w-4" />
@@ -113,10 +113,10 @@ export default function BookSidebar({
           {pages.map((page, index) => {
             const active = page.id === selectedPageId;
             return (
-              <Tooltip key={page.id} label={page.title || t("Untitled")}>
+              <Tooltip key={page.id} label={page.title || "Untitled"}>
                 <button
                   onClick={() => onSelectPage?.(page.id)}
-                  aria-label={page.title || t("Untitled")}
+                  aria-label={page.title || "Untitled"}
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-[11px] font-semibold ${
                     active
                       ? "bg-[var(--primary)]/15 text-[var(--foreground)]"
@@ -144,12 +144,12 @@ export default function BookSidebar({
           onClick={onBackToLibrary}
           className="dt-section-back inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> {t("All books")}
+          <ArrowLeft className="h-3.5 w-3.5" /> {"All books"}
         </button>
-        <Tooltip label={t("Collapse chapters")}>
+        <Tooltip label={"Collapse chapters"}>
           <button
             onClick={() => setCollapsed(true)}
-            aria-label={t("Collapse chapters")}
+            aria-label={"Collapse chapters"}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)]"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -161,13 +161,13 @@ export default function BookSidebar({
         <div className="px-1">
           <div
             className="line-clamp-2 text-sm font-semibold text-[var(--foreground)]"
-            title={book.title || t("Untitled book")}
+            title={book.title || "Untitled book"}
           >
-            {book.title || t("Untitled book")}
+            {book.title || "Untitled book"}
           </div>
           <div className="mt-0.5 text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
-            {t(book.status)} ·{" "}
-            {t("{{count}} chapters", { count: book.chapter_count || 0 })}
+            {(book.status)} ·{" "}
+            {`${book.chapter_count || 0} chapters`}
           </div>
         </div>
       )}
@@ -179,7 +179,7 @@ export default function BookSidebar({
           className="dt-quiet-button h-8 justify-start text-xs font-medium"
         >
           <Download className="h-3.5 w-3.5" />
-          {t("Export Markdown")}
+          {"Export Markdown"}
         </a>
       )}
 
@@ -212,16 +212,14 @@ export default function BookSidebar({
               <RotateCcw className="h-3.5 w-3.5" />
             )}
             {rebuilding
-              ? t("Rebuilding…")
+              ? "Rebuilding…"
               : confirmRebuild
-                ? t("Click again to rebuild")
-                : t("Rebuild book")}
+                ? "Click again to rebuild"
+                : "Rebuild book"}
           </button>
           {confirmRebuild && !rebuilding && (
             <p className="px-1 text-[10px] leading-snug text-[var(--muted-foreground)]">
-              {t(
-                "Replaces every generated chapter and clears your reading progress, bookmarks, notes and edits.",
-              )}
+              {"Replaces every generated chapter and clears your reading progress, bookmarks, notes and edits."}
             </p>
           )}
         </div>
@@ -230,12 +228,12 @@ export default function BookSidebar({
       <section className="flex-1 overflow-y-auto">
         {pages.length === 0 ? (
           <div className="rounded-xl bg-[var(--background)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-            {t("Pages will appear here once the spine is confirmed.")}
+            {"Pages will appear here once the spine is confirmed."}
           </div>
         ) : (
           <>
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-              {t("Chapters")}
+              {"Chapters"}
             </div>
             <ul className="space-y-1">
               {pages.map((page) => {
@@ -243,9 +241,9 @@ export default function BookSidebar({
                 const isOverview = page.content_type === "overview";
                 const bookmarked = bookmarkedPageIds?.includes(page.id) ?? false;
                 const hint = [
-                  page.title || t("Untitled"),
-                  t(STATUS_LABEL[page.status] || page.status),
-                  bookmarked ? t("Bookmarked") : null,
+                  page.title || "Untitled",
+                  (STATUS_LABEL[page.status] || page.status),
+                  bookmarked ? "Bookmarked" : null,
                 ]
                   .filter(Boolean)
                   .join(" · ");
@@ -267,7 +265,7 @@ export default function BookSidebar({
                           <Compass className="mt-[1px] h-3 w-3 shrink-0 text-[var(--primary)]" />
                         )}
                         <span className="line-clamp-2">
-                          {page.title || t("Untitled")}
+                          {page.title || "Untitled"}
                         </span>
                       </span>
                       <span className="flex shrink-0 items-center gap-1.5">

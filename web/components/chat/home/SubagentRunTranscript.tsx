@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import { getTraceMeta } from "@/features/chat/trace";
 
@@ -97,7 +97,7 @@ function BulletLine({
 }
 
 function SubagentLine({ channel, text }: { channel: string; text: string }) {
-  const { t } = useTranslation();
+  
   switch (channel) {
     case "question":
     case "user_question":
@@ -106,7 +106,7 @@ function SubagentLine({ channel, text }: { channel: string; text: string }) {
       return (
         <div className="mt-1 border-t border-[var(--border)]/60 pt-2.5 first:mt-0 first:border-t-0 first:pt-0">
           <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--primary)]">
-            {channel === "user_question" ? t("You ask") : t("DeepTutor asks")}
+            {channel === "user_question" ? "You ask" : "DeepTutor asks"}
           </div>
           <div className="whitespace-pre-wrap break-words leading-[1.6] text-[var(--foreground)]">
             {text}
@@ -150,8 +150,8 @@ function SubagentLine({ channel, text }: { channel: string; text: string }) {
 }
 
 function ToolResultBlock({ text }: { text: string }) {
-  const { t, i18n } = useTranslation();
-  const zh = i18n.language?.toLowerCase().startsWith("zh");
+  
+  const zh = "en"?.toLowerCase().startsWith("zh");
   const [open, setOpen] = useState(false);
   const lines = text.split("\n");
   const overflow = lines.length > RESULT_PREVIEW_LINES;
@@ -177,10 +177,10 @@ function ToolResultBlock({ text }: { text: string }) {
           {open
             ? zh
               ? "收起"
-              : t("collapse")
+              : "collapse"
             : zh
               ? `… 展开 +${hidden} 行`
-              : t("… +{{count}} lines", { count: hidden })}
+              : `… +${hidden} lines`}
         </button>
       )}
     </div>

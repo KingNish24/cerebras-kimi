@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type CSSProperties } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { AlignLeft, Bell, Clock, MapPin, Plus, Repeat2, X } from 'lucide-react'
 import HeaderActionButton from '@/features/chat/components/HeaderActionButton'
 import { addDays, dateKey, formatWeekday, fromDateKey } from '../model/dates'
@@ -40,7 +40,7 @@ export function EventEditor({
   onSave: (draft: EventDraft, scope: EditScope) => void
   onClose: () => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const [draft, setDraft] = useState(initial)
   const [scope, setScope] = useState<EditScope>('this')
   const [preset, setPreset] = useState<RepeatPreset>(detectPreset(initial.rrule, initial.start))
@@ -69,15 +69,15 @@ export function EventEditor({
       }}
     >
       <div className="dt-cal-editor-head">
-        <span className="dt-cal-editor-kicker">{t(recurring ? 'Edit event' : 'New event')}</span>
-        <HeaderActionButton icon={X} label={t('Close')} onClick={onClose} />
+        <span className="dt-cal-editor-kicker">{(recurring ? 'Edit event' : 'New event')}</span>
+        <HeaderActionButton icon={X} label={"Close"} onClick={onClose} />
       </div>
       <fieldset disabled={busy}>
         <input
           autoFocus
           className="dt-cal-title-input"
-          aria-label={t('Event title')}
-          placeholder={t('Add a title')}
+          aria-label={"Event title"}
+          placeholder={"Add a title"}
           maxLength={200}
           value={draft.title}
           onChange={e => change({ title: e.target.value })}
@@ -88,7 +88,7 @@ export function EventEditor({
             <div className="dt-cal-when">
               <input
                 required
-                aria-label={t('Starts')}
+                aria-label={"Starts"}
                 type={draft.allDay ? 'date' : 'datetime-local'}
                 value={dateValue(draft.start, draft.allDay)}
                 onChange={e => {
@@ -106,7 +106,7 @@ export function EventEditor({
               <span aria-hidden>→</span>
               <input
                 required
-                aria-label={t('Ends')}
+                aria-label={"Ends"}
                 type={draft.allDay ? 'date' : 'datetime-local'}
                 value={dateValue(lastDay(draft), draft.allDay)}
                 onChange={e => {
@@ -127,10 +127,10 @@ export function EventEditor({
                   onChange={e => setDraft(withAllDay(draft, e.target.checked))}
                 />
                 <span aria-hidden />
-                {t('All day')}
+                {"All day"}
               </label>
               <select
-                aria-label={t('Repeat')}
+                aria-label={"Repeat"}
                 className="dt-cal-inline-select"
                 value={preset}
                 onChange={e => {
@@ -158,7 +158,7 @@ export function EventEditor({
                   ] as const
                 ).map(([value, label]) => (
                   <option key={value} value={value}>
-                    {t(label)}
+                    {(label)}
                   </option>
                 ))}
               </select>
@@ -166,9 +166,9 @@ export function EventEditor({
             {preset === 'custom' && (
               <div className="dt-cal-repeat-editor">
                 <div className="dt-cal-repeat-line">
-                  {t('Every')}
+                  {"Every"}
                   <input
-                    aria-label={t('Every')}
+                    aria-label={"Every"}
                     type="number"
                     min={1}
                     max={1000}
@@ -178,14 +178,14 @@ export function EventEditor({
                     }
                   />
                   <select
-                    aria-label={t('Frequency')}
+                    aria-label={"Frequency"}
                     className="dt-cal-inline-select"
                     value={rule.freq}
                     onChange={e => applyRule({ ...rule, freq: e.target.value as Frequency })}
                   >
                     {(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'] as const).map(f => (
                       <option key={f} value={f}>
-                        {t({ DAILY: 'Days', WEEKLY: 'Weeks', MONTHLY: 'Months', YEARLY: 'Years' }[f])}
+                        {({ DAILY: 'Days', WEEKLY: 'Weeks', MONTHLY: 'Months', YEARLY: 'Years' }[f])}
                       </option>
                     ))}
                   </select>
@@ -206,15 +206,15 @@ export function EventEditor({
                           })
                         }
                       >
-                        {formatWeekday(new Date(2026, 9, 18 + i), i18n.language)}
+                        {formatWeekday(new Date(2026, 9, 18 + i), "en")}
                       </button>
                     ))}
                   </div>
                 )}
                 <div className="dt-cal-repeat-line">
-                  {t('Repeat ends')}
+                  {"Repeat ends"}
                   <select
-                    aria-label={t('Repeat ends')}
+                    aria-label={"Repeat ends"}
                     className="dt-cal-inline-select"
                     value={rule.end.kind}
                     onChange={e =>
@@ -229,13 +229,13 @@ export function EventEditor({
                       })
                     }
                   >
-                    <option value="never">{t('Never')}</option>
-                    <option value="until">{t('On date')}</option>
-                    <option value="count">{t('After occurrences')}</option>
+                    <option value="never">{"Never"}</option>
+                    <option value="until">{"On date"}</option>
+                    <option value="count">{"After occurrences"}</option>
                   </select>
                   {rule.end.kind === 'count' && (
                     <input
-                      aria-label={t('Occurrence count')}
+                      aria-label={"Occurrence count"}
                       type="number"
                       min={1}
                       max={10000}
@@ -250,7 +250,7 @@ export function EventEditor({
                   )}
                   {rule.end.kind === 'until' && (
                     <input
-                      aria-label={t('Repeat until')}
+                      aria-label={"Repeat until"}
                       type="date"
                       min={dateKey(draft.start)}
                       value={rule.end.date}
@@ -272,23 +272,23 @@ export function EventEditor({
           />
           <div className="dt-cal-field-body dt-cal-field-row">
             <select
-              aria-label={t('Calendar')}
+              aria-label={"Calendar"}
               className="dt-cal-inline-select"
               value={calendarId}
               onChange={e => change({ calendarId: e.target.value })}
             >
               {calendars.map(c => (
                 <option key={c.id} value={c.id}>
-                  {calendarName(c, t)}
+                  {calendarName(c)}
                 </option>
               ))}
             </select>
-            <div className="dt-cal-colors" role="radiogroup" aria-label={t('Event color')}>
+            <div className="dt-cal-colors" role="radiogroup" aria-label={"Event color"}>
               <button
                 type="button"
                 role="radio"
                 aria-checked={!draft.color}
-                aria-label={t('Calendar color')}
+                aria-label={"Calendar color"}
                 className="is-default"
                 style={{ '--ev': calendarColor } as CSSProperties}
                 onClick={() => change({ color: null })}
@@ -311,8 +311,8 @@ export function EventEditor({
           <MapPin aria-hidden size={15} />
           <input
             className="dt-cal-field-input"
-            aria-label={t('Location')}
-            placeholder={t('Add location')}
+            aria-label={"Location"}
+            placeholder={"Add location"}
             value={draft.location}
             maxLength={300}
             onChange={e => change({ location: e.target.value })}
@@ -322,8 +322,8 @@ export function EventEditor({
           <AlignLeft aria-hidden size={15} />
           <textarea
             className="dt-cal-field-input"
-            aria-label={t('Notes')}
-            placeholder={t('Add notes')}
+            aria-label={"Notes"}
+            placeholder={"Add notes"}
             rows={2}
             maxLength={5000}
             value={draft.notes}
@@ -332,15 +332,15 @@ export function EventEditor({
         </div>
         <div className="dt-cal-field">
           <Bell aria-hidden size={15} />
-          <div className="dt-cal-field-body dt-cal-reminder-chips" aria-label={t('Reminders')}>
+          <div className="dt-cal-field-body dt-cal-reminder-chips" aria-label={"Reminders"}>
             {draft.reminders.map(minutes => (
               <span className="dt-cal-reminder-chip" key={minutes}>
                 {minutes < 0
-                  ? t('On the day at 09:00')
-                  : t('{{minutes}} minutes before', { minutes })}
+                  ? "On the day at 09:00"
+                  : `${minutes} minutes before`}
                 <button
                   type="button"
-                  aria-label={t('Remove reminder')}
+                  aria-label={"Remove reminder"}
                   onClick={() => change({ reminders: draft.reminders.filter(n => n !== minutes) })}
                 >
                   <X size={11} />
@@ -352,7 +352,7 @@ export function EventEditor({
                 <span className="dt-cal-reminder-add">
                   <input
                     autoFocus
-                    aria-label={t('Minutes before')}
+                    aria-label={"Minutes before"}
                     type="number"
                     min={0}
                     max={40320}
@@ -367,7 +367,7 @@ export function EventEditor({
                       if (e.key === 'Escape') setAddingReminder(false)
                     }}
                   />
-                  {t('minutes before')}
+                  {"minutes before"}
                   <button
                     type="button"
                     onClick={() => {
@@ -375,7 +375,7 @@ export function EventEditor({
                       setAddingReminder(false)
                     }}
                   >
-                    {t('Add reminder')}
+                    {"Add reminder"}
                   </button>
                 </span>
               ) : (
@@ -385,7 +385,7 @@ export function EventEditor({
                   onClick={() => setAddingReminder(true)}
                 >
                   <Plus size={13} />
-                  {t(draft.reminders.length ? 'Add reminder' : 'Add a reminder')}
+                  {(draft.reminders.length ? 'Add reminder' : 'Add a reminder')}
                 </button>
               ))}
             {draft.allDay && !draft.reminders.includes(-540) && draft.reminders.length < 5 && (
@@ -394,7 +394,7 @@ export function EventEditor({
                 className="dt-cal-ghost-button"
                 onClick={() => change({ reminders: [...draft.reminders, -540] })}
               >
-                {t('On the day at 09:00')}
+                {"On the day at 09:00"}
               </button>
             )}
           </div>
@@ -412,7 +412,7 @@ export function EventEditor({
       </fieldset>
       {!valid && (
         <p role="alert" className="dt-cal-editor-error">
-          {t('The end must be after the start.')}
+          {"The end must be after the start."}
         </p>
       )}
       {error && (
@@ -422,10 +422,10 @@ export function EventEditor({
       )}
       <div className="dt-cal-editor-footer">
         <button type="button" onClick={onClose} disabled={busy}>
-          {t('Cancel')}
+          {"Cancel"}
         </button>
         <button className="dt-cal-primary" disabled={busy || !valid} type="submit">
-          {t(busy ? 'Saving…' : 'Save')}
+          {(busy ? 'Saving…' : 'Save')}
         </button>
       </div>
     </form>
@@ -441,16 +441,16 @@ export function ScopeSelect({
   onChange: (scope: EditScope) => void
   allowThis?: boolean
 }) {
-  const { t } = useTranslation()
+  
   return (
     <label>
-      {t('Apply to')}
+      {"Apply to"}
       <select value={scope} onChange={e => onChange(e.target.value as EditScope)}>
         <option value="this" disabled={!allowThis}>
-          {t('This event')}
+          {"This event"}
         </option>
-        <option value="following">{t('This and following events')}</option>
-        <option value="all">{t('All events in the series')}</option>
+        <option value="following">{"This and following events"}</option>
+        <option value="all">{"All events in the series"}</option>
       </select>
     </label>
   )

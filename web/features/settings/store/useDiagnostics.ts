@@ -116,7 +116,7 @@ export function useDiagnostics({
           state: "running",
           fingerprint,
           logs: "",
-          message: t("Testing model…"),
+          message: "Testing model…",
         },
       }));
       const update = (patch: Partial<ModelTestState>) =>
@@ -156,7 +156,7 @@ export function useDiagnostics({
           throw new Error(
             typeof payload.detail === "string"
               ? payload.detail
-              : t("Could not start diagnostics."),
+              : "Could not start diagnostics.",
           );
         }
         const source = new EventSource(
@@ -213,21 +213,21 @@ export function useDiagnostics({
             if (entry.type === "completed") finish("success", entry.message);
             if (entry.type === "failed") finish("failed", entry.message);
           } catch {
-            finish("failed", t("Could not read the model test result."));
+            finish("failed", "Could not read the model test result.");
           }
         };
         source.onerror = () =>
-          finish("failed", t("Diagnostics stream disconnected."));
+          finish("failed", "Diagnostics stream disconnected.");
       } catch (error) {
         finish(
           "failed",
           error instanceof Error
             ? error.message
-            : t("Could not start diagnostics."),
+            : "Could not start diagnostics.",
         );
       }
     },
-    [catalogEditable, draft, t],
+    [catalogEditable, draft],
   );
 
   return {

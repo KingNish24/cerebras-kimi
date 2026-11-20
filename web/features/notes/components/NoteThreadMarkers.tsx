@@ -14,7 +14,7 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useTranslation } from 'react-i18next'
+
 import { Sparkles, Trash2 } from 'lucide-react'
 import type { NoteThreadView } from '../model/threads'
 import { relativeTime } from '../model/threads'
@@ -165,12 +165,12 @@ export default function NoteThreadMarkers({
 }
 
 function AskOrb({ top, onAsk }: { top: number; onAsk: () => void }) {
-  const { t } = useTranslation()
+  
   return (
     <button
       className="dt-note-ask-orb"
       style={{ top }}
-      aria-label={t('Ask Dito about this line')}
+      aria-label={"Ask Dito about this line"}
       onMouseDown={e => e.preventDefault()}
       onClick={onAsk}
     >
@@ -196,7 +196,7 @@ function OrbStack({
   onOpen: (sessionId: string) => void
   onDelete: (sessionId: string) => Promise<void>
 }) {
-  const { t } = useTranslation()
+  
   const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
   const [hover, setHover] = useState(false)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -236,7 +236,7 @@ function OrbStack({
             className="dt-note-orb"
             data-state={thread.state}
             data-active={thread.session_id === activeSessionId || undefined}
-            aria-label={`${t('Open conversation')}: ${thread.label}`}
+            aria-label={`${"Open conversation"}: ${thread.label}`}
             onMouseDown={e => e.preventDefault()}
             onClick={() => onOpen(thread.session_id)}
           />
@@ -279,7 +279,7 @@ function ThreadPreview({
   onOpen: (sessionId: string) => void
   onDelete: (sessionId: string) => Promise<void>
 }) {
-  const { t, i18n } = useTranslation()
+  
   const [confirming, setConfirming] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const rect = anchor.getBoundingClientRect()
@@ -292,7 +292,7 @@ function ThreadPreview({
     <div
       className="dt-popover dt-note-thread-preview"
       role="dialog"
-      aria-label={t('Conversations on this line')}
+      aria-label={"Conversations on this line"}
       style={{
         left,
         width,
@@ -307,7 +307,7 @@ function ThreadPreview({
             <span className="dt-note-thread-row-head">
               <span className="dt-note-orb is-static" data-state={thread.state} aria-hidden />
               <strong>{thread.label}</strong>
-              <time>{stateLabel(thread, t) || relativeTime(thread.updated_at, i18n.language)}</time>
+              <time>{stateLabel(thread) || relativeTime(thread.updated_at, "en")}</time>
             </span>
             {thread.last_message && (
               <span className="dt-note-thread-row-body">{thread.last_message}</span>
@@ -326,14 +326,14 @@ function ThreadPreview({
                   })
                 }}
               >
-                {t('Delete')}
+                {"Delete"}
               </button>
-              <button onClick={() => setConfirming(null)}>{t('Cancel')}</button>
+              <button onClick={() => setConfirming(null)}>{"Cancel"}</button>
             </span>
           ) : (
             <button
               className="dt-note-thread-delete"
-              aria-label={t('Delete conversation')}
+              aria-label={"Delete conversation"}
               onClick={() => setConfirming(thread.session_id)}
             >
               <Trash2 size={13} strokeWidth={1.7} />
@@ -345,8 +345,8 @@ function ThreadPreview({
   )
 }
 
-export function stateLabel(thread: NoteThreadView, t: (key: string) => string) {
-  if (thread.state === 'running') return t('Running…')
-  if (thread.state === 'failed') return t('Failed')
+export function stateLabel(thread: NoteThreadView) {
+  if (thread.state === 'running') return "Running…"
+  if (thread.state === 'failed') return "Failed"
   return ''
 }

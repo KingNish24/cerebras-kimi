@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import { CalendarSearch, CalendarX2, Repeat } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import {
   addDays,
   dateKey,
@@ -27,14 +27,13 @@ import { itemIcon, itemTitle } from './ItemChip'
 function timeLabel(
   item: CalendarItem,
   day: DateKey,
-  locale: string,
-  t: (key: string) => string
+  locale: string
 ): string {
   if (item.allDay || isSpanItem(item)) {
     const [first, last] = itemDays(item)
     return first === last
-      ? t('All day')
-      : `${t('All day')} · ${formatDate(fromDateKey(first), locale, { month: 'short', day: 'numeric' })} – ${formatDate(fromDateKey(last), locale, { month: 'short', day: 'numeric' })}`
+      ? "All day"
+      : `${"All day"} · ${formatDate(fromDateKey(first), locale, { month: 'short', day: 'numeric' })} – ${formatDate(fromDateKey(last), locale, { month: 'short', day: 'numeric' })}`
   }
   if (item.kind === 'automation') return formatTime(item.start, locale)
   const startsToday = dateKey(item.start) === day
@@ -64,8 +63,8 @@ export function AgendaView({
   onOpenFootprint: (day: FootprintDay, anchor: Anchor) => void
   onOpenDay: (day: Date) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const todayKey = dateKey(now)
   const groups = Array.from({ length: days }, (_, index) => {
     const day = addDays(from, index)
@@ -82,7 +81,7 @@ export function AgendaView({
     return (
       <div className="dt-cal-empty">
         <CalendarX2 aria-hidden size={22} strokeWidth={1.4} />
-        <p>{t('Nothing scheduled in the next {{count}} days', { count: days })}</p>
+        <p>{`Nothing scheduled in the next ${days} days`}</p>
       </div>
     )
 
@@ -116,7 +115,7 @@ export function AgendaView({
                     onClick={event => onOpenItem(item, anchorOf(event.currentTarget)!)}
                   >
                     <span className="dt-cal-agenda-time">
-                      {timeLabel(item, group.key, locale, t)}
+                      {timeLabel(item, group.key, locale)}
                     </span>
                     <span className="dt-cal-agenda-mark" aria-hidden>
                       {Icon ? (
@@ -125,7 +124,7 @@ export function AgendaView({
                         <span className="dt-cal-chip-dot" />
                       )}
                     </span>
-                    <span className="dt-cal-agenda-title">{itemTitle(item, t)}</span>
+                    <span className="dt-cal-agenda-title">{itemTitle(item)}</span>
                     {item.kind === 'event' && item.occurrence.location && (
                       <span className="dt-cal-agenda-sub">{item.occurrence.location}</span>
                     )}
@@ -142,10 +141,10 @@ export function AgendaView({
                     onOpenFootprint(group.footprint!, anchorOf(event.currentTarget)!)
                   }
                 >
-                  <span className="dt-cal-agenda-time">{t('Footprints')}</span>
+                  <span className="dt-cal-agenda-time">{"Footprints"}</span>
                   <span className="dt-cal-agenda-mark" aria-hidden />
                   <span className="dt-cal-agenda-title">
-                    {footprintSummary(group.footprint, t)}
+                    {footprintSummary(group.footprint)}
                   </span>
                 </button>
               </li>
@@ -158,15 +157,14 @@ export function AgendaView({
 }
 
 export function footprintSummary(
-  day: FootprintDay,
-  t: (key: string, options?: Record<string, unknown>) => string
+  day: FootprintDay
 ): string {
   const parts: string[] = []
-  if (day.session_count) parts.push(t('{{count}} conversations', { count: day.session_count }))
+  if (day.session_count) parts.push(`${day.session_count} conversations`)
   if (day.practice_reviews)
-    parts.push(t('{{count}} practice reviews', { count: day.practice_reviews }))
+    parts.push(`${day.practice_reviews} practice reviews`)
   if (day.mastery_evidence)
-    parts.push(t('{{count}} mastery checks', { count: day.mastery_evidence }))
+    parts.push(`${day.mastery_evidence} mastery checks`)
   return parts.join(' · ')
 }
 
@@ -184,14 +182,14 @@ export function SearchResults({
   calendars: CalendarEntry[]
   onPick: (hit: SearchHit, anchor: Anchor) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const colors = new Map(calendars.map(calendar => [calendar.id, calendar.color]))
   if (!hits || (!hits.length && !loading))
     return (
       <div className="dt-cal-empty">
         <CalendarSearch aria-hidden size={22} strokeWidth={1.4} />
-        <p>{hits ? t('No events match “{{query}}”', { query }) : t('Searching…')}</p>
+        <p>{hits ? `No events match “${query}”` : "Searching…"}</p>
       </div>
     )
   return (
@@ -221,11 +219,11 @@ export function SearchResults({
               <span className="dt-cal-agenda-mark" aria-hidden>
                 <span className="dt-cal-chip-dot" />
               </span>
-              <span className="dt-cal-agenda-title">{hit.title || t('(No title)')}</span>
+              <span className="dt-cal-agenda-title">{hit.title || "(No title)"}</span>
               {hit.location && <span className="dt-cal-agenda-sub">{hit.location}</span>}
               {hit.rrule && (
                 <Repeat
-                  aria-label={t('Repeats')}
+                  aria-label={"Repeats"}
                   size={12}
                   strokeWidth={1.8}
                   className="shrink-0 text-[var(--muted-foreground)]"

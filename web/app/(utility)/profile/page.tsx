@@ -6,7 +6,7 @@ import Link from "@/shared/router/link";
 import { useRouter } from "@/shared/router/navigation";
 import { createElement } from "react";
 import { ArrowLeft, ImageUp, KeyRound, Lock, LogOut, ShieldCheck, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus, logout } from "@/lib/auth";
 import {
   changeOwnPassword,
@@ -99,7 +99,7 @@ async function cropToSquareBlob(file: File): Promise<Blob> {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  
   const [profile, setProfile] = useState<ProfileInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -131,7 +131,7 @@ export default function ProfilePage() {
         const info = await getProfile();
         if (!cancelled) setProfile(info);
       } catch {
-        if (!cancelled) setError(t("Failed to load profile"));
+        if (!cancelled) setError("Failed to load profile");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -139,7 +139,7 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [router, t]);
+  }, [router]);
 
   const applyMarker = useCallback(async (marker: string) => {
     setBusy(true);
@@ -160,7 +160,7 @@ export default function ProfilePage() {
       setError(null);
       try {
         if (file.size > MAX_SOURCE_BYTES) {
-          throw new Error(t("Image is too large"));
+          throw new Error("Image is too large");
         }
         const blob = await cropToSquareBlob(file);
         const marker = await uploadAvatarImage(blob);
@@ -172,7 +172,7 @@ export default function ProfilePage() {
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
     },
-    [t],
+    [],
   );
 
   const handleRemoveImage = useCallback(async () => {
@@ -197,11 +197,11 @@ export default function ProfilePage() {
     setPasswordNotice(null);
     setPasswordError(null);
     if (newPassword.length < 8) {
-      setPasswordError(t("Password must be at least 8 characters"));
+      setPasswordError("Password must be at least 8 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError(t("Passwords do not match"));
+      setPasswordError("Passwords do not match");
       return;
     }
     setPasswordBusy(true);
@@ -210,21 +210,21 @@ export default function ProfilePage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setPasswordNotice(t("Password updated"));
+      setPasswordNotice("Password updated. Use it the next time you sign in.");
       setProfile((previous) => previous ? { ...previous, must_change_password: false } : previous);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       // Map the two server messages we translate; anything else is a surprise
       // and should surface verbatim rather than be swallowed.
       if (message === "Current password is incorrect") {
-        setPasswordError(t("Current password is incorrect"));
+        setPasswordError("Current password is incorrect");
       } else {
-        setPasswordError(message || t("Failed to change password"));
+        setPasswordError(message || "Failed to change password");
       }
     } finally {
       setPasswordBusy(false);
     }
-  }, [confirmPassword, currentPassword, newPassword, t]);
+  }, [confirmPassword, currentPassword, newPassword]);
 
   const descriptor = parseAvatarMarker(profile?.avatar);
   const hasImage = descriptor.kind === "image";
@@ -242,7 +242,7 @@ export default function ProfilePage() {
         ? null
         : fallback.color;
   const isAdmin = profile?.role === "admin";
-  const lang: Language = i18n.language?.startsWith("zh") ? "zh" : "en";
+  const lang: Language = "en"?.startsWith("zh") ? "zh" : "en";
   const joinedDate = profile?.created_at ? new Date(profile.created_at) : null;
   const joined =
     joinedDate && !Number.isNaN(joinedDate.getTime())
@@ -258,9 +258,9 @@ export default function ProfilePage() {
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
           >
             <ArrowLeft size={16} />
-            {t("Back")}
+            {"Back"}
           </Link>
-          <PageHeader title={t("My profile")} description={t("View your account and personalize your avatar")} />
+          <PageHeader title={"My profile"} description={"View your account and personalize your avatar"} />
         </div>
 
         {error && (
@@ -271,7 +271,7 @@ export default function ProfilePage() {
 
         {loading ? (
           <div className="flex items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] py-16 text-sm text-[var(--muted-foreground)] shadow-sm">
-            {t("Loading…")}
+            {"Loading…"}
           </div>
         ) : !profile ? null : (
           <>
@@ -298,12 +298,12 @@ export default function ProfilePage() {
                       }`}
                     >
                       {isAdmin && <ShieldCheck size={11} strokeWidth={2} />}
-                      {isAdmin ? t("Administrator") : t(accountRoleLabelKey(profile.role))}
+                      {isAdmin ? "Administrator" : (accountRoleLabelKey(profile.role))}
                     </span>
                   </div>
                   {joined && (
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                      {t("Joined")}: {joined}
+                      {"Joined"}: {joined}
                     </p>
                   )}
                 </div>
@@ -313,17 +313,17 @@ export default function ProfilePage() {
                 className="mt-5 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--background)]/60"
               >
                 <KeyRound size={14} />
-                {t("Public device sign-in")}
+                {"Public device sign-in"}
               </Link>
             </div>
 
             {/* Avatar card */}
             <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
               <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                {t("Avatar")}
+                {"Avatar"}
               </h2>
               <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-                {t("Upload a picture or pick an icon")}
+                {"Upload a picture or pick an icon"}
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-2.5">
@@ -345,7 +345,7 @@ export default function ProfilePage() {
                              hover:bg-[var(--background)]/60 disabled:opacity-50 transition-colors"
                 >
                   <ImageUp size={14} />
-                  {t("Upload image")}
+                  {"Upload image"}
                 </button>
                 {hasImage && (
                   <button
@@ -356,7 +356,7 @@ export default function ProfilePage() {
                                hover:text-red-500 disabled:opacity-50 transition-colors"
                   >
                     <Trash2 size={14} />
-                    {t("Remove photo")}
+                    {"Remove photo"}
                   </button>
                 )}
               </div>
@@ -364,7 +364,7 @@ export default function ProfilePage() {
               {/* Icon grid */}
               <div className="mt-5">
                 <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
-                  {t("Or pick an icon")}
+                  {"Or pick an icon"}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {AVATAR_ICON_NAMES.map((name) => {
@@ -395,7 +395,7 @@ export default function ProfilePage() {
                   })}
                 </div>
                 <p className="mb-2 mt-4 text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
-                  {t("Color")}
+                  {"Color"}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {AVATAR_COLOR_NAMES.map((name) => {
@@ -423,17 +423,17 @@ export default function ProfilePage() {
 
             {profile.can_change_password && profile.must_change_password && (
               <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
-                {t("You are still using the password an administrator gave you. Please set your own below.")}
+                {"You are still using the password an administrator gave you. Please set your own below."}
               </div>
             )}
 
             {/* Password card */}
             {profile.can_change_password && <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
               <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                {t("Password")}
+                {"Password"}
               </h2>
               <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-                {t("Change your password")}
+                {"Change your password"}
               </p>
 
               {passwordError && (
@@ -449,7 +449,7 @@ export default function ProfilePage() {
 
               <div className="mt-4 grid gap-3 sm:max-w-md">
                 <label className="block text-xs text-[var(--muted-foreground)]">
-                  {t("Current password")}
+                  {"Current password"}
                   <input
                     type="password"
                     value={currentPassword}
@@ -460,7 +460,7 @@ export default function ProfilePage() {
                   />
                 </label>
                 <label className="block text-xs text-[var(--muted-foreground)]">
-                  {t("New password")}
+                  {"New password"}
                   <input
                     type="password"
                     value={newPassword}
@@ -471,7 +471,7 @@ export default function ProfilePage() {
                   />
                 </label>
                 <label className="block text-xs text-[var(--muted-foreground)]">
-                  {t("Confirm new password")}
+                  {"Confirm new password"}
                   <input
                     type="password"
                     value={confirmPassword}
@@ -495,7 +495,7 @@ export default function ProfilePage() {
                                hover:bg-[var(--background)]/60 disabled:opacity-50 transition-colors"
                   >
                     <Lock size={14} />
-                    {t("Update password")}
+                    {"Update password"}
                   </button>
                 </div>
               </div>
@@ -505,10 +505,10 @@ export default function ProfilePage() {
             <div className="mt-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
               <div>
                 <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                  {t("Sign out")}
+                  {"Sign out"}
                 </h2>
                 <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-                  {t("End your session on this device")}
+                  {"End your session on this device"}
                 </p>
               </div>
               <button
@@ -518,7 +518,7 @@ export default function ProfilePage() {
                            hover:bg-red-500/10 transition-colors"
               >
                 <LogOut size={14} />
-                {t("Sign out")}
+                {"Sign out"}
               </button>
             </div>
           </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import { useEffect, useState } from "react";
 import { ArrowRight, Star, Trash2 } from "lucide-react";
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
@@ -30,7 +30,7 @@ export default function KbSettingsSection({
   onDelete,
   onMove,
 }: KbSettingsSectionProps) {
-  const { t } = useTranslation();
+  
   const [workspaces, setWorkspaces] = useState<ChatWorkspaceRegistration[]>([]);
   const [targetWorkspaceId, setTargetWorkspaceId] = useState("");
   const [movePreview, setMovePreview] = useState<KnowledgeMovePreview | null>(null);
@@ -76,15 +76,15 @@ export default function KbSettingsSection({
   // described a pipeline and a directory it never has.
   const isMarginNote = isMarginNoteKb(kb);
   const provider = isMarginNote
-    ? t("MarginNote 4")
+    ? "MarginNote 4"
     : kb.statistics?.rag_provider || "llamaindex";
   const pageIndexProvider =
     isMarginNote || !providerUsesEmbeddingMetadata(provider);
   const embeddingLabel = meta.embedding_model
     ? typeof meta.embedding_dim === "number"
-      ? `${meta.embedding_model} · ${meta.embedding_dim}${t("d")}`
+      ? `${meta.embedding_model} · ${meta.embedding_dim}${"d"}`
       : meta.embedding_model
-    : t("Default embedding");
+    : "Default embedding";
   const created = formatKnowledgeTimestamp(meta.created_at);
   const updated = formatKnowledgeTimestamp(meta.last_updated);
   const lastIndexed = formatKnowledgeTimestamp(meta.last_indexed_at);
@@ -94,33 +94,33 @@ export default function KbSettingsSection({
       <section className="space-y-3">
         <div>
           <div className="text-[13px] font-medium text-[var(--foreground)]">
-            {t("Overview")}
+            {"Overview"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-            {t("Read-only metadata. Use the actions below to manage this KB.")}
+            {"Read-only metadata. Use the actions below to manage this KB."}
           </p>
         </div>
 
         <dl className="grid gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 sm:grid-cols-2">
-          <Field label={t("RAG provider")}>{provider}</Field>
+          <Field label={"RAG provider"}>{provider}</Field>
           {!pageIndexProvider && (
-            <Field label={t("Embedding")}>{embeddingLabel}</Field>
+            <Field label={"Embedding"}>{embeddingLabel}</Field>
           )}
-          <Field label={t("Created")}>{created || "—"}</Field>
-          <Field label={t("Updated")}>{updated || "—"}</Field>
+          <Field label={"Created"}>{created || "—"}</Field>
+          <Field label={"Updated"}>{updated || "—"}</Field>
           {!isMarginNote && (
-            <Field label={t("Last indexed")}>{lastIndexed || "—"}</Field>
+            <Field label={"Last indexed"}>{lastIndexed || "—"}</Field>
           )}
           {isMarginNote
             ? meta.db_path && (
-                <Field label={t("Synced store")} className="sm:col-span-2">
+                <Field label={"Synced store"} className="sm:col-span-2">
                   <span className="font-mono text-[10.5px] text-[var(--muted-foreground)]">
                     {meta.db_path}
                   </span>
                 </Field>
               )
             : kb.path && (
-                <Field label={t("On-disk path")} className="sm:col-span-2">
+                <Field label={"On-disk path"} className="sm:col-span-2">
                   <span className="font-mono text-[10.5px] text-[var(--muted-foreground)]">
                     {kb.path}
                   </span>
@@ -132,16 +132,16 @@ export default function KbSettingsSection({
       <section className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
         <div>
           <div className="text-[12.5px] font-medium text-[var(--foreground)]">
-            {t("Default knowledge base")}
+            {"Default knowledge base"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-            {t("The default KB is selected automatically in chat & partners.")}
+            {"The default KB is selected automatically in chat & partners."}
           </p>
         </div>
         {kb.is_default ? (
           <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-100 px-2.5 py-1 text-[12px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
             <Star className="h-3 w-3" fill="currentColor" />
-            {t("Currently default")}
+            {"Currently default"}
           </span>
         ) : (
           <button
@@ -150,7 +150,7 @@ export default function KbSettingsSection({
             className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
           >
             <Star className="h-3 w-3" />
-            {t("Set as default")}
+            {"Set as default"}
           </button>
         )}
       </section>
@@ -159,10 +159,10 @@ export default function KbSettingsSection({
         <section className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
           <div>
             <div className="text-[12.5px] font-medium text-[var(--foreground)]">
-              {t("Move knowledge base")}
+              {"Move knowledge base"}
             </div>
             <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-              {t("Move this knowledge base with its documents, settings, and indexes. Existing workspace assignments are updated.")}
+              {"Move this knowledge base with its documents, settings, and indexes. Existing workspace assignments are updated."}
             </p>
           </div>
           <select
@@ -174,7 +174,7 @@ export default function KbSettingsSection({
             disabled={moveBusy}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px]"
           >
-            <option value="" disabled={sourceWorkspaceId === ""}>{t("Account library")}</option>
+            <option value="" disabled={sourceWorkspaceId === ""}>{"Account library"}</option>
             {workspaces
               .filter((row) => row.kind === "workspace" && !row.archived && row.status === "ready" && row.workspace_id !== sourceWorkspaceId)
               .map((row) => (
@@ -187,13 +187,13 @@ export default function KbSettingsSection({
             onClick={() => void reviewMove()}
             className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[12px] disabled:opacity-50"
           >
-            {t("Review move")}
+            {"Review move"}
           </button>
           {movePreview && (
             <div className="space-y-2 text-[11.5px] text-[var(--muted-foreground)]">
-              <p>{t("{{count}} files · {{bytes}} bytes", { count: movePreview.files, bytes: movePreview.bytes })}</p>
+              <p>{`${movePreview.files} files · ${movePreview.bytes} bytes`}</p>
               {movePreview.assignments.length > 0 && (
-                <p>{t("Assignments updated: {{names}}", { names: movePreview.assignments.map((row) => row.display_name).join(", ") })}</p>
+                <p>{`Assignments updated: ${movePreview.assignments.map((row) => row.display_name).join(", ")}`}</p>
               )}
               {movePreview.blockers.map((blocker) => (
                 <p key={blocker} role="alert" className="text-red-600">{blocker}</p>
@@ -206,7 +206,7 @@ export default function KbSettingsSection({
                   className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-white disabled:opacity-50"
                 >
                   <ArrowRight className="h-3 w-3" />
-                  {t("Move knowledge base")}
+                  {"Move knowledge base"}
                 </button>
               )}
             </div>
@@ -218,16 +218,12 @@ export default function KbSettingsSection({
       <section className="space-y-3 rounded-lg border border-red-200 bg-red-50/40 p-3 dark:border-red-900/60 dark:bg-red-950/15">
         <div>
           <div className="text-[12.5px] font-medium text-red-700 dark:text-red-300">
-            {t("Danger zone")}
+            {"Danger zone"}
           </div>
           <p className="mt-0.5 text-[11.5px] text-red-700/80 dark:text-red-300/80">
             {isMarginNote
-              ? t(
-                  "Deleting this library removes its synced objects and unpairs every device. Nothing in MarginNote 4 itself is touched.",
-                )
-              : t(
-                  "Deleting a knowledge base permanently removes its raw documents and index versions.",
-                )}
+              ? "Deleting this library removes its synced objects and unpairs every device. Nothing in MarginNote 4 itself is touched."
+              : "Deleting a knowledge base permanently removes its raw documents and index versions."}
           </p>
         </div>
         <button
@@ -236,7 +232,7 @@ export default function KbSettingsSection({
           className="inline-flex items-center gap-1.5 rounded-md border border-red-300 bg-red-50 px-2.5 py-1 text-[12px] font-medium text-red-700 transition-colors hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-950/50"
         >
           <Trash2 className="h-3 w-3" />
-          {t("Delete knowledge base")}
+          {"Delete knowledge base"}
         </button>
       </section>
     </div>

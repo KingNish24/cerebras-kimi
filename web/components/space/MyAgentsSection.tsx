@@ -15,7 +15,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import SessionList from "@/components/SessionList";
 import { agentGlyph } from "@/components/agents/agent-icons";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
@@ -77,17 +77,16 @@ type CardView =
 
 function scopeSummary(
   scope: AgentScope,
-  t: (key: string, opts?: Record<string, unknown>) => string,
 ): string {
   if (scope.kind === "projects")
-    return t("{{count}} projects", { count: scope.cwds.length });
+    return `${scope.cwds.length} projects`;
   if (scope.kind === "dates")
-    return t("{{count}} days", { count: scope.days.length });
-  return t("All conversations");
+    return `${scope.days.length} days`;
+  return "All conversations";
 }
 
 export default function MyAgentsSection() {
-  const { t, i18n } = useTranslation();
+  
   const router = useRouter();
   const { activeSessionId, setActiveSessionId } = useAppShell();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -193,14 +192,14 @@ export default function MyAgentsSection() {
 
   const handleDeleteSession = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm("Permanently delete this chat and its tutor threads? This cannot be undone.")) return;
       await deleteSession(sessionId);
       if (activeSessionId === sessionId) setActiveSessionId(null);
       setSessions((prev) =>
         prev.filter((session) => session.session_id !== sessionId),
       );
     },
-    [activeSessionId, setActiveSessionId, t],
+    [activeSessionId, setActiveSessionId],
   );
 
   const refreshAgent = useCallback(
@@ -209,7 +208,7 @@ export default function MyAgentsSection() {
       setNote("");
       try {
         if (!agent.handle || !(await ensureReadPermission(agent.handle))) {
-          setNote(t("Refresh failed — try re-adding the agent."));
+          setNote("Refresh failed — try re-adding the agent.");
           return;
         }
         const scan = await scanDirectory(agent.handle);
@@ -226,16 +225,16 @@ export default function MyAgentsSection() {
         await load(true);
         setNote(
           res.imported > 0
-            ? t("Added {{count}} new conversations", { count: res.imported })
-            : t("Already up to date"),
+            ? `Added ${res.imported} new conversations`
+            : "Already up to date",
         );
       } catch {
-        setNote(t("Refresh failed — try re-adding the agent."));
+        setNote("Refresh failed — try re-adding the agent.");
       } finally {
         setRefreshingId(null);
       }
     },
-    [load, t],
+    [load],
   );
 
   const commitRename = useCallback(
@@ -253,11 +252,8 @@ export default function MyAgentsSection() {
     async (agent: ImportAgent) => {
       const owned = byCard.get(agent.id) ?? [];
       const message = owned.length
-        ? t(
-            "Delete “{{name}}” and its {{count}} conversations? This removes them from your space and can't be undone.",
-            { name: agent.name, count: owned.length },
-          )
-        : t("Delete “{{name}}”?", { name: agent.name });
+        ? `Delete “${agent.name}” and its ${owned.length} conversations? This removes them from your space and can't be undone.`
+        : `Delete “${agent.name}”?`;
       if (!window.confirm(message)) return;
       await deleteAgent(agent.id);
       await Promise.allSettled(
@@ -265,7 +261,7 @@ export default function MyAgentsSection() {
       );
       await load(true);
     },
-    [byCard, load, t],
+    [byCard, load],
   );
 
   const isEmpty = !loading && cards.length === 0;
@@ -274,10 +270,8 @@ export default function MyAgentsSection() {
     <div className="space-y-6">
       <SpaceSectionHeader
         level={2}
-        title={t("Imported conversations")}
-        description={t(
-          "Import ChatGPT exports or connect Claude Code and Codex folders. Open any imported conversation to keep chatting.",
-        )}
+        title={"Imported conversations"}
+        description={"Import ChatGPT exports or connect Claude Code and Codex folders. Open any imported conversation to keep chatting."}
         action={
           !isEmpty ? (
             <button
@@ -286,7 +280,7 @@ export default function MyAgentsSection() {
               className={pageActionClass()}
             >
               <Plus className="h-3.5 w-3.5" />
-              {t("Import conversations")}
+              {"Import conversations"}
             </button>
           ) : null
         }
@@ -306,7 +300,7 @@ export default function MyAgentsSection() {
                   active={card.key === selectedKey}
                   refreshing={refreshingId === card.agent.id}
                   renaming={renamingId === card.agent.id}
-                  lang={i18n.language}
+                  lang={"en"}
                   onSelect={() => setSelectedKey(card.key)}
                   onRefresh={() => void refreshAgent(card.agent)}
                   onStartRename={() => setRenamingId(card.agent.id)}
@@ -341,7 +335,7 @@ export default function MyAgentsSection() {
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder={t("Search conversations...")}
+                  placeholder={"Search conversations..."}
                   className="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/55"
                 />
               </label>
@@ -414,7 +408,7 @@ function AgentCard({
   onEditScope: () => void;
   onDelete: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   // Member-expression render (``glyph.Icon``) — a bare local capitalized
@@ -466,20 +460,18 @@ function AgentCard({
           </div>
         )}
         <div className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
-          {SOURCE_LABEL[agent.source]} · {scopeSummary(agent.scope, t)} ·{" "}
-          {t("{{count}} conversations", { count })}
+          {SOURCE_LABEL[agent.source]} · {scopeSummary(agent.scope)} ·{" "}
+          {`${count} conversations`}
         </div>
         <div className="mt-0.5 truncate text-[10.5px] text-[var(--muted-foreground)]/80">
           {agent.lastSyncAt
-            ? t("Synced {{time}}", {
-                time: formatRelativeTime(agent.lastSyncAt / 1000, lang),
-              })
-            : t("Not synced yet")}
+            ? `Synced ${formatRelativeTime(agent.lastSyncAt / 1000, lang)}`
+            : "Not synced yet"}
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <Tooltip label={t("Refresh history")} side="top">
+        <Tooltip label={"Refresh history"} side="top">
           <button
             type="button"
             onClick={(event) => {
@@ -487,7 +479,7 @@ function AgentCard({
               onRefresh();
             }}
             disabled={refreshing}
-            aria-label={t("Refresh history")}
+            aria-label={"Refresh history"}
             className="rounded-lg border border-[var(--border)]/50 p-2 text-[var(--muted-foreground)] transition-colors hover:border-[var(--border)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
             {refreshing ? (
@@ -498,14 +490,14 @@ function AgentCard({
           </button>
         </Tooltip>
         <div ref={menuRef} className="relative">
-          <Tooltip label={t("More")} side="top">
+          <Tooltip label={"More"} side="top">
             <button
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
                 setMenuOpen((v) => !v);
               }}
-              aria-label={t("More")}
+              aria-label={"More"}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               className="rounded-lg border border-[var(--border)]/50 p-2 text-[var(--muted-foreground)] transition-colors hover:border-[var(--border)] hover:text-[var(--foreground)]"
@@ -521,7 +513,7 @@ function AgentCard({
             >
               <MenuItem
                 icon={<Pencil size={14} />}
-                label={t("Rename")}
+                label={"Rename"}
                 onClick={() => {
                   setMenuOpen(false);
                   onStartRename();
@@ -529,7 +521,7 @@ function AgentCard({
               />
               <MenuItem
                 icon={<SlidersHorizontal size={14} />}
-                label={t("Edit scope")}
+                label={"Edit scope"}
                 onClick={() => {
                   setMenuOpen(false);
                   onEditScope();
@@ -537,7 +529,7 @@ function AgentCard({
               />
               <MenuItem
                 icon={<Trash2 size={14} />}
-                label={t("Delete agent")}
+                label={"Delete agent"}
                 destructive
                 onClick={() => {
                   setMenuOpen(false);
@@ -622,7 +614,7 @@ function UngroupedCard({
   onSelect: () => void;
   onReadd: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const glyph = { Icon: agentGlyph(source) ?? Bot };
   return (
     <div
@@ -649,7 +641,7 @@ function UngroupedCard({
           {SOURCE_LABEL[source]}
         </div>
         <div className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
-          {t("Ungrouped")} · {t("{{count}} conversations", { count })}
+          {"Ungrouped"} · {`${count} conversations`}
         </div>
       </div>
       <button
@@ -660,14 +652,14 @@ function UngroupedCard({
         }}
         className="shrink-0 rounded-lg border border-[var(--border)]/50 px-2.5 py-1.5 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--border)] hover:text-[var(--foreground)]"
       >
-        {t("Import conversations")}
+        {"Import conversations"}
       </button>
     </div>
   );
 }
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
-  const { t } = useTranslation();
+  
   return (
     <section className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-6 py-16 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] text-[var(--muted-foreground)] shadow-sm">
@@ -675,12 +667,10 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       </span>
       <div className="space-y-1.5">
         <h2 className="font-serif text-[16px] font-semibold tracking-tight text-[var(--foreground)]">
-          {t("No agents yet")}
+          {"No agents yet"}
         </h2>
         <p className="mx-auto max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "Import a ChatGPT data export or add a Claude Code or Codex folder, then open any conversation to continue it in DeepTutor.",
-          )}
+          {"Import a ChatGPT data export or add a Claude Code or Codex folder, then open any conversation to continue it in DeepTutor."}
         </p>
       </div>
       <button
@@ -689,7 +679,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-4 py-2 text-[12.5px] font-medium text-[var(--background)] shadow-sm transition-opacity hover:opacity-90"
       >
         <Plus className="h-3.5 w-3.5" />
-        {t("Import conversations")}
+        {"Import conversations"}
       </button>
     </section>
   );

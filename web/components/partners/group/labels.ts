@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 
 /**
  * What kind of turn a message is, in one word.
@@ -11,16 +11,16 @@ import { useTranslation } from "react-i18next";
  * to tell an opening from a clash.
  */
 export function useSeatKindLabel() {
-  const { t } = useTranslation();
+  
   return (kind?: string): string => {
     switch (kind) {
       case "debate_rebuttal":
-        return t("Rebuttal");
+        return "Rebuttal";
       case "round_summary":
-        return t("Summary");
+        return "Summary";
       case "invocation_question":
       case "invocation_reply":
-        return t("Follow-up");
+        return "Follow-up";
       default:
         return "";
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import { Bookmark, CheckCircle2, FolderOpen, Inbox, LayoutGrid, XCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { NotebookCategory, QuestionBankStats } from "@/lib/notebook-api";
@@ -56,7 +56,7 @@ export default function BankScopeRail({
   categories,
   onSelect,
 }: BankScopeRailProps) {
-  const { t } = useTranslation();
+  
 
   const chipClass = (active: boolean) =>
     `inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] transition-colors ${
@@ -80,7 +80,7 @@ export default function BankScopeRail({
             className={chipClass(active)}
           >
             <Icon className="h-3.5 w-3.5" />
-            {t(label)}
+            {(label)}
             {!collectionMode && (
               <span
                 className={`tabular-nums text-[11px] ${

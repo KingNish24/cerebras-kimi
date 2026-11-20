@@ -2,7 +2,7 @@
 
 import { Compass } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+
 import { useGeogebraTabOpener } from "@/context/GeogebraTabContext";
 
 interface GeogebraOpenCTAProps {
@@ -30,7 +30,7 @@ export default function GeogebraOpenCTA({
   title,
   className = "",
 }: GeogebraOpenCTAProps) {
-  const { t } = useTranslation();
+  
   const controller = useGeogebraTabOpener();
 
   // A stable id keyed on the script content. This makes the tab dedupe
@@ -47,8 +47,8 @@ export default function GeogebraOpenCTA({
 
   const onClick = useCallback(() => {
     if (!controller) return;
-    controller.openTab({ id, title: title || t("GeoGebra figure"), script });
-  }, [controller, id, script, t, title]);
+    controller.openTab({ id, title: title || "GeoGebra figure", script });
+  }, [controller, id, script, title]);
 
   const disabled = !controller;
 
@@ -69,12 +69,12 @@ export default function GeogebraOpenCTA({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-medium text-[var(--foreground)]">
-            {title || t("Interactive GeoGebra figure")}
+            {title || "Interactive GeoGebra figure"}
           </span>
           <span className="block text-xs text-[var(--muted-foreground)]">
             {disabled
-              ? t("GeoGebra viewer is not available in this surface")
-              : t("Click to open an interactive GeoGebra canvas in the side viewer.")}
+              ? "GeoGebra viewer is not available in this surface"
+              : "Click to open an interactive GeoGebra canvas in the side viewer."}
           </span>
         </span>
       </button>

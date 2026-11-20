@@ -13,7 +13,7 @@ import Link from "@/shared/router/link";
 import { usePathname } from "@/shared/router/navigation";
 import { Menu } from "lucide-react";
 import { PageChromeProvider } from "./PageChrome";
-import { useTranslation } from "react-i18next";
+
 import { useDevice } from "@/hooks/useDevice";
 import type { ReactNode } from "react";
 
@@ -53,7 +53,7 @@ interface AppShellProps {
  * owns the part that is stateful anyway: whether the drawer is open.
  */
 export default function AppShell({ sidebar, pageBar, children, homeHref = "/" }: AppShellProps) {
-  const { t } = useTranslation();
+  
   const pathname = usePathname();
   const { isMobile } = useDevice();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -109,7 +109,7 @@ export default function AppShell({ sidebar, pageBar, children, homeHref = "/" }:
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              aria-label={t("Open navigation")}
+              aria-label={"Open navigation"}
               aria-expanded={drawerOpen}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
             >

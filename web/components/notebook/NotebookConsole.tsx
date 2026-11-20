@@ -13,7 +13,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import {
@@ -83,7 +83,7 @@ export default function NotebookConsole({
   initialRecordId = null,
   startCreating = false,
 }: NotebookConsoleProps) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const library = useNotebookLibrary(initialNotebookId);
   const [banner, setBanner] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function NotebookConsole({
       <button
         type="button"
         onClick={() => setBanner(null)}
-        aria-label={t("Dismiss")}
+        aria-label={"Dismiss"}
       >
         <X size={13} />
       </button>
@@ -123,7 +123,7 @@ export default function NotebookConsole({
       <FeaturePage>
         <ConsoleNotice
           tone="error"
-          title={t("Could not load your notebooks")}
+          title={"Could not load your favorites collections"}
           detail={library.error}
           action={
             <button
@@ -131,7 +131,7 @@ export default function NotebookConsole({
               onClick={() => void library.reload()}
               className="rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)]"
             >
-              {t("Retry")}
+              {"Retry"}
             </button>
           }
         />
@@ -212,7 +212,7 @@ function NotebookList({
   onError: (err: unknown) => void;
   onOpen: (id: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const { notebooks } = library;
   const [query, setQuery] = useState("");
@@ -246,7 +246,7 @@ function NotebookList({
   return (
     <FeaturePage>
       <PageHeader
-        title={t("Notebooks")}
+        title={"Favorites"}
         icon={Bookmark}
         action={
           <button
@@ -256,7 +256,7 @@ function NotebookList({
             className={pageActionClass("primary")}
           >
             <Plus size={14} strokeWidth={2} />
-            {t("New notebook")}
+            {"New collection"}
           </button>
         }
       />
@@ -268,19 +268,16 @@ function NotebookList({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={t("Search favorites…")}
-              aria-label={t("Filter notebooks")}
+              placeholder={"Search favorites…"}
+              aria-label={"Filter favorites collections"}
             />
           </label>
           <span className="dt-fav-home-count">
-            {t("{{folders}} folders · {{items}} items", {
-              folders: notebooks.length,
-              items: total,
-            })}
+            {`${notebooks.length} folders · ${total} items`}
           </span>
         </div>
       )}
-      <nav aria-label={t("Notebooks")}>
+      <nav aria-label={"Favorites"}>
         <ul className="dt-fav-grid">
           {visible.map((notebook) => (
             <CollectionCard
@@ -299,7 +296,7 @@ function NotebookList({
                 onClick={() => setCreating(true)}
               >
                 <Plus size={18} strokeWidth={1.7} />
-                {t("New notebook")}
+                {"New collection"}
               </button>
             </li>
           )}
@@ -307,17 +304,15 @@ function NotebookList({
         {!visible.length && (
           <div data-test="notebooks-empty" className="dt-fav-home-empty">
             {notebooks.length ? (
-              <p>{t("No notebooks match your filter.")}</p>
+              <p>{"No favorites collections match your filter."}</p>
             ) : (
               <>
                 <FolderGlyph tone="var(--folder-default)" files={0} size={64} />
                 <p className="dt-fav-home-empty-title">
-                  {t("No notebooks yet.")}
+                  {"No favorites collections yet."}
                 </p>
                 <p>
-                  {t(
-                    "Save a conversation, a research report or a question from anywhere in DeepTutor, and file it in a folder here.",
-                  )}
+                  {"Save a conversation, a research report or a question from anywhere in DeepTutor, and file it in a folder here."}
                 </p>
                 <button
                   type="button"
@@ -325,7 +320,7 @@ function NotebookList({
                   onClick={() => setCreating(true)}
                 >
                   <Plus size={14} strokeWidth={2} />
-                  {t("New notebook")}
+                  {"New collection"}
                 </button>
               </>
             )}
@@ -334,8 +329,8 @@ function NotebookList({
       </nav>
       {creating && (
         <NotebookMetaDialog
-          label={t("New notebook")}
-          submitLabel={t("Create")}
+          label={"New collection"}
+          submitLabel={"Create"}
           onCancel={() => setCreating(false)}
           onSubmit={async ({ name, description, color }) => {
             try {
@@ -350,8 +345,8 @@ function NotebookList({
       )}
       {editing && (
         <NotebookMetaDialog
-          label={t("Edit notebook")}
-          submitLabel={t("Save")}
+          label={"Edit collection"}
+          submitLabel={"Save"}
           initial={editing}
           onCancel={() => setEditingId(null)}
           onSubmit={async (changes) => {
@@ -380,7 +375,7 @@ function CollectionCard({
   onOpen: () => void;
   onEdit: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const count = notebook.record_count ?? records?.length ?? 0;
   const newest = [...(records ?? [])]
     .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
@@ -397,10 +392,10 @@ function CollectionCard({
               {notebook.unreadable ? (
                 <span className="inline-flex items-center gap-1 text-[var(--destructive)]">
                   <AlertTriangle size={12} />
-                  {t("Unreadable")}
+                  {"Unreadable"}
                 </span>
               ) : (
-                t("{{count}} items", { count })
+                (count === 1 ? `${count} item` : `${count} items`)
               )}
               {notebook.updated_at ? (
                 <>
@@ -423,26 +418,26 @@ function CollectionCard({
                   size={12}
                 />
                 <span className="truncate">
-                  {record.title || t("Favorite content")}
+                  {record.title || "Favorite content"}
                 </span>
               </span>
             ))}
             {count > newest.length && (
               <span className="dt-fav-card-more">
-                {t("+{{count}} more", { count: count - newest.length })}
+                {`+${count - newest.length} more`}
               </span>
             )}
           </span>
         ) : (
           <span className="dt-fav-card-files is-empty">
-            {count ? "" : t("Empty folder")}
+            {count ? "" : "Empty folder"}
           </span>
         )}
       </button>
-      <Tooltip label={t("Edit notebook")} side="bottom">
+      <Tooltip label={"Edit collection"} side="bottom">
         <button
           type="button"
-          aria-label={t("Edit notebook")}
+          aria-label={"Edit collection"}
           onClick={onEdit}
           className="dt-fav-card-edit"
         >
@@ -468,7 +463,7 @@ function NotebookDetail({
   banner: React.ReactNode;
   onError: (err: unknown) => void;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const { notebooks, selected, selectedId } = library;
   const [recordQuery, setRecordQuery] = useState("");
@@ -520,29 +515,19 @@ function NotebookDetail({
         if (collectionId && collectionId !== notebookId) {
           router.replace(notebookRoute(collectionId, initialRecordId));
         } else {
-          setRecordError(t("This favorite is no longer available."));
+          setRecordError("This favorite is no longer available.");
         }
       })
       .catch(() => {
         if (!cancelled)
           setRecordError(
-            t("Could not locate this favorite. Try reopening the source link."),
+            "Could not locate this favorite. Try reopening the source link.",
           );
       });
     return () => {
       cancelled = true;
     };
-  }, [
-    initialRecordId,
-    notebookId,
-    library.loading,
-    library.detailLoading,
-    library.detailError,
-    selected,
-    selectedId,
-    router,
-    t,
-  ]);
+  }, [initialRecordId, notebookId, library.loading, library.detailLoading, library.detailError, selected, selectedId, router]);
 
   const kinds = useMemo(
     () => [
@@ -586,14 +571,14 @@ function NotebookDetail({
     try {
       await library.remove(notebookId);
       router.replace(notebookRoute());
-      notify(t('Deleted "{{name}}"', { name }), { tone: "success" });
+      notify(`Deleted "${name}"`, { tone: "success" });
       setConfirmingDelete(false);
     } catch (err) {
       onError(err);
     } finally {
       setDeleting(false);
     }
-  }, [library, name, notebookId, onError, router, t]);
+  }, [library, name, notebookId, onError, router]);
 
   const handleExport = useCallback(async () => {
     try {
@@ -607,11 +592,11 @@ function NotebookDetail({
       anchor.download = `${name || notebookId}.md`;
       anchor.click();
       URL.revokeObjectURL(url);
-      notify(t("Notebook exported"), { tone: "success" });
+      notify("Favorites exported", { tone: "success" });
     } catch (err) {
       onError(err);
     }
-  }, [name, notebookId, onError, t]);
+  }, [name, notebookId, onError]);
 
   const openSession = useCallback(
     (sessionId: string) =>
@@ -624,13 +609,13 @@ function NotebookDetail({
     <FeaturePage>
       <PageBarSlot name="instance">
         <InstanceCrumb
-          label={name || t("Notebooks")}
+          label={name || "Favorites"}
           color={color}
-          menuLabel={t("Notebooks")}
+          menuLabel={"Favorites"}
           currentId={notebookId}
           load={loadNotebooks}
-          create={{ label: t("New notebook"), href: "/notebooks?create=1" }}
-          all={{ label: t("All notebooks"), href: notebookRoute() }}
+          create={{ label: "New collection", href: "/notebooks?create=1" }}
+          all={{ label: "All notebooks", href: notebookRoute() }}
           onRename={selected ? () => setEditing(true) : undefined}
         />
       </PageBarSlot>
@@ -646,8 +631,8 @@ function NotebookDetail({
       {missing ? (
         <ConsoleNotice
           tone="empty"
-          title={t("This notebook could not be opened")}
-          detail={library.detailError ?? t("It may have been deleted.")}
+          title={"This collection could not be opened"}
+          detail={library.detailError ?? "It may have been deleted."}
         />
       ) : (
         <>
@@ -665,23 +650,23 @@ function NotebookDetail({
             description={selected?.description || undefined}
             meta={
               <span className="text-[12.5px] tabular-nums text-[var(--muted-foreground)]">
-                {t("{{count}} items", { count: selected?.records.length ?? 0 })}
+                {(selected?.records.length ?? 0 === 1 ? `${selected?.records.length ?? 0} item` : `${selected?.records.length ?? 0} items`)}
               </span>
             }
             action={
               <div className="flex items-center gap-0.5">
                 <HeaderAction
-                  label={t("Edit notebook")}
+                  label={"Edit collection"}
                   icon={Pencil}
                   onClick={() => setEditing(true)}
                 />
                 <HeaderAction
-                  label={t("Export as Markdown")}
+                  label={"Export as Markdown"}
                   icon={Download}
                   onClick={() => void handleExport()}
                 />
                 <HeaderAction
-                  label={t("Delete notebook")}
+                  label={"Delete collection"}
                   icon={Trash2}
                   tone="danger"
                   onClick={() => setConfirmingDelete(true)}
@@ -691,8 +676,8 @@ function NotebookDetail({
           />
           {editing && selected && (
             <NotebookMetaDialog
-              label={t("Edit notebook")}
-              submitLabel={t("Save")}
+              label={"Edit collection"}
+              submitLabel={"Save"}
               initial={selected}
               onCancel={() => setEditing(false)}
               onSubmit={async (changes) => {
@@ -713,22 +698,22 @@ function NotebookDetail({
                 <input
                   value={recordQuery}
                   onChange={(event) => setRecordQuery(event.target.value)}
-                  placeholder={t("Search records in this notebook")}
-                  aria-label={t("Search records in this notebook")}
+                  placeholder={"Search records in this collection"}
+                  aria-label={"Search records in this collection"}
                 />
               </label>
               {kinds.length > 1 && (
                 <div
                   className="dt-fav-chips"
                   role="group"
-                  aria-label={t("Type")}
+                  aria-label={"Type"}
                 >
                   <button
                     type="button"
                     aria-pressed={!recordKind}
                     onClick={() => setRecordKind("")}
                   >
-                    {t("All")}
+                    {"All"}
                   </button>
                   {kinds.map((value) => (
                     <button
@@ -739,7 +724,7 @@ function NotebookDetail({
                         setRecordKind(recordKind === value ? "" : value)
                       }
                     >
-                      {t(favoriteLabel(value))}
+                      {(favoriteLabel(value))}
                     </button>
                   ))}
                 </div>
@@ -785,15 +770,13 @@ function NotebookDetail({
               tone="empty"
               title={
                 recordQuery || recordKind
-                  ? t("No records match your search")
-                  : t("This notebook is empty")
+                  ? "No records match your search"
+                  : "This collection is empty"
               }
               detail={
                 recordQuery || recordKind
-                  ? t("Try a different word.")
-                  : t(
-                      "Save something to it from a chat, research run, or Co-Writer document.",
-                    )
+                  ? "Try a different word."
+                  : "Save a conversation, a research result, or a reading excerpt here."
               }
             />
           )}
@@ -802,8 +785,8 @@ function NotebookDetail({
 
       <ConfirmDialog
         open={confirmingDelete && Boolean(selected)}
-        title={t("Delete this notebook?")}
-        confirmLabel={t("Delete")}
+        title={"Delete this collection?"}
+        confirmLabel={"Delete"}
         tone="danger"
         busy={deleting}
         onConfirm={() => void handleDelete()}
@@ -811,11 +794,8 @@ function NotebookDetail({
       >
         <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {(selected?.record_count ?? 0) > 0
-            ? t(
-                '"{{name}}" and its {{count}} records will be deleted. This cannot be undone.',
-                { name, count: selected?.record_count ?? 0 },
-              )
-            : t('"{{name}}" will be deleted.', { name })}
+            ? `"${name}" and its ${selected?.record_count ?? 0} records will be deleted. This cannot be undone.`
+            : `"${name}" will be deleted.`}
         </p>
       </ConfirmDialog>
     </FeaturePage>
@@ -843,7 +823,7 @@ function NotebookMetaDialog({
     color: string;
   }) => void | Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [color, setColor] = useState(initial?.color ?? DEFAULT_COLOR);
@@ -876,30 +856,30 @@ function NotebookMetaDialog({
         </div>
         <h2 className="dt-fav-dialog-title">{label}</h2>
         <label className="dt-fav-field">
-          <span>{t("Notebook name")}</span>
+          <span>{"Collection name"}</span>
           <input
             autoFocus
-            aria-label={t("Notebook name")}
+            aria-label={"Collection name"}
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder={t("e.g. Thermodynamics, Exam review")}
+            placeholder={"e.g. Thermodynamics, Exam review"}
           />
         </label>
         <label className="dt-fav-field">
-          <span>{t("Description (optional)")}</span>
+          <span>{"Description (optional)"}</span>
           <input
-            aria-label={t("Description (optional)")}
+            aria-label={"Description (optional)"}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder={t("What goes in this folder")}
+            placeholder={"What goes in this folder"}
           />
         </label>
         <div className="dt-fav-field">
-          <span>{t("Colour")}</span>
+          <span>{"Colour"}</span>
           <div
             className="dt-fav-swatches"
             role="radiogroup"
-            aria-label={t("Colour")}
+            aria-label={"Colour"}
           >
             {swatches.map((swatch) => (
               <button
@@ -916,7 +896,7 @@ function NotebookMetaDialog({
         </div>
         <div className="dt-fav-dialog-actions">
           <button type="button" className="dt-fav-button" onClick={onCancel}>
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="submit"

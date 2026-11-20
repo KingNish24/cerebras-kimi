@@ -11,7 +11,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus } from "@/lib/auth";
 import { randomUuid } from "@/lib/random-uuid";
 import { getOwnLearnerProfile } from "@/lib/profile-api";
@@ -104,7 +104,7 @@ function ExtensionToolbar({
   sessionId,
   onError,
 }: ReadingExtensionBarProps) {
-  const { i18n, t } = useTranslation();
+  
   const [extensions, setExtensions] = useState<ReadingExtensionManifest[]>([]);
   const [busy, setBusy] = useState("");
   const [result, setResult] = useState<ReadingExtensionResult | null>(null);
@@ -185,7 +185,7 @@ function ExtensionToolbar({
       const next = await runReadingExtension(materialId, extension.id, action.id, {
         locator: requestedLocator,
         selection: selection || "",
-        locale: i18n.language,
+        locale: "en",
       });
       setResult(next);
       setResultLocator(requestedLocator);
@@ -194,11 +194,11 @@ function ExtensionToolbar({
         const played = await speak({
           materialId,
           locator: requestedLocator,
-          locale: String(next.payload.locale || i18n.language),
+          locale: String(next.payload.locale || "en"),
           fallbackText: text,
         });
         if (!played) {
-          onError(t("No speech voice is available in this browser."));
+          onError("No speech voice is available in this browser.");
         }
       }
     } catch (error) {
@@ -244,7 +244,7 @@ function ExtensionToolbar({
               disabled={disabled}
               aria-label={
                 shortLabel && builtInLabel
-                  ? `${t(shortLabel)} — ${t(builtInLabel)}`
+                  ? `${(shortLabel)} — ${(builtInLabel)}`
                   : undefined
               }
               onClick={() => void run(extension, action)}
@@ -262,7 +262,7 @@ function ExtensionToolbar({
                     : "truncate text-center"
                 }
               >
-                {shortLabel ? t(shortLabel) : builtInLabel ? t(builtInLabel) : action.label}
+                {shortLabel ? (shortLabel) : builtInLabel ? (builtInLabel) : action.label}
               </span>
             </button>
           );
@@ -276,7 +276,7 @@ function ExtensionToolbar({
                   : "inline-flex w-max flex-none max-sm:min-w-0 max-sm:w-0 max-sm:flex-1 [&>span]:w-full [&>span>button]:w-full"
               }
             >
-              <Tooltip label={t("Select text in the document first.")}>
+              <Tooltip label={"Select text in the document first."}>
                 {button}
               </Tooltip>
             </span>
@@ -289,12 +289,12 @@ function ExtensionToolbar({
           className="mx-3 mb-2 flex shrink-0 items-center gap-2 rounded-xl bg-[var(--card)] px-3 py-2 text-xs text-[var(--muted-foreground)] shadow-[var(--dt-shadow-xs,0_0_0_1px_rgba(0,0,0,.06))]"
         >
           <Volume2 size={14} />
-          <span>{t("Reading aloud")}</span>
+          <span>{"Reading aloud"}</span>
           <span className="ml-auto">
-            <Tooltip label={t("Stop reading aloud")}>
+            <Tooltip label={"Stop reading aloud"}>
               <button
                 type="button"
-                aria-label={t("Stop reading aloud")}
+                aria-label={"Stop reading aloud"}
                 onClick={stopSpeaking}
                 className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--foreground)] transition hover:bg-[var(--muted)]"
               >
@@ -311,7 +311,7 @@ function ExtensionToolbar({
           locator={resultLocator}
           helpContext={{ selection, locator: selectionLocator ?? locator, actions }}
           sessionId={sessionId}
-          closeLabel={t("Close")}
+          closeLabel={"Close"}
           onClose={() => setResult(null)}
           onError={onError}
         />
@@ -491,7 +491,7 @@ function QuizQuestions({
   onError: (message: string) => void;
   helpContext?: QuizHelpContext;
 }) {
-  const { t } = useTranslation();
+  
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [verdicts, setVerdicts] = useState<Record<string, boolean>>({});
   const [reward, setReward] = useState<ReadingQuizReward | null>(null);
@@ -514,7 +514,7 @@ function QuizQuestions({
         answers: [{ question_id: questionId, selected_index: choiceIndex }],
       });
       const verdict = results.answers.find((item) => item.question_id === questionId);
-      if (!verdict) throw new Error(t("Failed to save answer. Please try again."));
+      if (!verdict) throw new Error("Failed to save answer. Please try again.");
       setAnswers((current) => ({ ...current, [key]: choiceIndex }));
       setVerdicts((current) => ({ ...current, [key]: verdict.is_correct }));
       setReward(results.reward ?? null);
@@ -582,7 +582,7 @@ function QuizQuestions({
                     : "text-amber-600 dark:text-amber-400"
                 }`}
               >
-                {verdicts[key] ? t("Correct") : t("Incorrect")}
+                {verdicts[key] ? "Correct" : "Incorrect"}
               </p>
             ) : null}
           </fieldset>
@@ -594,7 +594,7 @@ function QuizQuestions({
           className="mt-3 flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400"
         >
           <Star size={14} fill="currentColor" aria-hidden="true" />
-          {t("Quiz stars: {{count}}", { count: reward.stars })}
+          {`Quiz stars: ${reward.stars}`}
         </p>
       ) : null}
     </>
@@ -612,7 +612,7 @@ function QuestionHelp({
   onBusyChange: (busy: boolean) => void;
   onError: (message: string) => void;
 }) {
-  const { t, i18n } = useTranslation();
+  
   const [result, setResult] = useState<ReadingExtensionResult | null>(null);
   const [count, setCount] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -633,7 +633,7 @@ function QuestionHelp({
   async function requestHelp(entry: QuizHelpContext["actions"][number]) {
     if (busyRef.current || disabled || !hasSelection) return;
     const selection = context.selection || "";
-    const locale = i18n.language;
+    const locale = "en";
     const requestKey = JSON.stringify([entry.extension.id, entry.action.id, selection, locale]);
     const requestId = requests.current.get(requestKey) || randomUuid();
     requests.current.set(requestKey, requestId);
@@ -649,7 +649,7 @@ function QuestionHelp({
       if (!receipt || receipt.question_id !== questionId ||
           !Number.isInteger(receipt.hints_used) || receipt.hints_used < 1 ||
           (next.type !== "card" && next.type !== "feedback")) {
-        throw new Error(t("Failed to record help. Please try again."));
+        throw new Error("Failed to record help. Please try again.");
       }
       requests.current.delete(requestKey);
       setCount((previous) => Math.max(previous, receipt.hints_used));
@@ -676,17 +676,17 @@ function QuestionHelp({
             onClick={() => { void requestHelp(entry); }}
             className="rounded-md border border-[var(--border)] px-2 py-1 text-xs disabled:opacity-50"
           >
-            {entry.extension.id === "guided_learning" ? t("Guide me") : t("Explain vocabulary")}
+            {entry.extension.id === "guided_learning" ? "Guide me" : "Explain vocabulary"}
           </button>
         ))}
       </div>
-      {!hasSelection ? <p className="text-xs text-[var(--muted-foreground)]">{t("Select text from this question's reading section first.")}</p> : null}
-      {busy ? <p role="status">{t("Working on it…")}</p> : null}
-      {count > 0 ? <p role="status">{t("Recorded help: {{count}}", { count })}</p> : null}
+      {!hasSelection ? <p className="text-xs text-[var(--muted-foreground)]">{"Select text from this question's reading section first."}</p> : null}
+      {busy ? <p role="status">{"Working on it…"}</p> : null}
+      {count > 0 ? <p role="status">{`Recorded help: ${count}`}</p> : null}
       {result ? (
         <ExtensionResult
           variant="card" result={result} materialId={materialId} locator={locator}
-          closeLabel={t("Close")} onClose={() => setResult(null)} onError={onError}
+          closeLabel={"Close"} onClose={() => setResult(null)} onError={onError}
         />
       ) : null}
     </div>

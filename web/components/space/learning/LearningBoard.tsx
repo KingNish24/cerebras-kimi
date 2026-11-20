@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   BookOpen,
   Circle,
@@ -52,7 +52,7 @@ export function LearningBoard({
   zh: boolean;
   onStartTutoring: (knowledgePointName: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const scrollport = useRef<HTMLDivElement>(null);
   const columns = useRef<HTMLDivElement>(null);
   const [scrollRange, setScrollRange] = useState(0);
@@ -108,7 +108,7 @@ export function LearningBoard({
         onScroll={(event) => setScrollPosition(Math.max(0, event.currentTarget.scrollLeft))}
         tabIndex={0}
         role="region"
-        aria-label={t("Board")}
+        aria-label={"Board"}
         className="max-h-[65vh] min-h-0 min-w-0 overflow-auto pb-2 [scrollbar-color:var(--muted-foreground)_var(--muted)] lg:max-h-none"
       >
         <div ref={columns} className="flex w-max min-w-full items-start gap-4">
@@ -144,7 +144,7 @@ export function LearningBoard({
                       </div>
                       <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
                         <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[var(--muted-foreground)]">
-                          {knowledgeTypeLabel(card.type, t)}
+                          {knowledgeTypeLabel(card.type)}
                         </span>
                         <span className="shrink-0 tabular-nums text-[var(--muted-foreground)]">
                           {Math.round(card.mastery_level * 100)}%
@@ -153,7 +153,7 @@ export function LearningBoard({
                       {card.next_review_at && (
                         <div className="mt-1.5 flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
                           <BookOpen className="h-3 w-3" />
-                          {t("Review")} {formatRelative(card.next_review_at, zh)}
+                          {"Review"} {formatRelative(card.next_review_at, zh)}
                         </div>
                       )}
                     </button>
@@ -169,12 +169,12 @@ export function LearningBoard({
                               className="mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-xs font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
-                              {t("Start tutoring")}
+                              {"Start tutoring"}
                             </button>
                           </>
                         ) : reportError ? (
                           <p className="py-3 text-center text-xs text-[var(--muted-foreground)]">
-                            {t("Evidence could not be loaded")}
+                            {"Evidence could not be loaded"}
                           </p>
                         ) : (
                           <div className="flex items-center justify-center py-3 text-[var(--muted-foreground)]">
@@ -196,7 +196,7 @@ export function LearningBoard({
           min={0}
           max={scrollRange}
           value={Math.min(scrollPosition, scrollRange)}
-          aria-label={t("Board")}
+          aria-label={"Board"}
           className="w-full shrink-0 cursor-ew-resize accent-[var(--primary)]"
           onChange={(event) => {
             const viewport = scrollport.current;

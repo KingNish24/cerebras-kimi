@@ -1,138 +1,34 @@
 """Search across chat sessions, with optional embedding retrieval.
 
 Dito can refer back to anything the learner and the tutor discussed, not just
-the page it is currently beside. This module searches every persisted session
-(``data/sessions/*.json``) and returns the matching sessions with a snippet of
-the exchange.
+the page it is currently beside. Session text lives in the WAL-mode session
+database and is indexed by its FTS5 table, so a search never has to read the
+whole history.
 
-Retrieval is lexical by default (term overlap, phrase bonus, recency) so it
-works with no embedding provider configured. When an embedding model is
-configured under Settings → Embedding, message embeddings are cached beside the
-sessions and the query is embedded as well; the two scores are combined.
+Retrieval is lexical by default (FTS5 ranking) so it works with no embedding
+provider configured. When an embedding model is configured under
+Settings → Embedding, message embeddings are cached in the session database and
+the query is embedded as well; the two scores are combined.
 """
 
 from __future__ import annotations
 
 import hashlib
-import json
 import math
-import re
 import time
-from pathlib import Path
 from typing import Any
 
 import httpx
 
 from .. import provider_config
 from ..config import Settings
+from ..store.session_store import SessionStore
 
-_CACHE_NAME = "session-search-embeddings.json"
-_MAX_MESSAGE_CHARS = 4000
 _EMBED_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
-_TOKEN = re.compile(r"[a-zA-Z0-9_]+")
-_STOP = {
-    "a", "an", "and", "are", "as", "at", "be", "but", "by", "do", "does", "for",
-    "from", "how", "i", "in", "is", "it", "its", "me", "my", "of", "on", "or",
-    "that", "the", "this", "to", "was", "what", "when", "where", "which", "who",
-    "why", "will", "with", "you", "your",
-}
 
 
-def _tokens(text: str) -> list[str]:
-    return [t for t in (m.group(0).lower() for m in _TOKEN.finditer(text)) if t not in _STOP]
-
-
-def _message_text(message: dict[str, Any]) -> str:
-    content = message.get("content")
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        return "".join(
-            str(part.get("text") or "") for part in content if isinstance(part, dict)
-        )
-    return ""
-
-
-def _session_files(settings: Settings) -> list[Path]:
-    root = settings.sessions_dir
-    if not root.exists():
-        return []
-    return sorted(root.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-
-
-def _load_session(path: Path) -> dict[str, Any] | None:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    return data if isinstance(data, dict) else None
-
-
-def _exchanges(session: dict[str, Any]) -> list[dict[str, Any]]:
-    """User/assistant messages as searchable exchanges (user + next reply)."""
-    messages = [m for m in session.get("messages") or [] if isinstance(m, dict)]
-    out: list[dict[str, Any]] = []
-    for index, message in enumerate(messages):
-        role = message.get("role")
-        if role not in {"user", "assistant"}:
-            continue
-        text = _message_text(message).strip()
-        if not text:
-            continue
-        reply = ""
-        if role == "user" and index + 1 < len(messages):
-            following = messages[index + 1]
-            if following.get("role") == "assistant":
-                reply = _message_text(following).strip()
-        out.append(
-            {
-                "id": str(message.get("id")),
-                "role": role,
-                "text": text[:_MAX_MESSAGE_CHARS],
-                "reply": reply[:_MAX_MESSAGE_CHARS],
-            }
-        )
-    return out
-
-
-# ---------------------------------------------------------------------------
-# Lexical scoring
-# ---------------------------------------------------------------------------
-
-
-def _lexical_score(query_terms: list[str], text: str) -> float:
-    if not query_terms:
-        return 0.0
-    lowered = text.lower()
-    terms = _tokens(lowered)
-    if not terms:
-        return 0.0
-    counts: dict[str, int] = {}
-    for term in terms:
-        counts[term] = counts.get(term, 0) + 1
-    score = 0.0
-    for term in query_terms:
-        hits = counts.get(term, 0)
-        if hits:
-            score += 1.0 + math.log1p(hits)
-    # Reward the exact phrase so "depletion region" beats two scattered words.
-    phrase = " ".join(query_terms)
-    if len(query_terms) > 1 and phrase in lowered:
-        score += 2.0
-    return score
-
-
-def _snippet(text: str, query_terms: list[str], width: int = 260) -> str:
-    lowered = text.lower()
-    index = -1
-    for term in query_terms:
-        index = lowered.find(term)
-        if index >= 0:
-            break
-    if index < 0:
-        return text[:width].replace("\n", " ")
-    start = max(0, index - width // 3)
-    return text[start : start + width].replace("\n", " ").strip()
+def _store(settings: Settings) -> SessionStore:
+    return SessionStore(settings)
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +66,9 @@ async def _embed(target: dict[str, Any], texts: list[str]) -> list[list[float]] 
     body = {"model": target["model"], "input": texts}
     try:
         async with httpx.AsyncClient(timeout=_EMBED_TIMEOUT) as client:
-            response = await client.post(f"{target['base_url']}/embeddings", headers=headers, json=body)
+            response = await client.post(
+                f"{target['base_url']}/embeddings", headers=headers, json=body
+            )
             response.raise_for_status()
             payload = response.json()
     except Exception:  # noqa: BLE001 - retrieval must degrade to lexical
@@ -183,26 +81,6 @@ async def _embed(target: dict[str, Any], texts: list[str]) -> list[list[float]] 
     if not all(isinstance(v, list) and v for v in vectors):
         return None
     return vectors
-
-
-def _cache_path(settings: Settings) -> Path:
-    return settings.data_dir / "session-search" / _CACHE_NAME
-
-
-def _load_cache(settings: Settings) -> dict[str, Any]:
-    try:
-        data = json.loads(_cache_path(settings).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
-    return data if isinstance(data, dict) else {}
-
-
-def _save_cache(settings: Settings, cache: dict[str, Any]) -> None:
-    path = _cache_path(settings)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.tmp")
-    tmp.write_text(json.dumps(cache), encoding="utf-8")
-    tmp.replace(path)
 
 
 def _cosine(left: list[float], right: list[float]) -> float:
@@ -219,7 +97,8 @@ async def _semantic_scores(
         return None
     key_prefix = f"{target['model']}:"
     missing = [
-        item for item in items
+        item
+        for item in items
         if cache.get(key_prefix + item["key"], {}).get("hash") != item["hash"]
     ]
     if missing:
@@ -253,53 +132,8 @@ def search(
     limit: int = 5,
     page_id: str = "",
 ) -> list[dict[str, Any]]:
-    """Synchronous lexical search; ``page_id`` limits to one notebook's threads."""
-    needle = (query or "").strip()
-    if not needle:
-        return []
-    terms = _tokens(needle)
-    limit = max(1, min(int(limit or 5), 20))
-    hits: list[dict[str, Any]] = []
-    for path in _session_files(settings):
-        session = _load_session(path)
-        if not session:
-            continue
-        preferences = session.get("preferences") or {}
-        if page_id and preferences.get("note_document_id") != page_id:
-            continue
-        best_score = 0.0
-        best_exchange: dict[str, Any] | None = None
-        title = str(session.get("title") or "")
-        if terms and _lexical_score(terms, title):
-            best_score = _lexical_score(terms, title)
-        for exchange in _exchanges(session):
-            score = _lexical_score(terms, exchange["text"] + " " + exchange["reply"])
-            # Prefer the actual exchange over the title on a tie so the
-            # rendered result carries the conversation snippet, not just a
-            # repeat of the title.
-            if score > 0 and score >= best_score:
-                best_score, best_exchange = score, exchange
-        if best_score <= 0:
-            continue
-        exchange = best_exchange or {"text": "", "reply": ""}
-        hits.append(
-            {
-                "session_id": str(session.get("id") or path.stem),
-                "title": title or "Untitled conversation",
-                "updated_at": float(session.get("updated_at") or 0),
-                "page_id": str(preferences.get("note_document_id") or ""),
-                "score": round(best_score, 3),
-                "question": _snippet(exchange["text"], terms) if exchange["text"] else "",
-                "answer": _snippet(exchange["reply"], terms) if exchange["reply"] else "",
-                "excerpt": _snippet(
-                    (exchange["text"] + "\n" + exchange["reply"]).strip()
-                    or title,
-                    terms,
-                ),
-            }
-        )
-    hits.sort(key=lambda item: (item["score"], item["updated_at"]), reverse=True)
-    return hits[:limit]
+    """Synchronous FTS5 search; ``page_id`` limits to one notebook's threads."""
+    return _store(settings).search_hits(query, limit=limit, page_id=page_id)
 
 
 async def search_async(
@@ -309,7 +143,7 @@ async def search_async(
     limit: int = 5,
     page_id: str = "",
 ) -> list[dict[str, Any]]:
-    """Search with embeddings when configured, lexical always.
+    """Search with embeddings when configured, FTS5 lexical always.
 
     Lexical results are the fallback and the ranking seed; semantic similarity
     adds to the score of the matching sessions.
@@ -317,11 +151,11 @@ async def search_async(
     needle = (query or "").strip()
     if not needle:
         return []
-    lexical = search(settings, needle, limit=50, page_id=page_id)
+    lexical = search(settings, needle, limit=max(limit, 20), page_id=page_id)
     if not lexical:
         return []
     try:
-        cache = _load_cache(settings)
+        cache = _store(settings).load_embeddings()
         items = []
         for hit in lexical:
             text = " ".join(part for part in (hit["question"], hit["answer"]) if part)
@@ -334,9 +168,11 @@ async def search_async(
             )
         semantic = await _semantic_scores(settings, cache, items, needle)
         if semantic:
-            _save_cache(settings, cache)
+            _store(settings).save_embeddings(cache)
             for hit in lexical:
-                hit["score"] = round(hit["score"] + 3.0 * semantic.get(hit["session_id"], 0.0), 3)
+                hit["score"] = round(
+                    hit["score"] + 3.0 * semantic.get(hit["session_id"], 0.0), 3
+                )
             lexical.sort(key=lambda item: (item["score"], item["updated_at"]), reverse=True)
     except Exception:  # noqa: BLE001 - search must never fail the turn
         pass

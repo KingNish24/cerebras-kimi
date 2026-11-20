@@ -4,7 +4,7 @@ import Markdown from '@/components/common/MarkdownRenderer'
 import { practiceMarkdown } from '@/lib/practice-content'
 import { randomUuid } from '@/lib/random-uuid'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react'
 import {
   checkPracticeAnswer,
@@ -39,7 +39,7 @@ export function PracticeSession({
   )
   const [total] = useState(queue.length)
   const [skipped, setSkipped] = useState(0)
-  const { t } = useTranslation()
+  
   const [index, setIndex] = useState(0)
   const [saved, setSaved] = useState(0)
   const [saving, setSaving] = useState(false)
@@ -56,35 +56,33 @@ export function PracticeSession({
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft size={15} />
-          {backLabel ?? t('Back to practice')}
+          {backLabel ?? "Back to practice"}
         </button>
         <p className="text-xs text-muted-foreground" aria-live="polite">
-          {t('{{count}} remaining', { count: total - saved - skipped })}
+          {`${total - saved - skipped} remaining`}
         </p>
       </div>
       <progress
         max={total || 1}
         value={saved}
-        aria-label={t('Practice progress')}
+        aria-label={"Practice progress"}
         className="mb-6 h-1.5 w-full accent-primary"
       />
       {complete ? (
         <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center">
           <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={32} />
-          <h2 className="font-serif text-2xl font-semibold">{t('Practice complete')}</h2>
+          <h2 className="font-serif text-2xl font-semibold">{"Practice complete"}</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            {t('{{count}} reviews saved. Your next review dates have been updated.', {
-              count: saved,
-            })}
+            {`${saved} reviews saved. Your next review dates have been updated.`}
           </p>
           {skipped > 0 && (
             <p className="mt-2 text-sm text-muted-foreground">
-              {t('{{count}} skipped questions remain due.', { count: skipped })}
+              {`${skipped} skipped questions remain due.`}
             </p>
           )}
           {nextDue && (
             <p className="mt-2 text-xs text-muted-foreground">
-              {t('Next review: {{date}}', { date: new Date(nextDue * 1000).toLocaleDateString() })}
+              {`Next review: ${new Date(nextDue * 1000).toLocaleDateString()}`}
             </p>
           )}
           <button
@@ -92,7 +90,7 @@ export function PracticeSession({
             onClick={onClose}
             className="mt-6 rounded-xl bg-primary px-5 py-2.5 text-sm text-primary-foreground"
           >
-            {backLabel ?? t('Back to practice')}
+            {backLabel ?? "Back to practice"}
           </button>
         </div>
       ) : (
@@ -136,7 +134,7 @@ function PracticeTurn({
   onSkip: () => void
   onBusy: (busy: boolean) => void
 }) {
-  const { t } = useTranslation()
+  
   const [question, setQuestion] = useState<PracticeQuestion | null>(null)
   const [answer, setAnswer] = useState('')
   const [revealed, setRevealed] = useState(false)
@@ -231,19 +229,19 @@ function PracticeTurn({
           <p>{error}</p>
           {(conflict || !entry) && (
             <button type="button" onClick={reset} className="mt-2 underline">
-              {t('Reload question')}
+              {"Reload question"}
             </button>
           )}
         </div>
       )}
       {!entry ? (
         <p role="status" className="py-8 text-sm text-muted-foreground">
-          {t('Loading…')}
+          {"Loading…"}
         </p>
       ) : (
         <>
           <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span>{entry.material_title || t('Practice')}</span>
+            <span>{entry.material_title || "Practice"}</span>
             {entry.categories?.map(tag => (
               <span key={tag.id} className="rounded-full bg-muted px-2 py-1">
                 {tag.name}
@@ -259,11 +257,11 @@ function PracticeTurn({
             />
           </div>
           {multi && (
-            <p className="mt-3 text-xs text-muted-foreground">{t('Select all correct answers')}</p>
+            <p className="mt-3 text-xs text-muted-foreground">{"Select all correct answers"}</p>
           )}
           {choices.length > 0 ? (
             <fieldset disabled={revealed || busy} className="mt-6 grid gap-2">
-              <legend className="sr-only">{t('Your answer')}</legend>
+              <legend className="sr-only">{"Your answer"}</legend>
               {choices.map(([key, text]) => {
                 const selected = multi ? answer.split(',').includes(key) : answer === key
                 return (
@@ -300,14 +298,14 @@ function PracticeTurn({
             </fieldset>
           ) : (
             <label className="mt-6 block text-sm font-medium">
-              {t('Your answer')}
+              {"Your answer"}
               <textarea
                 value={answer}
                 onChange={event => setAnswer(event.target.value)}
                 disabled={revealed || busy}
                 maxLength={20000}
                 rows={5}
-                placeholder={t('Try recalling the answer before revealing it.')}
+                placeholder={"Try recalling the answer before revealing it."}
                 className="mt-2 block w-full resize-y rounded-xl border border-border bg-background p-3 font-normal outline-none focus:border-primary"
               />
             </label>
@@ -320,7 +318,7 @@ function PracticeTurn({
                 onClick={() => void reveal()}
                 className="rounded-xl bg-primary px-4 py-2.5 text-sm text-primary-foreground disabled:opacity-50"
               >
-                {busy ? t('Checking…') : t('Check and reveal answer')}
+                {busy ? "Checking…" : "Check and reveal answer"}
               </button>
               <button
                 type="button"
@@ -328,7 +326,7 @@ function PracticeTurn({
                 onClick={() => void rate('good', true)}
                 className="rounded-xl border border-border px-4 py-2.5 text-sm hover:bg-muted"
               >
-                {t('I have mastered this')}
+                {"I have mastered this"}
               </button>
               <button
                 type="button"
@@ -336,7 +334,7 @@ function PracticeTurn({
                 disabled={busy}
                 className="text-sm text-muted-foreground hover:underline"
               >
-                {t('Skip for now')}
+                {"Skip for now"}
               </button>
             </div>
           ) : (
@@ -344,19 +342,17 @@ function PracticeTurn({
               <div className="rounded-xl bg-muted/50 p-4">
                 <p className="mb-3 text-sm font-semibold">
                   {correct === null
-                    ? t('Compare your answer with the reference')
+                    ? "Compare your answer with the reference"
                     : correct
-                      ? t('Correct')
-                      : t('Needs another try')}
+                      ? "Correct"
+                      : "Needs another try"}
                 </p>
                 <div className="text-sm">
                   <Markdown
                     learningTextSize={16}
                     content={
                       entry.correct_answer ||
-                      t(
-                        'No reference answer was saved. Use the original source to check your work.'
-                      )
+                      "No reference answer was saved. Use the original source to check your work."
                     }
                   />
                   {entry.explanation && (
@@ -370,10 +366,8 @@ function PracticeTurn({
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <p className="text-xs text-muted-foreground">
                     {correct
-                      ? t(
-                          'Mastered questions leave this round and return when your next review is due.'
-                        )
-                      : t('Practice again this round')}
+                      ? "Mastered questions leave this round and return when your next review is due."
+                      : "Practice again this round"}
                   </p>
                   <button
                     type="button"
@@ -381,22 +375,20 @@ function PracticeTurn({
                     onClick={() => void rate(correct ? 'good' : 'again')}
                     className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-40"
                   >
-                    {correct ? t('Mastered · Next question') : t('Practice again')}
+                    {correct ? "Mastered · Next question" : "Practice again"}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-sm font-medium">{t('How well did you remember?')}</h3>
+                  <h3 className="text-sm font-medium">{"How well did you remember?"}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {t(
-                      'Mastered questions leave this round and return when your next review is due.'
-                    )}
+                    {"Mastered questions leave this round and return when your next review is due."}
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {RATINGS.map(rating => (
                       <button
                         key={rating.value}
-                        aria-label={`${t(rating.label)} ${t(rating.description)}`}
+                        aria-label={`${(rating.label)} ${(rating.description)}`}
                         type="button"
                         disabled={
                           busy ||
@@ -406,9 +398,9 @@ function PracticeTurn({
                         onClick={() => void rate(rating.value)}
                         className="rounded-xl border border-border p-3 text-left transition hover:border-primary hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-35"
                       >
-                        <span className="block text-sm font-semibold">{t(rating.label)}</span>
+                        <span className="block text-sm font-semibold">{(rating.label)}</span>
                         <span className="mt-1 block text-xs text-muted-foreground">
-                          {t(rating.description)}
+                          {(rating.description)}
                         </span>
                       </button>
                     ))}
@@ -418,7 +410,7 @@ function PracticeTurn({
               {busy && (
                 <p role="status" className="flex items-center gap-2 text-sm">
                   <Loader2 size={15} className="animate-spin" />
-                  {t('Saving review…')}
+                  {"Saving review…"}
                 </p>
               )}
             </div>

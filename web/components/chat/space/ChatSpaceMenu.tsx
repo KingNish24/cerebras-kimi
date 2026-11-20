@@ -10,7 +10,7 @@ import {
   Paperclip,
   UserRound,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { SPACE_ITEMS } from "@/lib/space-items";
 import { setPickerOrigin } from "@/lib/picker-origin";
 
@@ -112,7 +112,7 @@ export default memo(function ChatSpaceMenu({
   readingAvailable = false,
   onSelectItem,
 }: ChatSpaceMenuProps) {
-  const { t } = useTranslation();
+  
   const compact = variant !== "mention";
   const isMention = variant === "mention";
 
@@ -180,7 +180,7 @@ export default memo(function ChatSpaceMenu({
     })
     .filter(Boolean)
     .filter((item) =>
-      t(item.label).toLowerCase().includes(query.trim().toLowerCase()),
+      (item.label).toLowerCase().includes(query.trim().toLowerCase()),
     );
 
   // Active row index for keyboard navigation. Only meaningful in the
@@ -236,7 +236,7 @@ export default memo(function ChatSpaceMenu({
   return (
     <div
       role={isMention ? "listbox" : undefined}
-      aria-label={isMention ? t("Reference space") : undefined}
+      aria-label={isMention ? "Reference space" : undefined}
       className={
         variant === "resources"
           ? "w-full py-1"
@@ -301,11 +301,11 @@ export default memo(function ChatSpaceMenu({
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium text-[var(--foreground)]">
-                    {t(label)}
+                    {(label)}
                   </span>
                   {!compact && (
                     <span className="mt-0.5 block truncate text-[11px] text-[var(--muted-foreground)]">
-                      {t(description)}
+                      {(description)}
                     </span>
                   )}
                 </span>

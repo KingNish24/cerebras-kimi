@@ -24,7 +24,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 
 import type { Book, BookStatus } from '@/lib/book-types'
 import { formatRelativeTime } from '@/lib/relative-time'
@@ -89,7 +89,7 @@ export default function BookLibrary({
   onSelectBook,
   onDeleteBook,
 }: BookLibraryProps) {
-  const { t, i18n } = useTranslation()
+  
   const [query, setQuery] = useState('')
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
@@ -119,8 +119,8 @@ export default function BookLibrary({
 
   return (
     <LearningShell
-      title={t('Books')}
-      subtitle={t('Generate, browse and study your AI-authored books.')}
+      title={"Books"}
+      subtitle={"Generate, browse and study your AI-authored books."}
       action={
         canCreate && (
           <button
@@ -129,7 +129,7 @@ export default function BookLibrary({
             className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-[var(--primary-foreground)]"
           >
             <Plus size={14} />
-            {t('New book')}
+            {"New book"}
           </button>
         )
       }
@@ -137,7 +137,7 @@ export default function BookLibrary({
       <div
         className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-3"
         role="search"
-        aria-label={t('Search books')}
+        aria-label={"Search books"}
       >
         <div className="relative min-w-48 flex-1 sm:max-w-sm">
           <Search
@@ -145,10 +145,10 @@ export default function BookLibrary({
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
           />
           <input
-            aria-label={t('Search books')}
+            aria-label={"Search books"}
             value={query}
             onChange={event => setQuery(event.target.value)}
-            placeholder={t('Search books')}
+            placeholder={"Search books"}
             className="h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
           />
         </div>
@@ -156,34 +156,31 @@ export default function BookLibrary({
       <div>
         {/* Stats row */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard icon={<BookOpen size={14} />} label={t('Total books')} value={stats.total} />
+          <StatCard icon={<BookOpen size={14} />} label={"Total books"} value={stats.total} />
           <StatCard
             icon={<Sparkles size={14} />}
-            label={t('Ready')}
+            label={"Ready"}
             value={stats.ready}
             accent="text-emerald-600 dark:text-emerald-400"
           />
           <StatCard
             icon={<Loader2 size={14} />}
-            label={t('In progress')}
+            label={"In progress"}
             value={stats.inProgress}
             accent="text-violet-600 dark:text-violet-400"
           />
-          <StatCard icon={<Layers size={14} />} label={t('Chapters')} value={stats.chapters} />
+          <StatCard icon={<Layers size={14} />} label={"Chapters"} value={stats.chapters} />
         </div>
 
         {/* Section heading */}
         <div className="mb-3 flex items-end justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-              {t('My library')}
+              {"My library"}
             </div>
             <div className="text-xs text-[var(--muted-foreground)]/80">
-              {t('{{shown}} of {{total}} books', {
-                shown: filtered.length,
-                total: books.length,
-              })}
-              {query ? ` · ${t('matching “{{query}}”', { query })}` : ''}
+              {`${filtered.length} of ${books.length} books`}
+              {query ? ` · ${`matching “${query}”`}` : ''}
             </div>
           </div>
         </div>
@@ -197,7 +194,7 @@ export default function BookLibrary({
           )
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/30 px-6 py-12 text-center text-sm text-[var(--muted-foreground)]">
-            {t('No books match “{{query}}”.', { query })}
+            {`No books match “${query}”.`}
           </div>
         ) : (
           <div className={pageGridClass(3)}>
@@ -248,7 +245,7 @@ export default function BookLibrary({
 
                   {book.can_delete !== false && (
                     <div className="absolute right-2 top-2 z-10">
-                      <Tooltip label={isPendingDelete ? t('Click again to confirm') : t('Delete book')}>
+                      <Tooltip label={isPendingDelete ? "Click again to confirm" : "Delete book"}>
                         <button
                           type="button"
                           onClick={event => {
@@ -260,7 +257,7 @@ export default function BookLibrary({
                               setPendingDeleteId(libraryItemKey(book, book.id))
                             }
                           }}
-                          aria-label={isPendingDelete ? t('Click again to confirm') : t('Delete book')}
+                          aria-label={isPendingDelete ? "Click again to confirm" : "Delete book"}
                           // Permanently visible on touch, where there is no hover
                           // to reveal it — a control that only appears on hover
                           // does not exist on a phone.
@@ -280,10 +277,10 @@ export default function BookLibrary({
                   <div className="flex flex-1 flex-col gap-2 p-4">
                     <div className="flex items-center gap-3 pr-3">
                       <LearningCardContent
-                        title={book.title || t('Untitled book')}
+                        title={book.title || "Untitled book"}
                         subtitle={
                           book.description ||
-                          t('No description yet. Open the book to view its outline.')
+                          "No description yet. Open the book to view its outline."
                         }
                         icon={<BookOpen size={19} />}
                         progress={(book.reading?.percent ?? 0) / 100}
@@ -302,34 +299,28 @@ export default function BookLibrary({
                             className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
                           >
                             <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                            {t(status.label)}
+                            {(status.label)}
                           </span>
                         )}
                         {book.source === 'shared' && (
                           <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                            {book.can_edit ? t('Shared · edit') : t('Shared · read')}
+                            {book.can_edit ? "Shared · edit" : "Shared · read"}
                           </span>
                         )}
                         <span className="inline-flex items-center gap-1">
                           <Layers size={11} />
-                          {t('{{count}} ch', {
-                            count: book.chapter_count || 0,
-                          })}
+                          {`${book.chapter_count || 0} ch`}
                         </span>
                         <span className="inline-flex items-center gap-1">
                           <FileText size={11} />
-                          {t('{{count}} pages', {
-                            count: book.page_count || 0,
-                          })}
+                          {`${book.page_count || 0} pages`}
                         </span>
                         {(book.reading?.percent ?? 0) > 0 && (
                           <span
                             className="inline-flex items-center gap-1 text-[var(--primary)]"
                           >
                             <BookOpen size={11} />
-                            {t('{{percent}}% read', {
-                              percent: book.reading?.percent ?? 0,
-                            })}{' '}
+                            {`${book.reading?.percent ?? 0}% read`}{' '}
                             ({book.reading?.visited_pages ?? 0}/
                             {book.reading?.total_pages ?? 0})
                           </span>
@@ -337,7 +328,7 @@ export default function BookLibrary({
                       </div>
                       <span className="inline-flex items-center gap-1">
                         <Clock3 size={11} />
-                        {formatRelativeTime(book.updated_at, i18n.language) || '—'}
+                        {formatRelativeTime(book.updated_at, "en") || '—'}
                       </span>
                     </div>
                     <button
@@ -352,10 +343,10 @@ export default function BookLibrary({
                       {/* Reading position is persisted, so the card can say
                           what opening it will actually do. */}
                       {book.status === 'draft' || book.status === 'spine_ready'
-                        ? t('Continue setup')
+                        ? "Continue setup"
                         : (book.reading?.visited_pages ?? 0) > 0
-                          ? t('Continue reading')
-                          : t('Start reading')}
+                          ? "Continue reading"
+                          : "Start reading"}
                     </button>
                   </div>
                 </div>
@@ -393,14 +384,12 @@ function StatCard({
 }
 
 function EmptyState({ onNewBook }: { onNewBook?: () => void }) {
-  const { t } = useTranslation()
+  
   return (
     <LearningEmptyState
       icon={<BookOpen size={28} />}
-      title={t('No books yet')}
-      description={t(
-        'Create your first AI-generated book from a knowledge base, chat selections or simply a topic.'
-      )}
+      title={"No books yet"}
+      description={"Create your first AI-generated book from a knowledge base, chat selections or simply a topic."}
       action={
         onNewBook && (
           <button
@@ -409,7 +398,7 @@ function EmptyState({ onNewBook }: { onNewBook?: () => void }) {
             className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-sm text-[var(--primary-foreground)]"
           >
             <Plus size={14} />
-            {t('New book')}
+            {"New book"}
           </button>
         )
       }

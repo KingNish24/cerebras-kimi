@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import ProviderIcon from '@/components/common/ProviderIcon'
 import { formatProviderLabel } from '@/lib/provider-branding'
 import type { ApiFormat, ServiceName } from '@/lib/model-catalog-types'
@@ -36,19 +36,19 @@ export function ProviderProtocol({
   onChange: (value: ApiFormat) => void
   formats?: readonly string[]
 }) {
-  const { t } = useTranslation()
+  
   return (
     <label className="block space-y-1.5 text-[13px] font-medium">
-      <span>{t('settings.providerServices.protocol')}</span>
+      <span>{"Language-model API protocol"}</span>
       <select
         className={selectClass}
         value={value}
         onChange={e => onChange(e.target.value as ApiFormat)}
       >
-        {(!formats || formats.includes('auto')) && <option value="auto">{t('Auto')}</option>}
+        {(!formats || formats.includes('auto')) && <option value="auto">{"Auto"}</option>}
         {Object.entries(PROTOCOLS).filter(([key]) => !formats || formats.includes(key)).map(([key, label]) => (
           <option key={key} value={key}>
-            {t(label)}
+            {(label)}
           </option>
         ))}
       </select>
@@ -68,8 +68,8 @@ export function AddProviderPanel({
   onCreate: (custom?: CustomProviderInput) => void
   onCancel: () => void
 }) {
-  const { t, i18n } = useTranslation()
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? 'en'
+  
+  const uiLanguage = "en" ?? "en" ?? 'en'
   const radioName = useId()
   const [filter, setFilter] = useState<string>('all')
   const [query, setQuery] = useState('')
@@ -105,19 +105,19 @@ export function AddProviderPanel({
       Boolean(parsed.hostname)
   } catch {}
   return (
-    <section aria-label={t('Add provider')} className={`min-w-0 space-y-5 p-4 sm:p-6 ${subPanelClass}`}>
-      <h3 className="text-base font-semibold">{t('Add provider')}</h3>
+    <section aria-label={"Add provider"} className={`min-w-0 space-y-5 p-4 sm:p-6 ${subPanelClass}`}>
+      <h3 className="text-base font-semibold">{"Add provider"}</h3>
       <input
         type="search"
         className={inputClass}
         value={query}
-        aria-label={t('settings.providerServices.search')}
-        placeholder={t('settings.providerServices.search')}
+        aria-label={"Search providers"}
+        placeholder={"Search providers"}
         onChange={e => setQuery(e.target.value)}
       />
       <div
         role="group"
-        aria-label={t('settings.providerServices.filter')}
+        aria-label={"Filter provider types"}
         className="flex flex-wrap gap-1.5"
       >
         {FILTERS.map(item => (
@@ -137,7 +137,7 @@ export function AddProviderPanel({
       </div>
       <div
         role="radiogroup"
-        aria-label={t('Provider type')}
+        aria-label={"Provider type"}
         className="grid max-h-[min(28rem,50dvh)] grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-3 overflow-y-auto overscroll-contain p-1"
       >
         {visible.map(option => (
@@ -146,15 +146,15 @@ export function AddProviderPanel({
             className={`relative flex min-h-24 min-w-0 flex-col rounded-xl border p-4 text-left cursor-pointer outline-none has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--ring)] ${vendor === option.value ? 'border-[var(--primary)] bg-[var(--accent)]' : 'border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)]'}`}
           >
             {/* Anchor the hidden radio to its card so focus cannot scroll the settings shell. */}
-            <input type="radio" className="sr-only" name={radioName} value={option.value} aria-label={option.value === 'custom' ? t('Custom') : option.label} checked={vendor === option.value} onChange={() => onVendor(option.value)} />
+            <input type="radio" className="sr-only" name={radioName} value={option.value} aria-label={option.value === 'custom' ? "Custom" : option.label} checked={vendor === option.value} onChange={() => onVendor(option.value)} />
             <span className="flex items-start gap-2.5 text-[15px] font-medium leading-6">
               <ProviderIcon provider={option.value} size={20} />
-              <span className="min-w-0 break-words">{option.value === 'custom' ? t('Custom') : option.label}</span>
+              <span className="min-w-0 break-words">{option.value === 'custom' ? "Custom" : option.label}</span>
             </span>
             <span className="mt-3 flex flex-wrap gap-1.5">
               {option.value === 'custom' ? (
                 <span className="text-[13px] text-[var(--muted-foreground)]">
-                  {t('settings.providerServices.customHint')}
+                  {"Your own URL and supported API protocol"}
                 </span>
               ) : (
                 option.services.map(service => (
@@ -162,7 +162,7 @@ export function AddProviderPanel({
                     key={service}
                     className="rounded bg-[var(--muted)] px-2 py-0.5 text-[12px] text-[var(--muted-foreground)]"
                   >
-                    {t(SERVICE_TITLES[service])}
+                    {(SERVICE_TITLES[service])}
                   </span>
                 ))
               )}
@@ -172,31 +172,31 @@ export function AddProviderPanel({
       </div>
       {!visible.length && (
         <p role="status" className="py-3 text-[13px] text-[var(--muted-foreground)]">
-          {t('settings.providerServices.noMatch')}
+          {"No matching providers. Try another category or use a custom connection."}
         </p>
       )}
       {custom && (
         <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
           <label className="block space-y-1.5 text-[13px] font-medium">
-            <span>{t('settings.providerServices.name')}</span>
+            <span>{"Provider name"}</span>
             <input className={inputClass} value={name} onChange={e => setName(e.target.value)} />
           </label>
           <label className="block space-y-1.5 text-[13px] font-medium">
-            <span>{t('Provider URL')}</span>
+            <span>{"Provider URL"}</span>
             <input className={inputClass} value={url} onChange={e => setUrl(e.target.value)} />
           </label>
           {url && !validUrl && (
             <p role="status" className="text-[13px] text-red-600">
-              {t('Enter a valid HTTP or HTTPS provider address.')}
+              {"Enter a valid HTTP or HTTPS provider address."}
             </p>
           )}
           <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-            {t('settings.providerServices.customDescription')}
+            {"The API protocol starts on Auto. On the next step, add credentials, change the protocol if needed, and choose additional service types and their adapters."}
           </p>
         </div>
       )}
       <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-        {t('settings.providerServices.addHint')}
+        {"Tags show built-in integrations, not account permissions. One connection can serve several model types; separate accounts and products can have separate connections."}
       </p>
       <div className="flex gap-2 border-t border-[var(--border)] pt-4">
         <button
@@ -213,10 +213,10 @@ export function AddProviderPanel({
             )
           }
         >
-          {t('Continue')}
+          {"Continue"}
         </button>
         <button type="button" className={registryButton} onClick={onCancel}>
-          {t('Cancel')}
+          {"Cancel"}
         </button>
       </div>
     </section>

@@ -27,7 +27,7 @@ import {
 import type { SourceChildren, SourceCandidate, SourceLibrary } from '@/hooks/useTopicSourceLibrary'
 
 import type { Translate } from './format'
-import { useTranslation } from 'react-i18next'
+
 
 /**
  * The stored value is still the emoji each icon replaces — only how it's
@@ -66,19 +66,17 @@ export function GoalStep({
   onGoal: (value: string) => void
   onEmoji: (value: string) => void
 }) {
-  const { t } = useTranslation()
+  
   return (
     <div className="mx-auto max-w-xl">
       <h3 className="text-lg font-semibold text-[var(--foreground)]">
-        {t('What do you want to master?')}
+        {"What do you want to master?"}
       </h3>
       <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-        {t(
-          'Say what you want to be able to do. The tutor reads your materials and designs the outline with you in the first session — you can change it there.'
-        )}
+        {"Say what you want to be able to do. The tutor reads your materials and designs the outline with you in the first session — you can change it there."}
       </p>
       <label className="mt-6 block text-xs font-medium text-[var(--foreground)]">
-        {t('Learning goal')}
+        {"Learning goal"}
         <textarea
           autoFocus
           data-modal-initial-focus
@@ -86,14 +84,12 @@ export function GoalStep({
           onChange={event => onGoal(event.target.value)}
           maxLength={2000}
           rows={5}
-          placeholder={t(
-            'I want to build geometric intuition for vector spaces and transformations, then solve eigenvalue problems independently.'
-          )}
+          placeholder={"I want to build geometric intuition for vector spaces and transformations, then solve eigenvalue problems independently."}
           className="mt-2 w-full resize-none rounded-lg border border-[var(--input)] bg-[var(--background)] px-3.5 py-3 text-sm leading-6 outline-none transition focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/15"
         />
       </label>
       <fieldset className="mt-5">
-        <legend className="text-xs font-medium text-[var(--foreground)]">{t('Goal emblem')}</legend>
+        <legend className="text-xs font-medium text-[var(--foreground)]">{"Goal emblem"}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {EMBLEMS.map(({ value, Icon }) => (
             <button
@@ -101,7 +97,7 @@ export function GoalStep({
               type="button"
               onClick={() => onEmoji(value)}
               aria-pressed={emoji === value}
-              aria-label={t('Choose goal emblem {{emblem}}', { emblem: value })}
+              aria-label={`Choose goal emblem ${value}`}
               className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
                 emoji === value
                   ? 'border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]'
@@ -133,7 +129,7 @@ export function SourcesStep({
   childLists: Record<string, SourceChildren>
   onExpand: (candidate: SourceCandidate) => void
 }) {
-  const { t } = useTranslation()
+  
   // Which libraries are open. Local to this step: it is view state, and the
   // documents themselves are cached in the hook that fetched them.
   const [opened, setOpened] = useState<Set<string>>(new Set())
@@ -176,16 +172,16 @@ export function SourcesStep({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold">{t('Knowledge sources')}</h3>
+        <h3 className="text-sm font-semibold">{"Knowledge sources"}</h3>
         <span className="text-xs text-muted-foreground" aria-live="polite">
-          {t('{{count}} selected', { count: selected.size })}
+          {`${selected.size} selected`}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="search"
-          aria-label={t('Search materials')}
-          placeholder={t('Search materials')}
+          aria-label={"Search materials"}
+          placeholder={"Search materials"}
           value={search}
           onChange={event => setSearch(event.target.value)}
           className="h-9 min-w-40 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
@@ -193,7 +189,7 @@ export function SourcesStep({
       </div>
       <div
         role="tablist"
-        aria-label={t('Knowledge sources')}
+        aria-label={"Knowledge sources"}
         className="flex gap-1 overflow-x-auto border-b border-border"
       >
         {groups
@@ -230,7 +226,7 @@ export function SourcesStep({
               className={`inline-flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-xs ${tab === item.key ? 'border-primary font-medium text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
               <item.icon size={14} />
-              {t(item.label)}
+              {(item.label)}
               <span className="tabular-nums opacity-60">
                 {library[item.key].length}
               </span>
@@ -239,7 +235,7 @@ export function SourcesStep({
       </div>
       {tabFailed && (
         <p role="alert" className="text-xs text-destructive">
-          {t('navigation.loadError')}
+          {"Some records could not be loaded."}
         </p>
       )}
       {/* No nested scroll box: the step body above already scrolls, and a
@@ -260,7 +256,7 @@ export function SourcesStep({
           <SourceSection
             icon={group.icon}
             title=""
-            empty={t('No matching materials')}
+            empty={"No matching materials"}
             items={visible}
             selected={selected}
             onToggle={onToggle}
@@ -270,7 +266,7 @@ export function SourcesStep({
           />
         )}
         {tab === 'questionSets' && library.questionPage && (library.questionPage.hasMore || library.questionPage.loading) && (
-          <button type="button" disabled={library.questionPage.loading} onClick={library.questionPage.more} className="mt-3 rounded-lg border px-3 py-2 text-sm">{t(library.questionPage.loading ? 'Loading...' : 'Load more')}</button>
+          <button type="button" disabled={library.questionPage.loading} onClick={library.questionPage.more} className="mt-3 rounded-lg border px-3 py-2 text-sm">{(library.questionPage.loading ? 'Loading...' : 'Load more')}</button>
         )}
       </div>
     </div>
@@ -301,7 +297,7 @@ function SourceRow({
   note?: string
   bare?: boolean
 }) {
-  const { t } = useTranslation()
+  
   // A container holds no text of its own — a question-bank category, a study
   // partner. Showing it a checkbox would promise a selection the server has no
   // way to honour, so it renders as a plain heading and only opens.
@@ -336,7 +332,7 @@ function SourceRow({
           {item.label}
         </span>
         <span className="mt-0.5 block truncate text-xs text-[var(--muted-foreground)]">
-          {note || (item.available ? item.detail : t('Currently unavailable'))}
+          {note || (item.available ? item.detail : "Currently unavailable")}
         </span>
       </span>
     </button>
@@ -364,12 +360,12 @@ function ChildSourceList({
   onToggle: (key: string) => void
   parentSelected: boolean
 }) {
-  const { t } = useTranslation()
+  
   if (!state || state.loading) {
     return (
       <div className="flex items-center gap-2 px-3 py-3 text-xs text-[var(--muted-foreground)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        {t('Loading…')}
+        {"Loading…"}
       </div>
     )
   }
@@ -386,7 +382,7 @@ function ChildSourceList({
       <div className="px-3 py-3 text-xs text-[var(--muted-foreground)]">
         {/* A connected external resource keeps its files where they live; the
             whole library is still selectable, one of its documents is not. */}
-        {t('Nothing here to pick from.')}
+        {"Nothing here to pick from."}
       </div>
     )
   }
@@ -401,7 +397,7 @@ function ChildSourceList({
           disabled={parentSelected}
           note={
             parentSelected
-              ? t('Already covered by the whole library')
+              ? "Already covered by the whole library"
               : `${parent.label} · ${child.path || child.detail}`
           }
         />
@@ -434,7 +430,7 @@ function SourceSection({
   opened?: Set<string>
   onToggleOpen?: (candidate: SourceCandidate) => void
 }) {
-  const { t } = useTranslation()
+  
   const expandable = Boolean(childLists && opened && onToggleOpen)
   return (
     <section>
@@ -476,7 +472,7 @@ function SourceSection({
                         item.selectable === false ? onToggleOpen?.(item) : onToggle(item.key)
                       }
                       bare
-                      note={picked > 0 ? `${picked} ${t('selected inside')}` : ''}
+                      note={picked > 0 ? `${picked} ${"selected inside"}` : ''}
                     />
                   </div>
                   <button
@@ -485,7 +481,7 @@ function SourceSection({
                     aria-expanded={isOpen}
                     disabled={!item.available}
                     className="flex w-11 shrink-0 items-center justify-center border-l border-[var(--border)] text-[var(--muted-foreground)] transition hover:bg-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--foreground)] disabled:opacity-40"
-                    aria-label={t('Show what is inside')}
+                    aria-label={"Show what is inside"}
                   >
                     <span className="flex flex-col items-center gap-0.5">
                       <FileText className="h-3.5 w-3.5" />

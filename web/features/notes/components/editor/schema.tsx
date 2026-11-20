@@ -12,7 +12,7 @@ import {
 import { createReactBlockSpec, createReactInlineContentSpec } from '@blocknote/react'
 import { InputRule, inputRules } from '@tiptap/pm/inputrules'
 import { ArrowUpRight, FileText } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import type { NoteBlock } from '@/lib/notes-api'
 import { parseNoteMarkdown } from '../../model/markdown'
 import NoteFavoriteBlock from '../NoteFavoriteBlock'
@@ -38,14 +38,14 @@ const math = createReactBlockSpec(
   { type: 'math', propSchema: { formula: { default: '' } }, content: 'none' },
   {
     render: function MathBlock({ block, editor }) {
-      const { t } = useTranslation()
+      
       const [editing, setEditing] = useState(!block.props.formula)
       return (
         <div className="dt-note-math" contentEditable={false}>
           {editing ? (
             <input
               autoFocus
-              aria-label={t('Math formula')}
+              aria-label={"Math formula"}
               value={block.props.formula}
               onChange={e => editor.updateBlock(block, { props: { formula: e.target.value } })}
               onBlur={() => {
@@ -87,7 +87,7 @@ const clip = createReactBlockSpec(
   },
   {
     render: function ClipBlock({ block, editor }) {
-      const { t } = useTranslation()
+      
       if (block.props.favoriteType || /^\/notebooks?\//.test(block.props.sourceUrl))
         return (
           <NoteFavoriteBlock
@@ -114,12 +114,12 @@ const clip = createReactBlockSpec(
       return (
         <div className="dt-note-clip" contentEditable={false}>
           <details open>
-            <summary>{block.props.title || t('Excerpt')}</summary>
+            <summary>{block.props.title || "Excerpt"}</summary>
             <Markdown content={block.props.markdown} />
           </details>
           {block.props.sourceUrl && (
             <a data-note-source href={block.props.sourceUrl}>
-              {t('Return to source')}
+              {"Return to source"}
             </a>
           )}
         </div>
@@ -172,13 +172,13 @@ const inlineMath = createReactInlineContentSpec(
   { type: 'inlineMath', propSchema: { formula: { default: '' } }, content: 'none' },
   {
     render: function InlineMath({ inlineContent, updateInlineContent }) {
-      const { t } = useTranslation()
+      
       const [edit, setEdit] = useState(false)
       return (
         <span contentEditable={false} className="dt-note-inline-math">
           {edit ? (
             <input
-              aria-label={t('Math formula')}
+              aria-label={"Math formula"}
               autoFocus
               value={inlineContent.props.formula}
               onChange={e =>

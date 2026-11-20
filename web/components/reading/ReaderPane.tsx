@@ -21,7 +21,7 @@ import {
   PanelRightOpen,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useReading } from "@/context/ReadingContext";
 import {
   READER_ACTION_EVENT,
@@ -73,9 +73,9 @@ import {
 } from "@/lib/reading-location-history";
 
 function EpubLoading() {
-  const { t } = useTranslation();
+  
   return (
-    <div role="status" aria-label={t("Loading")} className="flex h-full items-center justify-center">
+    <div role="status" aria-label={"Loading..."} className="flex h-full items-center justify-center">
       <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-[var(--muted-foreground)]" />
     </div>
   );
@@ -191,7 +191,7 @@ export function ReaderPane({
   ownAnnotationList = true,
   headSlot = null,
 }: ReaderPaneProps) {
-  const { t, i18n } = useTranslation();
+  
   // Document + annotations live in the provider (workspace layout), so they
   // survive the remount that sending the first message causes.
   const {
@@ -839,7 +839,7 @@ export function ReaderPane({
     if (!readingActions || readingActions.ageMode !== "default") return undefined;
     if (!selection || !material) return undefined;
     const target = { locator: selection.locator, selection: selectionText };
-    const prompts = passagePrompts(selectionText, i18n.language, t).map(
+    const prompts = passagePrompts(selectionText, "en").map(
       (prompt): PopoverAiAction => ({
         key: prompt.key,
         label: prompt.label,
@@ -862,16 +862,7 @@ export function ReaderPane({
         }),
       );
     return [...prompts, ...extensions];
-  }, [
-    readingActions,
-    selection,
-    selectionText,
-    material,
-    askAboutSelection,
-    clearSelection,
-    i18n.language,
-    t,
-  ]);
+  }, [readingActions, selection, selectionText, material, askAboutSelection, clearSelection, "en"]);
 
   // -- export --------------------------------------------------------------
 
@@ -892,16 +883,16 @@ export function ReaderPane({
       // in some browsers before it has read the blob.
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : t("Export failed."));
+      setError(error instanceof Error ? error.message : "Export failed.");
     } finally {
       setExporting(false);
     }
-  }, [material, exporting, t, dismissError, setError]);
+  }, [material, exporting, dismissError, setError]);
 
   // -- render --------------------------------------------------------------
 
   const showAnnotations = annotationPanel ?? annotations.length > 0;
-  const unitWord = material ? t(unitLabel(material.unit)) : "";
+  const unitWord = material ? (unitLabel(material.unit)) : "";
   const isEpub = material?.render_mode === "epub";
   const currentUnitTitle = isEpub
     ? material?.unit_refs.find((row) => row.locator === currentLocator)?.title
@@ -927,7 +918,7 @@ export function ReaderPane({
       items.push({
         key: "history",
         icon: History,
-        label: t("History"),
+        label: "History",
         onSelect: () => setShowHistory(true),
       });
       // The header's Forward button is desktop-only; on a phone the menu is
@@ -935,7 +926,7 @@ export function ReaderPane({
       items.push({
         key: "forward",
         icon: ArrowRight,
-        label: t("Forward"),
+        label: "Forward",
         disabled:
           locationHistory.index < 0 ||
           locationHistory.index >= locationHistory.entries.length - 1,
@@ -946,10 +937,10 @@ export function ReaderPane({
     items.push({
       key: "follow",
       icon: Crosshair,
-      label: t("Follow the assistant"),
+      label: "Follow the assistant",
       hint: autoJump
-        ? t("Auto-jump on — the view follows what the assistant reads")
-        : t("Auto-jump off — the assistant will not move your view"),
+        ? "Auto-jump on — the view follows what the assistant reads"
+        : "Auto-jump off — the assistant will not move your view",
       active: autoJump,
       onSelect: toggleAutoJump,
     });
@@ -957,7 +948,7 @@ export function ReaderPane({
       items.push({
         key: "annotations",
         icon: showAnnotations ? PanelRightClose : PanelRightOpen,
-        label: t("Annotations"),
+        label: "Annotations",
         active: showAnnotations,
         onSelect: () => setAnnotationPanel(!showAnnotations),
       });
@@ -965,25 +956,13 @@ export function ReaderPane({
     items.push({
       key: "export",
       icon: exporting ? Loader2 : Download,
-      label: t("Export annotated file"),
+      label: "Export annotated file",
       spinning: exporting,
       disabled: exporting,
       onSelect: () => void runExport(),
     });
     return items;
-  }, [
-    autoJump,
-    exporting,
-    hasHistory,
-    locationHistory,
-    material,
-    ownAnnotationList,
-    runExport,
-    showAnnotations,
-    stepHistory,
-    t,
-    toggleAutoJump,
-  ]);
+  }, [autoJump, exporting, hasHistory, locationHistory, material, ownAnnotationList, runExport, showAnnotations, stepHistory, toggleAutoJump]);
   const menuHosted = useWorkspaceMenuSection("material", menuItems);
 
   return (
@@ -1008,7 +987,7 @@ export function ReaderPane({
               className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]"
               title={material?.filename || material?.title}
             >
-              {material?.title || material?.filename || t("Immersive reading")}
+              {material?.title || material?.filename || "Immersive reading"}
             </span>
           </>
         )}
@@ -1026,13 +1005,13 @@ export function ReaderPane({
           <>
             <HeaderButton
               icon={ArrowLeft}
-              label={t("Back")}
+              label={"Back"}
               disabled={locationHistory.index <= 0}
               onClick={() => stepHistory(-1)}
             />
             <HeaderButton
               icon={ArrowRight}
-              label={t("Forward")}
+              label={"Forward"}
               disabled={
                 locationHistory.index < 0 ||
                 locationHistory.index >= locationHistory.entries.length - 1
@@ -1060,11 +1039,7 @@ export function ReaderPane({
                   {epubProgress !== null && <span>{` · ${epubProgress}%`}</span>}
                 </>
               ) : (
-                t("{{unit}} {{n}} / {{total}}", {
-                  unit: unitWord,
-                  n: currentLocator,
-                  total: material.unit_count,
-                })
+                `${unitWord} ${currentLocator} / ${material.unit_count}`
               )}
             </span>
             {onToggleBookmark && (
@@ -1072,12 +1047,8 @@ export function ReaderPane({
                 icon={bookmarkedHere ? BookmarkCheck : Bookmark}
                 label={
                   bookmarkedHere
-                    ? t("Remove the bookmark on this {{unit}}", {
-                        unit: unitWord.toLocaleLowerCase(),
-                      })
-                    : t("Bookmark this {{unit}}", {
-                        unit: unitWord.toLocaleLowerCase(),
-                      })
+                    ? `Remove the bookmark on this ${unitWord.toLocaleLowerCase()}`
+                    : `Bookmark this ${unitWord.toLocaleLowerCase()}`
                 }
                 active={bookmarkedHere}
                 onClick={() => onToggleBookmark(currentLocator)}
@@ -1086,7 +1057,7 @@ export function ReaderPane({
             {!menuHosted && (
               <HeaderButton
                 icon={MoreHorizontal}
-                label={t("More")}
+                label={"More"}
                 active={showMoreTools}
                 menu
                 buttonRef={moreToolsButtonRef}
@@ -1104,13 +1075,13 @@ export function ReaderPane({
         <div
           ref={moreToolsMenuRef}
           role="menu"
-          aria-label={t("More")}
+          aria-label={"More"}
           className={`absolute ${headSlot ? "top-2" : "top-11"} right-2 z-40 w-64 rounded-xl border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-xl`}
         >
           {locationHistory.entries.length > 0 && (
             <MenuToolButton
               icon={History}
-              label={t("History")}
+              label={"History"}
               onClick={() => {
                 setShowHistory(true);
                 setShowMoreTools(false);
@@ -1120,7 +1091,7 @@ export function ReaderPane({
           {locationHistory.entries.length > 0 && (
             <MenuToolButton
               icon={ArrowRight}
-              label={t("Forward")}
+              label={"Forward"}
               disabled={
                 locationHistory.index < 0 ||
                 locationHistory.index >= locationHistory.entries.length - 1
@@ -1134,11 +1105,11 @@ export function ReaderPane({
           )}
           <MenuToolButton
             icon={Crosshair}
-            label={t("Follow the assistant")}
+            label={"Follow the assistant"}
             hint={
               autoJump
-                ? t("Auto-jump on — the view follows what the assistant reads")
-                : t("Auto-jump off — the assistant will not move your view")
+                ? "Auto-jump on — the view follows what the assistant reads"
+                : "Auto-jump off — the assistant will not move your view"
             }
             active={autoJump}
             onClick={toggleAutoJump}
@@ -1146,7 +1117,7 @@ export function ReaderPane({
           {ownAnnotationList && (
             <MenuToolButton
               icon={showAnnotations ? PanelRightClose : PanelRightOpen}
-              label={t("Annotations")}
+              label={"Annotations"}
               active={showAnnotations}
               onClick={() => {
                 setAnnotationPanel(!showAnnotations);
@@ -1157,7 +1128,7 @@ export function ReaderPane({
           <div className="my-1 h-px bg-[var(--border)]" aria-hidden />
           <MenuToolButton
             icon={exporting ? Loader2 : Download}
-            label={t("Export annotated file")}
+            label={"Export annotated file"}
             spinning={exporting}
             onClick={() => {
               void runExport();
@@ -1195,9 +1166,9 @@ export function ReaderPane({
                       {entry.title}
                     </span>
                     <span className="block truncate font-mono text-[10px] text-[var(--muted-foreground)]">
-                      {t(unitLabel(entry.source?.unit || "section"))}{" "}
+                      {(unitLabel(entry.source?.unit || "section"))}{" "}
                       {entry.locator}
-                      {unavailable ? ` · ${t("Unavailable")}` : ""}
+                      {unavailable ? ` · ${"Unavailable"}` : ""}
                     </span>
                   </span>
                 </button>
@@ -1218,7 +1189,7 @@ export function ReaderPane({
             type="button"
             onClick={dismissError}
             className="text-[color-mix(in_srgb,var(--destructive)_70%,transparent)] transition hover:text-[var(--destructive)]"
-            aria-label={t("Dismiss")}
+            aria-label={"Dismiss"}
           >
             <X size={12} />
           </button>
@@ -1241,19 +1212,19 @@ export function ReaderPane({
           {loadingMaterial ? (
             <div className="flex h-full items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
               <Loader2 size={14} className="animate-spin" />
-              {t("Opening document…")}
+              {"Opening document…"}
             </div>
           ) : !material ? (
             <div className="flex h-full flex-col items-center justify-center gap-1 px-6 text-center">
               <p className="text-[12.5px] text-[var(--muted-foreground)]">
-                {t("This document could not be opened.")}
+                {"This document could not be opened."}
               </p>
               <button
                 type="button"
                 onClick={onClose}
                 className="text-[11.5px] font-medium text-[var(--primary)] underline-offset-2 hover:underline"
               >
-                {t("Back to the library")}
+                {"Back to the library"}
               </button>
             </div>
           ) : material.render_mode === "epub" ? (

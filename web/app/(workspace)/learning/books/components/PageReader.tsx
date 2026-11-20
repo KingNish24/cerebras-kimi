@@ -16,7 +16,7 @@ import {
   ChevronRight,
   ChevronUp,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { ActivityHeader } from "@/components/activity";
 import type { Block, BlockType, Page, QuizAttempt } from "@/lib/book-types";
 import {
@@ -145,7 +145,7 @@ export default function PageReader({
   onToggleBookmark,
   onCaptureSelection,
 }: PageReaderProps) {
-  const { t } = useTranslation();
+  
   const pathname = usePathname();
   const [showInsertMenu, setShowInsertMenu] = useState(false);
   /** The chapter outline starts parked so it never covers the prose unasked. */
@@ -297,13 +297,13 @@ export default function PageReader({
     }
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
-      window.alert(t("Please select some text before saving."));
+      window.alert("Please select some text before saving.");
       return;
     }
 
     const sourceText = normalizeText(selection.toString());
     if (!sourceText) {
-      window.alert(t("Selected text is empty."));
+      window.alert("Selected text is empty.");
       return;
     }
 
@@ -344,7 +344,7 @@ export default function PageReader({
       source_locator: sourceLocator,
     });
     selection.removeAllRanges();
-  }, [onCaptureSelection, normalizeText, page, t]);
+  }, [onCaptureSelection, normalizeText, page]);
 
   const navigateSequentially = useCallback(
     (direction: SequentialReadDirection): boolean => {
@@ -418,13 +418,13 @@ export default function PageReader({
   if (!page) {
     return (
       <div className="flex h-full items-center justify-center text-[var(--muted-foreground)]">
-        {t("Select a chapter to start reading.")}
+        {"Select a chapter to start reading."}
       </div>
     );
   }
 
-  const expandTip = t("Expand header");
-  const collapseTip = t("Collapse header");
+  const expandTip = "Expand header";
+  const collapseTip = "Collapse header";
   const failedBlocks = page.blocks.filter((block) => block.status === "error");
   /**
    * Is this chapter being written right now?
@@ -472,9 +472,9 @@ export default function PageReader({
                 "font-semibold leading-tight tracking-tight text-[var(--foreground)] transition-all duration-200",
                 headerCollapsed ? "truncate text-[15px]" : "text-[26px]",
               ].join(" ")}
-              title={page.title || t("Untitled chapter")}
+              title={page.title || "Untitled chapter"}
             >
-              {page.title || t("Untitled chapter")}
+              {page.title || "Untitled chapter"}
             </h1>
             {!headerCollapsed && page.learning_objectives.length > 0 && (
               <ul className="mt-3 space-y-0.5 text-[12.5px] text-[var(--muted-foreground)]">
@@ -487,17 +487,17 @@ export default function PageReader({
           <div className="flex shrink-0 items-center gap-2">
             {!headerCollapsed && (
               <span className="rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
-                {t(page.status)}
+                {(page.status)}
               </span>
             )}
             {onToggleBookmark && (
               <Tooltip
-                label={bookmarked ? t("Remove bookmark") : t("Bookmark this chapter")}
+                label={bookmarked ? "Remove bookmark" : "Bookmark this chapter"}
               >
                 <button
                   type="button"
                   onClick={onToggleBookmark}
-                  aria-label={bookmarked ? t("Remove bookmark") : t("Bookmark this chapter")}
+                  aria-label={bookmarked ? "Remove bookmark" : "Bookmark this chapter"}
                   aria-pressed={bookmarked}
                   className={`inline-flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
                     bookmarked
@@ -524,7 +524,7 @@ export default function PageReader({
                 ) : (
                   <RefreshCcw className="h-3.5 w-3.5" />
                 )}
-                {loading ? t("Regenerating…") : t("Force regenerate")}
+                {loading ? "Regenerating…" : "Force regenerate"}
               </button>
             )}
             <Tooltip label={headerCollapsed ? expandTip : collapseTip}>
@@ -559,10 +559,10 @@ export default function PageReader({
               orb="composing"
               label={
                 hydrating
-                  ? t("Loading this chapter…")
+                  ? "Loading this chapter…"
                   : page.status === "planning"
-                    ? t("Planning the blocks…")
-                    : t("Compiling page…")
+                    ? "Planning the blocks…"
+                    : "Compiling page…"
               }
             />
           </div>
@@ -571,9 +571,7 @@ export default function PageReader({
           // manual way in: opening a chapter promotes it in the compile queue.
           <div className="mx-auto w-full max-w-[78ch] space-y-3">
             <p className="text-sm text-[var(--muted-foreground)]">
-              {t(
-                "This chapter has not been written yet. It will be generated in turn — or start it now.",
-              )}
+              {"This chapter has not been written yet. It will be generated in turn — or start it now."}
             </p>
             {onRecompile && (
               <button
@@ -582,7 +580,7 @@ export default function PageReader({
                 className="dt-quiet-button h-8 text-xs font-medium"
               >
                 <RefreshCcw className="h-3.5 w-3.5" />
-                {t("Generate this chapter")}
+                {"Generate this chapter"}
               </button>
             )}
           </div>
@@ -593,12 +591,8 @@ export default function PageReader({
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div className="font-semibold">
                     {failedBlocks.length === 1
-                      ? t("{{count}} block failed", {
-                          count: failedBlocks.length,
-                        })
-                      : t("{{count}} blocks failed", {
-                          count: failedBlocks.length,
-                        })}
+                      ? `${failedBlocks.length} block failed`
+                      : `${failedBlocks.length} blocks failed`}
                   </div>
                   {onRecompile && (
                     <button
@@ -611,7 +605,7 @@ export default function PageReader({
                       ) : (
                         <RefreshCcw className="h-3.5 w-3.5" />
                       )}
-                      {loading ? t("Regenerating…") : t("Regenerate page")}
+                      {loading ? "Regenerating…" : "Regenerate page"}
                     </button>
                   )}
                 </div>
@@ -629,17 +623,17 @@ export default function PageReader({
                           {block.type}
                         </code>
                         <span>
-                          {failure?.kind || t("error")}:{" "}
+                          {failure?.kind || "error"}:{" "}
                           {block.error ||
                             failure?.message ||
-                            t("Unknown error")}
+                            "Unknown error"}
                         </span>
                         {onRegenerateBlock && (
                           <button
                             onClick={() => onRegenerateBlock(block)}
                             className="rounded border border-current px-1.5 py-0.5 text-[11px] font-medium hover:bg-white/40 dark:hover:bg-white/10"
                           >
-                            {t("Retry block")}
+                            {"Retry block"}
                           </button>
                         )}
                       </div>
@@ -676,7 +670,7 @@ export default function PageReader({
             ))}
             {page.blocks.length === 0 && !writing && !queued && !hydrating && (
               <p className="text-sm text-[var(--muted-foreground)]">
-                {t("This chapter is empty.")}
+                {"This chapter is empty."}
               </p>
             )}
 
@@ -692,7 +686,7 @@ export default function PageReader({
                   ) : (
                     <Plus className="h-3.5 w-3.5" />
                   )}
-                  {t("Insert block")}
+                  {"Insert block"}
                 </button>
                 {showInsertMenu && (
                   <div className="absolute top-full mt-1 z-10 grid w-72 grid-cols-2 gap-1 rounded-lg border border-[var(--border)] bg-[var(--card)] p-2 shadow-lg">
@@ -710,7 +704,7 @@ export default function PageReader({
                         }}
                         className="rounded px-2 py-1 text-left text-xs text-[var(--foreground)] hover:bg-[var(--background)]"
                       >
-                        {t(blockType)}
+                        {(blockType)}
                       </button>
                     ))}
                   </div>
@@ -722,7 +716,7 @@ export default function PageReader({
                     className="dt-quiet-button h-8 rounded-full bg-[rgb(var(--dt-ink,55_53_47)/0.04)] px-3.5 text-xs font-medium"
                   >
                     <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                    {t("Save selection")}
+                    {"Save selection"}
                   </button>
                 )}
               </div>
@@ -737,28 +731,24 @@ export default function PageReader({
             <NavButton
               page={previousPage}
               direction="previous"
-              label={t("Previous chapter")}
+              label={"Previous chapter"}
               onNavigate={onNavigate}
             />
             <div className="flex min-w-0 shrink-0 flex-col items-center gap-1">
               <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]/70">
-                {t("← / → to turn pages")}
+                {"← / → to read, then turn pages"}
               </span>
               {chapterHasScroll && (
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[var(--muted-foreground)]/70">
-                    {t("Chapter progress: {{percent}}%", {
-                      percent: readingPercent,
-                    })}
+                    {`Chapter progress: ${readingPercent}%`}
                   </span>
                   <progress
                     data-testid="chapter-progress"
                     className="h-1.5 w-24 accent-[var(--primary)]"
                     max={100}
                     value={readingPercent}
-                    aria-label={t("Chapter progress: {{percent}}%", {
-                      percent: readingPercent,
-                    })}
+                    aria-label={`Chapter progress: ${readingPercent}%`}
                   />
                 </div>
               )}
@@ -766,7 +756,7 @@ export default function PageReader({
             <NavButton
               page={nextPage}
               direction="next"
-              label={t("Next chapter")}
+              label={"Next chapter"}
               onNavigate={onNavigate}
             />
           </div>

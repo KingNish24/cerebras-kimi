@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ListChecks } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
 import type { PartnerGroupMember } from "@/lib/partner-groups-api";
@@ -22,7 +22,7 @@ export default function RoundSummaryAction({
   members: PartnerGroupMember[];
   onSummarize: (partnerId: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
 
   if (!members.length) return null;
@@ -35,7 +35,7 @@ export default function RoundSummaryAction({
         className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] transition-opacity hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus:opacity-100 sm:opacity-0 sm:group-hover/round:opacity-100"
       >
         <ListChecks size={11} />
-        {t("Summarise this round")}
+        {"Summarise this round"}
       </button>
 
       {open ? (
@@ -44,7 +44,7 @@ export default function RoundSummaryAction({
           onMouseLeave={() => setOpen(false)}
         >
           <div className="px-2.5 pb-1 pt-0.5 text-[9.5px] text-[var(--muted-foreground)]">
-            {t("Who should sum it up?")}
+            {"Who should sum it up?"}
           </div>
           {members.map((member) => (
             <button

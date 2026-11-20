@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { FlaskConical, Loader2, Square } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import {
   useSettings,
   type CatalogModel,
@@ -50,7 +50,7 @@ export function ServicePreviewPanel(props: Props) {
 }
 
 function Preview({ service, profile, model }: Props) {
-  const { t } = useTranslation()
+  
   const { draft } = useSettings()
   const [text, setText] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -197,7 +197,7 @@ function Preview({ service, profile, model }: Props) {
       {service === 'stt' ? (
         <div className="space-y-3">
           <label className="block space-y-2 text-xs font-medium">
-            <span>{t('settings.servicePreview.audio')}</span>
+            <span>{"Audio sample · WAV, MP3, M4A, WebM, OGG or FLAC · up to 8 MB"}</span>
             <input
               type="file"
               accept=".wav,.mp3,.m4a,.webm,.ogg,.flac,audio/*"
@@ -226,18 +226,14 @@ function Preview({ service, profile, model }: Props) {
               controls
               src={audioUrl}
               className="h-10 w-full"
-              aria-label={t('settings.servicePreview.audio')}
+              aria-label={"Audio sample · WAV, MP3, M4A, WebM, OGG or FLAC · up to 8 MB"}
             />
           )}
         </div>
       ) : (
         <label className="block space-y-2 text-xs font-medium">
           <span>
-            {t(
-              service === 'search'
-                ? 'settings.servicePreview.query'
-                : 'settings.servicePreview.prompt'
-            )}
+            {(service === 'search' ? 'settings.servicePreview.query' : 'settings.servicePreview.prompt')}
           </span>
           <textarea
             className={inputClass}
@@ -277,7 +273,7 @@ function Preview({ service, profile, model }: Props) {
             }}
           >
             <Square size={12} />
-            {t('Cancel')}
+            {"Cancel"}
           </button>
         )}
       </div>
@@ -292,7 +288,7 @@ function Preview({ service, profile, model }: Props) {
       )}
       {(running || state === 'cancelled' || state === 'timeout') && service === 'videogen' && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          {t('settings.servicePreview.remoteTask')}
+          {"Stopping this test stops local waiting. A task already accepted by the provider may continue and incur charges."}
         </p>
       )}
       {result && !empty && (
@@ -343,7 +339,7 @@ function Preview({ service, profile, model }: Props) {
               download={result.kind === 'image' ? 'deeptutor-preview' : 'deeptutor-preview-video'}
               className="inline-block text-xs underline underline-offset-4"
             >
-              {t('Download')}
+              {"Download"}
             </a>
           )}
         </div>

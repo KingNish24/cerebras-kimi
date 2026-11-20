@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Table2, Columns3, List, Search, Plus } from 'lucide-react'
 import { useActiveWorkspaceId } from '@/hooks/useActiveWorkspaceId'
 import {
@@ -20,7 +20,7 @@ export default function NoteTaskView({
   view: string
   onViewChange: (view: string) => void
 }) {
-  const { t } = useTranslation()
+  
   const workspaceId = useActiveWorkspaceId()
   const [cards, setCards] = useState<TaskCard[]>([])
   const [query, setQuery] = useState('')
@@ -59,13 +59,13 @@ export default function NoteTaskView({
   const status = (c: TaskCard) => (
     <select
       disabled={busy}
-      aria-label={`${t('Status')}: ${c.title}`}
+      aria-label={`${"Status"}: ${c.title}`}
       value={c.status}
       onChange={e => void update(c, { status: e.target.value as TaskStatus })}
     >
       {statuses.map(s => (
         <option key={s} value={s}>
-          {t(labels[s])}
+          {(labels[s])}
         </option>
       ))}
     </select>
@@ -73,8 +73,8 @@ export default function NoteTaskView({
   return (
     <section>
       <header>
-        <strong>{t('Workspace tasks')}</strong>
-        <div role="tablist" aria-label={t('Task view')}>
+        <strong>{"Workspace tasks"}</strong>
+        <div role="tablist" aria-label={"Task view"}>
           {(
             [
               ['table', Table2, 'Table'],
@@ -89,7 +89,7 @@ export default function NoteTaskView({
               onClick={() => onViewChange(key)}
             >
               <Icon size={14} />
-              {t(label)}
+              {(label)}
             </button>
           ))}
         </div>
@@ -97,8 +97,8 @@ export default function NoteTaskView({
       <label className="dt-note-view-search">
         <Search size={14} />
         <input
-          aria-label={t('Search tasks')}
-          placeholder={t('Search tasks')}
+          aria-label={"Search tasks"}
+          placeholder={"Search tasks"}
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
@@ -108,7 +108,7 @@ export default function NoteTaskView({
           {statuses.map(s => (
             <div key={s}>
               <h4>
-                {t(labels[s])}
+                {(labels[s])}
                 <span>{visible.filter(c => c.status === s).length}</span>
               </h4>
               {visible
@@ -143,9 +143,9 @@ export default function NoteTaskView({
           <table>
             <thead>
               <tr>
-                <th>{t('Task')}</th>
-                <th>{t('Status')}</th>
-                <th>{t('Due date')}</th>
+                <th>{"Task"}</th>
+                <th>{"Status"}</th>
+                <th>{"Due date"}</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +157,7 @@ export default function NoteTaskView({
                     <input
                       type="date"
                       disabled={busy}
-                      aria-label={`${t('Due date')}: ${c.title}`}
+                      aria-label={`${"Due date"}: ${c.title}`}
                       value={c.due_date || ''}
                       onChange={e => void update(c, { due_date: e.target.value || null })}
                     />
@@ -168,7 +168,7 @@ export default function NoteTaskView({
           </table>
         </div>
       )}
-      {!visible.length && <p className="dt-note-hint">{t('No tasks yet')}</p>}
+      {!visible.length && <p className="dt-note-hint">{"No tasks yet"}</p>}
       <form
         className="dt-note-new-task"
         onSubmit={async e => {
@@ -188,12 +188,12 @@ export default function NoteTaskView({
       >
         <Plus size={15} />
         <input
-          aria-label={t('New task')}
-          placeholder={t('New task')}
+          aria-label={"New task"}
+          placeholder={"New task"}
           value={title}
           onChange={e => setTitle(e.target.value)}
         />
-        <button disabled={busy || !title.trim()}>{t('Add')}</button>
+        <button disabled={busy || !title.trim()}>{"Add"}</button>
       </form>
       {error && <p role="alert">{error}</p>}
     </section>

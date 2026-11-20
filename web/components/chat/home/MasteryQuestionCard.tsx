@@ -19,7 +19,7 @@
  */
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { LearningText } from "@/components/common/LearningText";
 import InlineMarkdown from "@/components/common/InlineMarkdown";
@@ -126,7 +126,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
   question, grade, answered, skipped, submittedAnswer, onSubmit, onSkip,
   onChallenge, groupInput, rejectionKey,
 }: MasteryQuestionCardProps & { groupInput?: GroupInput }) {
-  const { t } = useTranslation();
+  
   const [picked, setPicked] = useState<string>(() => grade?.final === false ? grade.learnerAnswer : "");
   const [skipping, setSkipping] = useState(false);
   const [sourceUnavailable, setSourceUnavailable] = useState(false);
@@ -177,9 +177,9 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
   const difficultyLabel = DIFFICULTY_LABELS[question.difficulty] ?? "";
   const meta = [
     question.objectiveName,
-    difficultyLabel ? t(difficultyLabel) : "",
+    difficultyLabel ? (difficultyLabel) : "",
     question.attempt > 1
-      ? t("Attempt {{count}}", { count: question.attempt })
+      ? `Attempt ${question.attempt}`
       : "",
   ].filter(Boolean);
 
@@ -218,14 +218,14 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
         <LearningText size={15.5}><InlineMarkdown content={question.prompt} /></LearningText>
       </div>
       {question.visual && <div className="mt-3 space-y-2 text-xs text-[var(--muted-foreground)]">
-        <p>{grade?.independent === false || question.visual.hintsUsed || question.visual.answerCues !== "none" ? t("Guided visual practice — this does not demonstrate independent mastery.") : t("Visual practice with the original source.")}</p>
-        {sourceUnavailable && <p role="alert">{t("The source image is unavailable. Open the source or ask your tutor to inspect its current version.")}</p>}
-        {question.visual.keyStatus !== "verified" && <p>{t("The reference key is uncertain. This practice will remain ungraded.")}</p>}
-        {question.visual.pixelsInspected === false && <p>{t("Current model input has no verified source pixels. Retrieve the image again with a vision-capable model before grading.")}</p>}
+        <p>{grade?.independent === false || question.visual.hintsUsed || question.visual.answerCues !== "none" ? "Guided visual practice — this does not demonstrate independent mastery." : "Visual practice with the original source."}</p>
+        {sourceUnavailable && <p role="alert">{"The source image is unavailable. Open the source or ask your tutor to inspect its current version."}</p>}
+        {question.visual.keyStatus !== "verified" && <p>{"The reference key is uncertain. This practice will remain ungraded."}</p>}
+        {question.visual.pixelsInspected === false && <p>{"Current model input has no verified source pixels. Retrieve the image again with a vision-capable model before grading."}</p>}
         {question.visual.sources.map((source, index) => <figure key={`${source.imageUrl}-${index}`}>
           {/* Authenticated source endpoints need the browser's own cookies. */}
-          <a href={source.imageUrl} target="_blank" rel="noreferrer"><img src={source.imageUrl} alt={t("Original source evidence")} onError={() => setSourceUnavailable(true)} className="max-h-80 max-w-full object-contain" /></a>
-          <figcaption><a className="underline" href={source.url} target="_blank" rel="noreferrer">{source.sourcePath}{source.page ? ` · ${t("Page")} ${source.page}` : ""}</a></figcaption>
+          <a href={source.imageUrl} target="_blank" rel="noreferrer"><img src={source.imageUrl} alt={"Original source evidence"} onError={() => setSourceUnavailable(true)} className="max-h-80 max-w-full object-contain" /></a>
+          <figcaption><a className="underline" href={source.url} target="_blank" rel="noreferrer">{source.sourcePath}{source.page ? ` · ${"Page"} ${source.page}` : ""}</a></figcaption>
         </figure>)}
       </div>}
 
@@ -255,7 +255,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
               aria-label={question.prompt}
               value={freeText}
               onChange={(event) => setFreeText(event.target.value)}
-              placeholder={t("Write your answer…")}
+              placeholder={"Write your answer…"}
               rows={hasChoices ? 2 : 3}
               disabled={locked}
               className="w-full resize-y rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-2 text-[13.5px] leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)] focus:border-[color-mix(in_srgb,var(--foreground)_35%,transparent)] disabled:opacity-60"
@@ -270,7 +270,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
               <span className="relative top-px flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border border-dashed border-[var(--border)] text-[10.5px] font-semibold">
                 +
               </span>
-              {t("Answer in my own words")}
+              {"Answer in my own words"}
             </button>
           )}
         </div>
@@ -288,12 +288,12 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
                   : "text-[var(--destructive)]")
               }
             >
-              {ungraded ? t("Ungraded — mastery unchanged") : grade.result === "partial" ? t("Partially correct") : grade.isCorrect ? t("Correct") : t("Not quite")}
+              {ungraded ? "Ungraded — mastery unchanged" : grade.result === "partial" ? "Partially correct" : grade.isCorrect ? "Correct" : "Not quite"}
             </span>
             {!ungraded && !grade.isCorrect && grade.correctLabel ? (
               <span className="text-[var(--foreground)]">
                 {" · "}
-                <LearningText inline size={12.5}>{t("Answer: {{label}}", { label: grade.correctLabel })}</LearningText>
+                <LearningText inline size={12.5}>{`Answer: ${grade.correctLabel}`}</LearningText>
               </span>
             ) : null}
           </div>
@@ -303,7 +303,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
             </div>
           ) : null}
           {grade.feedback && grade.feedback !== grade.explanation && <div className="mt-1 text-[12.5px]"><LearningText size={12.5}><InlineMarkdown content={grade.feedback} /></LearningText></div>}
-          {onChallenge && <button type="button" className="mt-2 text-xs underline" onClick={() => onChallenge(question.questionId)}>{t("Review or challenge this assessment")}</button>}
+          {onChallenge && <button type="button" className="mt-2 text-xs underline" onClick={() => onChallenge(question.questionId)}>{"Review or challenge this assessment"}</button>}
         </div>
       ) : null}
 
@@ -319,12 +319,12 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
             }
           >
             {sending
-              ? t("Sending your answers…")
+              ? "Sending your answers…"
               : sendFailed
-                ? t(rejectionKey ? MASTERY_ANSWER_REJECTED_MESSAGE : REPLY_NOT_DELIVERED)
+                ? (rejectionKey ? MASTERY_ANSWER_REJECTED_MESSAGE : REPLY_NOT_DELIVERED)
                 : hasChoices
-                  ? t("Pick the option you think is right.")
-                  : t("Write your answer to continue.")}
+                  ? "Pick the option you think is right."
+                  : "Write your answer to continue."}
           </span>
           <div className="flex shrink-0 items-center gap-1">
             {/* Not a dead end: the engine holds one open question per path, so
@@ -337,7 +337,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
                 disabled={locked}
                 className="rounded-md px-2 py-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {skipping ? t("Skipping…") : t("Skip this one")}
+                {skipping ? "Skipping…" : "Skip this one"}
               </button>
             ) : null}
             <button
@@ -346,17 +346,17 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
               disabled={locked || !answer || sourceUnavailable}
               className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("Submit")}
+              {"Submit"}
             </button>
           </div>
         </div>
       ) : skipped ? (
         <div className="mt-2.5 text-[11px] text-[var(--muted-foreground)]">
-          {t("Skipped — no attempt was recorded for this question.")}
+          {"Skipped — no attempt was recorded for this question."}
         </div>
       ) : !grade ? (
         <div className="mt-2.5 text-[11px] text-[var(--muted-foreground)]">
-          {t("Answer submitted — your tutor is checking it.")}
+          {"Answer submitted — your tutor is checking it."}
         </div>
       ) : null)}
     </div>
@@ -366,7 +366,7 @@ const SingleMasteryQuestionCard = memo(function SingleMasteryQuestionCard({
 function GroupedMasteryQuestionCard({
   question, grade, answered, skipped, onSubmit, onSkip, onChallenge, rejectionKey,
 }: MasteryQuestionCardProps) {
-  const { t } = useTranslation();
+  
   const [answers, setAnswers] = useState<Record<string, { text: string; available: boolean }>>({});
   const [skipping, setSkipping] = useState(false);
   const [skipFailed, setSkipFailed] = useState(false);
@@ -415,22 +415,22 @@ function GroupedMasteryQuestionCard({
     })}
     {!settled ? <div className="mt-3 flex items-center justify-between gap-3">
       <span className={failed || skipFailed ? "text-xs text-[var(--destructive)]" : "text-xs text-[var(--muted-foreground)]"}>
-        {sending ? t("Sending your answers…") : failed || skipFailed
-          ? t(failed && rejectionKey ? MASTERY_ANSWER_REJECTED_MESSAGE : REPLY_NOT_DELIVERED)
-          : t("Write your answer to continue.")}
+        {sending ? "Sending your answers…" : failed || skipFailed
+          ? (failed && rejectionKey ? MASTERY_ANSWER_REJECTED_MESSAGE : REPLY_NOT_DELIVERED)
+          : "Write your answer to continue."}
       </span>
       <div className="flex shrink-0 items-center gap-1">
         {onSkip && <button type="button" onClick={() => void handleSkip()} disabled={locked}
           className="rounded-md px-2 py-1.5 text-xs text-[var(--muted-foreground)] disabled:opacity-40">
-          {skipping ? t("Skipping…") : t("Skip this one")}
+          {skipping ? "Skipping…" : "Skip this one"}
         </button>}
         <button type="button" onClick={handleSubmit} disabled={locked || !ready}
           className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-[var(--primary-foreground)] disabled:opacity-40">
-          {t("Submit")}
+          {"Submit"}
         </button>
       </div>
-    </div> : skipped ? <p className="text-xs text-[var(--muted-foreground)]">{t("Skipped — no attempt was recorded for this question.")}</p>
-      : !grade ? <p className="text-xs text-[var(--muted-foreground)]">{t("Answer submitted — your tutor is checking it.")}</p> : null}
+    </div> : skipped ? <p className="text-xs text-[var(--muted-foreground)]">{"Skipped — no attempt was recorded for this question."}</p>
+      : !grade ? <p className="text-xs text-[var(--muted-foreground)]">{"Answer submitted — your tutor is checking it."}</p> : null}
   </section>;
 }
 

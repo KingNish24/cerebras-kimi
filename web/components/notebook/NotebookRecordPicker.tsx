@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Layers } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import NotebookSelector from "@/components/notebook/NotebookSelector";
@@ -22,7 +22,7 @@ export default function NotebookRecordPicker({
   onApply,
   actionLabel = "Use Selected Records ({n})",
 }: NotebookRecordPickerProps) {
-  const { t } = useTranslation();
+  
   const {
     notebooks,
     expandedNotebooks,
@@ -56,10 +56,8 @@ export default function NotebookRecordPicker({
           resourceKind="notebooks"
           icon={Layers}
           titleId="notebook-picker-title"
-          title={t("Select Notebook Records")}
-          subtitle={t(
-            "Choose records across one or more notebooks to ground the next request.",
-          )}
+          title={"Choose saved items"}
+          subtitle={"Choose records across one or more favorites collections to ground the next request."}
           onClose={onClose}
         />
         <div className="bg-[var(--background)]/40 p-5">

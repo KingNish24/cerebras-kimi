@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { CheckCircle2, Loader2, PlugZap } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { inputClass, selectClass } from "./shared";
 
@@ -53,7 +53,7 @@ function DiscoveryForm({
   onPickMany,
   selectedModels = [],
 }: DiscoveryProps) {
-  const { t } = useTranslation();
+  
   const pickerId = useId();
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<{
@@ -87,7 +87,7 @@ function DiscoveryForm({
         throw new Error(
           typeof payload.detail === "string"
             ? payload.detail
-            : t("Could not reach provider."),
+            : "Could not reach provider.",
         );
       if (!request.signal.aborted) setResult(payload);
     } catch (cause) {
@@ -95,7 +95,7 @@ function DiscoveryForm({
         setError(
           cause instanceof Error
             ? cause.message
-            : t("Could not reach provider."),
+            : "Could not reach provider.",
         );
     } finally {
       if (!request.signal.aborted) setRunning(false);
@@ -119,11 +119,11 @@ function DiscoveryForm({
             <PlugZap size={15} />
           )}
           {running
-            ? t("Testing connection…")
-            : t("Test provider connection")}
+            ? "Testing connection…"
+            : "Test provider connection"}
         </button>
         <span className="text-xs text-[var(--muted-foreground)]">
-          {t("No model needed. Testing also retrieves available models.")}
+          {"No model needed. Testing also retrieves available models."}
         </span>
       </div>
       <div role="status" aria-live="polite" className="break-words text-sm">
@@ -139,14 +139,7 @@ function DiscoveryForm({
             {result.status === "connected" && (
               <CheckCircle2 size={14} className="mr-1 inline" />
             )}
-            {t(
-              result.status === "connected" && !result.models.length
-                ? "Connected, but the provider returned no models. You can enter a model ID manually."
-                : result.status === "connected" && !onPick && !onPickMany
-                  ? "Connected. The provider returned {{count}} models."
-                  : messages[result.status] || messages.http_error,
-              { count: result.models.length },
-            )}
+            {(result.status === "connected" && !result.models.length ? "Connected, but the provider returned no models. You can enter a model ID manually." : result.status === "connected" && !onPick && !onPickMany ? "Connected. The provider returned {{count}} models." : messages[result.status] || messages.http_error)}
           </p>
         )}
       </div>
@@ -154,13 +147,13 @@ function DiscoveryForm({
         <div className="space-y-2 rounded-lg bg-[var(--muted)]/35 p-3">
           <div className="block text-sm font-medium">
             <label htmlFor={pickerId}>
-              {t("Choose a model from this provider")}
+              {"Choose a model from this provider"}
             </label>
             {result.models.length > 10 && (
               <input
-                aria-label={t("Search available models")}
+                aria-label={"Search available models"}
                 className={`${inputClass} mt-2`}
-                placeholder={t("Search available models")}
+                placeholder={"Search available models"}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -171,7 +164,7 @@ function DiscoveryForm({
                   id={pickerId}
                   className="max-h-52 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--background)] p-1"
                   role="group"
-                  aria-label={t("Choose a model from this provider")}
+                  aria-label={"Choose a model from this provider"}
                 >
                   {models.map((model) => {
                     const added = selectedModels.includes(model.id);
@@ -197,14 +190,14 @@ function DiscoveryForm({
                         </span>
                         {added && (
                           <span className="text-[var(--muted-foreground)]">
-                            {t("Added")}
+                            {"Added"}
                           </span>
                         )}
                       </label>
                     );
                   })}
                   {!models.length && (
-                    <p className="p-3 text-xs">{t("No matching models")}</p>
+                    <p className="p-3 text-xs">{"No matching models"}</p>
                   )}
                 </div>
                 <button
@@ -220,7 +213,7 @@ function DiscoveryForm({
                   }}
                   className="rounded-lg bg-[var(--foreground)] px-3 py-2 text-xs text-[var(--background)] disabled:opacity-40"
                 >
-                  {t("Add selected models")}
+                  {"Add selected models"}
                 </button>
               </div>
             ) : (
@@ -232,7 +225,7 @@ function DiscoveryForm({
                   if (event.target.value) onPick?.(event.target.value);
                 }}
               >
-                <option value="">{t("Select a model...")}</option>
+                <option value="">{"Select a model..."}</option>
                 {models.map((model) => (
                   <option key={model.id} value={model.id}>
                     {model.id}
@@ -242,9 +235,7 @@ function DiscoveryForm({
             )}
           </div>
           <p className="text-xs text-[var(--muted-foreground)]">
-            {t(
-              "You can also enter a model ID manually. Listing a model does not guarantee access to every feature.",
-            )}
+            {"You can also enter a model ID manually. Listing a model does not guarantee access to every feature."}
           </p>
         </div>
       )}

@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useRouter } from "@/shared/router/navigation";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { CreateTopicWizard } from "@/components/space/learning/CreateTopicWizard";
 import { TopicAtlas } from "@/components/space/learning/TopicAtlas";
@@ -26,7 +26,7 @@ import { setPendingLLMSelection } from "@/lib/pending-llm-selection";
 
 function MasteryPathRoute() {
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const [topics, setTopics] = useState<MasteryTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,12 +43,12 @@ function MasteryPathRoute() {
       setError(
         reason instanceof Error
           ? reason.message
-          : t("The atlas could not be loaded."),
+          : "The atlas could not be loaded.",
       );
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     void loadTopics();

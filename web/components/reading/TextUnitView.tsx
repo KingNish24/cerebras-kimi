@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import RichMarkdownRenderer from "@/components/common/RichMarkdownRenderer";
 import type { AnnotationItem, UnitKind } from "@/lib/reading-api";
 import {
@@ -112,7 +112,7 @@ export function TextUnitView({
   onActiveHeadingChange,
   headingJump,
 }: TextUnitViewProps) {
-  const { t } = useTranslation();
+  
   const readerRootRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const articleRef = useRef<HTMLElement | null>(null);
@@ -288,7 +288,7 @@ export function TextUnitView({
           setError(
             loadError instanceof Error
               ? loadError.message
-              : t("Could not load this section."),
+              : "Could not load this section.",
           );
         }
       } finally {
@@ -298,7 +298,7 @@ export function TextUnitView({
     return () => {
       cancelled = true;
     };
-  }, [materialId, locator, t]);
+  }, [materialId, locator]);
 
   useEffect(() => {
     onVisibleLocatorChange?.(locator);
@@ -561,13 +561,13 @@ export function TextUnitView({
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
           <PreferenceButton
-            label={t("Previous {{unit}}", { unit: t(unitLabel(unit)) })}
+            label={`Previous ${(unitLabel(unit))}`}
             icon={ChevronLeft}
             disabled={!canPrev}
             onClick={() => setLocator((current) => Math.max(1, current - 1))}
           />
           <PreferenceButton
-            label={t("Next {{unit}}", { unit: t(unitLabel(unit)) })}
+            label={`Next ${(unitLabel(unit))}`}
             icon={ChevronRight}
             disabled={!canNext}
             onClick={() =>
@@ -587,7 +587,7 @@ export function TextUnitView({
         {loading ? (
           <div className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 size={14} className="animate-spin" />
-            {t("Loading…")}
+            {"Loading…"}
           </div>
         ) : error ? (
           <p className="text-[12px] text-[var(--muted-foreground)]">{error}</p>
@@ -626,7 +626,7 @@ export function TextUnitView({
           >
             {!text.trim() ? (
               <span className="text-[var(--muted-foreground)]">
-                {t("This section has no extractable text.")}
+                {"This section has no extractable text."}
               </span>
             ) : isWebMarkdown ? (
               <RichMarkdownRenderer

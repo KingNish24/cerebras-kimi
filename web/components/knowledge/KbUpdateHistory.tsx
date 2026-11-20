@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   AlertCircle,
   CheckCircle2,
@@ -26,7 +26,7 @@ export default function KbUpdateHistory({
   entries,
   onClear,
 }: KbUpdateHistoryProps) {
-  const { t } = useTranslation();
+  
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (entries.length === 0) return null;
@@ -36,17 +36,17 @@ export default function KbUpdateHistory({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-[11.5px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
           <History className="h-3 w-3" />
-          {t("Update history")}
+          {"Update history"}
           <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[10px] tracking-normal">
             {entries.length}
           </span>
         </div>
-        <Tooltip label={t("Clear history")} side="top">
+        <Tooltip label={"Clear history"} side="top">
           <button
             type="button"
             onClick={onClear}
             className="flex h-6 w-6 items-center justify-center rounded text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-            aria-label={t("Clear history")}
+            aria-label={"Clear history"}
           >
             <Trash2 className="h-3 w-3" />
           </button>
@@ -115,7 +115,7 @@ export default function KbUpdateHistory({
                   ) : (
                     !entry.error && (
                       <p className="text-[11px] text-[var(--muted-foreground)]">
-                        {t("No logs captured.")}
+                        {"No logs captured."}
                       </p>
                     )
                   )}

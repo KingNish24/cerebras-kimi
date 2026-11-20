@@ -3,7 +3,7 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { Fragment, useEffect, useState, useCallback } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus } from "@/lib/auth";
 import {
   deleteUsers,
@@ -55,8 +55,8 @@ function formatDate(iso: string, lang: Language): string {
 
 export default function AdminUsersPage() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const lang: Language = i18n.language?.startsWith("zh") ? "zh" : "en";
+  
+  const lang: Language = "en"?.startsWith("zh") ? "zh" : "en";
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,11 +91,11 @@ export default function AdminUsersPage() {
       const data = await listUsers();
       setUsers(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("Failed to load users"));
+      setError(e instanceof Error ? e.message : "Failed to load users");
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     fetchAuthStatus().then((status) => {
@@ -144,11 +144,11 @@ export default function AdminUsersPage() {
     setCreateError("");
     const username = createUsername.trim();
     if (!username) {
-      setCreateError(t("Username is required."));
+      setCreateError("Username is required.");
       return;
     }
     if (createPassword.length < 8) {
-      setCreateError(t("Password must be at least 8 characters."));
+      setCreateError("Password must be at least 8 characters.");
       return;
     }
     setCreateSubmitting(true);
@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
       await load();
     } catch (e) {
       setCreateError(
-        e instanceof Error ? e.message : t("Failed to create user"),
+        e instanceof Error ? e.message : "Failed to create user",
       );
     } finally {
       setCreateSubmitting(false);
@@ -195,8 +195,8 @@ export default function AdminUsersPage() {
         e instanceof Error
           ? e.message
           : confirmTarget.kind === "delete"
-            ? t("Failed to delete user")
-            : t("Failed to update role"),
+            ? "Failed to delete user"
+            : "Failed to update role",
       );
     } finally {
       setConfirmBusy(false);
@@ -207,7 +207,7 @@ export default function AdminUsersPage() {
     event.preventDefault();
     if (importSubmitting) return;
     if (!importFile) {
-      setImportError(t("Select a CSV file."));
+      setImportError("Select a CSV file.");
       return;
     }
     setImportSubmitting(true);
@@ -218,7 +218,7 @@ export default function AdminUsersPage() {
       await load();
     } catch (e) {
       setImportError(
-        e instanceof Error ? e.message : t("Failed to import users"),
+        e instanceof Error ? e.message : "Failed to import users",
       );
     } finally {
       setImportSubmitting(false);
@@ -251,16 +251,13 @@ export default function AdminUsersPage() {
       await load();
       if (failed.size > 0) {
         setActionError(
-          t("{{count}} users could not be deleted: {{users}}", {
-            count: failed.size,
-            users: [...failed].join(", "),
-          }),
+          `${failed.size} users could not be deleted: ${[...failed].join(", ")}`,
         );
       }
     } catch (e) {
       setShowBatchDeleteConfirm(false);
       setActionError(
-        e instanceof Error ? e.message : t("Failed to delete users"),
+        e instanceof Error ? e.message : "Failed to delete users",
       );
     } finally {
       setBatchDeleteBusy(false);
@@ -306,15 +303,15 @@ export default function AdminUsersPage() {
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
           >
             <ArrowLeft size={16} />
-            {t("Back")}
+            {"Back"}
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="font-serif text-xl font-semibold text-[var(--foreground)]">
-                {t("User Management")}
+                {"User Management"}
               </h1>
               <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-                {t("Manage registered accounts")}
+                {"Manage registered accounts"}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -325,7 +322,7 @@ export default function AdminUsersPage() {
                            hover:bg-[var(--card)] transition-colors"
               >
                 <UserPlus size={14} />
-                {t("Add user")}
+                {"Add user"}
               </button>
               <button
                 onClick={openImportDialog}
@@ -334,7 +331,7 @@ export default function AdminUsersPage() {
                            hover:bg-[var(--card)] transition-colors"
               >
                 <Upload size={14} />
-                {t("Import users")}
+                {"Import users"}
               </button>
               <button
                 onClick={load}
@@ -348,7 +345,7 @@ export default function AdminUsersPage() {
                   size={14}
                   className={loading ? "animate-spin" : ""}
                 />
-                {t("Refresh")}
+                {"Refresh"}
               </button>
             </div>
           </div>
@@ -371,8 +368,8 @@ export default function AdminUsersPage() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("Search users…")}
-                aria-label={t("Search users")}
+                placeholder={"Search users…"}
+                aria-label={"Search users"}
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-2 pl-9 pr-3 text-sm
                            text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/70
                            outline-none focus:border-[var(--ring)] transition-colors"
@@ -380,13 +377,8 @@ export default function AdminUsersPage() {
             </div>
             <span className="shrink-0 text-xs text-[var(--muted-foreground)]">
               {normalizedQuery
-                ? t("{{filtered}} of {{total}}", {
-                    filtered: filteredUsers.length,
-                    total: users.length,
-                  })
-                : t(users.length === 1 ? "{{count}} user" : "{{count}} users", {
-                    count: users.length,
-                  })}
+                ? `${filteredUsers.length} of ${users.length}`
+                : (users.length === 1 ? "{{count}} user" : "{{count}} users")}
             </span>
           </div>
         )}
@@ -394,21 +386,21 @@ export default function AdminUsersPage() {
         {!loading && !error && selectedUsernames.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-3">
             <span className="text-sm text-[var(--muted-foreground)]">
-              {t("{{count}} users selected", { count: selectedUsernames.length })}
+              {`${selectedUsernames.length} users selected`}
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSelectedUsernames([])}
                 className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
               >
-                {t("Clear selection")}
+                {"Clear selection"}
               </button>
               <button
                 onClick={() => setShowBatchDeleteConfirm(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-red-500/40 px-3 py-1.5 text-sm text-red-600 hover:bg-red-500/10 transition-colors dark:text-red-400"
               >
                 <Trash2 size={14} />
-                {t("Delete selected")}
+                {"Delete selected"}
               </button>
             </div>
           </div>
@@ -443,10 +435,10 @@ export default function AdminUsersPage() {
                 className="text-[var(--muted-foreground)]/50"
               />
               <p className="mt-3 text-sm font-medium text-[var(--foreground)]">
-                {t("No users yet")}
+                {"No users yet"}
               </p>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("Accounts you create will appear here.")}
+                {"Accounts you create will appear here."}
               </p>
               <button
                 onClick={openCreateDialog}
@@ -455,7 +447,7 @@ export default function AdminUsersPage() {
                            hover:bg-[var(--background)]/60 transition-colors"
               >
                 <UserPlus size={14} />
-                {t("Add user")}
+                {"Add user"}
               </button>
             </div>
           ) : filteredUsers.length === 0 ? (
@@ -466,7 +458,7 @@ export default function AdminUsersPage() {
                 className="text-[var(--muted-foreground)]/50"
               />
               <p className="mt-3 text-sm font-medium text-[var(--foreground)]">
-                {t("No users match “{{query}}”", { query: query.trim() })}
+                {`No users match “${query.trim()}”`}
               </p>
               <button
                 onClick={() => setQuery("")}
@@ -474,7 +466,7 @@ export default function AdminUsersPage() {
                            text-[var(--muted-foreground)] hover:text-[var(--foreground)]
                            hover:bg-[var(--background)]/60 transition-colors"
               >
-                {t("Clear search")}
+                {"Clear search"}
               </button>
             </div>
           ) : (
@@ -501,15 +493,15 @@ export default function AdminUsersPage() {
                               ],
                         );
                       }}
-                      aria-label={t("Select displayed users")}
+                      aria-label={"Select displayed users"}
                       className="h-4 w-4 rounded border-[var(--border)] accent-[var(--foreground)]"
                     />
                   </th>
-                  <th className="px-5 py-3 font-medium">{t("Username")}</th>
-                  <th className="px-5 py-3 font-medium">{t("Role")}</th>
-                  <th className="px-5 py-3 font-medium">{t("Joined")}</th>
+                  <th className="px-5 py-3 font-medium">{"Username"}</th>
+                  <th className="px-5 py-3 font-medium">{"Role"}</th>
+                  <th className="px-5 py-3 font-medium">{"Joined"}</th>
                   <th className="px-5 py-3 font-medium text-right">
-                    {t("Actions")}
+                    {"Actions"}
                   </th>
                 </tr>
               </thead>
@@ -527,9 +519,7 @@ export default function AdminUsersPage() {
                             checked={selectedUsernameSet.has(user.username)}
                             disabled={isSelf}
                             onChange={() => toggleSelectedUsername(user.username)}
-                            aria-label={t("Select {{username}}", {
-                              username: user.username,
-                            })}
+                            aria-label={`Select ${user.username}`}
                             className="h-4 w-4 rounded border-[var(--border)] accent-[var(--foreground)] disabled:opacity-30"
                           />
                         </td>
@@ -546,7 +536,7 @@ export default function AdminUsersPage() {
                               {user.username}
                               {isSelf && (
                                 <span className="ml-2 text-xs font-normal text-[var(--muted-foreground)]">
-                                  {t("(you)")}
+                                  {"(you)"}
                                 </span>
                               )}
                             </span>
@@ -564,19 +554,11 @@ export default function AdminUsersPage() {
                             {isAdmin && (
                               <ShieldCheck size={11} strokeWidth={2} />
                             )}
-                            {t(accountRoleLabelKey(user.role))}
+                            {(accountRoleLabelKey(user.role))}
                           </span>
                           {!isAdmin && user.preset && (
                             <span className="mt-1 block text-[11px] text-[var(--muted-foreground)]">
-                              {t("Preset: {{preset}}", {
-                                preset: t(
-                                  user.preset === "learner"
-                                    ? "Learner"
-                                    : user.preset === "custom"
-                                      ? "Custom"
-                                      : "Standard",
-                                ),
-                              })}
+                              {`Preset: ${(user.preset === "learner" ? "Learner" : user.preset === "custom" ? "Custom" : "Standard")}`}
                             </span>
                           )}
                         </td>
@@ -586,14 +568,14 @@ export default function AdminUsersPage() {
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-end gap-1.5">
                             {canManageAssignments && (
-                              <Tooltip label={t("Manage assignments")} side="top">
+                              <Tooltip label={"Manage assignments"} side="top">
                                 <button
                                   onClick={() =>
                                     setExpandedUserId((current) =>
                                       current === user.id ? null : user.id,
                                     )
                                   }
-                                  aria-label={t("Manage assignments")}
+                                  aria-label={"Manage assignments"}
                                   className="rounded-lg p-1.5 text-[var(--muted-foreground)]
                                            hover:bg-[var(--background)] hover:text-[var(--foreground)]
                                            transition-colors"
@@ -604,10 +586,10 @@ export default function AdminUsersPage() {
                             )}
                             <Tooltip label={
                                 isSelf
-                                  ? t("Cannot change your own role")
+                                  ? "Cannot change your own role"
                                   : user.role === "admin"
-                                    ? t("Demote to user")
-                                    : t("Promote to admin")
+                                    ? "Demote to user"
+                                    : "Promote to admin"
                               } side="top">
                               <button
                                 onClick={() =>
@@ -619,10 +601,10 @@ export default function AdminUsersPage() {
                                 disabled={isSelf}
                                 aria-label={
                                   isSelf
-                                    ? t("Cannot change your own role")
+                                    ? "Cannot change your own role"
                                     : user.role === "admin"
-                                      ? t("Demote to user")
-                                      : t("Promote to admin")
+                                      ? "Demote to user"
+                                      : "Promote to admin"
                                 }
                                 className="rounded-lg p-1.5 text-[var(--muted-foreground)]
                                          hover:bg-[var(--background)] hover:text-[var(--foreground)]
@@ -637,10 +619,8 @@ export default function AdminUsersPage() {
                             </Tooltip>
                             <Tooltip label={
                                 isSelf
-                                  ? t("Cannot delete your own account")
-                                  : t("Delete {{username}}", {
-                                      username: user.username,
-                                    })
+                                  ? "Cannot delete your own account"
+                                  : `Delete ${user.username}`
                               } side="top">
                               <button
                                 onClick={() =>
@@ -649,10 +629,8 @@ export default function AdminUsersPage() {
                                 disabled={isSelf}
                                 aria-label={
                                   isSelf
-                                    ? t("Cannot delete your own account")
-                                    : t("Delete {{username}}", {
-                                        username: user.username,
-                                      })
+                                    ? "Cannot delete your own account"
+                                    : `Delete ${user.username}`
                                 }
                                 className="rounded-lg p-1.5 text-[var(--muted-foreground)]
                                          hover:bg-red-500/10 hover:text-red-500
@@ -697,7 +675,7 @@ export default function AdminUsersPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-[var(--muted-foreground)]">
-          {t("DeepTutor Admin · User Management")}
+          {"DeepTutor Admin · User Management"}
         </p>
       </div>
 
@@ -705,25 +683,25 @@ export default function AdminUsersPage() {
         open={confirmTarget !== null}
         title={
           confirmTarget?.kind === "delete"
-            ? t("Delete user")
+            ? "Delete user"
             : confirmTarget?.kind === "promote"
-              ? t("Promote to admin")
-              : t("Demote to user")
+              ? "Promote to admin"
+              : "Demote to user"
         }
         tone={confirmTarget?.kind === "delete" ? "danger" : "default"}
         confirmLabel={
           confirmTarget?.kind === "delete"
-            ? t("Delete user")
+            ? "Delete user"
             : confirmTarget?.kind === "promote"
-              ? t("Promote")
-              : t("Demote")
+              ? "Promote"
+              : "Demote"
         }
         busyLabel={
           confirmTarget?.kind === "delete"
-            ? t("Deleting…")
+            ? "Deleting…"
             : confirmTarget?.kind === "promote"
-              ? t("Promoting…")
-              : t("Demoting…")
+              ? "Promoting…"
+              : "Demoting…"
         }
         busy={confirmBusy}
         onConfirm={handleConfirmAction}
@@ -744,25 +722,16 @@ export default function AdminUsersPage() {
                   {confirmTarget.user.username}
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  {t("{{role}} · joined {{date}}", {
-                    role: t(accountRoleLabelKey(confirmTarget.user.role)),
-                    date: formatDate(confirmTarget.user.created_at, lang),
-                  })}
+                  {`${(accountRoleLabelKey(confirmTarget.user.role))} · joined ${formatDate(confirmTarget.user.created_at, lang)}`}
                 </p>
               </div>
             </div>
             <p className="mt-3">
               {confirmTarget.kind === "delete"
-                ? t(
-                    "This permanently removes the account and its assignments. This cannot be undone.",
-                  )
+                ? "This permanently removes the account and its assignments. This cannot be undone."
                 : confirmTarget.kind === "promote"
-                  ? t(
-                      "Admins can manage users and assignments, and work in the shared main workspace.",
-                    )
-                  : t(
-                      "They will lose access to the admin area and switch to their own assigned workspace.",
-                    )}
+                  ? "Admins can manage users and assignments, and work in the shared main workspace."
+                  : "They will lose access to the admin area and switch to their own assigned workspace."}
             </p>
           </>
         )}
@@ -770,19 +739,16 @@ export default function AdminUsersPage() {
 
       <ConfirmDialog
         open={showBatchDeleteConfirm}
-        title={t("Delete users")}
+        title={"Delete users"}
         tone="danger"
-        confirmLabel={t("Delete users")}
-        busyLabel={t("Deleting…")}
+        confirmLabel={"Delete users"}
+        busyLabel={"Deleting…"}
         busy={batchDeleteBusy}
         onConfirm={handleBatchDeleteConfirm}
         onCancel={() => setShowBatchDeleteConfirm(false)}
       >
         <p>
-          {t(
-            "This permanently removes {{count}} accounts and their assignments. This cannot be undone.",
-            { count: selectedUsernames.length },
-          )}
+          {`This permanently removes ${selectedUsernames.length} accounts and their assignments. This cannot be undone.`}
         </p>
         <ul className="mt-3 max-h-40 space-y-1 overflow-y-auto text-sm text-[var(--muted-foreground)]">
           {selectedUsernames.map((username) => (
@@ -807,21 +773,21 @@ export default function AdminUsersPage() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[var(--foreground)]">
-                {t("Add user")}
+                {"Add user"}
               </h2>
               <button
                 type="button"
                 onClick={closeCreateDialog}
                 disabled={createSubmitting}
                 className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-40"
-                aria-label={t("Close")}
+                aria-label={"Close"}
               >
                 <X size={16} />
               </button>
             </div>
 
             <label className="mb-3 block text-xs text-[var(--muted-foreground)]">
-              {t("Username (or email)")}
+              {"Username (or email)"}
               <input
                 type="text"
                 value={createUsername}
@@ -834,7 +800,7 @@ export default function AdminUsersPage() {
             </label>
 
             <label className="mb-4 block text-xs text-[var(--muted-foreground)]">
-              {t("Password (≥ 8 chars)")}
+              {"Password (≥ 8 chars)"}
               <input
                 type="password"
                 value={createPassword}
@@ -847,12 +813,12 @@ export default function AdminUsersPage() {
 
             <fieldset className="mb-4">
               <legend className="mb-1.5 block text-xs text-[var(--muted-foreground)]">
-                {t("Account preset")}
+                {"Account preset"}
               </legend>
               <div
                 className="grid grid-cols-3 gap-1 rounded-lg bg-[var(--muted)]/50 p-1"
                 role="group"
-                aria-label={t("Account preset")}
+                aria-label={"Account preset"}
               >
                 {(["standard", "learner", "custom"] as const).map((preset) => (
                   <button
@@ -867,28 +833,16 @@ export default function AdminUsersPage() {
                         : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
-                    {t(
-                      preset === "learner"
-                        ? "Learner"
-                        : preset === "custom"
-                          ? "Custom"
-                          : "Standard",
-                    )}
+                    {(preset === "learner" ? "Learner" : preset === "custom" ? "Custom" : "Standard")}
                   </button>
                 ))}
               </div>
               <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                 {createPreset === "learner"
-                  ? t(
-                      "Chat and Immersive Reading only, with uploads and tools disabled until assigned.",
-                    )
+                  ? "Chat and Immersive Reading only, with uploads and tools disabled until assigned."
                   : createPreset === "custom"
-                    ? t(
-                        "Create an ordinary account, then customize its assignments.",
-                      )
-                    : t(
-                        "Create an ordinary account with the default workspace behavior.",
-                      )}
+                    ? "Create an ordinary account, then customize its assignments."
+                    : "Create an ordinary account with the default workspace behavior."}
               </p>
             </fieldset>
 
@@ -903,14 +857,14 @@ export default function AdminUsersPage() {
                 disabled={createSubmitting}
                 className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-40"
               >
-                {t("Cancel")}
+                {"Cancel"}
               </button>
               <button
                 type="submit"
                 disabled={createSubmitting}
                 className="rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-sm font-medium text-[var(--background)] hover:opacity-90 disabled:opacity-40"
               >
-                {createSubmitting ? t("Creating…") : t("Create")}
+                {createSubmitting ? "Creating…" : "Create"}
               </button>
             </div>
           </form>
@@ -931,21 +885,21 @@ export default function AdminUsersPage() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[var(--foreground)]">
-                {t("Import users")}
+                {"Import users"}
               </h2>
               <button
                 type="button"
                 onClick={closeImportDialog}
                 disabled={importSubmitting}
                 className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-40"
-                aria-label={t("Close")}
+                aria-label={"Close"}
               >
                 <X size={16} />
               </button>
             </div>
 
             <label className="mb-3 block text-xs text-[var(--muted-foreground)]">
-              {t("CSV file")}
+              {"CSV file"}
               <input
                 type="file"
                 accept=".csv,text/csv"
@@ -961,7 +915,7 @@ export default function AdminUsersPage() {
             </label>
 
             <p className="mb-3 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-              {t("Header: username,password,preset. Only ordinary user accounts can be imported.")}
+              {"Header: username,password,preset. Only ordinary user accounts can be imported."}
             </p>
 
             {importError && (
@@ -971,10 +925,7 @@ export default function AdminUsersPage() {
             {importResult && (
               <div className="mb-4">
                 <p className="text-sm font-medium text-[var(--foreground)]">
-                  {t("{{created}} created, {{failed}} failed", {
-                    created: importResult.created_count,
-                    failed: importResult.failed_count,
-                  })}
+                  {`${importResult.created_count} created, ${importResult.failed_count} failed`}
                 </p>
                 <ul className="mt-2 max-h-44 space-y-1 overflow-y-auto text-xs text-[var(--muted-foreground)]">
                   {importResult.results.map((result) => (
@@ -983,7 +934,7 @@ export default function AdminUsersPage() {
                       className="flex items-start justify-between gap-3"
                     >
                       <span className="min-w-0 truncate">
-                        {t("Row {{row}}", { row: result.row })} · {result.username}
+                        {`Row ${result.row}`} · {result.username}
                       </span>
                       <span
                         className={
@@ -992,7 +943,7 @@ export default function AdminUsersPage() {
                             : "shrink-0 text-red-500"
                         }
                       >
-                        {result.ok ? t("Created") : result.error}
+                        {result.ok ? "Created" : result.error}
                       </span>
                     </li>
                   ))}
@@ -1007,7 +958,7 @@ export default function AdminUsersPage() {
                 disabled={importSubmitting}
                 className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-40"
               >
-                {t("Close")}
+                {"Close"}
               </button>
               <button
                 type="submit"
@@ -1015,7 +966,7 @@ export default function AdminUsersPage() {
                 className="flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-sm font-medium text-[var(--background)] hover:opacity-90 disabled:opacity-40"
               >
                 <Upload size={14} />
-                {importSubmitting ? t("Importing…") : t("Import")}
+                {importSubmitting ? "Importing…" : "Import"}
               </button>
             </div>
           </form>

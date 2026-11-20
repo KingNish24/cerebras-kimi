@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { runGeoGebraCommand, type GeoGebraCommandAPI } from '@/lib/geogebra-commands'
 
 interface GeogebraProps {
@@ -105,7 +105,7 @@ const Geogebra: React.FC<GeogebraProps> = ({
   height = 480,
   perspective,
 }) => {
-  const { t } = useTranslation()
+  
   const containerRef = useRef<HTMLDivElement | null>(null)
   const containerIdRef = useRef<string>(`ggb-${++containerCounter}-${Date.now().toString(36)}`)
   const [error, setError] = useState<string | null>(null)
@@ -220,7 +220,7 @@ const Geogebra: React.FC<GeogebraProps> = ({
       ) : null}
       {error ? (
         <div className="p-4 text-sm text-[var(--destructive,#dc2626)]">
-          {t('Failed to load GeoGebra')}: {error}
+          {"Failed to load GeoGebra"}: {error}
         </div>
       ) : (
         <>
@@ -230,9 +230,7 @@ const Geogebra: React.FC<GeogebraProps> = ({
               className="border-b border-[var(--border)] bg-[var(--destructive,#dc2626)]/5 px-3 py-2 text-[12px] leading-relaxed text-[var(--destructive,#dc2626)]"
             >
               <span className="font-medium">
-                {t('GeoGebra rejected {{count}} command(s)', {
-                  count: commandErrors.length,
-                })}
+                {`GeoGebra rejected ${commandErrors.length} command(s)`}
                 :
               </span>
               <ul className="mt-1 list-inside list-disc">
@@ -247,7 +245,7 @@ const Geogebra: React.FC<GeogebraProps> = ({
           <div className="relative" style={{ minHeight: height }}>
             {loading ? (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-[var(--muted-foreground)]">
-                {t('Loading GeoGebra...')}
+                {"Loading GeoGebra..."}
               </div>
             ) : null}
             <div ref={containerRef} className="ggb-applet-container" />

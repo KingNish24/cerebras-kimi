@@ -2,7 +2,7 @@
 
 import { Check, ChevronDown, ListFilter, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import type { LearningCapture } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -22,16 +22,15 @@ const reviewableStatuses = new Set<LearningCapture["status"]>([
 
 function statusText(
   status: LearningCapture["status"],
-  t: (key: string, values?: any) => string,
 ) {
   const map: Record<string, string> = {
-    captured: t("Captured"),
-    drafted: t("Drafted"),
-    pending_confirmation: t("Pending confirmation"),
-    approved: t("Approved"),
-    delivered: t("Delivered"),
-    imported: t("Imported"),
-    rejected: t("Rejected"),
+    captured: "Captured",
+    drafted: "Drafted",
+    pending_confirmation: "Pending confirmation",
+    approved: "Approved",
+    delivered: "Delivered",
+    imported: "Imported",
+    rejected: "Rejected",
   };
   return map[status] || status;
 }
@@ -56,7 +55,7 @@ export default function LearningCapturePanel({
   onApprove,
   onReject,
 }: LearningCapturePanelProps) {
-  const { t } = useTranslation();
+  
   const [showAll, setShowAll] = useState(false);
   const [open, setOpen] = useState(true);
 
@@ -83,21 +82,19 @@ export default function LearningCapturePanel({
               open ? "" : "-rotate-90"
             }`}
           />
-          {t("Saved highlights")}
+          {"Saved highlights"}
           <span className="font-normal text-[var(--muted-foreground)] opacity-60">
             {reviewable.length
-              ? t("{{count}} awaiting confirmation", {
-                  count: reviewable.length,
-                })
-              : t("{{count}} saved", { count: captures.length })}
+              ? `${reviewable.length} awaiting confirmation`
+              : `${captures.length} saved`}
           </span>
         </button>
         {open && (
           <Tooltip
             label={
               showAll
-                ? t("Show only reviewable captures")
-                : t("Show all captures")
+                ? "Show only reviewable captures"
+                : "Show all captures"
             }
           >
             <button
@@ -106,7 +103,7 @@ export default function LearningCapturePanel({
               className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <ListFilter className="h-3.5 w-3.5" />
-              {showAll ? t("Review") : t("All")}
+              {showAll ? "Review" : "All"}
             </button>
           </Tooltip>
         )}
@@ -114,11 +111,11 @@ export default function LearningCapturePanel({
 
       {!open ? null : loading && filteredCaptures.length === 0 ? (
         <div className="text-xs text-[var(--muted-foreground)]">
-          {t("Loading captures…")}
+          {"Loading captures…"}
         </div>
       ) : filteredCaptures.length === 0 ? (
         <div className="text-xs text-[var(--muted-foreground)]">
-          {t("Nothing left to confirm — switch to All to see saved highlights.")}
+          {"Nothing left to confirm — switch to All to see saved highlights."}
         </div>
       ) : (
         <div className="max-h-52 space-y-2 overflow-y-auto pr-1">
@@ -131,10 +128,10 @@ export default function LearningCapturePanel({
               >
                 <div className="mb-1 flex items-start justify-between gap-2 text-[11px]">
                   <span className="rounded-md bg-[var(--muted)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
-                    {statusText(capture.status, t)}
+                    {statusText(capture.status)}
                   </span>
                   <span className="text-[10px] text-[var(--muted-foreground)]">
-                    {capture.chapter_title || t("Unknown chapter")}
+                    {capture.chapter_title || "Unknown chapter"}
                   </span>
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-[var(--foreground)]">
@@ -142,7 +139,7 @@ export default function LearningCapturePanel({
                 </p>
                 {capture.user_note ? (
                   <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                    {t("Note")}: {capture.user_note}
+                    {"Note"}: {capture.user_note}
                   </p>
                 ) : null}
                 <div className="mt-2 flex items-center gap-2">
@@ -154,7 +151,7 @@ export default function LearningCapturePanel({
                         className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2 py-1 text-[11px] font-medium text-[var(--primary-foreground)] hover:opacity-90"
                       >
                         <Check className="h-3.5 w-3.5" />
-                        {t("Approve")}
+                        {"Approve"}
                       </button>
                       <button
                         type="button"
@@ -162,7 +159,7 @@ export default function LearningCapturePanel({
                         className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] px-2 py-1 text-[11px] font-medium text-[var(--muted-foreground)] hover:bg-[var(--background)] hover:text-[var(--foreground)]"
                       >
                         <X className="h-3.5 w-3.5" />
-                        {t("Reject")}
+                        {"Reject"}
                       </button>
                     </>
                   )}
@@ -174,9 +171,7 @@ export default function LearningCapturePanel({
       )}
       {open && reviewable.length > 0 && (
         <p className="text-[11px] leading-snug text-[var(--muted-foreground)] opacity-70">
-          {t(
-            "Text you select in a chapter is saved here first. Confirmed highlights are exported to MarginNote.",
-          )}
+          {"Text you select in a chapter is saved here first. Confirmed highlights are exported to MarginNote."}
         </p>
       )}
     </section>

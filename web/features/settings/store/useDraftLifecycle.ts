@@ -118,29 +118,18 @@ export function useDraftLifecycle({
       if (!isCurrent()) return null;
       setStoredDraft(payload.draft ?? null);
       setSavedSignature(signature);
-      setToast(t("Draft saved — not applied yet"));
+      setToast("Draft saved — not applied yet");
       return true;
     } catch (err) {
       if (!isCurrent()) return null;
       setToast(
-        t("Could not save the draft: {{message}}", {
-          message: err instanceof Error ? err.message : String(err),
-        }),
+        `Could not save the draft: ${err instanceof Error ? err.message : String(err)}`,
       );
       return false;
     } finally {
       if (isCurrent()) setSaving(false);
     }
-  }, [
-    captureSettingsOwnership,
-    draftEnvelope,
-    envelopeSignatureRef,
-    setSavedSignature,
-    setSaving,
-    setStoredDraft,
-    setToast,
-    t,
-  ]);
+  }, [captureSettingsOwnership, draftEnvelope, envelopeSignatureRef, setSavedSignature, setSaving, setStoredDraft, setToast]);
 
   const applyService = useCallback(
     async (service: ServiceName): Promise<boolean> => {
@@ -182,30 +171,18 @@ export function useDraftLifecycle({
         } catch {
           // Status refresh failure must not fail a completed apply.
         }
-        setToast(t("Applied"));
+        setToast("Applied");
         return true;
       } catch (err) {
         setToast(
-          t("Could not apply: {{message}}", {
-            message: err instanceof Error ? err.message : String(err),
-          }),
+          `Could not apply: ${err instanceof Error ? err.message : String(err)}`,
         );
         return false;
       } finally {
         setApplying(false);
       }
     },
-    [
-      draft.services,
-      setApplying,
-      setCatalog,
-      setDraft,
-      setSavedSignature,
-      setStatus,
-      setStoredDraft,
-      setToast,
-      t,
-    ],
+    [draft.services, setApplying, setCatalog, setDraft, setSavedSignature, setStatus, setStoredDraft, setToast],
   );
 
   const saveRegistry = useCallback(
@@ -266,30 +243,18 @@ export function useDraftLifecycle({
         setStoredDraft(payload.draft ?? null);
         setSavedSignature(null);
         invalidateLLMOptionsCache();
-        setToast(t("Applied"));
+        setToast("Applied");
         return true;
       } catch (error) {
         setToast(
-          t("Could not apply: {{message}}", {
-            message: error instanceof Error ? error.message : String(error),
-          }),
+          `Could not apply: ${error instanceof Error ? error.message : String(error)}`,
         );
         return false;
       } finally {
         setApplying(false);
       }
     },
-    [
-      draft,
-      setApplying,
-      setCatalog,
-      setDraft,
-      setModelTests,
-      setSavedSignature,
-      setStoredDraft,
-      setToast,
-      t,
-    ],
+    [draft, setApplying, setCatalog, setDraft, setModelTests, setSavedSignature, setStoredDraft, setToast],
   );
 
   const saveProvider = useCallback(
@@ -372,30 +337,18 @@ export function useDraftLifecycle({
         setStoredDraft(payload.draft ?? null);
         setSavedSignature(null);
         invalidateLLMOptionsCache();
-        setToast(t("Provider saved"));
+        setToast("Provider saved");
         return true;
       } catch (error) {
         setToast(
-          t("Could not apply: {{message}}", {
-            message: error instanceof Error ? error.message : String(error),
-          }),
+          `Could not apply: ${error instanceof Error ? error.message : String(error)}`,
         );
         return false;
       } finally {
         setApplying(false);
       }
     },
-    [
-      draft,
-      setApplying,
-      setCatalog,
-      setDraft,
-      setModelTests,
-      setSavedSignature,
-      setStoredDraft,
-      setToast,
-      t,
-    ],
+    [draft, setApplying, setCatalog, setDraft, setModelTests, setSavedSignature, setStoredDraft, setToast],
   );
 
   const applyCatalog = useCallback(async () => {
@@ -405,13 +358,7 @@ export function useDraftLifecycle({
       const incomplete = firstIncompleteModel(draft);
       if (incomplete) {
         setToast(
-          t(
-            "Add a model ID for {{name}} on the {{page}} page before applying changes.",
-            {
-              name: incomplete.name || t("New model"),
-              page: t(incomplete.page.labelKey),
-            },
-          ),
+          `Add a model ID for ${incomplete.name || t("New model")} on the ${(incomplete.page.labelKey)} page before applying changes.`,
         );
         setFocusModel(incomplete);
         pushRoute(
@@ -440,9 +387,7 @@ export function useDraftLifecycle({
         displayOwnerRef.current !== displayOwner
       ) {
         throw new Error(
-          t(
-            "Your account changed. Reload settings before applying learning text.",
-          ),
+          "Your account changed. Reload settings before applying learning text.",
         );
       }
       const draftResponse = await apiFetch(apiUrl("/api/settings/draft"), {
@@ -526,42 +471,16 @@ export function useDraftLifecycle({
       setStoredDraft(null);
       setSavedSignature(null);
       setDraftRevision((value) => value + 1);
-      setToast(t("Applied"));
+      setToast("Applied");
     } catch (err) {
       if (!isCurrent()) return;
       setToast(
-        t("Could not apply: {{message}}", {
-          message: err instanceof Error ? err.message : String(err),
-        }),
+        `Could not apply: ${err instanceof Error ? err.message : String(err)}`,
       );
     } finally {
       if (isCurrent()) setApplying(false);
     }
-  }, [
-    applyUi,
-    captureSettingsOwnership,
-    catalogEditable,
-    clearPending,
-    displayOwnerRef,
-    draft,
-    draftEnvelope,
-    extensionsRef,
-    learningDisplay,
-    pendingRef,
-    pushRoute,
-    serverDisplayLoadedRef,
-    setApplying,
-    setCatalog,
-    setDraft,
-    setDraftRevision,
-    setFocusModel,
-    setLearningDisplay,
-    setSavedSignature,
-    setStatus,
-    setStoredDraft,
-    setToast,
-    t,
-  ]);
+  }, [applyUi, captureSettingsOwnership, catalogEditable, clearPending, displayOwnerRef, draft, draftEnvelope, extensionsRef, learningDisplay, pendingRef, pushRoute, serverDisplayLoadedRef, setApplying, setCatalog, setDraft, setDraftRevision, setFocusModel, setLearningDisplay, setSavedSignature, setStatus, setStoredDraft, setToast]);
 
   const stagePreset = useCallback(
     async (presetId: string): Promise<boolean> => {
@@ -599,35 +518,19 @@ export function useDraftLifecycle({
           }),
         );
         setDraftRevision((value) => value + 1);
-        setToast(t("Preset loaded as a draft — review before applying"));
+        setToast("Preset loaded as a draft — review before applying");
         return true;
       } catch (err) {
         if (!isCurrent()) return false;
         setToast(
-          t("Could not load the preset: {{message}}", {
-            message: err instanceof Error ? err.message : String(err),
-          }),
+          `Could not load the preset: ${err instanceof Error ? err.message : String(err)}`,
         );
         return false;
       } finally {
         if (isCurrent()) setSaving(false);
       }
     },
-    [
-      captureSettingsOwnership,
-      catalogEditable,
-      draft,
-      draftEnvelope,
-      pendingRef,
-      setDraft,
-      setDraftRevision,
-      setSavedSignature,
-      setSaving,
-      setStoredDraft,
-      setToast,
-      syncPendingKeys,
-      t,
-    ],
+    [captureSettingsOwnership, catalogEditable, draft, draftEnvelope, pendingRef, setDraft, setDraftRevision, setSavedSignature, setSaving, setStoredDraft, setToast, syncPendingKeys],
   );
 
   const discardDraft = useCallback(async () => {
@@ -643,30 +546,17 @@ export function useDraftLifecycle({
       setStoredDraft(null);
       setSavedSignature(null);
       setDraft(cloneCatalog(catalog));
-      setToast(t("Draft discarded"));
+      setToast("Draft discarded");
       setDraftRevision((value) => value + 1);
     } catch (err) {
       if (!isCurrent()) return;
       setToast(
-        t("Could not discard the draft: {{message}}", {
-          message: err instanceof Error ? err.message : String(err),
-        }),
+        `Could not discard the draft: ${err instanceof Error ? err.message : String(err)}`,
       );
     } finally {
       if (isCurrent()) setApplying(false);
     }
-  }, [
-    captureSettingsOwnership,
-    catalog,
-    clearPending,
-    setApplying,
-    setDraft,
-    setDraftRevision,
-    setSavedSignature,
-    setStoredDraft,
-    setToast,
-    t,
-  ]);
+  }, [captureSettingsOwnership, catalog, clearPending, setApplying, setDraft, setDraftRevision, setSavedSignature, setStoredDraft, setToast]);
 
   return {
     saveDraft,

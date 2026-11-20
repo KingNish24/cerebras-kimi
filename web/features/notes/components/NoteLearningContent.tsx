@@ -1,7 +1,7 @@
 'use client'
 import dynamic from '@/shared/router/dynamic'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Check, ChevronDown, LoaderCircle, Sparkles } from 'lucide-react'
 import { useMenuPopover } from '@/shared/ui/useMenuPopover'
 import { upsertNotebookEntry } from '@/lib/notebook-api'
@@ -51,7 +51,7 @@ export default function NoteLearningContent({
   sourceUrl: string
   onChange: (props: { prompt?: string; data?: string; kind?: string; markdown?: string }) => void
 }) {
-  const { t } = useTranslation()
+  
   const root = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState('')
@@ -129,7 +129,7 @@ export default function NoteLearningContent({
           {pending && (
             <button className="dt-note-learning-status" onClick={openThread}>
               <LoaderCircle size={13} className="animate-spin" aria-hidden />
-              {t('Generating…')}
+              {"Generating…"}
             </button>
           )}
         </div>
@@ -138,8 +138,8 @@ export default function NoteLearningContent({
         <div className="dt-note-generation-form">
           <textarea
             rows={2}
-            aria-label={t('Generation instructions')}
-            placeholder={t(learningKind(kind).placeholder)}
+            aria-label={"Generation instructions"}
+            placeholder={(learningKind(kind).placeholder)}
             value={prompt}
             onChange={e => onChange({ prompt: e.target.value })}
             onKeyDown={e => {
@@ -151,10 +151,10 @@ export default function NoteLearningContent({
           />
           {kind !== 'task' && (
             <div className="dt-note-generation-actions">
-              <span className="dt-note-generation-hint">{t('⌘↵ to generate')}</span>
+              <span className="dt-note-generation-hint">{"⌘↵ to generate"}</span>
               <button className="dt-note-action is-primary" onClick={generate}>
                 <Sparkles size={13} aria-hidden />
-                {t('Generate')}
+                {"Generate"}
               </button>
             </div>
           )}
@@ -169,7 +169,7 @@ export default function NoteLearningContent({
       )}
       {preview?.error && (
         <p role="alert" className="text-sm text-red-600">
-          {t(noteGenerationError(preview.error))}
+          {(noteGenerationError(preview.error))}
         </p>
       )}
       {pending && (
@@ -179,7 +179,7 @@ export default function NoteLearningContent({
           ) : (
             <div
               className="dt-note-generation-shimmer"
-              aria-label={t('Preparing learning material…')}
+              aria-label={"Preparing learning material…"}
             >
               <span />
               <span />
@@ -277,7 +277,7 @@ export default function NoteLearningContent({
       )}
       {sourceUrl && (
         <a href={sourceUrl} className="text-xs text-[var(--primary)]">
-          ↗ {t('Source')}
+          ↗ {"Source"}
         </a>
       )}
     </div>
@@ -294,7 +294,7 @@ function KindSwitcher({
   disabled: boolean
   onChange: (kind: string) => void
 }) {
-  const { t } = useTranslation()
+  
   const [open, setOpen] = useState(false)
   const menu = useMenuPopover<HTMLDivElement>(open, setOpen)
   const current = learningKind(kind)
@@ -308,7 +308,7 @@ function KindSwitcher({
         onClick={() => setOpen(!open)}
       >
         <current.Icon size={14} strokeWidth={1.8} aria-hidden />
-        {t(current.label)}
+        {(current.label)}
         {!disabled && <ChevronDown size={12} className="opacity-60" aria-hidden />}
       </button>
       {open && (
@@ -325,7 +325,7 @@ function KindSwitcher({
               }}
             >
               <option.Icon size={14} strokeWidth={1.8} />
-              <span className="flex-1">{t(option.label)}</span>
+              <span className="flex-1">{(option.label)}</span>
               {option.kind === kind && <Check size={13} />}
             </button>
           ))}

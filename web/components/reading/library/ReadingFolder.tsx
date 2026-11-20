@@ -17,7 +17,7 @@ import {
 import Link from "@/shared/router/link";
 import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import { LearningSkeleton } from "@/components/learning/LearningShell";
@@ -49,7 +49,7 @@ import { MaterialGlyph, materialDetail, relativeDate } from "./shared";
  * only chooses which tab comes first.
  */
 export function ReadingFolderPage({ folderId }: { folderId: string }) {
-  const { t, i18n } = useTranslation();
+  
   const router = useRouter();
   const [folder, setFolder] = useState<ReadingWorkspace | null>(null);
   const [sessions, setSessions] = useState<ReadingConversation[]>([]);
@@ -73,12 +73,12 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
       setError("");
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : t("Could not open this collection."),
+        caught instanceof Error ? caught.message : "Could not open this collection.",
       );
     } finally {
       setLoading(false);
     }
-  }, [folderId, t]);
+  }, [folderId]);
 
   useEffect(() => {
     void refresh();
@@ -118,7 +118,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
         await removeReadingWorkspaceMaterial(folderId, tab.material.material_id),
       );
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("Could not save."));
+      setError(caught instanceof Error ? caught.message : "Could not save.");
     }
   };
 
@@ -140,7 +140,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
             href={scopedUrl(READING_HOME)}
             className="mt-5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12px] font-semibold text-[var(--primary-foreground)]"
           >
-            {t("Back to collections")}
+            {"Back to collections"}
           </Link>
         </div>
       </FolderFrame>
@@ -154,14 +154,14 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
     <FolderFrame>
       <ReadingFolderCrumb id={folderId} label={folder.title} onRename={() => setDialog("edit")} />
       <nav
-        aria-label={t("Breadcrumb")}
+        aria-label={"Breadcrumb"}
         className="dt-section-back flex min-w-0 items-center gap-1 text-[12px] text-[var(--muted-foreground)]"
       >
         <Link
           href={scopedUrl(READING_HOME)}
           className="shrink-0 hover:text-[var(--foreground)]"
         >
-          {t("Immersive Reading")}
+          {"Immersive Reading"}
         </Link>
         <ChevronRight size={12} className="shrink-0 opacity-60" />
         <span className="truncate text-[var(--foreground)]">{folder.title}</span>
@@ -170,7 +170,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
       <div className="mt-5">
       <PageHeader
         title={folder.title}
-        description={t("{{count}} files", { count: files.length })}
+        description={(files.length === 1 ? `${files.length} file` : `${files.length} files`)}
         action={
         <div className="relative flex shrink-0 items-center gap-2">
           {files.length ? (
@@ -179,7 +179,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
               className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 text-[12.5px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90"
             >
               <BookOpen size={14} />
-              {t("Start reading")}
+              {"Start reading"}
             </Link>
           ) : null}
           <button
@@ -188,12 +188,12 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 text-[12.5px] transition hover:bg-[var(--muted)]"
           >
             <Plus size={14} />
-            {t("Add material")}
+            {"Add material"}
           </button>
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label={t("Collection menu")}
+            aria-label={"Collection menu"}
             aria-expanded={menuOpen}
             className="flex size-9 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
           >
@@ -219,7 +219,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
                   className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left hover:bg-[var(--muted)]"
                 >
                   <Palette size={12} />
-                  {t("Rename or recolor")}
+                  {"Rename or recolor"}
                 </button>
                 <button
                   type="button"
@@ -231,7 +231,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
                   className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[var(--destructive)] hover:bg-[var(--muted)]"
                 >
                   <Trash2 size={12} />
-                  {t("Delete collection")}
+                  {"Delete collection"}
                 </button>
               </div>
             </>
@@ -248,7 +248,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
       )}
 
       <section className="mt-9">
-        <SectionHeading label={t("Files")} count={files.length} />
+        <SectionHeading label={"Files"} count={files.length} />
         {files.length ? (
           <ul className="mt-2 divide-y divide-[var(--border)] border-y border-[var(--border)]">
             {files.map((tab) => (
@@ -269,17 +269,17 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
           >
             <Plus size={16} className="text-[var(--muted-foreground)]" />
             <span className="text-[13px] font-medium">
-              {t("This folder is empty")}
+              {"This folder is empty"}
             </span>
             <span className="text-[12px] text-[var(--muted-foreground)]">
-              {t("Add papers, chapters, web pages or videos to read them together.")}
+              {"Add papers, chapters, web pages or videos to read them together."}
             </span>
           </button>
         )}
       </section>
 
       <section className="mt-9">
-        <SectionHeading label={t("Conversations")} count={sessions.length} />
+        <SectionHeading label={"Conversations"} count={sessions.length} />
         {sessions.length ? (
           <ul className="mt-2 divide-y divide-[var(--border)] border-y border-[var(--border)]">
             {sessions.map((session) => (
@@ -297,10 +297,10 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
                     className="shrink-0 text-[var(--muted-foreground)]"
                   />
                   <span className="min-w-0 flex-1 truncate text-[13px]">
-                    {session.title || t("New reading conversation")}
+                    {session.title || "New reading conversation"}
                   </span>
                   <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
-                    {relativeDate(session.updated_at, i18n.language)}
+                    {relativeDate(session.updated_at, "en")}
                   </span>
                   <ArrowRight
                     size={13}
@@ -312,7 +312,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
           </ul>
         ) : (
           <p className="mt-2 px-1 text-[12px] text-[var(--muted-foreground)]">
-            {t("Conversations you have while reading this folder appear here.")}
+            {"Conversations you have while reading this folder appear here."}
           </p>
         )}
       </section>
@@ -375,21 +375,21 @@ function FileRow({
   onOpen: () => void;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const material = tab.material;
   const pending =
     material.status === "processing" || material.status === "queued";
   const failed = material.status === "failed";
   const detail = pending
-    ? t("Preparing")
+    ? "Preparing"
     : failed
-      ? t("Could not prepare this file")
+      ? "Could not prepare this file"
       : materialDetail(material);
 
   return (
     <li className="group flex items-center">
       <span className="min-w-0 flex-1 [&>span]:w-full [&>span>button]:w-full">
-        <Tooltip label={t("Open in reader")}>
+        <Tooltip label={"Open in reader"}>
           <button
             type="button"
             onClick={onOpen}
@@ -421,11 +421,11 @@ function FileRow({
           </button>
         </Tooltip>
       </span>
-      <Tooltip label={t("Remove from collection")}>
+      <Tooltip label={"Remove from collection"}>
         <button
           type="button"
           onClick={onRemove}
-          aria-label={t("Remove from collection")}
+          aria-label={"Remove from collection"}
           className="mx-1 flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-100 transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] sm:opacity-0 sm:focus:opacity-100 sm:group-hover:opacity-100"
         >
           <X size={13} />

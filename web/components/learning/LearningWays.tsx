@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 // first card instead of animating it (#1549).
 import { AnimatePresence, m as motion, useReducedMotion, type Transition } from 'framer-motion'
 import { ArrowUpRight, ArrowRight, Check, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 type LearningKind = LearningSurface['kind']
 import { LEARNING_SURFACES, type LearningSurface } from './surfaces'
 
@@ -20,7 +20,7 @@ const titleClass = 'text-[16px] font-semibold tracking-[-0.02em]'
 
 /** The whole card owns the shared transform; child layout projection keeps text undistorted. */
 export function LearningWays() {
-  const { t } = useTranslation()
+  
   const reduceMotion = useReducedMotion()
   const [openKind, setOpenKind] = useState<LearningKind | null>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -36,7 +36,7 @@ export function LearningWays() {
     <>
       <section aria-labelledby={id} className="mb-10">
         <h2 id={id} className="sr-only">
-          {t('Ways to learn')}
+          {"Ways to learn"}
         </h2>
         <div className={pageGridClass(4)}>
           {LEARNING_SURFACES.map((surface, index) => {
@@ -91,7 +91,7 @@ export function LearningWays() {
                       transition={spring}
                       className={titleClass}
                     >
-                      {t(surface.title)}
+                      {(surface.title)}
                     </motion.h3>
                     <motion.p
                       layout="position"
@@ -99,7 +99,7 @@ export function LearningWays() {
                       transition={spring}
                       className="mt-2 text-[12.5px] leading-[1.7] text-muted-foreground"
                     >
-                      {t(surface.description)}
+                      {(surface.description)}
                     </motion.p>
                   </button>
                 </motion.div>
@@ -143,7 +143,7 @@ function WayPanel({
   close: () => void
   triggerRef: React.RefObject<HTMLButtonElement | null>
 }) {
-  const { t } = useTranslation()
+  
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const fade: Transition = { duration: reduceMotion ? 0 : 0.2 }
@@ -242,13 +242,13 @@ function WayPanel({
               transition={spring}
               className={titleClass}
             >
-              {t(surface.title)}
+              {(surface.title)}
             </motion.h3>
           </div>
           <motion.button
             type="button"
             onClick={close}
-            aria-label={t('Close')}
+            aria-label={"Close"}
             variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
             transition={fade}
             className="absolute right-5 top-6 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring sm:right-6 sm:top-7"
@@ -262,7 +262,7 @@ function WayPanel({
             id={`${id}-description`}
             className="mt-5 text-[12.5px] leading-[1.7] text-muted-foreground"
           >
-            {t(surface.description)}
+            {(surface.description)}
           </motion.p>
           <motion.div
             layout="position"
@@ -272,7 +272,7 @@ function WayPanel({
             }}
             transition={{ duration: reduceMotion ? 0 : 0.1, layout: spring }}
           >
-            <p className="mt-4 text-[14px] leading-[1.85]">{t(surface.intro)}</p>
+            <p className="mt-4 text-[14px] leading-[1.85]">{(surface.intro)}</p>
             <ul className="mb-1 mt-6 space-y-3 rounded-2xl bg-muted/50 p-4">
               {surface.highlights.map(highlight => (
                 <li key={highlight} className="flex items-start gap-3 text-[12.5px] leading-[1.7]">
@@ -281,7 +281,7 @@ function WayPanel({
                   >
                     <Check size={12} aria-hidden="true" />
                   </span>
-                  {t(highlight)}
+                  {(highlight)}
                 </li>
               ))}
             </ul>
@@ -301,13 +301,13 @@ function WayPanel({
             onClick={close}
             className="rounded-xl px-4 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
           >
-            {t('Go back')}
+            {"Go back"}
           </button>
           <Link
             href={surface.href}
             className="group flex items-center gap-3 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-medium text-primary-foreground shadow-sm transition hover:brightness-110 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transform-none"
           >
-            {t('Start')}
+            {"Start"}
             <ArrowRight
               size={16}
               aria-hidden="true"

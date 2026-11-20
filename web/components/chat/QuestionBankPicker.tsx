@@ -9,7 +9,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { questionResultBadge } from "@/lib/question-bank-answers";
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
@@ -60,7 +60,7 @@ export default function QuestionBankPicker({
   onClose,
   onApply,
 }: QuestionBankPickerProps) {
-  const { t } = useTranslation();
+  
   const [entries, setEntries] = useState<NotebookEntry[]>([]);
   const [categories, setCategories] = useState<NotebookCategory[]>([]);
   const [materials, setMaterials] = useState<QuestionBankMaterial[]>([]);
@@ -192,8 +192,8 @@ export default function QuestionBankPicker({
           resourceKind="question_bank"
           icon={ClipboardList}
           titleId="question-bank-picker-title"
-          title={t("Select Question Bank Entries")}
-          subtitle={t("Choose quiz questions to ground the next request.")}
+          title={"Select Question Bank Entries"}
+          subtitle={"Choose quiz questions to ground the next request."}
           onClose={onClose}
         />
 
@@ -215,7 +215,7 @@ export default function QuestionBankPicker({
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {t(label)}
+                  {(label)}
                 </button>
               );
             })}
@@ -248,10 +248,10 @@ export default function QuestionBankPicker({
             <select
               value={activeMaterialId}
               onChange={(event) => setActiveMaterialId(event.target.value)}
-              aria-label={t("Material")}
+              aria-label={"Material"}
               className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] text-[var(--foreground)] outline-none sm:max-w-xs"
             >
-              <option value="">{t("All Materials")}</option>
+              <option value="">{"All Materials"}</option>
               {materials.map((material) => (
                 <option key={`${material.source}:${material.material_id}`} value={material.material_id}>
                   {material.material_title}
@@ -266,7 +266,7 @@ export default function QuestionBankPicker({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("Search questions by content")}
+                placeholder={"Search questions by content"}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]/50 focus:ring-2 focus:ring-[var(--primary)]/15"
               />
             </div>
@@ -276,14 +276,14 @@ export default function QuestionBankPicker({
               disabled={loading || !filteredEntries.length || filteredEntries.every((entry) => selectedById.has(entry.id))}
               className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("Select all")} ({filteredEntries.length})
+              {"Select all"} ({filteredEntries.length})
             </button>
             <button
               type="button"
               onClick={() => setSelectedById(new Map())}
               className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
-              {t("Clear")}
+              {"Clear"}
             </button>
           </div>
 
@@ -341,7 +341,7 @@ export default function QuestionBankPicker({
                               questionResultBadge(entry).className
                             }`}
                           >
-                            {t(questionResultBadge(entry).label)}
+                            {(questionResultBadge(entry).label)}
                           </span>
                           {entry.bookmarked && (
                             <Bookmark
@@ -367,8 +367,8 @@ export default function QuestionBankPicker({
             ) : (
               <div className="px-6 py-14 text-center text-[13px] text-[var(--muted-foreground)]">
                 {entries.length === 0
-                  ? t("No quiz entries yet.")
-                  : t("No matching questions found.")}
+                  ? "No quiz entries yet."
+                  : "No matching questions found."}
               </div>
             )}
           </div>
@@ -376,8 +376,8 @@ export default function QuestionBankPicker({
           <div className="mt-4 flex items-center justify-between gap-3">
             <div className="text-[12px] text-[var(--muted-foreground)]">
               {selectedById.size === 1
-                ? t("1 question selected")
-                : t("{{n}} questions selected", { n: selectedById.size })}
+                ? "1 question selected"
+                : `${selectedById.size} questions selected`}
             </div>
             <button
               type="button"
@@ -386,8 +386,8 @@ export default function QuestionBankPicker({
               className="btn-primary rounded-xl bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {selectedById.size
-                ? t("Use Selected Questions ({{n}})", { n: selectedById.size })
-                : t("Clear selection")}
+                ? `Use Selected Questions (${selectedById.size})`
+                : "Clear selection"}
             </button>
           </div>
         </div>

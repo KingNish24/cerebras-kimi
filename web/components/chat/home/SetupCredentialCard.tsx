@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 
 import type { SetupCredentialData } from "@/lib/setup-signals";
 
@@ -24,7 +24,7 @@ export const SetupCredentialCard = memo(function SetupCredentialCard({
 }: {
   data: SetupCredentialData;
 }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
 
   return (
@@ -35,20 +35,18 @@ export const SetupCredentialCard = memo(function SetupCredentialCard({
         </div>
         <div className="flex-1">
           <div className="text-[13px] font-medium leading-snug text-[var(--foreground)]">
-            {t("This step needs credentials")}
+            {"This step needs credentials"}
           </div>
           <div className="mt-0.5 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
             {data.reason ||
-              t(
-                "Enter the key on the settings page — never in chat, so it stays out of the conversation.",
-              )}
+              "Enter the key on the settings page — never in chat, so it stays out of the conversation."}
           </div>
           <button
             type="button"
             onClick={() => router.push(data.settingsPath)}
             className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
           >
-            {t("Open settings")}
+            {"Open settings"}
             <span aria-hidden>→</span>
           </button>
         </div>

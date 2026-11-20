@@ -29,7 +29,7 @@ import {
   PanelRight,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import { ChatMessageList } from "@/features/chat/messages";
 import { buildSessionActivity } from "@/components/chat/home/SessionActivityPanel";
@@ -102,7 +102,7 @@ export function ReadingCompanion({
   /** The sheet's own header, with the companion's controls. */
   head?: React.ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const {
     state,
     submitUserReply,
@@ -293,9 +293,9 @@ export function ReadingCompanion({
       title:
         activeConversation?.title ||
         material?.title ||
-        t("Reading conversation"),
+        "Reading conversation",
     });
-  }, [activeConversation?.title, material?.title, state.messages, t]);
+  }, [activeConversation?.title, material?.title, state.messages]);
 
   // Handed to the workspace's single ⋯. Only the question list stays here: it
   // is a long, scrolling list, and it belongs over the conversation it jumps
@@ -305,34 +305,32 @@ export function ReadingCompanion({
       {
         key: "save",
         icon: BookmarkPlus,
-        label: t("Save to Notebook"),
+        label: "Save to favorites",
         disabled: !chatSavePayload,
         onSelect: () => setShowSaveModal(true),
       },
       {
         key: "markdown",
         icon: Download,
-        label: t("Download Markdown"),
+        label: "Download Markdown",
         disabled: !hasMessages,
         onSelect: downloadMarkdown,
       },
       {
         key: "activity",
         icon: PanelRight,
-        label: t("Activity"),
+        label: "Activity",
         onSelect: () => setViewerOpen(true),
       },
       {
         key: "link",
         icon: Link2,
-        label: t("Link earlier reading conversations"),
+        label: "Link earlier reading conversations",
         // A link is stored on the conversation, so there has to be one.
         hint: !activeConversation
-          ? t("Send a message first, then link earlier reading conversations")
+          ? "Send a message first, then link earlier reading conversations"
           : linkedSessionIds.length
-            ? t("Using {{count}} linked conversations as context", {
-                count: linkedSessionIds.length,
-              })
+            ? `Using ${linkedSessionIds.length} linked conversations as context`
             : undefined,
         disabled: !activeConversation,
         onSelect: onOpenLinker,
@@ -342,21 +340,12 @@ export function ReadingCompanion({
       items.push({
         key: "turns",
         icon: ListOrdered,
-        label: t("Jump to a question"),
+        label: "Jump to a question",
         onSelect: () => setTurnsOpen(true),
       });
     }
     return items;
-  }, [
-    activeConversation,
-    chatOutline.length,
-    chatSavePayload,
-    downloadMarkdown,
-    hasMessages,
-    linkedSessionIds.length,
-    onOpenLinker,
-    t,
-  ]);
+  }, [activeConversation, chatOutline.length, chatSavePayload, downloadMarkdown, hasMessages, linkedSessionIds.length, onOpenLinker]);
   useWorkspaceMenuSection("conversation", menuItems);
 
   const copyAssistantMessage = useCallback(
@@ -377,7 +366,7 @@ export function ReadingCompanion({
           <div className="absolute right-2 top-2 w-60 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-1.5 text-[12px] shadow-[0_20px_50px_rgba(0,0,0,.18)] dark:border-[var(--border)] dark:bg-[var(--popover)]">
             <p className="flex w-full items-center gap-1.5 px-2.5 py-2 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
               <ListOrdered size={11} />
-              {t("Jump to a question")}
+              {"Jump to a question"}
             </p>
             <div className="max-h-64 overflow-y-auto">
               {chatOutline.map((entry) => (
@@ -492,15 +481,13 @@ export function ReadingCompanion({
         {!!linkedSessionIds.length && (
           <div className="mx-4 mb-2 flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
             <Link2 size={11} />
-            {t("Using {{count}} linked conversations as context", {
-              count: linkedSessionIds.length,
-            })}
+            {`Using ${linkedSessionIds.length} linked conversations as context`}
           </div>
         )}
         <ReadingComposer
           // The offered question *is* the placeholder, and Tab takes it. When
           // there is none, the static line stands.
-          placeholder={askHint || t("Ask about this material…")}
+          placeholder={askHint || "Ask about this material…"}
           placeholderCompletion={askHint}
           selection={selection}
           onSent={onClearSelection}

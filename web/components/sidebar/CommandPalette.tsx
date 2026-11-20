@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from '@/shared/router/navigation'
 import { Columns3, CornerDownLeft, MessageCircle, MessagesSquare, PenLine, Search, Settings, Users, type LucideIcon } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import PartnerAvatar from '@/components/partners/PartnerAvatar'
 import { DASHBOARD_GROUPS, PERSONALIZATION_GROUPS, visibleGroups } from '@/components/space/dashboard-groups'
 import { useCapabilityFilter } from '@/features/capabilities/useCapabilityCatalog'
@@ -56,9 +56,9 @@ export function CommandPalette({
   onSelectSession?: (sessionId: string) => void | Promise<void>
   onNewChat: () => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const router = useRouter()
-  const zh = i18n.language.startsWith('zh')
+  const zh = "en".startsWith('zh')
   const available = useCapabilityFilter()
   const { sources } = useLearningIndex(open)
   const { data: partnerData } = usePartnerNavigation(open)
@@ -80,31 +80,31 @@ export function CommandPalette({
     const go = (href: string) => () => navigateTask(href, router.push)
     const q = query.trim().toLocaleLowerCase()
     const places: PaletteItem[] = [
-      { id: 'new-chat', label: t('navigation.newChat'), icon: glyph(PenLine), run: onNewChat },
-      ...categories.map(item => ({ id: `category:${item.id}`, label: t(item.label), icon: glyph(item.icon), run: go(item.href) })),
+      { id: 'new-chat', label: "New conversation", icon: glyph(PenLine), run: onNewChat },
+      ...categories.map(item => ({ id: `category:${item.id}`, label: (item.label), icon: glyph(item.icon), run: go(item.href) })),
       ...[
         { href: '/calendar', label: 'Calendar', icon: CalendarDays },
         { href: '/co-writer', label: 'Co-Writer', icon: PenLine },
       ]
         .filter(item => navVisibleUnderPolicy(item.href, allowedSurfaces))
-        .map(item => ({ id: item.href, label: t(item.label), icon: glyph(item.icon), run: go(item.href) })),
+        .map(item => ({ id: item.href, label: (item.label), icon: glyph(item.icon), run: go(item.href) })),
       ...[
-        { groups: DASHBOARD_GROUPS, detail: t('navigation.resources') },
-        { groups: PERSONALIZATION_GROUPS, detail: t('navigation.personalization') },
+        { groups: DASHBOARD_GROUPS, detail: "Resources" },
+        { groups: PERSONALIZATION_GROUPS, detail: "Personalization" },
       ].flatMap(({ groups, detail }) =>
         visibleGroups(groups, available).flatMap(group =>
           group.items
             .filter(row => row.href !== '/agents' || navVisibleUnderPolicy(row.href, allowedSurfaces))
             .map(row => ({
               id: `resource:${row.key}`,
-              label: zh ? row.title.zh : t(row.title.en),
+              label: zh ? row.title.zh : (row.title.en),
               detail,
               icon: glyph(row.icon),
               run: go(row.href),
             }))
         )
       ),
-      { id: 'settings', label: t('Settings'), icon: glyph(Settings), run: go('/settings') },
+      { id: 'settings', label: "Settings", icon: glyph(Settings), run: go('/settings') },
     ]
     const conversations: PaletteItem[] = sessions
       .filter(
@@ -115,7 +115,7 @@ export function CommandPalette({
       )
       .map(session => ({
         id: `session:${session.session_id}`,
-        label: session.title || t('New conversation'),
+        label: session.title || "New conversation",
         icon: glyph(MessageCircle),
         run: () => void (onSelectSession ? onSelectSession(session.session_id) : go(`/chat/${session.session_id}`)()),
       }))
@@ -134,8 +134,8 @@ export function CommandPalette({
         const parent = parentsById.get(session.preferences?.parent_session_id ?? '')
         return {
           id: `side-chat:${session.session_id}`,
-          label: session.title || t('Little Tutor'),
-          detail: parent?.title || t('Little Tutor'),
+          label: session.title || "Little Tutor",
+          detail: parent?.title || "Little Tutor",
           icon: glyph(MessagesSquare),
           run: () =>
             void (onSelectSession
@@ -148,7 +148,7 @@ export function CommandPalette({
       return {
         id: `learning:${item.key}`,
         label: item.title,
-        detail: t(surface.title),
+        detail: (surface.title),
         icon: glyph(surface.icon),
         run: go(item.href),
       }
@@ -163,7 +163,7 @@ export function CommandPalette({
       ...partnerData.groups.map(group => ({
         id: `group:${group.group_id}`,
         label: group.name,
-        detail: t('Groups'),
+        detail: "Groups",
         icon: glyph(Users),
         run: go(`/partners/groups/${encodeURIComponent(group.group_id)}`),
       })),
@@ -171,13 +171,13 @@ export function CommandPalette({
     const pick = (items: PaletteItem[], idle: number) =>
       q ? items.filter(item => includes(`${item.label} ${item.detail ?? ''}`, q)).slice(0, 6) : items.slice(0, idle)
     return [
-      { title: t('navigation.jumpTo'), items: pick(places, 1 + categories.length + 2) },
-      { title: t('Conversations'), items: pick(conversations, 5) },
-      { title: t('Little Tutor'), items: pick(sideChats, q ? 6 : 3) },
-      { title: t('navigation.learning'), items: pick(learning, q ? 6 : 0) },
-      { title: t('navigation.partners'), items: pick(partners, q ? 6 : 0) },
+      { title: "Jump to", items: pick(places, 1 + categories.length + 2) },
+      { title: "Conversations", items: pick(conversations, 5) },
+      { title: "Little Tutor", items: pick(sideChats, q ? 6 : 3) },
+      { title: "Learning", items: pick(learning, q ? 6 : 0) },
+      { title: "Partners", items: pick(partners, q ? 6 : 0) },
     ].filter(group => group.items.length > 0)
-  }, [query, categories, allowedSurfaces, available, zh, sessions, sources, partnerData, onSelectSession, onNewChat, router.push, t])
+  }, [query, categories, allowedSurfaces, available, zh, sessions, sources, partnerData, onSelectSession, onNewChat, router.push])
 
   const flat = groups.flatMap(group => group.items)
   const current = Math.min(activeIndex, Math.max(0, flat.length - 1))
@@ -196,7 +196,7 @@ export function CommandPalette({
   let index = -1
   return createPortal(
     <div className="dt-palette-backdrop" onPointerDown={event => event.target === event.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={t('navigation.searchEverything')} className="dt-palette">
+      <div role="dialog" aria-modal="true" aria-label={"Search or jump to…"} className="dt-palette">
         <div className="dt-palette-field">
           <Search size={17} strokeWidth={1.7} className="shrink-0 opacity-50" />
           <input
@@ -206,7 +206,7 @@ export function CommandPalette({
             aria-expanded
             aria-controls="dt-palette-results"
             aria-activedescendant={flat[current] ? `dt-palette-${current}` : undefined}
-            placeholder={t('navigation.searchEverything')}
+            placeholder={"Search or jump to…"}
             onChange={event => {
               setQuery(event.target.value)
               setActiveIndex(0)
@@ -253,12 +253,12 @@ export function CommandPalette({
               })}
             </div>
           ))}
-          {!flat.length && <p className="dt-palette-empty">{t('navigation.noResults')}</p>}
+          {!flat.length && <p className="dt-palette-empty">{"No matching records"}</p>}
         </div>
         <div className="dt-palette-hints" aria-hidden>
-          <span><kbd>↑</kbd><kbd>↓</kbd> {t('navigation.paletteSelect')}</span>
-          <span><kbd>↵</kbd> {t('navigation.paletteOpen')}</span>
-          <span><kbd>esc</kbd> {t('navigation.paletteClose')}</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> {"Select"}</span>
+          <span><kbd>↵</kbd> {"Open"}</span>
+          <span><kbd>esc</kbd> {"Close"}</span>
         </div>
       </div>
     </div>,

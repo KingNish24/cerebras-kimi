@@ -17,7 +17,7 @@ import {
   Search,
   Video,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import NotebookRecordActions from "@/components/notebook/NotebookRecordActions";
 import { FavoriteKindIcon } from "@/components/notebook/favorite-kinds";
@@ -117,7 +117,7 @@ export default function NotebookRecordRow({
   onRelocate,
   onOpenSession,
 }: NotebookRecordRowProps) {
-  const { t, i18n } = useTranslation();
+  
   const [editing, setEditing] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -145,8 +145,8 @@ export default function NotebookRecordRow({
   const badgeLabel = badge
     ? record.type === "tutorbot" && partnerName
       ? partnerName
-      : t(badge.labelKey)
-    : t(FAVORITE_LABELS[favoriteKind(record.type, record.metadata)] || "Favorite content");
+      : (badge.labelKey)
+    : (FAVORITE_LABELS[favoriteKind(record.type, record.metadata)] || "Favorite content");
 
   const sessionId = String(record.metadata?.session_id ?? "");
   const canOpenSession = record.type === "chat" && Boolean(sessionId);
@@ -184,7 +184,7 @@ export default function NotebookRecordRow({
 
   const save = async () => {
     if (!draftTitle.trim()) {
-      setFailure(t("A record needs a title."));
+      setFailure("A record needs a title.");
       return;
     }
     setBusy(true);
@@ -199,7 +199,7 @@ export default function NotebookRecordRow({
         changes.summary = draftSummary;
       if (Object.keys(changes).length) await onEdit(record.id, changes);
       setEditing(false);
-      notify(t("Record saved"), { tone: "success" });
+      notify("Record saved", { tone: "success" });
     } catch (err) {
       setFailure(err instanceof Error ? err.message : String(err));
     } finally {
@@ -212,7 +212,7 @@ export default function NotebookRecordRow({
     setPending(null);
     try {
       await onDelete(record.id);
-      notify(t("Record deleted"), { tone: "success" });
+      notify("Record deleted", { tone: "success" });
     } catch (err) {
       setFailure(err instanceof Error ? err.message : String(err));
       setBusy(false);
@@ -227,8 +227,8 @@ export default function NotebookRecordRow({
       await onRelocate(record.id, targetId, mode);
       notify(
         mode === "move"
-          ? t('Moved to "{{name}}"', { name: target?.name ?? targetId })
-          : t('Copied to "{{name}}"', { name: target?.name ?? targetId }),
+          ? `Moved to "${target?.name ?? targetId}"`
+          : `Copied to "${target?.name ?? targetId}"`,
         { tone: "success" },
       );
     } catch (err) {
@@ -266,13 +266,13 @@ export default function NotebookRecordRow({
               <BadgeIcon size={11} aria-hidden />
               {badgeLabel}
               {messageCount > 0 && (
-                <> · {t("{{count}} messages", { count: messageCount })}</>
+                <> · {`${messageCount} messages`}</>
               )}
               {record.created_at ? (
                 <>
                   {" · "}
                   <time title={timestamp}>
-                    {formatRelativeTime(record.created_at, i18n.language)}
+                    {formatRelativeTime(record.created_at, "en")}
                   </time>
                 </>
               ) : null}
@@ -281,11 +281,11 @@ export default function NotebookRecordRow({
         </button>
 
         <div className="dt-fav-record-tools">
-          <Tooltip label={t("Edit favorite details")} side="top">
+          <Tooltip label={"Edit favorite details"} side="top">
             <button
               type="button"
               disabled={busy}
-              aria-label={t("Edit favorite details")}
+              aria-label={"Edit favorite details"}
               onClick={() => {
                 if (!expanded) onToggle();
                 startEditing();
@@ -336,7 +336,7 @@ export default function NotebookRecordRow({
               {record.summary && <p className="dt-fav-record-lead">{record.summary}</p>}
               {record.type !== "chat" && record.user_query && (
                 <p className="dt-fav-record-query">
-                  <span>{t("Query:")}</span> {record.user_query}
+                  <span>{"Query:"}</span> {record.user_query}
                 </p>
               )}
               <div className="dt-fav-record-content">
@@ -354,7 +354,7 @@ export default function NotebookRecordRow({
                     className="dt-fav-button"
                   >
                     <ExternalLink size={13} />
-                    {t("Open chat session")}
+                    {"Open chat session"}
                   </button>
                 )}
                 <AddToNote
@@ -376,30 +376,28 @@ export default function NotebookRecordRow({
 
       <ConfirmDialog
         open={pending === "delete"}
-        title={t("Delete this record?")}
-        confirmLabel={t("Delete")}
+        title={"Delete this record?"}
+        confirmLabel={"Delete"}
         tone="danger"
         busy={busy}
         onConfirm={() => void runDelete()}
         onCancel={() => setPending(null)}
       >
         <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {t('"{{title}}" will be removed from this notebook.', {
-            title: record.title,
-          })}
+          {`"${record.title}" will be removed from this collection.`}
         </p>
       </ConfirmDialog>
 
       <ConfirmDialog
         open={pending === "discard"}
-        title={t("Discard your changes?")}
-        confirmLabel={t("Discard")}
+        title={"Discard your changes?"}
+        confirmLabel={"Discard"}
         tone="danger"
         onConfirm={leaveEditor}
         onCancel={() => setPending(null)}
       >
         <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {t("Your edits to this record have not been saved yet.")}
+          {"Your edits to this record have not been saved yet."}
         </p>
       </ConfirmDialog>
     </div>
@@ -439,7 +437,7 @@ function RecordEditor({
   onSave: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useTranslation();
+  
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
@@ -448,39 +446,37 @@ function RecordEditor({
           autoFocus
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          placeholder={t("Record title")}
-          aria-label={t("Record title")}
+          placeholder={"Record title"}
+          aria-label={"Record title"}
           className="w-full border-0 bg-transparent p-0 text-[13.5px] font-semibold text-[var(--foreground)] outline-none placeholder:font-normal placeholder:text-[var(--muted-foreground)]"
         />
         <textarea
           value={summary}
           onChange={(e) => onSummaryChange(e.target.value)}
-          placeholder={t("Short summary")}
-          aria-label={t("Short summary")}
+          placeholder={"Short summary"}
+          aria-label={"Short summary"}
           rows={2}
           className="w-full resize-none border-0 bg-transparent p-0 text-[12.5px] leading-6 text-[var(--foreground)]/80 outline-none placeholder:text-[var(--muted-foreground)]"
         />
       </div>
 
       <p className="px-3 py-2 text-xs text-[var(--muted-foreground)]">
-        {t(
-          "Original content is preserved. Add it to a note to edit and organize it.",
-        )}
+        {"Original content is preserved. Add it to a note to edit and organize it."}
       </p>
       <div className="flex items-center justify-between border-b border-[var(--border)]/70 bg-[var(--muted)]/25 px-3 py-1.5">
         <span className="text-[10.5px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Body")}
+          {"Body"}
         </span>
         {/* A segmented switch rather than a toggling button: both states stay
             visible, so it never reads as "what am I looking at now?". */}
         <div
           role="tablist"
-          aria-label={t("Body")}
+          aria-label={"Body"}
           className="flex items-center gap-0.5 rounded-lg bg-[var(--muted)]/70 p-0.5"
         >
           {[
-            { key: "write", label: t("Source text"), active: !previewing },
-            { key: "preview", label: t("Preview"), active: previewing },
+            { key: "write", label: "Source text", active: !previewing },
+            { key: "preview", label: "Preview", active: previewing },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -505,7 +501,7 @@ function RecordEditor({
       {previewing ? (
         <div className="max-h-[380px] min-h-[180px] overflow-y-auto px-3 py-2.5">
           <MarkdownRenderer
-            content={output || t("Nothing to preview yet.")}
+            content={output || "Nothing to preview yet."}
             variant="prose"
             className="text-[12.5px] leading-relaxed text-[var(--foreground)]"
           />
@@ -516,7 +512,7 @@ function RecordEditor({
           readOnly
           rows={14}
           spellCheck={false}
-          aria-label={t("Body")}
+          aria-label={"Body"}
           className="max-h-[380px] min-h-[180px] w-full resize-y border-0 bg-transparent px-3 py-2.5 font-mono text-[12px] leading-relaxed text-[var(--foreground)] outline-none"
         />
       )}
@@ -524,7 +520,7 @@ function RecordEditor({
       <div className="flex items-center justify-end gap-2 border-t border-[var(--border)]/70 px-3 py-2">
         {dirty && (
           <span className="mr-auto text-[11px] text-[var(--muted-foreground)]">
-            {t("Unsaved changes")}
+            {"Unsaved changes"}
           </span>
         )}
         <button
@@ -533,7 +529,7 @@ function RecordEditor({
           disabled={busy}
           className="rounded-lg px-2.5 py-1.5 text-[12.5px] text-[var(--muted-foreground)] transition-colors duration-150 hover:text-[var(--foreground)] disabled:opacity-40"
         >
-          {t("Cancel")}
+          {"Cancel"}
         </button>
         <button
           type="button"
@@ -541,7 +537,7 @@ function RecordEditor({
           disabled={busy || !dirty}
           className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {t("Save")}
+          {"Save"}
         </button>
       </div>
     </div>

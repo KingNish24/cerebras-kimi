@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useMemo, useState } from "react";
 import { Pin } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import {
   DEFAULT_RESOURCE_REUSE,
@@ -51,23 +51,23 @@ export function useResourceReuse() {
 }
 export function ResourceReuseControl({ kind }: { kind: ResourceKind }) {
   const context = useResourceReuse();
-  const { t } = useTranslation();
+  
   if (!context) return null;
   const enabled = context.policy[kind];
   return (
-    <Tooltip label={t("Include these resources every turn")} side="top">
+    <Tooltip label={"Include these resources every turn"} side="top">
       <label
         className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] leading-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--primary)]/30 ${enabled ? "border-[var(--primary)]/20 bg-[var(--primary)]/5 text-[var(--primary)]" : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"}`}
       >
         <input
           type="checkbox"
-          aria-label={t("Include these resources every turn")}
+          aria-label={"Include these resources every turn"}
           checked={enabled}
           onChange={(e) => context.setEveryTurn(kind, e.target.checked)}
           className="peer sr-only"
         />
         <Pin size={12} strokeWidth={1.7} />
-        <span>{t(enabled ? "Every turn" : "This turn only")}</span>
+        <span>{(enabled ? "Every turn" : "This turn only")}</span>
         <span
           aria-hidden="true"
           className="relative ml-1 h-3.5 w-6 rounded-full transition-colors"

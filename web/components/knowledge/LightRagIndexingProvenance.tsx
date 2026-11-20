@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 import type {
   IndexVersion,
   LightRagIndexingPolicy,
@@ -21,7 +21,7 @@ export default function LightRagIndexingProvenance({
   title,
   compact = false,
 }: LightRagIndexingProvenanceProps) {
-  const { t } = useTranslation();
+  
   const resolved = policy ?? { policy: "legacy_unpinned" };
   const extract = resolved.schema_version === 2 ? resolved.extract : resolved;
   const visionEnabled =
@@ -39,8 +39,8 @@ export default function LightRagIndexingProvenance({
       .filter(Boolean)
       .join(" · ");
     return name
-      ? `${name} · ${value?.descriptor?.reasoning_effort || t("Auto")}`
-      : t("Unverified historical indexing model");
+      ? `${name} · ${value?.descriptor?.reasoning_effort || "Auto"}`
+      : "Unverified historical indexing model";
   };
   const embeddingModel = embedding?.model ?? version?.embedding_model;
   const dimension = embedding?.dimension ?? version?.embedding_dim;
@@ -48,32 +48,30 @@ export default function LightRagIndexingProvenance({
     ...(embeddingModel
       ? [
           [
-            t("Embedding"),
-            `${embeddingModel}${dimension ? ` · ${dimension}${t("d")}` : ""}`,
+            "Embedding",
+            `${embeddingModel}${dimension ? ` · ${dimension}${"d"}` : ""}`,
           ],
         ]
       : []),
-    [t("EXTRACT model"), modelLabel(extract)],
+    ["EXTRACT model", modelLabel(extract)],
     [
-      t("VLM model"),
+      "VLM model",
       visionEnabled === true
         ? modelLabel(vision)
         : visionEnabled === false
-          ? t("Disabled")
-          : t("Unknown"),
+          ? "Disabled"
+          : "Unknown",
     ],
   ];
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/25 px-3 py-2.5">
       <div className="text-[12px] font-medium text-[var(--foreground)]">
-        {title || t("Index configuration")}
+        {title || "Index configuration"}
       </div>
       {resolved.policy === "legacy_unpinned" && (
         <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-          {t(
-            "The historical indexing model is unknown. Queries remain available, but incremental uploads require a full rebuild.",
-          )}
+          {"The historical indexing model is unknown. Queries remain available, but incremental uploads require a full rebuild."}
         </p>
       )}
       <dl

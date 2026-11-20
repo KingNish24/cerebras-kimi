@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   ArrowLeft,
   Database,
@@ -61,7 +61,7 @@ export default function EngineDetail({
   onChanged,
   onError,
 }: EngineDetailProps) {
-  const { t } = useTranslation();
+  
   const status = providerConnectionStatus(provider);
   const installHint = INSTALL_HINTS[provider.id];
   const hasModes = (provider.modes?.length ?? 0) > 0;
@@ -80,7 +80,7 @@ export default function EngineDetail({
           className="mb-3 inline-flex items-center gap-1 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          {t("Knowledge Center")}
+          {"Knowledge Center"}
         </button>
 
         {/* Header */}
@@ -113,18 +113,16 @@ export default function EngineDetail({
         />
 
         {provider.id === "lightrag-server" && (
-          <Section label={t("Connection defaults")} icon={Server}>
+          <Section label={"Connection defaults"} icon={Server}>
             <LightRagServerForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
 
         {/* Retrieval modes (graphrag / lightrag) */}
         {hasModes && (
-          <Section label={t("Retrieval mode")} icon={Workflow}>
+          <Section label={"Retrieval mode"} icon={Workflow}>
             <p className="-mt-1 mb-3 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-              {t(
-                "The default for new searches. A knowledge base can still override it per-KB.",
-              )}
+              {"The default for new searches. A knowledge base can still override it per-KB."}
             </p>
             <ModeSelector provider={provider} onSelectMode={onSelectMode} />
           </Section>
@@ -132,35 +130,35 @@ export default function EngineDetail({
 
         {/* LlamaIndex tuning */}
         {provider.id === "llamaindex" && (
-          <Section label={t("Retrieval & chunking")} icon={Settings2}>
+          <Section label={"Retrieval & chunking"} icon={Settings2}>
             <LlamaIndexForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
 
         {/* GraphRAG query knobs */}
         {provider.id === "graphrag" && (
-          <Section label={t("Retrieval parameters")} icon={Settings2}>
+          <Section label={"Retrieval parameters"} icon={Settings2}>
             <GraphRagForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
 
         {/* LightRAG query knobs */}
         {provider.id === "lightrag" && (
-          <Section label={t("Retrieval parameters")} icon={Settings2}>
+          <Section label={"Retrieval parameters"} icon={Settings2}>
             <LightRagForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
 
         {/* PageIndex credentials */}
         {provider.id === "pageindex" && (
-          <Section label={t("Credentials")} icon={KeyRound}>
+          <Section label={"Credentials"} icon={KeyRound}>
             <PageIndexConfigForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
 
         {/* Tencent IMA credentials */}
         {provider.id === "ima" && (
-          <Section label={t("Credentials")} icon={KeyRound}>
+          <Section label={"Credentials"} icon={KeyRound}>
             <ImaForm onChanged={onChanged} onError={onError} />
           </Section>
         )}
@@ -174,12 +172,12 @@ export default function EngineDetail({
 
         {/* Knowledge bases on this engine */}
         <Section
-          label={`${t("Knowledge bases")} · ${engineKbs.length}`}
+          label={`${"Knowledge bases"} · ${engineKbs.length}`}
           icon={Database}
         >
           {engineKbs.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-[12px] text-[var(--muted-foreground)]">
-              {t("No knowledge bases use this engine yet.")}
+              {"No knowledge bases use this engine yet."}
             </div>
           ) : (
             <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
@@ -210,7 +208,7 @@ export default function EngineDetail({
                     </div>
                     {docs !== null && (
                       <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
-                        {docs} {t("docs")}
+                        {docs} {"docs"}
                       </span>
                     )}
                   </button>

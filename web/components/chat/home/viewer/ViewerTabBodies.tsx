@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "@/shared/router/dynamic";
 import { AlertCircle, ArrowLeft, Download, ExternalLink, Globe, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   previewKindFor,
   resolveSourceUrl,
@@ -70,7 +70,7 @@ export function ActivityHome({
   onOpenAttachment: (a: MessageAttachment) => void;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="h-full space-y-5 overflow-y-auto px-3 pb-8 pt-1 sm:px-3.5">
       <div className="sticky top-0 z-10 -mx-3 flex justify-start border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_94%,transparent)] px-3 py-2 backdrop-blur-sm sm:-mx-3.5 sm:px-3.5">
@@ -78,10 +78,10 @@ export function ActivityHome({
           type="button"
           onClick={onClose}
           className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          aria-label={t("Back to conversation")}
+          aria-label={"Back to conversation"}
         >
           <ArrowLeft size={16} strokeWidth={1.8} />
-          <span>{t("Back to conversation")}</span>
+          <span>{"Back to conversation"}</span>
         </button>
       </div>
       <ActivityBody
@@ -105,24 +105,24 @@ function fileUrlFor(source: FilePreviewSource): string | null {
 }
 
 export function FileTabActions({ source }: { source: FilePreviewSource }) {
-  const { t } = useTranslation();
+  
   const fileUrl = useMemo(() => fileUrlFor(source), [source]);
-  const filename = source.filename || t("Attachment");
+  const filename = source.filename || "Attachment";
   return (
     <>
       {fileUrl ? (
-        <Tooltip label={t("Download")} side="bottom">
+        <Tooltip label={"Download"} side="bottom">
           <a
             href={fileUrl}
             download={filename}
             className={HEADER_ICON}
-            aria-label={t("Download")}
+            aria-label={"Download"}
           >
             <Download size={15} strokeWidth={1.8} />
           </a>
         </Tooltip>
       ) : null}
-      <Tooltip label={t("Open in browser")} side="bottom">
+      <Tooltip label={"Open in browser"} side="bottom">
         <button
           type="button"
           onClick={() => {
@@ -130,7 +130,7 @@ export function FileTabActions({ source }: { source: FilePreviewSource }) {
           }}
           disabled={!fileUrl}
           className={HEADER_ICON}
-          aria-label={t("Open in browser")}
+          aria-label={"Open in browser"}
         >
           <ExternalLink size={14} strokeWidth={1.8} />
         </button>
@@ -225,7 +225,7 @@ const PreviewBody = memo(function PreviewBody({
 });
 
 export function WebTabBody({ url }: { url: string }) {
-  const { t } = useTranslation();
+  
   const [loaded, setLoaded] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const host = hostnameFor(url);
@@ -269,7 +269,7 @@ export function WebTabBody({ url }: { url: string }) {
           }`}
         >
           <ExternalLink size={11} strokeWidth={1.9} />
-          {t("Open in browser")}
+          {"Open in browser"}
         </button>
       </div>
 
@@ -289,12 +289,8 @@ export function WebTabBody({ url }: { url: string }) {
         />
         <span>
           {blocked
-            ? t(
-                "This site looks like it refused to embed (its security headers block iframes). Use “Open in browser” to view it in a real tab.",
-              )
-            : t(
-                "Many sites refuse to embed for security reasons. If the page below stays blank, use “Open in browser”.",
-              )}
+            ? "This site looks like it refused to embed (its security headers block iframes). Use “Open in browser” to view it in a real tab."
+            : "Many sites refuse to embed for security reasons. If the page below stays blank, use “Open in browser”."}
         </span>
       </div>
 
@@ -315,7 +311,7 @@ export function WebTabBody({ url }: { url: string }) {
               strokeWidth={1.7}
               className="animate-spin text-[color-mix(in_srgb,var(--primary)_80%,transparent)]"
             />
-            <span>{t("Loading {{host}}…", { host })}</span>
+            <span>{`Loading ${host}…`}</span>
           </div>
         ) : null}
       </div>

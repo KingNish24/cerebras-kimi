@@ -8,7 +8,7 @@ import { MASTERY_HOME, masterySessionRoute as existingMasterySessionRoute, maste
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "@/shared/router/link";
 import { useParams, useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import {
   ArrowLeft,
   ArrowRight,
@@ -71,8 +71,8 @@ export default function MasteryTopicPage() {
   const params = useParams<{ pathId: string }>();
   const pathId = String(params.pathId || "");
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const zh = Boolean(i18n.language?.toLowerCase().startsWith("zh"));
+  
+  const zh = Boolean("en"?.toLowerCase().startsWith("zh"));
   const [topic, setTopic] = useState<MasteryTopic | null>(null);
   const [sessions, setSessions] = useState<TopicSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,12 +124,12 @@ export default function MasteryTopicPage() {
       setError(
         reason instanceof Error
           ? reason.message
-          : t("The map could not be loaded"),
+          : "The map could not be loaded",
       );
     } finally {
       setLoading(false);
     }
-  }, [pathId, t]);
+  }, [pathId]);
 
   const loadSessions = useCallback(async () => {
     try {
@@ -155,11 +155,11 @@ export default function MasteryTopicPage() {
       setStrategies(result.strategies);
       setStrategiesError(null);
     } catch {
-      setStrategiesError(t("Could not load review strategies. Try again."));
+      setStrategiesError("Could not load review strategies. Try again.");
     } finally {
       setStrategiesLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     void loadStrategies();
@@ -204,7 +204,7 @@ export default function MasteryTopicPage() {
       [],
     [topic],
   );
-  const displayName = topic ? topicDisplayName(topic, t) : "";
+  const displayName = topic ? topicDisplayName(topic) : "";
 
   const refresh = async () => {
     await Promise.all([loadTopic(), loadSessions()]);
@@ -252,7 +252,7 @@ export default function MasteryTopicPage() {
       setTopic(saved);
       activity.refresh();
     } catch {
-      setRetentionError(t("Could not save review target. Try again."));
+      setRetentionError("Could not save review target. Try again.");
     } finally {
       setRetentionBusy(false);
     }
@@ -266,7 +266,7 @@ export default function MasteryTopicPage() {
       setTopic(saved);
       activity.refresh();
     } catch {
-      setStrategyError(t("Could not save review strategy. Try again."));
+      setStrategyError("Could not save review strategy. Try again.");
     } finally {
       setStrategyBusy(false);
     }
@@ -293,7 +293,7 @@ export default function MasteryTopicPage() {
       setStrategyError(
         error instanceof Error
           ? error.message
-          : t("Could not save review strategy. Try again."),
+          : "Could not save review strategy. Try again.",
       );
     } finally {
       setStrategyBusy(false);
@@ -316,7 +316,7 @@ export default function MasteryTopicPage() {
       await loadStrategies();
       activity.refresh();
     } catch {
-      setStrategyError(t("Could not duplicate review strategy. Try again."));
+      setStrategyError("Could not duplicate review strategy. Try again.");
     } finally {
       setStrategyBusy(false);
     }
@@ -332,7 +332,7 @@ export default function MasteryTopicPage() {
       await loadStrategies();
       activity.refresh();
     } catch {
-      setStrategyError(t("Could not delete review strategy. Try again."));
+      setStrategyError("Could not delete review strategy. Try again.");
     } finally {
       setStrategyBusy(false);
     }
@@ -392,14 +392,14 @@ export default function MasteryTopicPage() {
       <div className="mastery-shell flex h-full flex-col items-center justify-center px-6 text-center">
         <Compass className="h-10 w-10 text-[var(--muted-foreground)] opacity-40" />
         <h1 className="mt-4 text-lg font-semibold">
-          {t("This map could not be found")}
+          {"This map could not be found"}
         </h1>
         <p className="mt-2 text-sm text-[var(--muted-foreground)]">{error}</p>
         <Link
           href={scopedUrl(MASTERY_HOME)}
           className="mt-5 text-sm font-medium text-[var(--primary)] hover:underline"
         >
-          {t("Back to topics")}
+          {"Back to topics"}
         </Link>
       </div>
     );
@@ -410,7 +410,7 @@ export default function MasteryTopicPage() {
   const nextCopy = nextLabel
     ? zh
       ? nextLabel.zh
-      : t(nextLabel.en)
+      : (nextLabel.en)
     : topic.next.reason;
   const progress = topic.map.counts.total
     ? Math.round((topic.map.counts.mastered / topic.map.counts.total) * 100)
@@ -445,7 +445,7 @@ export default function MasteryTopicPage() {
             className="dt-section-back inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            {t("Learning topics")}
+            {"Learning topics"}
           </Link>
           {/* The goal's own actions go up to the page bar, top right. */}
           <PageBarSlot name="actions" className="ml-auto flex items-center gap-1">
@@ -455,12 +455,12 @@ export default function MasteryTopicPage() {
               className="dt-quiet-button"
             >
               <PencilRuler className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t("Edit modules")}</span>
+              <span className="hidden sm:inline">{"Edit modules"}</span>
             </button>
             <details className="relative">
               <summary className="dt-quiet-button is-icon cursor-pointer list-none">
                 <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">{t("More actions")}</span>
+                <span className="sr-only">{"More actions"}</span>
               </summary>
               <div className="absolute right-0 z-20 mt-2 w-44 rounded-xl border border-[var(--border)] bg-[var(--popover)] p-1.5 text-xs shadow-xl">
                 <button
@@ -470,7 +470,7 @@ export default function MasteryTopicPage() {
                   }
                   className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-[var(--accent)]"
                 >
-                  <RotateCcw className="h-3.5 w-3.5" /> {t("Reset progress")}
+                  <RotateCcw className="h-3.5 w-3.5" /> {"Reset progress"}
                 </button>
                 <button
                   type="button"
@@ -479,7 +479,7 @@ export default function MasteryTopicPage() {
                   }
                   className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-red-600 hover:bg-red-500/10"
                 >
-                  <Trash2 className="h-3.5 w-3.5" /> {t("Delete topic")}
+                  <Trash2 className="h-3.5 w-3.5" /> {"Delete topic"}
                 </button>
               </div>
             </details>
@@ -516,7 +516,7 @@ export default function MasteryTopicPage() {
           <div className="flex shrink-0 flex-wrap items-center gap-3">
             <span className="text-[13px] tabular-nums text-[var(--muted-foreground)]">
               {topic.map.counts.mastered}/{topic.map.counts.total}{" "}
-              {t("knowledge points")}
+              {"knowledge points"}
             </span>
             <span className="h-3 w-px bg-[var(--border)]" aria-hidden="true" />
             <div className="flex items-center gap-2">
@@ -536,20 +536,18 @@ export default function MasteryTopicPage() {
         <section className="dt-next-up mt-2">
           <div className="flex min-w-0 items-baseline gap-3">
             <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">
-              {t("Next up")}
+              {"Next up"}
             </span>
             <div className="min-w-0">
               <div className="truncate text-[14px] font-medium text-[var(--foreground)]">
                 {needsRouteRepair
-                  ? t("Design the outline")
+                  ? "Design the outline"
                   : topic.next.knowledge_point_name ||
-                    t("Celebrate completion")}
+                    "Celebrate completion"}
               </div>
               <p className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">
                 {needsRouteRepair
-                  ? t(
-                      "This goal has no outline yet. Open a session and the tutor will design one with you.",
-                    )
+                  ? "This goal has no outline yet. Open a session and the tutor will design one with you."
                   : nextCopy}
               </p>
             </div>
@@ -561,7 +559,7 @@ export default function MasteryTopicPage() {
               className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 text-[13px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
             >
               <PencilRuler className="h-4 w-4" />
-              {t("Add modules")}
+              {"Add modules"}
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           ) : (
@@ -590,10 +588,10 @@ export default function MasteryTopicPage() {
               {nextCta
                 ? zh
                   ? nextCta.zh
-                  : t(nextCta.en)
+                  : (nextCta.en)
                 : topic.session_count > 0
-                  ? t("Continue learning")
-                  : t("Begin first waypoint")}
+                  ? "Continue learning"
+                  : "Begin first waypoint"}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}
@@ -608,12 +606,10 @@ export default function MasteryTopicPage() {
             <section className="dt-panel min-h-72 items-center justify-center p-8 text-center">
               <PencilRuler className="h-9 w-9 text-[var(--mastery-route)]" />
               <h2 className="mt-4 text-lg font-semibold">
-                {t("No outline yet")}
+                {"No outline yet"}
               </h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-[var(--muted-foreground)]">
-                {t(
-                  "Open a session and the tutor will read your materials, ask what you already know and how much time you have, then design the outline with you.",
-                )}
+                {"Open a session and the tutor will read your materials, ask what you already know and how much time you have, then design the outline with you."}
               </p>
               <Link
                 onClick={() =>
@@ -625,7 +621,7 @@ export default function MasteryTopicPage() {
                 href={masterySessionRoute(pathId, "outline")}
                 className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
               >
-                {t("Design the outline with the tutor")}
+                {"Design the outline with the tutor"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <button
@@ -634,7 +630,7 @@ export default function MasteryTopicPage() {
                 className="mt-3 inline-flex h-9 items-center gap-2 rounded-xl px-3 text-[13px] text-[var(--muted-foreground)] transition hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
                 <PencilRuler className="h-3.5 w-3.5" />
-                {t("Write the modules myself")}
+                {"Write the modules myself"}
               </button>
             </section>
           ) : (
@@ -645,13 +641,13 @@ export default function MasteryTopicPage() {
                   two widgets hanging off it. */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="px-2.5 text-[13px] font-semibold text-[var(--foreground)]">
-                  {t("Mastery outline")}
+                  {"Mastery outline"}
                 </h2>
                 <div className="flex items-center gap-0.5 rounded-lg bg-[var(--muted)] p-0.5">
                   {(
                     [
-                      ["outline", List, t("Outline")],
-                      ["board", LayoutGrid, t("Board")],
+                      ["outline", List, "Outline"],
+                      ["board", LayoutGrid, "Board"],
                     ] as const
                   ).map(([value, Icon, label]) => (
                     <button
@@ -676,7 +672,7 @@ export default function MasteryTopicPage() {
                     onClick={() => setBoardRequestNonce((nonce) => nonce + 1)}
                     className="text-xs font-medium text-[var(--primary)] hover:underline"
                   >
-                    {t("Try again")}
+                    {"Try again"}
                   </button>
                 )}
               </div>
@@ -708,7 +704,7 @@ export default function MasteryTopicPage() {
                 />
               ) : boardError ? (
                 <p className="dt-panel p-6 text-center text-sm text-[var(--muted-foreground)]">
-                  {t("The learning board could not be loaded")}
+                  {"The learning board could not be loaded"}
                 </p>
               ) : (
                 <div className="dt-panel min-h-40 items-center justify-center">
@@ -783,12 +779,10 @@ export default function MasteryTopicPage() {
       )}
       {confirmAction === "reset" && (
         <ConfirmDialog
-          title={t("Reset learning progress?")}
-          description={t(
-            "Modules and knowledge points stay. Mastery evidence, pending questions, and review schedules will be cleared.",
-          )}
-          confirmLabel={t("Confirm reset")}
-          cancelLabel={t("Cancel")}
+          title={"Reset learning progress?"}
+          description={"Modules and knowledge points stay. Mastery evidence, pending questions, and review schedules will be cleared."}
+          confirmLabel={"Confirm reset"}
+          cancelLabel={"Cancel"}
           busy={mutationBusy}
           returnFocusRef={confirmTriggerRef}
           onConfirm={() => void handleReset()}
@@ -797,12 +791,10 @@ export default function MasteryTopicPage() {
       )}
       {confirmAction === "delete" && (
         <ConfirmDialog
-          title={t("Permanently delete this topic?")}
-          description={t(
-            "The map, evidence, review schedule, and linked records will be deleted. This cannot be undone.",
-          )}
-          confirmLabel={t("Delete permanently")}
-          cancelLabel={t("Cancel")}
+          title={"Permanently delete this topic?"}
+          description={"The map, evidence, review schedule, and linked records will be deleted. This cannot be undone."}
+          confirmLabel={"Delete permanently"}
+          cancelLabel={"Cancel"}
           destructive
           busy={mutationBusy}
           returnFocusRef={confirmTriggerRef}

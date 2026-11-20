@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, AtSign, Square, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import PartnerAvatar from "@/components/partners/PartnerAvatar";
@@ -50,7 +50,7 @@ export default function GroupComposer({
   onCancel: () => void;
   onDraftChange?: (hasDraft: boolean) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [input, setInput] = useState("");
   const [highlight, setHighlight] = useState(0);
   const [dismissed, setDismissed] = useState(false);
@@ -153,17 +153,13 @@ export default function GroupComposer({
             <AtSign size={11} className="shrink-0" />
             <span className="truncate">
               {addressed.length
-                ? t("Talking to {{names}}", {
-                    names: addressed.map((item) => item.name).join("、"),
-                  })
-                : t("No mention · everyone will answer")}
+                ? `Talking to ${addressed.map((item) => item.name).join("、")}`
+                : "No mention · everyone will answer"}
             </span>
           </span>
           {resolved.unknown.length ? (
             <span className="shrink-0 text-amber-600 dark:text-amber-500">
-              {t("Unrecognized: {{names}}", {
-                names: resolved.unknown.map((item) => `@${item}`).join(" "),
-              })}
+              {`Unrecognized: ${resolved.unknown.map((item) => `@${item}`).join(" ")}`}
             </span>
           ) : null}
         </div>
@@ -172,7 +168,7 @@ export default function GroupComposer({
           <div className="mb-2 flex items-start gap-2 rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2">
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-medium text-[var(--muted-foreground)]">
-                {t("Following up on {{name}}", { name: quote.name })}
+                {`Following up on ${quote.name}`}
               </div>
               <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-[var(--foreground)]">
                 {quote.content}
@@ -232,27 +228,27 @@ export default function GroupComposer({
               }
             }}
             rows={1}
-            placeholder={t("Message the group · type @ to choose Partners")}
+            placeholder={"Message the group · type @ to choose Partners"}
             className="flex-1 resize-none bg-transparent px-2 py-2 text-[13px] leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
           />
           {running ? (
-            <Tooltip label={t("Stop")}>
+            <Tooltip label={"Stop"}>
               <button
                 type="button"
                 onClick={onCancel}
-                aria-label={t("Stop")}
+                aria-label={"Stop"}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
               >
                 <Square size={11} fill="currentColor" />
               </button>
             </Tooltip>
           ) : (
-            <Tooltip label={connected ? t("Send") : t("Connecting…")}>
+            <Tooltip label={connected ? "Send" : "Connecting…"}>
               <button
                 type="button"
                 onClick={submit}
                 disabled={!input.trim() || !connected}
-                aria-label={connected ? t("Send") : t("Connecting…")}
+                aria-label={connected ? "Send" : "Connecting…"}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] transition-opacity disabled:opacity-35"
               >
                 <ArrowUp size={15} />

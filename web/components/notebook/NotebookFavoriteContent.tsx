@@ -2,7 +2,7 @@
 import dynamic from '@/shared/router/dynamic'
 import Image from '@/shared/router/image'
 import { useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import {
   favoriteAnswer,
   favoriteHeadings,
@@ -32,7 +32,7 @@ export default function NotebookFavoriteContent({
   markdown: string
   metadata?: Record<string, unknown>
 }) {
-  const { t } = useTranslation()
+  
   const root = useRef<HTMLDivElement>(null)
   const mediaRef = useRef<HTMLVideoElement>(null)
   const kind = favoriteKind(type, metadata)
@@ -70,7 +70,7 @@ export default function NotebookFavoriteContent({
         />
       )}
       {chapters.length > 0 && media?.kind === 'video' && (
-        <div className="dt-fav-chapters" aria-label={t('Video chapters')}>
+        <div className="dt-fav-chapters" aria-label={"Video chapters"}>
           {chapters.map((chapter, index) => (
             <button
               key={index}
@@ -90,8 +90,8 @@ export default function NotebookFavoriteContent({
       )}
       {headingLines.length > 2 && (
         <details className="dt-fav-toc">
-          <summary>{t('Contents')}</summary>
-          <nav aria-label={t('Contents')}>
+          <summary>{"Contents"}</summary>
+          <nav aria-label={"Contents"}>
             {headingLines.map((line, i) => (
               <button
                 key={i}
@@ -123,7 +123,7 @@ export default function NotebookFavoriteContent({
                 </div>
               ) : (
                 <section key={i} className="dt-fav-turn is-assistant">
-                  {role === 'system' && <div className="dt-fav-turn-role">{t('System')}</div>}
+                  {role === 'system' && <div className="dt-fav-turn-role">{"System"}</div>}
                   <Markdown content={turn.content} />
                 </section>
               )
@@ -133,7 +133,7 @@ export default function NotebookFavoriteContent({
           <>
             <Markdown content={answer.question} />
             <details className="dt-fav-answer">
-              <summary>{t('Show answer and explanation')}</summary>
+              <summary>{"Show answer and explanation"}</summary>
               <div className="dt-fav-answer-body">
                 <Markdown content={answer.answer} />
               </div>

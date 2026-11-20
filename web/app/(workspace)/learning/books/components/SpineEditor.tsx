@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { bookApi, type EstimateBasis } from "@/lib/book-api";
 import type { BookDepth, Chapter, ContentType, Spine } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -124,7 +124,7 @@ export default function SpineEditor({
   depth = "standard",
   initialBlockTypes,
 }: SpineEditorProps) {
-  const { t } = useTranslation();
+  
   // Engine-injected chapters (the overview, deep-dive sub-pages) are not part
   // of the structure the reader authors, so they stay out of the editor.
   const [chapters, setChapters] = useState<Chapter[]>(() =>
@@ -254,7 +254,7 @@ export default function SpineEditor({
       ...prev,
       {
         id: `ch_new_${prev.length + 1}_${Date.now().toString(36)}`,
-        title: t("New chapter"),
+        title: "New chapter",
         learning_objectives: [],
         content_type: "theory",
         source_anchors: [],
@@ -293,12 +293,10 @@ export default function SpineEditor({
     <div className="flex h-full flex-col">
       <header className="mx-auto w-full max-w-3xl px-6 pb-2 pt-6">
         <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
-          {t("Review the chapter spine")}
+          {"Review the chapter spine"}
         </h2>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-          {t(
-            "Reorder, rename, or remove chapters before the book starts compiling.",
-          )}
+          {"Reorder, rename, or remove chapters before the book starts compiling."}
         </p>
       </header>
 
@@ -315,14 +313,14 @@ export default function SpineEditor({
                   onChange={(e) =>
                     updateChapter(idx, { title: e.target.value })
                   }
-                  aria-label={t("Chapter title")}
+                  aria-label={"Chapter title"}
                   className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1 text-[15px] font-semibold text-[var(--foreground)] outline-none transition-colors hover:bg-[var(--background)] focus:bg-[var(--background)] focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--primary)_45%,transparent)]"
                 />
                 <div className="flex items-center gap-0.5 opacity-60 transition-opacity group-hover/chapter:opacity-100 group-focus-within/chapter:opacity-100">
                   <button
                     onClick={() => move(idx, -1)}
                     disabled={idx === 0}
-                    aria-label={t("Move up")}
+                    aria-label={"Move up"}
                     className="dt-quiet-button is-icon !size-7 disabled:pointer-events-none disabled:opacity-30"
                   >
                     <ArrowUp className="h-3.5 w-3.5" />
@@ -330,14 +328,14 @@ export default function SpineEditor({
                   <button
                     onClick={() => move(idx, 1)}
                     disabled={idx === chapters.length - 1}
-                    aria-label={t("Move down")}
+                    aria-label={"Move down"}
                     className="dt-quiet-button is-icon !size-7 disabled:pointer-events-none disabled:opacity-30"
                   >
                     <ArrowDown className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => remove(idx)}
-                    aria-label={t("Remove chapter")}
+                    aria-label={"Remove chapter"}
                     className="dt-quiet-button is-icon !size-7 hover:!bg-rose-500/10 hover:!text-rose-600"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -348,11 +346,9 @@ export default function SpineEditor({
               <div className="mt-3 grid gap-3 pl-8 sm:grid-cols-2">
                 <label className="text-xs text-[var(--muted-foreground)]">
                   <span className="flex items-center gap-1">
-                    {t("Content type")}
+                    {"Content type"}
                     <Tooltip
-                      label={t(
-                        "Hint that drives the chapter's block plan (text length, whether to include diagrams / quizzes / code, etc.).",
-                      )}
+                      label={"Hint that drives the chapter's block plan (text length, whether to include diagrams / quizzes / code, etc.)."}
                     >
                       <span
                         tabIndex={0}
@@ -374,34 +370,32 @@ export default function SpineEditor({
                   >
                     {CONTENT_TYPE_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
-                        {t(opt.label)}
+                        {(opt.label)}
                       </option>
                     ))}
                   </select>
                   <span className="mt-1 block text-[11px] leading-snug text-[var(--muted-foreground)]/80">
-                    {t(
-                      CONTENT_TYPE_OPTIONS.find(
+                    {(CONTENT_TYPE_OPTIONS.find(
                         (o) => o.value === chapter.content_type,
                       )?.description ||
-                        "Hint for the architect about what blocks to plan.",
-                    )}
+                        "Hint for the architect about what blocks to plan.")}
                   </span>
                 </label>
                 <label className="text-xs text-[var(--muted-foreground)]">
-                  {t("Summary")}
+                  {"Summary"}
                   <input
                     value={chapter.summary}
                     onChange={(e) =>
                       updateChapter(idx, { summary: e.target.value })
                     }
-                    placeholder={t("Optional one-line description")}
+                    placeholder={"Optional one-line description"}
                     className="dt-soft-input mt-1 w-full rounded-lg bg-[var(--background)] px-2.5 py-1.5 text-sm text-[var(--foreground)] outline-none"
                   />
                 </label>
               </div>
 
               <label className="mt-3 block pl-8 text-xs text-[var(--muted-foreground)]">
-                {t("Learning objectives (one per line)")}
+                {"Learning objectives (one per line)"}
                 <textarea
                   value={chapter.learning_objectives.join("\n")}
                   onChange={(e) =>
@@ -423,7 +417,7 @@ export default function SpineEditor({
             onClick={addChapter}
             className="inline-flex items-center justify-center gap-1.5 rounded-[14px] px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           >
-            <Plus className="h-4 w-4" /> {t("Add chapter")}
+            <Plus className="h-4 w-4" /> {"Add chapter"}
           </button>
         </div>
       </div>
@@ -434,19 +428,17 @@ export default function SpineEditor({
           <div className="flex items-center gap-3 text-[11px] text-[var(--muted-foreground)]">
             <span className="inline-flex items-center gap-1">
               <Layers className="h-3 w-3" />
-              {t("{{count}} chapters", { count: chapters.length })}
+              {`${chapters.length} chapters`}
             </span>
             {estimate && estimate.words > 0 && (
               <>
                 <span className="inline-flex items-center gap-1">
                   <FileText className="h-3 w-3" />
-                  {t("~{{count}} words", {
-                    count: Math.round(estimate.words / 100) * 100,
-                  })}
+                  {`~${Math.round(estimate.words / 100) * 100} words`}
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <Clock3 className="h-3 w-3" />
-                  {t("~{{count}} min to generate", { count: estimate.minutes })}
+                  {`~${estimate.minutes} min to generate`}
                 </span>
               </>
             )}
@@ -469,10 +461,8 @@ export default function SpineEditor({
                 >
                   <Blocks className="h-3 w-3" />
                   {blockTypes.length === typeCatalog.length
-                    ? t("All content types")
-                    : t("{{count}} content types", {
-                        count: blockTypes.length + 1,
-                      })}
+                    ? "All content types"
+                    : `${blockTypes.length + 1} content types`}
                   <ChevronDown
                     className={`h-3 w-3 transition-transform ${
                       typesOpen ? "rotate-180" : ""
@@ -482,9 +472,7 @@ export default function SpineEditor({
                 {typesOpen && (
                   <div className="dt-detail-in absolute bottom-full right-0 z-40 mb-1.5 w-64 rounded-xl border border-[var(--border)] bg-[var(--card)] p-2 shadow-lg">
                     <p className="px-1.5 pb-1.5 text-[11px] leading-snug text-[var(--muted-foreground)]">
-                      {t(
-                        "Kinds of content the chapters may contain. Each one is a separate model call per chapter.",
-                      )}
+                      {"Kinds of content the chapters may contain. Each one is a separate model call per chapter."}
                     </p>
                     <ul className="max-h-64 overflow-y-auto">
                       <li className="flex items-center gap-2 rounded-md px-1.5 py-1 text-[12px] text-[var(--muted-foreground)]">
@@ -495,10 +483,10 @@ export default function SpineEditor({
                           className="h-3.5 w-3.5 accent-[var(--primary)]"
                         />
                         <span className="text-[var(--foreground)]">
-                          {t(ALWAYS_ON_TYPE)}
+                          {(ALWAYS_ON_TYPE)}
                         </span>
                         <span className="ml-auto text-[10.5px] opacity-70">
-                          {t("always")}
+                          {"always"}
                         </span>
                       </li>
                       {typeCatalog.map((option) => {
@@ -521,7 +509,7 @@ export default function SpineEditor({
                                 className="h-3.5 w-3.5 accent-[var(--primary)]"
                               />
                               <span className="text-[var(--foreground)]">
-                                {t(option.value)}
+                                {(option.value)}
                               </span>
                             </label>
                           </li>
@@ -538,7 +526,7 @@ export default function SpineEditor({
                         }
                         className="rounded-md px-1.5 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                       >
-                        {t("Select all")}
+                        {"Select all"}
                       </button>
                       <button
                         type="button"
@@ -551,7 +539,7 @@ export default function SpineEditor({
                         }
                         className="rounded-md px-1.5 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                       >
-                        {t("Reset to default")}
+                        {"Reset to default"}
                       </button>
                     </div>
                   </div>
@@ -561,12 +549,12 @@ export default function SpineEditor({
             <div className="inline-flex rounded-[9px] bg-[rgb(var(--dt-ink,55_53_47)/0.06)] p-[3px] text-[11px]">
               <ScopeOption
                 active={autoCompile}
-                label={t("Generate all chapters")}
+                label={"Generate all chapters"}
                 onClick={() => setAutoCompile(true)}
               />
               <ScopeOption
                 active={!autoCompile}
-                label={t("First chapter only")}
+                label={"First chapter only"}
                 onClick={() => setAutoCompile(false)}
               />
             </div>
@@ -584,7 +572,7 @@ export default function SpineEditor({
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              {t("Confirm spine")}
+              {"Confirm spine"}
             </button>
           </div>
         </div>
@@ -593,12 +581,8 @@ export default function SpineEditor({
             it costs — that is the whole reason to offer the choice. */}
         <p className="mx-auto mt-2 min-h-[1.25rem] w-full max-w-3xl px-4 text-[11px] leading-5 text-[var(--muted-foreground)]">
           {autoCompile
-            ? t(
-                "Every chapter is written now, in order. You can read the first one while the rest are still coming.",
-              )
-            : t(
-                "Chapters will be generated the first time you open them — useful when you want to read as you go, or keep an eye on model usage.",
-              )}
+            ? "Every chapter is written now, in order. You can read the first one while the rest are still coming."
+            : "Chapters will be generated the first time you open them — useful when you want to read as you go, or keep an eye on model usage."}
         </p>
       </footer>
     </div>

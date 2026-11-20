@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
-import { useTranslation } from 'react-i18next'
+
 import { textFromDomSelection } from '@/lib/selection-text'
 import { PlayAudioButton } from './SpeechButton'
 
@@ -10,7 +10,7 @@ type Passage = { text: string; left: number; top: number }
 
 /** A speech-only action for learning transcripts that have no quote toolbar. */
 export function SelectionSpeechToolbar({ rootRef }: { rootRef: RefObject<HTMLDivElement | null> }) {
-  const { t } = useTranslation()
+  
   const [passage, setPassage] = useState<Passage | null>(null)
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export function SelectionSpeechToolbar({ rootRef }: { rootRef: RefObject<HTMLDiv
   return createPortal(
     <div
       role="toolbar"
-      aria-label={t('Selected text')}
+      aria-label={"Selected text"}
       onPointerDown={event => event.preventDefault()}
       className="fixed z-[70] size-10 rounded-xl bg-[var(--foreground)] text-[var(--background)] shadow-lg"
       style={{ left: passage.left, top: passage.top }}

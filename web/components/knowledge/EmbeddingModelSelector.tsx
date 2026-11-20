@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { useTranslation } from "react-i18next";
+
 import Link from "@/shared/router/link";
 import type { useEmbeddingModels } from "@/hooks/useEmbeddingModels";
 
@@ -12,14 +12,14 @@ export default function EmbeddingModelSelector({
   catalog: ReturnType<typeof useEmbeddingModels>;
   disabled?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const id = useId();
   const key = (selection: { profile_id: string; model_id: string }) =>
     JSON.stringify([selection.profile_id, selection.model_id]);
   return (
     <div className="space-y-2">
       <label htmlFor={id} className="block text-xs font-medium">
-        {t("Embedding model")}
+        {"Embedding model"}
       </label>
       <select
         id={id}
@@ -38,7 +38,7 @@ export default function EmbeddingModelSelector({
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
       >
         <option value="">
-          {catalog.loading ? t("Loading...") : t("Select an embedding model")}
+          {catalog.loading ? "Loading..." : "Select an embedding model"}
         </option>
         {catalog.options.map((option) => (
           <option key={key(option)} value={key(option)}>
@@ -48,9 +48,7 @@ export default function EmbeddingModelSelector({
         ))}
       </select>
       <p className="text-xs text-[var(--muted-foreground)]">
-        {t(
-          "This knowledge base keeps using the selected model when the global default changes.",
-        )}
+        {"This knowledge base keeps using the selected model when the global default changes."}
       </p>
       {catalog.error && (
         <p role="alert" className="text-xs text-red-600">
@@ -62,7 +60,7 @@ export default function EmbeddingModelSelector({
           href="/settings/embedding"
           className="text-xs text-[var(--primary)]"
         >
-          {t("Configure an embedding model in Settings first.")}
+          {"Configure an embedding model in Settings first."}
         </Link>
       )}
     </div>

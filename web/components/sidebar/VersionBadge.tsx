@@ -2,7 +2,7 @@
 
 import Link from "@/shared/router/link";
 import { useEffect, useState, type MouseEventHandler } from "react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 
 import {
@@ -16,7 +16,7 @@ interface VersionBadgeProps {
 }
 
 export function VersionBadge({ onNavigate }: VersionBadgeProps) {
-  const { t } = useTranslation();
+  
   const [status, setStatus] = useState<AppUpdateStatus | null>(null);
   const [error, setError] = useState("");
 
@@ -44,22 +44,22 @@ export function VersionBadge({ onNavigate }: VersionBadgeProps) {
   }, []);
 
   const state = error
-    ? { dot: "bg-red-500", label: t("Status check failed") }
+    ? { dot: "bg-red-500", label: "Status check failed" }
     : status?.update_available
-      ? { dot: "bg-amber-500", label: t("Update available") }
+      ? { dot: "bg-amber-500", label: "Update available" }
       : status?.release
         ? {
             dot: "bg-[color-mix(in_srgb,var(--muted-foreground)_35%,transparent)]",
-            label: t("Up to date"),
+            label: "Up to date",
           }
         : status && !status.check_enabled
           ? {
               dot: "bg-[color-mix(in_srgb,var(--muted-foreground)_35%,transparent)]",
-              label: t("Version checks are disabled."),
+              label: "Version checks are disabled.",
             }
           : {
               dot: "bg-[color-mix(in_srgb,var(--muted-foreground)_35%,transparent)]",
-              label: status ? t("Not checked yet") : t("Checking..."),
+              label: status ? "Not checked yet" : "Checking...",
             };
 
   return (

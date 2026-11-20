@@ -10,7 +10,7 @@
  */
 import '@/components/notebook/favorites.css'
 import { useLayoutEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import FavoriteContent from '@/components/notebook/NotebookFavoriteContent'
 import { FavoriteKindIcon, favoriteLabel } from '@/components/notebook/favorite-kinds'
@@ -41,7 +41,7 @@ export default function NoteFavoriteBlock({
   onExpanded: (open: boolean) => void
   onActivate?: () => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   let meta: Record<string, unknown> = {}
   try {
     const value = JSON.parse(metadata)
@@ -86,36 +86,36 @@ export default function NoteFavoriteBlock({
           type="button"
           className="dt-note-favorite-toggle"
           aria-expanded={expanded}
-          aria-label={`${title || t('Favorite content')} · ${t('Saved original')}`}
+          aria-label={`${title || "Favorite content"} · ${"Saved original"}`}
           onClick={toggle}
         >
           <FavoriteKindIcon kind={kind} size={17} />
           <span className="min-w-0 flex-1 text-left">
             <span className="dt-note-favorite-kind">
-              {t(favoriteLabel(kind))}
+              {(favoriteLabel(kind))}
               {collection ? (
-                <> · {t('From “{{name}}”', { name: collection })}</>
+                <> · {`From “${collection}”`}</>
               ) : (
-                <> · {t('Saved original')}</>
+                <> · {"Saved original"}</>
               )}
-              {savedAt ? <> · {formatRelativeTime(savedAt, i18n.language)}</> : null}
+              {savedAt ? <> · {formatRelativeTime(savedAt, "en")}</> : null}
             </span>
-            <strong className="dt-note-favorite-title">{title || t('Favorite content')}</strong>
+            <strong className="dt-note-favorite-title">{title || "Favorite content"}</strong>
             {summary && !expanded && <span className="dt-note-favorite-summary">{summary}</span>}
           </span>
         </button>
         <div className="dt-note-favorite-tools">
           {sourceUrl && (
-            <Tooltip label={t('Return to source')}>
-              <a data-note-source href={sourceUrl} aria-label={t('Return to source')}>
+            <Tooltip label={"Return to source"}>
+              <a data-note-source href={sourceUrl} aria-label={"Return to source"}>
                 <ArrowUpRight size={15} strokeWidth={1.8} />
               </a>
             </Tooltip>
           )}
-          <Tooltip label={t(expanded ? 'Hide original content' : 'Show original content')}>
+          <Tooltip label={(expanded ? 'Hide original content' : 'Show original content')}>
             <button
               type="button"
-              aria-label={t(expanded ? 'Hide original content' : 'Show original content')}
+              aria-label={(expanded ? 'Hide original content' : 'Show original content')}
               onClick={toggle}
             >
               <ChevronDown size={16} strokeWidth={1.8} className={expanded ? 'rotate-180' : ''} />
@@ -138,7 +138,7 @@ export default function NoteFavoriteBlock({
           className="dt-note-favorite-more"
           onClick={() => setShowAll(!showAll)}
         >
-          {t(showAll ? 'Show less' : 'Show all')}
+          {(showAll ? 'Show less' : 'Show all')}
           <ChevronDown size={14} className={showAll ? 'rotate-180' : ''} />
         </button>
       )}

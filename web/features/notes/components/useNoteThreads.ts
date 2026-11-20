@@ -9,7 +9,7 @@
  * than the panel so closing the panel never drops a turn's consequences.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { useChatStateAdapter, type MessageItem } from '@/features/chat/ChatStateAdapter'
 import { anchorThread, deleteThread, listThreads, type NoteThread } from '@/lib/notes-api'
 import { browserStorage } from '@/shared/storage'
@@ -78,7 +78,7 @@ export function useNoteThreads({
   onSuggestions: () => void
   onError: (message: string) => void
 }) {
-  const { t } = useTranslation()
+  
   const runtime = useChatStateAdapter()
   const {
     state,
@@ -252,7 +252,7 @@ export function useNoteThreads({
           noteGeneration: generate ? { block_id: generate.blockId, kind: generate.kind } : null,
         })
       } catch (err) {
-        const message = t(noteGenerationError(String(err instanceof Error ? err.message : err)))
+        const message = (noteGenerationError(String(err instanceof Error ? err.message : err)))
         if (options.generate)
           setGenerationPreview(options.generate.blockId, {
             content: '',
@@ -262,7 +262,7 @@ export function useNoteThreads({
         latest.current.onError(message)
       }
     },
-    [saveGenerations, sendMessage, state.messages.length, t]
+    [saveGenerations, sendMessage, state.messages.length]
   )
   // A send queued while the thread was still being selected goes out once the
   // runtime shows it — the same tick for an open thread, a commit later for a
@@ -361,8 +361,8 @@ export function useNoteThreads({
       prompt?: string
       config?: Record<string, unknown>
     }) => {
-      const request = detail.prompt?.trim() || t('Generate this learning block from the page')
-      const content = `${t(learningKind(detail.kind).label)} · ${request}`
+      const request = detail.prompt?.trim() || "Generate this learning block from the page"
+      const content = `${(learningKind(detail.kind).label)} · ${request}`
       const send = {
         content,
         options: {
@@ -380,7 +380,7 @@ export function useNoteThreads({
       if (existing) void openThread(existing.session_id, send)
       else startThread({ blockId: detail.blockId, origin: 'generate', send })
     },
-    [bound, dispatchSend, open, openThread, startThread, state.isStreaming, t, threads]
+    [bound, dispatchSend, open, openThread, startThread, state.isStreaming, threads]
   )
 
   /** "Regenerate…" from a block's menu: a new conversation at the block, its
@@ -495,7 +495,7 @@ export function useNoteThreads({
               pending: false,
               error:
                 failure === 'failed'
-                  ? t('Generation failed. Open the conversation to see why.')
+                  ? "Generation failed. Open the conversation to see why."
                   : failure,
               sessionId: sessionId ?? undefined,
             }
@@ -514,7 +514,7 @@ export function useNoteThreads({
       )
       if (finished.length) latest.current.onSuggestions()
     }
-  }, [loadGenerations, loaded, running, saveGenerations, state, t, threads, tick])
+  }, [loadGenerations, loaded, running, saveGenerations, state, threads, tick])
 
   /* ── A sidebar link (`?chat=`) opens its thread ───────────────────── */
   const linked = useRef(false)
@@ -533,9 +533,9 @@ export function useNoteThreads({
         running,
         seen,
         openSessionId: open?.sessionId ?? null,
-        untitled: t('New conversation'),
+        untitled: "New conversation",
       }),
-    [open?.sessionId, running, seen, t, threads]
+    [open?.sessionId, running, seen, threads]
   )
 
   return {

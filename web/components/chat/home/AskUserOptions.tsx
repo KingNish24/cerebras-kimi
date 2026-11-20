@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import InlineMarkdown from "@/components/common/InlineMarkdown";
 import { useCardSubmission } from "@/hooks/use-card-submission";
@@ -1043,7 +1043,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
   /** The model is still writing this card; see ``AskUserCardData``. */
   streaming?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const totalQuestions = payload.questions.length;
 
   // Picked option labels per question. Single-select questions hold at
@@ -1256,11 +1256,11 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
   // is something to say that the card's own shape does not already say
   // (still being written, in flight, refused).
   const status = streaming
-    ? t("Writing the question…")
+    ? "Writing the question…"
     : submitted
-      ? t("Sending your answers…")
+      ? "Sending your answers…"
       : submitFailed
-        ? t(submitFailureMessage ?? REPLY_NOT_DELIVERED)
+        ? (submitFailureMessage ?? REPLY_NOT_DELIVERED)
         : null;
 
   return (
@@ -1270,7 +1270,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
           {payload.intro ? (
             <InlineMarkdown content={payload.intro} />
           ) : (
-            t("Please answer to continue.")
+            "Please answer to continue."
           )}
         </div>
       ) : null}
@@ -1363,7 +1363,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-transparent px-2 py-1 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={14} strokeWidth={2} />
-              <span>{t("Previous question")}</span>
+              <span>{"Previous question"}</span>
             </button>
           ) : (
             <div className="text-[11.5px] text-[var(--muted-foreground)]">
@@ -1372,8 +1372,8 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               {streaming || totalQuestions < 2
                 ? null
                 : allAnswered
-                  ? t("All questions answered.")
-                  : t("Unanswered questions will be submitted as skipped.")}
+                  ? "All questions answered."
+                  : "Unanswered questions will be submitted as skipped."}
             </div>
           )}
         </div>
@@ -1388,7 +1388,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               disabled={locked}
               className="rounded-md border border-[var(--border)] px-2 py-1 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("Skip")}
+              {"Skip"}
             </button>
           ) : null}
           {totalQuestions > 1 && activeIdx < totalQuestions - 1 ? (
@@ -1400,7 +1400,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               disabled={locked}
               className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[12px] font-medium text-[var(--primary-foreground)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <span>{t("Next question")}</span>
+              <span>{"Next question"}</span>
               <ChevronRight size={14} strokeWidth={2} />
             </button>
           ) : (
@@ -1410,7 +1410,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               disabled={locked}
               className="rounded-md bg-[var(--primary)] px-2.5 py-1 text-[12px] font-medium text-[var(--primary-foreground)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {totalQuestions > 1 ? t("Submit answers") : t("Submit")}
+              {totalQuestions > 1 ? "Submit answers" : "Submit"}
             </button>
           )}
         </div>
@@ -1451,7 +1451,7 @@ const QuestionBody = memo(function QuestionBody({
   onSelectCustom: () => void;
   onCustomTextChange: (text: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -1471,7 +1471,7 @@ const QuestionBody = memo(function QuestionBody({
         <InlineMarkdown content={question.prompt} />
         {question.multi_select ? (
           <span className="ml-1.5 text-[11px] font-normal text-[var(--muted-foreground)]">
-            {t("Select all that apply.")}
+            {"Select all that apply."}
           </span>
         ) : null}
       </div>
@@ -1539,7 +1539,7 @@ const QuestionBody = memo(function QuestionBody({
                 ref={textareaRef}
                 value={customDraft}
                 onChange={(event) => onCustomTextChange(event.target.value)}
-                placeholder={question.placeholder ?? t("Type your reply…")}
+                placeholder={question.placeholder ?? "Type your reply…"}
                 rows={2}
                 disabled={locked}
                 className="min-h-[1.5rem] w-full resize-y bg-transparent pt-0.5 text-[14px] leading-snug text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/80 disabled:opacity-60"
@@ -1557,8 +1557,8 @@ const QuestionBody = memo(function QuestionBody({
               </span>
               <span className="truncate text-[14px] text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]">
                 {customDraft.trim()
-                  ? t("Other: {{text}}", { text: customDraft.trim() })
-                  : t("Something else…")}
+                  ? `Other: ${customDraft.trim()}`
+                  : "Something else…"}
               </span>
             </button>
           )}
@@ -1582,7 +1582,7 @@ const ResolvedAskUserCard = memo(function ResolvedAskUserCard({
   collapsible: boolean;
   defaultCollapsed: boolean;
 }) {
-  const { t } = useTranslation();
+  
   // Null means "follow defaultCollapsed"; once the user toggles, their
   // explicit choice wins across research-progress re-renders.
   const [manualCollapsed, setManualCollapsed] = useState<boolean | null>(null);
@@ -1632,11 +1632,11 @@ const ResolvedAskUserCard = memo(function ResolvedAskUserCard({
             }`}
           />
           <span className="text-[12.5px] font-medium text-[var(--muted-foreground)]">
-            {t("Your answers")}
+            {"Your answers"}
           </span>
           {collapsed && (
             <span className="text-[11px] text-[var(--muted-foreground)]/45">
-              · {answeredCount}/{payload.questions.length} {t("answered")}
+              · {answeredCount}/{payload.questions.length} {"answered"}
             </span>
           )}
         </button>
@@ -1655,7 +1655,7 @@ const ResolvedAskUserCard = memo(function ResolvedAskUserCard({
                     <InlineMarkdown content={value} />
                   ) : (
                     <span className="font-normal italic text-[var(--muted-foreground)]/70">
-                      {t("(skipped)")}
+                      {"(skipped)"}
                     </span>
                   )}
                 </div>

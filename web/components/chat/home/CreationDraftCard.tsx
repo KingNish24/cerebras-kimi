@@ -10,7 +10,7 @@ import {
   Pencil,
 } from "lucide-react";
 import Link from "@/shared/router/link";
-import { useTranslation } from "react-i18next";
+
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { formatBytes } from "@/shared/lib/format";
@@ -39,7 +39,7 @@ export const CreationDraftCard = memo(function CreationDraftCard({
 }: {
   data: CreationDraftData;
 }) {
-  const { t } = useTranslation();
+  
   const def = CREATE_KINDS[data.kind];
   const Icon = def.icon;
 
@@ -108,16 +108,13 @@ export const CreationDraftCard = memo(function CreationDraftCard({
     } catch (err) {
       if (err instanceof CreationApiError && err.status === 409) {
         setError(
-          t("composer.create.draft.nameConflict", {
-            kind: t(def.labelKey).toLowerCase(),
-            name: submittedName,
-          }),
+          `A ${(def.labelKey).toLowerCase()} named “${submittedName}” already exists. Rename it, then approve again.`,
         );
       } else {
         setError(
           err instanceof CreationApiError
             ? err.message
-            : t("composer.create.draft.saveFailed"),
+            : "Couldn't save the draft.",
         );
       }
     } finally {
@@ -138,7 +135,7 @@ export const CreationDraftCard = memo(function CreationDraftCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                {t(def.draftHeaderKey)}
+                {(def.draftHeaderKey)}
               </div>
               {!editingFields ? (
                 <div className="mt-0.5 truncate text-[15px] font-semibold text-[var(--foreground)]">
@@ -147,13 +144,13 @@ export const CreationDraftCard = memo(function CreationDraftCard({
               ) : null}
             </div>
             {!saved ? (
-              <Tooltip label={editingFields ? t("Done") : t("Edit")}>
+              <Tooltip label={editingFields ? "Done" : "Edit"}>
                 <button
                   type="button"
                   onClick={() => setEditingFields((value) => !value)}
                   className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] text-[var(--muted-foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
                 >
-                  <Pencil size={12} /> {editingFields ? t("Done") : t("Edit")}
+                  <Pencil size={12} /> {editingFields ? "Done" : "Edit"}
                 </button>
               </Tooltip>
             ) : null}
@@ -162,26 +159,26 @@ export const CreationDraftCard = memo(function CreationDraftCard({
           {editingFields ? (
             <div className="mt-3 space-y-2.5">
               <input
-                aria-label={t("Name")}
+                aria-label={"Name"}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 className={fieldClass}
-                placeholder={t("Name")}
+                placeholder={"Name"}
               />
               <textarea
-                aria-label={t("Description")}
+                aria-label={"Description"}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 className={`${fieldClass} min-h-16 resize-y`}
-                placeholder={t("Description")}
+                placeholder={"Description"}
               />
               {data.kind === "skill" ? (
                 <input
-                  aria-label={t("Tags")}
+                  aria-label={"Tags"}
                   value={tagsText}
                   onChange={(event) => setTagsText(event.target.value)}
                   className={fieldClass}
-                  placeholder={t("composer.create.draft.tagsPlaceholder")}
+                  placeholder={"tag-one, tag-two"}
                 />
               ) : null}
             </div>
@@ -200,13 +197,13 @@ export const CreationDraftCard = memo(function CreationDraftCard({
                   className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 >
                   {bodyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                  {bodyExpanded ? t("Collapse") : t("Expand")}
+                  {bodyExpanded ? "Collapse" : "Expand"}
                 </button>
               </div>
             ) : null}
             {editingFields ? (
               <textarea
-                aria-label={t("composer.create.draft.body")}
+                aria-label={"Draft content"}
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
                 className={`${fieldClass} min-h-48 resize-y font-mono leading-relaxed`}
@@ -225,7 +222,7 @@ export const CreationDraftCard = memo(function CreationDraftCard({
           {data.references.length > 0 ? (
             <div className="mt-3">
               <div className="mb-1 text-[11px] font-medium text-[var(--muted-foreground)]">
-                {t("References")}
+                {"References"}
               </div>
               <ul className="space-y-1">
                 {data.references.map((reference) => (
@@ -264,7 +261,7 @@ export const CreationDraftCard = memo(function CreationDraftCard({
                 href={def.href}
                 className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[11.5px] font-medium text-[var(--background)]"
               >
-                {t(def.manageLabelKey)}
+                {(def.manageLabelKey)}
               </Link>
             ) : (
               <button
@@ -275,16 +272,16 @@ export const CreationDraftCard = memo(function CreationDraftCard({
               >
                 {saving ? <Loader2 size={13} className="animate-spin" /> : null}
                 {approval === "update"
-                  ? t("composer.create.draft.approveUpdate")
-                  : t("composer.create.draft.approveCreate")}
+                  ? "Approve and update"
+                  : "Approve and save"}
               </button>
             )}
             <span className="text-[10.5px] text-[var(--muted-foreground)]">
               {saved
                 ? saved.replaced
-                  ? t("composer.create.draft.updatedAs", { name: saved.name })
-                  : t("composer.create.draft.savedAs", { name: saved.name })
-                : t("composer.create.draft.notSavedYet")}
+                  ? `Updated “${saved.name}”`
+                  : `Saved as “${saved.name}”`
+                : "Nothing is saved until you approve it"}
             </span>
           </div>
         </div>

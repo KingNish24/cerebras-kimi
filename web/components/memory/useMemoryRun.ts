@@ -195,7 +195,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
               ...s,
               status: "error",
               reconnecting: false,
-              error: i18n.t("memory run is no longer available"),
+              error: "memory run is no longer available",
             }));
             return;
           }
@@ -330,7 +330,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
         if ((e as Error).name === "AbortError") return;
         setState((s) => ({
           ...s,
-          error: e instanceof Error ? e.message : i18n.t("stream failed"),
+          error: e instanceof Error ? e.message : "stream failed",
         }));
         await reconcile();
       }
@@ -361,7 +361,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
           const detail = await res.text();
           throw new Error(
             detail ||
-              i18n.t("start failed: {{status}}", { status: res.status }),
+              `start failed: ${res.status}`,
           );
         }
         const run = (await res.json()) as RunHandle;
@@ -371,7 +371,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
         setState((s) => ({
           ...s,
           status: "error",
-          error: e instanceof Error ? e.message : i18n.t("start failed"),
+          error: e instanceof Error ? e.message : "start failed",
         }));
       }
     },
@@ -401,7 +401,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
       if (!res.ok) {
         const detail = await res.text();
         throw new Error(
-          detail || i18n.t("undo failed: {{status}}", { status: res.status }),
+          detail || `undo failed: ${res.status}`,
         );
       }
       const data = (await res.json()) as {
@@ -434,7 +434,7 @@ export function useMemoryRun(layer: "L2" | "L3", key: string) {
     } catch (e) {
       setState((s) => ({
         ...s,
-        error: e instanceof Error ? e.message : i18n.t("undo failed"),
+        error: e instanceof Error ? e.message : "undo failed",
       }));
       return false;
     }

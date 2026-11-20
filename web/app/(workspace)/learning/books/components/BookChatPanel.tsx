@@ -21,7 +21,7 @@ import {
   Send,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import AssistantResponse from "@/components/common/AssistantResponse";
 import {
   AskUserOptions,
@@ -153,7 +153,7 @@ export default function BookChatPanel({
   onSessionResolved,
   onBookChanged,
 }: BookChatPanelProps) {
-  const { t } = useTranslation();
+  
   const { language: appLanguage } = useAppShell();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -313,7 +313,7 @@ export default function BookChatPanel({
         ...prev,
         {
           role: "assistant",
-          content: event.content || t("Error"),
+          content: event.content || "Error",
           streaming: false,
         },
       ]);
@@ -391,7 +391,7 @@ export default function BookChatPanel({
         ...prev,
         {
           role: "assistant",
-          content: t("Connection failed. Please try again."),
+          content: "Connection failed. Please try again.",
         },
       ]);
       return;
@@ -425,17 +425,17 @@ export default function BookChatPanel({
     for (const file of files) {
       const type = attachmentTypeFor(file);
       if (!type) {
-        setAttachmentError(t("Unsupported file type."));
+        setAttachmentError("Unsupported file type.");
         continue;
       }
       if (file.size > attachmentLimits.maxFileBytes) {
         setAttachmentError(
-          t("File is too large ({{size}}).", { size: formatBytes(file.size) }),
+          `File is too large (${formatBytes(file.size)}).`,
         );
         continue;
       }
       if (nextTotal + file.size > attachmentLimits.maxTotalBytes) {
-        setAttachmentError(t("Attachments exceed the total upload limit."));
+        setAttachmentError("Attachments exceed the total upload limit.");
         continue;
       }
       nextTotal += file.size;
@@ -481,10 +481,8 @@ export default function BookChatPanel({
     const userContent =
       text ||
       (attachments.some((item) => item.type === "image")
-        ? t(
-            "Please analyze the attached image(s) using this chapter as context.",
-          )
-        : t("Please use the attached file(s) and this chapter as context."));
+        ? "Please analyze the attached image(s) using this chapter as context."
+        : "Please use the attached file(s) and this chapter as context.");
     const sentAttachments = attachments.map(messageAttachment);
     shouldAutoScrollRef.current = true;
     setMessages((prev) => [
@@ -524,11 +522,11 @@ export default function BookChatPanel({
       style={{ width }}
     >
       <div className="absolute inset-y-0 left-0 z-10 flex w-2">
-        <Tooltip label={t("Drag to resize")}>
+        <Tooltip label={"Drag to resize"}>
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label={t("Drag to resize")}
+            aria-label={"Drag to resize"}
             aria-valuemin={300}
             aria-valuemax={720}
             aria-valuenow={width}
@@ -563,11 +561,11 @@ export default function BookChatPanel({
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
             <MessageSquare className="h-4 w-4 text-[var(--primary)]" />
-            {t("Page Chat")}
+            {"Page Chat"}
           </div>
           {page?.title && (
             <div className="mt-1 truncate text-[11px] text-[var(--muted-foreground)]">
-              {t("Context")}: {page.title}
+              {"Context"}: {page.title}
             </div>
           )}
         </div>
@@ -589,9 +587,7 @@ export default function BookChatPanel({
           {book && page && book.can_edit !== false && onBookChanged && <BookEditReview key={`${book.id}:${page.id}`} bookId={book.id} pageId={page.id} revision={book.revision || 1} refreshKey={busy} onChanged={onBookChanged} />}
         {messages.length === 0 ? (
           <div className="rounded-2xl bg-[var(--background)] p-4 text-xs leading-5 text-[var(--muted-foreground)]">
-            {t(
-              "Ask a question about this page. The current chapter content is sent to the assistant automatically.",
-            )}
+            {"Ask a question about this page. The current chapter content is sent to the assistant automatically."}
           </div>
         ) : (
           <div className="space-y-3">
@@ -611,7 +607,7 @@ export default function BookChatPanel({
                 >
                   {m.role === "user" && (
                     <div className="mb-1 text-right text-[10px] font-medium uppercase tracking-wide opacity-75">
-                      {t("You")}
+                      {"You"}
                     </div>
                   )}
                   {m.attachments?.length ? (
@@ -623,7 +619,7 @@ export default function BookChatPanel({
                         >
                           <FileText className="h-3 w-3 shrink-0" />
                           <span className="truncate">
-                            {attachment.filename || t("Attachment")}
+                            {attachment.filename || "Attachment"}
                           </span>
                         </span>
                       ))}
@@ -690,12 +686,12 @@ export default function BookChatPanel({
           <div className="mb-2 text-[11px] text-red-500">{attachmentError}</div>
         )}
         <div className="dt-soft-input flex items-end gap-2 rounded-2xl bg-[var(--background)] px-2 py-2">
-          <Tooltip label={t("Attach files")}>
+          <Tooltip label={"Attach files"}>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="mb-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-              aria-label={t("Attach files")}
+              aria-label={"Attach files"}
             >
               <Paperclip className="h-4 w-4" />
             </button>
@@ -703,7 +699,7 @@ export default function BookChatPanel({
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t("Ask about this page…")}
+            placeholder={"Ask about this page…"}
             rows={1}
             onPaste={handlePaste}
             onCompositionStart={onCompositionStart}

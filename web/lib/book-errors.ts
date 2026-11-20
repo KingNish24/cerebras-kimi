@@ -20,10 +20,10 @@ const CODE_MESSAGES: Record<string, string> = {
 };
 
 /** The message to show for a failed book operation. */
-export function bookErrorMessage(error: unknown, t: Translate): string {
+export function bookErrorMessage(error: unknown): string {
   if (error instanceof BookApiError && error.code) {
     const known = CODE_MESSAGES[error.code];
-    if (known) return t(known);
+    if (known) return (known);
   }
   return error instanceof Error ? error.message : String(error);
 }

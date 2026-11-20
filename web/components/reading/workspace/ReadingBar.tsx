@@ -14,7 +14,7 @@ import {
   SquarePen,
 } from "lucide-react";
 import { useCallback, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { FeatureCrumb, InstanceCrumb, type CrumbItem } from "@/components/layout/LocationCrumbs";
@@ -124,16 +124,16 @@ export function ReadingBar({
   companionOpen: boolean;
   onOpenCompanion: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const feature = useShelfFeature(READING_HOME);
   const loadCollections = useCallback(
     async (): Promise<CrumbItem[]> =>
       (await fetchReadingCollectionIndex()).map((collection) => ({
         id: collection.workspace_id,
-        label: collection.title || t("Untitled collection"),
+        label: collection.title || "Untitled collection",
         href: readingCollectionRoute(collection.workspace_id),
       })),
-    [t],
+    [],
   );
   const documentItems = useCallback(
     async (): Promise<CrumbItem[]> =>
@@ -149,37 +149,37 @@ export function ReadingBar({
     <header className="dt-reading-bar flex h-12 min-w-0 shrink-0 items-center gap-1 bg-[var(--background)] px-3">
       {/* The outline opens on the left, so its switch lives on the left. */}
       <BarButton
-        label={navigatorOpen ? t("Collapse contents") : t("Expand contents")}
+        label={navigatorOpen ? "Collapse contents" : "Expand contents"}
         onClick={onToggleNavigator}
         active={navigatorOpen}
         expanded={navigatorOpen}
       >
         {navigatorOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
       </BarButton>
-      <nav aria-label={t("navigation.location")} className="dt-reading-crumbs ml-0.5 flex min-w-0 shrink items-center">
+      <nav aria-label={"Location"} className="dt-reading-crumbs ml-0.5 flex min-w-0 shrink items-center">
         {feature && <span className="dt-reading-feature hidden md:contents"><FeatureCrumb section={feature.section} page={feature.page} /></span>}
         <span className="dt-reading-collection hidden min-w-0 max-w-[220px] shrink-[2] items-center md:inline-flex">
           <InstanceCrumb
-            label={title || t("Untitled collection")}
-            menuLabel={t("Collections")}
+            label={title || "Untitled collection"}
+            menuLabel={"Collections"}
             currentId={collectionId}
             load={loadCollections}
             onRename={onRename}
-            all={{ label: t("Open folder"), href: backHref }}
+            all={{ label: "Open folder", href: backHref }}
           />
         </span>
         <span className="flex min-w-0 shrink items-center">
           <InstanceCrumb
-            label={activeDocument?.material.title || activeDocument?.material.filename || t("Immersive reading")}
+            label={activeDocument?.material.title || activeDocument?.material.filename || "Immersive reading"}
             icon={FileText}
-            menuLabel={t("Materials in this collection")}
+            menuLabel={"Materials in this collection"}
             currentId={activeDocumentId}
             load={documentItems}
             onSelect={(item) => {
               const tab = documents.find((candidate) => candidate.material.material_id === item.id);
               if (tab) onSwitchDocument(tab);
             }}
-            create={{ label: t("Add material"), onSelect: onAdd }}
+            create={{ label: "Add material", onSelect: onAdd }}
           />
         </span>
       </nav>
@@ -195,7 +195,7 @@ export function ReadingBar({
         <ReadAloudButton disabled={!materialReady} />
         <PageToolButtons disabled={!materialReady || busy} onQuiz={onQuiz} />
         <BarButton
-          label={t(learning ? "Exit learning mode" : "Fullscreen learning")}
+          label={(learning ? "Exit learning mode" : "Fullscreen learning")}
           onClick={onToggleLearning}
           active={learning}
           pressed={learning}
@@ -204,7 +204,7 @@ export function ReadingBar({
         </BarButton>
         <WorkspaceMenu sections={menuSections} collection={collection} />
         {!companionOpen && (
-          <BarButton label={t("Open the companion")} onClick={onOpenCompanion} expanded={false}>
+          <BarButton label={"Open the companion"} onClick={onOpenCompanion} expanded={false}>
             <PanelRightOpen size={14} />
           </BarButton>
         )}
@@ -231,18 +231,18 @@ export function CompanionHead({
   focus?: { active: boolean; toggle: () => void };
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="dt-companion-head flex h-12 shrink-0 items-center gap-1 pl-4 pr-2">
       <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]">
-        {title?.trim() || t("Reading companion title")}
+        {title?.trim() || "Companion"}
       </span>
-      <BarButton label={t("New conversation")} onClick={onStartOver} disabled={!canStartOver}>
+      <BarButton label={"New conversation"} onClick={onStartOver} disabled={!canStartOver}>
         <SquarePen size={14} />
       </BarButton>
       {focus && (
         <BarButton
-          label={focus.active ? t("Exit companion focus") : t("Focus reading companion")}
+          label={focus.active ? "Exit companion focus" : "Focus reading companion"}
           onClick={focus.toggle}
           active={focus.active}
           pressed={focus.active}
@@ -250,7 +250,7 @@ export function CompanionHead({
           {focus.active ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </BarButton>
       )}
-      <BarButton label={t("Put the companion away")} onClick={onClose} expanded>
+      <BarButton label={"Put the companion away"} onClick={onClose} expanded>
         <PanelRightClose size={14} />
       </BarButton>
     </div>

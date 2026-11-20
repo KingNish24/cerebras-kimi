@@ -8,7 +8,7 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, Info, Paperclip, Square, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import { shouldSubmitOnEnter } from "@/lib/composer-keyboard";
 import {
@@ -60,7 +60,7 @@ export const PartnerComposer = memo(function PartnerComposer({
     attachments: PartnerPendingAttachment[];
   };
 }) {
-  const { t } = useTranslation();
+  
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<PartnerPendingAttachment[]>(
     [],
@@ -212,20 +212,20 @@ export const PartnerComposer = memo(function PartnerComposer({
         const first = rejected[0];
         if (first.reason === "too_large") {
           showAttachmentError(
-            t("File too large: {{name}}", { name: first.name }),
+            `File too large: ${first.name}`,
           );
         } else if (first.reason === "quota") {
-          showAttachmentError(t("Too many files, skipped some"));
+          showAttachmentError("Too many files, skipped some");
         } else {
           showAttachmentError(
-            t("Unsupported file type: {{name}}", { name: first.name }),
+            `Unsupported file type: ${first.name}`,
           );
         }
       }
 
       return accepted;
     },
-    [attachments, attachmentLimits, showAttachmentError, t],
+    [attachments, attachmentLimits, showAttachmentError],
   );
 
   const fileToAttachment = useCallback(
@@ -410,10 +410,10 @@ export const PartnerComposer = memo(function PartnerComposer({
           <div className="flex flex-col items-center gap-1 text-[var(--primary)]">
             <Paperclip className="h-5 w-5" strokeWidth={1.7} />
             <span className="text-[13px] font-medium">
-              {t("Drop files here")}
+              {"Drop files here"}
             </span>
             <span className="text-[11px] text-[var(--primary)]/70">
-              {t("Images, Office docs, code & text")}
+              {"Images, Office docs, code & text"}
             </span>
           </div>
         </div>
@@ -472,7 +472,7 @@ export const PartnerComposer = memo(function PartnerComposer({
         onPaste={handlePaste}
         onCompositionStart={onCompositionStart}
         onCompositionEnd={onCompositionEnd}
-        placeholder={placeholder ?? t("Type a message...")}
+        placeholder={placeholder ?? "Type a message..."}
         rows={1}
         maxLength={32000}
         disabled={disabled || streaming}
@@ -482,7 +482,7 @@ export const PartnerComposer = memo(function PartnerComposer({
       {!!attachments.length && (
         <div className="flex flex-wrap gap-2 px-3.5 pb-2">
           {attachments.map((attachment, index) => {
-            const removeLabel = t("Remove attachment");
+            const removeLabel = "Remove attachment";
             if (
               (attachment.type === "image" ||
                 isSvgFilename(attachment.filename)) &&
@@ -497,7 +497,7 @@ export const PartnerComposer = memo(function PartnerComposer({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={attachment.previewUrl}
-                      alt={attachment.filename || t("Attachment preview")}
+                      alt={attachment.filename || "Attachment preview"}
                       className={`h-full w-full ${isSvgFilename(attachment.filename) ? "object-contain p-1" : "object-cover"}`}
                     />
                   </div>
@@ -555,12 +555,12 @@ export const PartnerComposer = memo(function PartnerComposer({
 
       <div className="flex items-center justify-between px-2 pb-2">
         <div className="flex items-center gap-0.5">
-          <Tooltip label={t("Attach files")}>
+          <Tooltip label={"Attach files"}>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled || streaming}
-              aria-label={t("Attach files")}
+              aria-label={"Attach files"}
               className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-30"
             >
               <Paperclip className="h-4 w-4" strokeWidth={1.9} />
@@ -573,7 +573,7 @@ export const PartnerComposer = memo(function PartnerComposer({
           >
             <button
               type="button"
-              aria-label={t("Tips")}
+              aria-label={"Tips"}
               className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <Info className="h-4 w-4" strokeWidth={1.9} />
@@ -581,28 +581,24 @@ export const PartnerComposer = memo(function PartnerComposer({
             {showHelp && (
               <div className="absolute bottom-full left-0 z-20 mb-2 w-64 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 text-[11.5px] leading-relaxed text-[var(--muted-foreground)] shadow-lg">
                 <p className="mb-1 font-medium text-[var(--foreground)]">
-                  {t("Tips")}
+                  {"Tips"}
                 </p>
                 <p>
-                  {t(
-                    "Type / to see commands — start a new conversation, view history, toggle tools, and more.",
-                  )}
+                  {"Type / to see commands — start a new conversation, view history, toggle tools, and more."}
                 </p>
                 <p className="mt-1.5">
-                  {t(
-                    "Attach images or documents with the clip, or just drag them in.",
-                  )}
+                  {"Attach images or documents with the clip, or just drag them in."}
                 </p>
               </div>
             )}
           </div>
         </div>
         {streaming ? (
-          <Tooltip label={t("Stop")}>
+          <Tooltip label={"Stop"}>
             <button
               type="button"
               onClick={onStop}
-              aria-label={t("Stop")}
+              aria-label={"Stop"}
               className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--foreground)] text-[var(--background)] transition-opacity hover:opacity-90"
             >
               <Square className="h-3 w-3" strokeWidth={2.2} fill="currentColor" />
@@ -613,7 +609,7 @@ export const PartnerComposer = memo(function PartnerComposer({
             type="button"
             onClick={submit}
             disabled={!canSend}
-            aria-label={t("Send")}
+            aria-label={"Send"}
             className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-30"
           >
             <ArrowUp className="h-4 w-4" strokeWidth={2.2} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { FolderInput, Loader2, RefreshCw, Upload } from "lucide-react";
 import {
   listKnowledgeBaseFiles,
@@ -49,7 +49,7 @@ export default function KbDocumentsSection({
   onRetry,
   onUpload,
 }: KbDocumentsSectionProps) {
-  const { t } = useTranslation();
+  
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [retrySubmitting, setRetrySubmitting] = useState(false);
@@ -112,31 +112,18 @@ export default function KbDocumentsSection({
   const blockedReason = canUpload
     ? null
     : kb.metadata?.indexing_model_unavailable
-      ? t(
-          "Restore access to the pinned indexing models in Settings before adding documents.",
-        )
+      ? "Restore access to the pinned indexing models in Settings before adding documents."
       : requiresLightRagRebuild
         ? kb.metadata?.embedding_mismatch
-          ? t(
-              "The current embedding configuration does not match this index. Restore the original configuration or rebuild with the current embedding before querying or adding documents.",
-            )
-          : t(
-              "This legacy LightRAG index remains queryable, but it must be fully rebuilt before incremental uploads.",
-            )
+          ? "The current embedding configuration does not match this index. Restore the original configuration or rebuild with the current embedding before querying or adding documents."
+          : "This legacy LightRAG index remains queryable, but it must be fully rebuilt before incremental uploads."
         : needsReindex
-          ? t(
-              "This knowledge base is in legacy index format and needs reindex before upload.",
-            )
+          ? "This knowledge base is in legacy index format and needs reindex before upload."
           : status !== "ready"
-            ? t(
-                "This knowledge base is currently {{status}} and cannot accept uploads yet.",
-                {
-                  status: status.replaceAll("_", " "),
-                },
-              )
+            ? `This knowledge base is currently ${status.replaceAll("_", " ")} and cannot accept uploads yet.`
             : null;
 
-  const selection = validateFiles(files, policyForProvider, t);
+  const selection = validateFiles(files, policyForProvider);
   const canRetry = Boolean(onRetry) && isError && !isIndexingHere;
   // Unsupported files are skipped (shown in the drop zone), not blocking, so a
   // picked folder with mixed content still uploads its supported members.
@@ -171,19 +158,13 @@ export default function KbDocumentsSection({
     <div className="space-y-5">
       <div>
         <div className="text-[13px] font-medium text-[var(--foreground)]">
-          {t("Add documents")}
+          {"Add documents"}
         </div>
         <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
-          {t(
-            providerUsesEmbeddingMetadata(provider)
-              ? "Drop files here to add them to this knowledge base. New files use its bound embedding model."
-              : "Drop files here",
-          )}
+          {(providerUsesEmbeddingMetadata(provider) ? "Drop files here to add them to this knowledge base. New files use its bound embedding model." : "Drop files here")}
         </p>
         <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "Choosing a folder here is a one-time import. For a folder that stays in sync, use Linked folders.",
-          )}
+          {"Choosing a folder here is a one-time import. For a folder that stays in sync, use Linked folders."}
         </p>
       </div>
 
@@ -218,12 +199,8 @@ export default function KbDocumentsSection({
                   <RefreshCw className="h-3 w-3" />
                 )}
                 {retrySubmitting || isRetryingHere
-                  ? t("Retrying…")
-                  : t(
-                      provider === "lightrag"
-                        ? "Review rebuild"
-                        : "Retry indexing",
-                    )}
+                  ? "Retrying…"
+                  : (provider === "lightrag" ? "Review rebuild" : "Retry indexing")}
               </button>
             ) : undefined
           }
@@ -240,14 +217,14 @@ export default function KbDocumentsSection({
       {folders.length > 0 && files.length > 0 && (
         <label className="flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
           <FolderInput size={13} strokeWidth={1.7} />
-          <span>{t("Add to folder")}</span>
+          <span>{"Add to folder"}</span>
           <select
             value={destSubdir}
             onChange={(event) => setDestSubdir(event.target.value)}
             disabled={!canUpload || isUploadingHere}
             className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[12px] text-[var(--foreground)] disabled:opacity-40"
           >
-            <option value="">{t("Knowledge base root")}</option>
+            <option value="">{"Knowledge base root"}</option>
             {folders.map((folder) => (
               <option key={folder} value={folder}>
                 {folder}
@@ -269,7 +246,7 @@ export default function KbDocumentsSection({
           ) : (
             <Upload size={14} />
           )}
-          {t("Upload")}
+          {"Upload"}
         </button>
       </div>
 

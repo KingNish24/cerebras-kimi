@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { subscribeToThemeChanges } from "@/lib/theme";
 
 interface MermaidProps {
@@ -77,7 +77,7 @@ let mermaidIdCounter = 0;
 const DEBOUNCE_MS = 600;
 
 export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
-  const { t } = useTranslation();
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
         cleanupMermaidOrphans(id);
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : t("Failed to render diagram"),
+            err instanceof Error ? err.message : "Failed to render diagram",
           );
         }
       }
@@ -136,7 +136,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
     return () => {
       cancelled = true;
     };
-  }, [stable, chart, id, t, themeToken]);
+  }, [stable, chart, id, themeToken]);
 
   if (error) {
     return (
@@ -144,12 +144,12 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
         className={`my-4 p-4 bg-red-50 border border-red-200 rounded-lg ${className}`}
       >
         <p className="text-red-600 text-sm font-medium mb-2">
-          {t("Diagram rendering error")}
+          {"Diagram rendering error"}
         </p>
         <pre className="text-xs text-red-500 whitespace-pre-wrap">{error}</pre>
         <details className="mt-2">
           <summary className="text-xs text-[var(--muted-foreground)] cursor-pointer">
-            {t("Show source")}
+            {"Show source"}
           </summary>
           <pre className="mt-2 p-2 bg-[var(--muted)] rounded text-xs overflow-x-auto text-[var(--foreground)]">
             {chart}
@@ -164,7 +164,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
       <div
         className={`my-4 rounded-xl border border-[var(--border)] bg-[var(--muted)]/50 px-4 py-3 text-sm text-[var(--muted-foreground)] ${className}`}
       >
-        {t("Rendering diagram...")}
+        {"Rendering diagram..."}
       </div>
     );
   }

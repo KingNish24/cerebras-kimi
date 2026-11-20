@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   loadPdfjs,
   outputScale,
@@ -147,7 +147,7 @@ export function PdfDocumentView({
   onAnnotationClick,
   onVisibleLocatorChange,
 }: PdfDocumentViewProps) {
-  const { t } = useTranslation();
+  
   const scrollRef = useRef<HTMLDivElement | null>(null);
   // Loaded document and load error are both tagged with the material they
   // belong to, so switching documents invalidates them by derivation instead of
@@ -421,7 +421,7 @@ export function PdfDocumentView({
           message:
             caught instanceof Error
               ? caught.message
-              : t("This document could not be opened."),
+              : "This document could not be opened.",
         });
       }
     })();
@@ -432,7 +432,7 @@ export function PdfDocumentView({
       // document leaks a worker port for the life of the session.
       void task?.destroy();
     };
-  }, [materialId, t]);
+  }, [materialId]);
 
   // -- width ---------------------------------------------------------------
 
@@ -1001,7 +1001,7 @@ export function PdfDocumentView({
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 px-8 text-center">
         <p className="text-[13px] font-medium text-[var(--foreground)]">
-          {t("This document could not be opened.")}
+          {"This document could not be opened."}
         </p>
         <p className="max-w-[420px] text-[12px] text-[var(--muted-foreground)]">
           {error}
@@ -1036,7 +1036,7 @@ export function PdfDocumentView({
         {!doc ? (
           <div className="flex h-full items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 size={14} className="animate-spin" />
-            {t("Opening document…")}
+            {"Opening document…"}
           </div>
         ) : (
           // No `items-center`: when a page is wider than the pane, a centred

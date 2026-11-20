@@ -98,9 +98,7 @@ export function processRunnerEvent(
         movedIds.length < new Set(pendingSubmission.visibleSubmissionIds).size
       ) {
         notify(
-          i18n.t(
-            "Some unsent messages could not be moved into this conversation. Open a new chat to recover them.",
-          ),
+          "Some unsent messages could not be moved into this conversation. Open a new chat to recover them.",
           { tone: "error", durationMs: 10_000 },
         );
       }

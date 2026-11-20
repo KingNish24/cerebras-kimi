@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BookmarkPlus, Download, MoreHorizontal, Unlink } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SESSION_MENU_SURFACE,
@@ -73,7 +73,7 @@ export default function ChatSessionMenu({
   onMoved,
   onDeleted,
 }: ChatSessionMenuProps) {
-  const { t } = useTranslation();
+  
   const { board: taskBoard } = useTaskBoard();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -140,7 +140,7 @@ export default function ChatSessionMenu({
     void updateSessionOrganization(sessionId, patch, workspaceId)
       .then(onOrganized)
       .catch((error: unknown) =>
-        notify(error instanceof Error ? error.message : t("Couldn't update this chat"), {
+        notify(error instanceof Error ? error.message : "Couldn't update this chat", {
           tone: "error",
         }),
       );
@@ -152,7 +152,7 @@ export default function ChatSessionMenu({
     void updateSessionOrganization(sessionId, { workspace_id: destination }, workspaceId)
       .then(onMoved)
       .catch((error: unknown) =>
-        notify(error instanceof Error ? error.message : t("Couldn't update this chat"), {
+        notify(error instanceof Error ? error.message : "Couldn't update this chat", {
           tone: "error",
         }),
       )
@@ -163,7 +163,7 @@ export default function ChatSessionMenu({
     if (!sessionId) return;
     if (
       !window.confirm(
-        t("Permanently delete this chat and its tutor threads? This cannot be undone."),
+        "Permanently delete this chat and its tutor threads? This cannot be undone.",
       )
     ) {
       return;
@@ -171,7 +171,7 @@ export default function ChatSessionMenu({
     void deleteSession(sessionId, workspaceId)
       .then(onDeleted)
       .catch((error: unknown) =>
-        notify(error instanceof Error ? error.message : t("Couldn't delete this chat"), {
+        notify(error instanceof Error ? error.message : "Couldn't delete this chat", {
           tone: "error",
         }),
       );
@@ -195,8 +195,8 @@ export default function ChatSessionMenu({
         onClick={toggle}
         disabled={!sessionId}
         icon={MoreHorizontal}
-        label={t("Conversation actions")}
-        title={sessionId ? t("Conversation actions") : t("Start a conversation first")}
+        label={"Conversation actions"}
+        title={sessionId ? "Conversation actions" : "Start a conversation first"}
         menuOpen={open}
       />
       {open && position && session && typeof document !== "undefined"
@@ -204,7 +204,7 @@ export default function ChatSessionMenu({
             <div
               ref={menuRef}
               role="menu"
-              aria-label={t("Conversation actions")}
+              aria-label={"Conversation actions"}
               style={{
                 left: position.left,
                 top: position.top,
@@ -228,25 +228,21 @@ export default function ChatSessionMenu({
                     {taskLinks?.task_ids.length ? (
                       <SessionMenuItem
                         icon={Unlink}
-                        label={t(
-                          taskLinks.status_link_enabled
-                            ? "tasks.unlinkStatus"
-                            : "tasks.linkStatus",
-                        )}
+                        label={(taskLinks.status_link_enabled ? "tasks.unlinkStatus" : "tasks.linkStatus")}
                         onClick={() => {
                           close();
                           void setTaskStatusLink(
                             session.session_id,
                             workspaceId,
                             !taskLinks.status_link_enabled,
-                          ).catch(() => notify(t("tasks.saveError"), { tone: "error" }));
+                          ).catch(() => notify("Could not save the task change. Please try again.", { tone: "error" }));
                         }}
                       />
                     ) : null}
                     <SessionMenuDivider />
                     <SessionMenuItem
                       icon={BookmarkPlus}
-                      label={t("Save to Notebook")}
+                      label={"Save to favorites"}
                       disabled={!canSave}
                       onClick={() => {
                         close();
@@ -255,7 +251,7 @@ export default function ChatSessionMenu({
                     />
                     <SessionMenuItem
                       icon={Download}
-                      label={t("Download Markdown")}
+                      label={"Download Markdown"}
                       disabled={!canExport}
                       onClick={() => {
                         close();

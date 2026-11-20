@@ -1,7 +1,7 @@
 "use client";
 
 import { Lock } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { CAPABILITY_LABEL, type Capability } from "@/lib/capability-routes";
 
@@ -17,8 +17,8 @@ export function LockedFeatureNotice({
 }: {
   capability: Capability;
 }) {
-  const { t } = useTranslation();
-  const modelLabel = t(CAPABILITY_LABEL[capability]);
+  
+  const modelLabel = (CAPABILITY_LABEL[capability]);
 
   return (
     <div className="flex h-full w-full items-center justify-center p-6">
@@ -27,13 +27,10 @@ export function LockedFeatureNotice({
           <Lock size={20} strokeWidth={1.8} />
         </div>
         <h2 className="text-base font-semibold text-[var(--foreground)]">
-          {t("Feature locked")}
+          {"Feature locked"}
         </h2>
         <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "Your account doesn't have {{model}} assigned yet. Please contact your administrator to get access.",
-            { model: modelLabel },
-          )}
+          {`Your account doesn't have ${modelLabel} assigned yet. Please contact your administrator to get access.`}
         </p>
       </div>
     </div>

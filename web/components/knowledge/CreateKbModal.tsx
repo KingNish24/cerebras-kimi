@@ -4,7 +4,7 @@ import Tooltip from "@/shared/ui/Tooltip";
 import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   AlertTriangle,
   Check,
@@ -142,7 +142,7 @@ export default function CreateKbModal({
   initialMode = "new",
   initialSource,
 }: CreateKbModalProps) {
-  const { t } = useTranslation();
+  
   const [mode, setMode] = useState<Mode>("new");
   const [name, setName] = useState("");
   const [provider, setProvider] = useState("llamaindex");
@@ -204,13 +204,13 @@ export default function CreateKbModal({
       reasoning_effort?: string;
     } | null,
   ) => {
-    if (!value) return t("Disabled");
+    if (!value) return "Disabled";
     const option = llmCatalog.options.find(
       (item) =>
         item.profile_id === value.profile_id &&
         item.model_id === value.model_id,
     );
-    return `${option?.model_name ?? value.model_id} · ${value.reasoning_effort || t("Auto")}`;
+    return `${option?.model_name ?? value.model_id} · ${value.reasoning_effort || "Auto"}`;
   };
   const visibleEngineDefaultSummary =
     provider === "lightrag" && lightRagIndexingDefaults
@@ -314,15 +314,15 @@ export default function CreateKbModal({
         if (provider === "llamaindex") {
           const config = await getLlamaIndexConfig();
           summary = [
-            `${t("Retrieval profile")}: ${config.retrieval_profile}`,
-            `${t("Results per query")}: ${config.top_k}`,
-            `${t("Chunk size")}: ${config.chunk_size} / ${t("Chunk overlap")}: ${config.chunk_overlap}`,
+            `${"Retrieval profile"}: ${config.retrieval_profile}`,
+            `${"Results per query"}: ${config.top_k}`,
+            `${"Chunk size"}: ${config.chunk_size} / ${"Chunk overlap"}: ${config.chunk_overlap}`,
           ];
         } else if (provider === "graphrag") {
           const config = await getGraphRagConfig();
           summary = [
-            `${t("Response style")}: ${config.response_type}`,
-            `${t("Community level")}: ${config.community_level}`,
+            `${"Response style"}: ${config.response_type}`,
+            `${"Community level"}: ${config.community_level}`,
           ];
         } else if (provider === "lightrag") {
           const config = await getLightRagConfig({ force: true });
@@ -332,14 +332,14 @@ export default function CreateKbModal({
             setLightRagConfigError(false);
           }
           summary = [
-            `${t("Results per query")}: ${config.top_k}`,
-            `${t("Files in parallel")}: ${config.max_concurrent_files}`,
-            `${t("Extra extraction passes")}: ${config.entity_extract_max_gleaning}`,
+            `${"Results per query"}: ${config.top_k}`,
+            `${"Files in parallel"}: ${config.max_concurrent_files}`,
+            `${"Extra extraction passes"}: ${config.entity_extract_max_gleaning}`,
           ];
         } else if (provider === "pageindex") {
           const config = await getPageIndexConfig();
           summary = [
-            config.configured ? t("API key configured") : t("API key missing"),
+            config.configured ? "API key configured" : "API key missing",
           ];
         } else if (provider === LIGHTRAG_SERVER_PROVIDER) {
           const config = await getLightRagServerConfig();
@@ -348,11 +348,11 @@ export default function CreateKbModal({
             setServerUrl(config.server_url);
           }
           summary = [
-            config.server_url || t("No default server URL"),
-            config.api_key_set ? t("API key configured") : t("No API key"),
+            config.server_url || "No default server URL",
+            config.api_key_set ? "API key configured" : "No API key",
           ];
         } else if (provider === "pageindex-oss") {
-          summary = [t("Uses the globally active chat model")];
+          summary = ["Uses the globally active chat model"];
         }
         if (!cancelled) setEngineDefaultSummary(summary);
       } catch {
@@ -372,7 +372,7 @@ export default function CreateKbModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, mode, provider, t, defaultsRevision, refreshCatalog]);
+  }, [isOpen, mode, provider, defaultsRevision, refreshCatalog]);
 
   // A fresh path / source invalidates a stale probe verdict.
   useEffect(() => {
@@ -402,7 +402,7 @@ export default function CreateKbModal({
 
   const policyForProvider = uploadPolicyForProvider(uploadPolicy, provider);
 
-  const selection = validateFiles(files, policyForProvider, t);
+  const selection = validateFiles(files, policyForProvider);
 
   // ---- Link mode (mount an existing folder) ----------------------------
   const trimmed = name.trim();
@@ -598,17 +598,17 @@ export default function CreateKbModal({
   const submitLabel =
     mode === "new"
       ? isLightRagServer || isWeKnora
-        ? t("Connect")
-        : t("Create")
+        ? "Connect"
+        : "Create"
       : linkIsObsidian || linkIsIma || linkIsMarginNote
-        ? t("Connect")
-        : t("Link");
+        ? "Connect"
+        : "Link";
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={submitting ? () => {} : handleClose}
-      title={t("Create knowledge base")}
+      title={"Create knowledge base"}
       titleIcon={<Plus size={16} />}
       width="lg"
       closeOnBackdrop={!submitting}
@@ -621,7 +621,7 @@ export default function CreateKbModal({
             disabled={submitting}
             className="rounded-md px-3 py-1.5 text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
           <button
             type="button"
@@ -652,23 +652,20 @@ export default function CreateKbModal({
 
         <div>
           <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            {t("Knowledge base name")}
+            {"Knowledge base name"}
           </label>
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
             autoFocus
             disabled={submitting}
-            placeholder={t("e.g. project-papers")}
+            placeholder={"e.g. project-papers"}
             aria-invalid={nameProblems.length > 0}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
           {nameProblems.length > 0 && (
             <p className="mt-1 text-[11px] text-[var(--destructive)]">
-              {t(
-                "A knowledge base name cannot contain {{chars}} — these separate paths and URLs.",
-                { chars: nameProblems.join(" ") },
-              )}
+              {`A knowledge base name cannot contain ${nameProblems.join(" ")} — these separate paths and URLs.`}
             </p>
           )}
         </div>
@@ -712,9 +709,7 @@ export default function CreateKbModal({
                       llmCatalog.options,
                     ))) ? (
                   <p role="alert" className="text-[12px] text-red-600">
-                    {t(
-                      "Configure valid LightRAG defaults in Settings before creating a knowledge base.",
-                    )}
+                    {"Configure valid LightRAG defaults in Settings before creating a knowledge base."}
                   </p>
                 ) : null}
               </div>
@@ -815,16 +810,14 @@ function ModeToggle({
   }[] = [
     {
       id: "new",
-      label: t("Create new"),
-      hint: t("Upload documents and build a fresh index."),
+      label: "Create new",
+      hint: "Upload documents and build a fresh index.",
       icon: Plus,
     },
     {
       id: "link",
-      label: t("Link existing"),
-      hint: t(
-        "Reuse an index you already built — read in place, no upload or re-index.",
-      ),
+      label: "Link existing",
+      hint: "Reuse an index you already built — read in place, no upload or re-index.",
       icon: Link2,
     },
   ];
@@ -914,7 +907,7 @@ function NewModeFields({
     <>
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Index engine")}
+          {"Index engine"}
         </label>
         <div className="grid gap-2 sm:grid-cols-2">
           {providers.map((p) => {
@@ -943,11 +936,11 @@ function NewModeFields({
                     </span>
                     {needsKey ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-                        {t("Needs key")}
+                        {"Needs key"}
                       </span>
                     ) : unavailable ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                        {t("Not installed")}
+                        {"Not installed"}
                       </span>
                     ) : selected ? (
                       <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
@@ -964,7 +957,7 @@ function NewModeFields({
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 px-1 text-[10.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   >
-                    {t("PageIndex API plans")}
+                    {"PageIndex API plans"}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
@@ -977,13 +970,9 @@ function NewModeFields({
             <span className="flex items-center gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
               {providerNeedsKey
-                ? t(
-                    "This engine needs an API key. Configure it before creating.",
-                  )
-                : t(
-                    readinessReason ||
-                      "This engine isn't ready on the server. Check its requirements before creating.",
-                  )}
+                ? "This engine needs an API key. Configure it before creating."
+                : (readinessReason ||
+                      "This engine isn't ready on the server. Check its requirements before creating.")}
             </span>
             {providerNeedsKey && onConfigureProvider && (
               <button
@@ -991,7 +980,7 @@ function NewModeFields({
                 onClick={() => onConfigureProvider(provider)}
                 className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-amber-900 underline-offset-2 hover:underline dark:text-amber-100"
               >
-                {t("Configure")}
+                {"Configure"}
               </button>
             )}
           </div>
@@ -1003,12 +992,10 @@ function NewModeFields({
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-[12px] font-medium text-[var(--foreground)]">
-                {t("Engine defaults")}
+                {"Engine defaults"}
               </div>
               <p className="mt-0.5 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "This knowledge base starts with the saved engine configuration.",
-                )}
+                {"This knowledge base starts with the saved engine configuration."}
               </p>
             </div>
             {onConfigureProvider && (
@@ -1017,7 +1004,7 @@ function NewModeFields({
                 onClick={() => onConfigureProvider(provider)}
                 className="inline-flex shrink-0 items-center gap-1 text-[11.5px] font-medium text-[var(--primary)] hover:underline"
               >
-                {t("Edit defaults")}
+                {"Edit defaults"}
                 <ChevronRight className="h-3 w-3" />
               </button>
             )}
@@ -1042,7 +1029,7 @@ function NewModeFields({
       {modeOptions.length > 0 && (
         <div>
           <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            {t("Retrieval mode")}
+            {"Retrieval mode"}
           </label>
           <select
             value={retrievalMode}
@@ -1051,9 +1038,7 @@ function NewModeFields({
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           >
             <option value="">
-              {t("Use engine default: {{mode}}", {
-                mode: activeProvider?.default_mode || modeOptions[0],
-              })}
+              {`Use engine default: ${activeProvider?.default_mode || modeOptions[0]}`}
             </option>
             {modeOptions.map((item) => (
               <option key={item} value={item}>
@@ -1062,9 +1047,7 @@ function NewModeFields({
             ))}
           </select>
           <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-            {t(
-              "This override applies only to this knowledge base; the engine default stays unchanged.",
-            )}
+            {"This override applies only to this knowledge base; the engine default stays unchanged."}
           </p>
         </div>
       )}
@@ -1072,9 +1055,9 @@ function NewModeFields({
       {isPageIndexOSS && (
         <div>
           <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            {t("Index mode")}
+            {"Index mode"}
             <span className="ml-2 normal-case tracking-normal text-[var(--muted-foreground)]/80">
-              · {t("optional")}
+              · {"optional"}
             </span>
           </label>
           <select
@@ -1086,15 +1069,13 @@ function NewModeFields({
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           >
             <option value="">
-              {t("Default — Flash, summaries and full optimization")}
+              {"Default — Flash, summaries and full optimization"}
             </option>
-            <option value="flash">{t("Flash")}</option>
-            <option value="standard">{t("Standard")}</option>
+            <option value="flash">{"Flash"}</option>
+            <option value="standard">{"Standard"}</option>
           </select>
           <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-            {t(
-              "Uses the globally active LLM credential. Leaving this unset delegates to the PageIndex SDK default.",
-            )}
+            {"Uses the globally active LLM credential. Leaving this unset delegates to the PageIndex SDK default."}
           </p>
         </div>
       )}
@@ -1102,18 +1083,16 @@ function NewModeFields({
       {connectionForm ?? (
         <div>
           <label className="mb-2 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            {t("Initial documents")}
+            {"Initial documents"}
             <span className="ml-1 normal-case tracking-normal text-[var(--muted-foreground)]/80">
-              ({t("optional")})
+              ({"optional"})
             </span>
             {(isPageIndexCloud || isPageIndexOSS) && (
               <span className="ml-2 normal-case tracking-normal text-[var(--muted-foreground)]/80">
                 ·{" "}
                 {isPageIndexOSS
-                  ? t(
-                      "PDF only — use PageIndex Cloud for Office, Markdown or CSV",
-                    )
-                  : t("PDF, Office, text and Markdown")}
+                  ? "PDF only — use PageIndex Cloud for Office, Markdown or CSV"
+                  : "PDF, Office, text and Markdown"}
               </span>
             )}
           </label>
@@ -1124,9 +1103,7 @@ function NewModeFields({
             disabled={submitting}
           />
           <p className="mt-1.5 text-[11px] text-[var(--muted-foreground)]">
-            {t(
-              "Skip for now — you can add GitHub sources or upload documents after creation.",
-            )}
+            {"Skip for now — you can add GitHub sources or upload documents after creation."}
           </p>
         </div>
       )}
@@ -1163,7 +1140,7 @@ function LightRagServerFields({
     <div className="space-y-3">
       <div>
         <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Server URL")}
+          {"Server URL"}
         </label>
         <div className="flex gap-2">
           <input
@@ -1184,27 +1161,25 @@ function LightRagServerFields({
             ) : (
               <Server className="h-3.5 w-3.5" />
             )}
-            {t("Test connection")}
+            {"Test connection"}
           </button>
         </div>
         <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-          {t(
-            "The base URL of your running LightRAG server. Documents are indexed there — nothing is uploaded or copied.",
-          )}
+          {"The base URL of your running LightRAG server. Documents are indexed there — nothing is uploaded or copied."}
         </p>
         {usingSavedDefault && (
           <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
             <Check className="h-3 w-3" />
-            {t("Using saved engine default · editable for this KB")}
+            {"Using saved engine default · editable for this KB"}
           </p>
         )}
       </div>
 
       <div>
         <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("API key")}
+          {"API key"}
           <span className="ml-2 normal-case tracking-normal text-[var(--muted-foreground)]/80">
-            · {t("optional")}
+            · {"optional"}
           </span>
         </label>
         <input
@@ -1213,16 +1188,14 @@ function LightRagServerFields({
           disabled={submitting}
           type="password"
           autoComplete="off"
-          placeholder={t("Only if your server requires one")}
+          placeholder={"Only if your server requires one"}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
         />
       </div>
 
       {hasSavedApiKey && !apiKey && usingSavedDefault && (
         <p className="-mt-2 text-[11px] text-[var(--muted-foreground)]">
-          {t(
-            "The saved API key will be used. Enter a value only to override it.",
-          )}
+          {"The saved API key will be used. Enter a value only to override it."}
         </p>
       )}
 
@@ -1243,7 +1216,7 @@ function ServerProbeVerdict({
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          {t("Could not connect")}
+          {"Could not connect"}
         </span>
         {probe.error && <p className="mt-1 leading-relaxed">{probe.error}</p>}
       </div>
@@ -1253,14 +1226,14 @@ function ServerProbeVerdict({
     <div className="space-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
       <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
         <Check className="h-3.5 w-3.5 shrink-0" />
-        {t("Connected to LightRAG server")}
+        {"Connected to LightRAG server"}
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--muted-foreground)]">
         {probe.core_version && (
-          <span>{t("Core {{version}}", { version: probe.core_version })}</span>
+          <span>{`Core ${probe.core_version}`}</span>
         )}
         <span>
-          {probe.auth_required ? t("API key accepted") : t("Open access")}
+          {probe.auth_required ? "API key accepted" : "Open access"}
         </span>
       </div>
     </div>
@@ -1303,7 +1276,7 @@ function WeKnoraFields({
     <div className="space-y-3">
       <div>
         <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Server URL")}
+          {"Server URL"}
         </label>
         <div className="flex gap-2">
           <input
@@ -1324,19 +1297,17 @@ function WeKnoraFields({
             ) : (
               <Server className="h-3.5 w-3.5" />
             )}
-            {t("Test connection")}
+            {"Test connection"}
           </button>
         </div>
         <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-          {t(
-            "The base URL of your self-hosted WeKnora deployment. Documents remain there; DeepTutor only runs retrieval searches.",
-          )}
+          {"The base URL of your self-hosted WeKnora deployment. Documents remain there; DeepTutor only runs retrieval searches."}
         </p>
       </div>
 
       <div>
         <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("WeKnora API key")}
+          {"WeKnora API key"}
         </label>
         <input
           value={apiKey}
@@ -1344,14 +1315,14 @@ function WeKnoraFields({
           disabled={submitting}
           type="password"
           autoComplete="off"
-          placeholder={t("Required to access your WeKnora knowledge base")}
+          placeholder={"Required to access your WeKnora knowledge base"}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
         />
       </div>
 
       <div>
         <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("WeKnora knowledge base ID")}
+          {"WeKnora knowledge base ID"}
         </label>
         <div className="relative">
           <Database className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
@@ -1359,7 +1330,7 @@ function WeKnoraFields({
             value={knowledgeBaseId}
             onChange={(event) => setKnowledgeBaseId(event.target.value)}
             disabled={submitting}
-            placeholder={t("WeKnora knowledge base ID")}
+            placeholder={"WeKnora knowledge base ID"}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-3 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
         </div>
@@ -1376,7 +1347,7 @@ function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          {t("Could not connect")}
+          {"Could not connect"}
         </span>
         {probe.error && <p className="mt-1 leading-relaxed">{probe.error}</p>}
       </div>
@@ -1387,13 +1358,11 @@ function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
     <div className="space-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
       <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
         <Check className="h-3.5 w-3.5 shrink-0" />
-        {t("Connected to WeKnora")}
+        {"Connected to WeKnora"}
       </div>
       <div className="text-[11.5px] text-[var(--muted-foreground)]">
         {probe.knowledge_base_name
-          ? t("Knowledge base {{name}}", {
-              name: probe.knowledge_base_name,
-            })
+          ? `Knowledge base ${probe.knowledge_base_name}`
           : probe.knowledge_base_id}
       </div>
     </div>
@@ -1435,7 +1404,7 @@ function LinkModeFields({
     <>
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-          {t("Source")}
+          {"Source"}
         </label>
         <div className="grid gap-2 sm:grid-cols-2">
           {providers.map((p) => {
@@ -1446,7 +1415,7 @@ function LinkModeFields({
             return (
               <Tooltip
                 key={p.id}
-                label={enabled ? p.name : t("This engine's index lives in the cloud and can't be linked.")}
+                label={enabled ? p.name : "This engine's index lives in the cloud and can't be linked."}
                 suppressed={enabled}
                 side="top"
               >
@@ -1470,11 +1439,11 @@ function LinkModeFields({
                       <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
                     ) : !enabled ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
-                        {t("Cloud index")}
+                        {"Cloud index"}
                       </span>
                     ) : p.id === IMA_PROVIDER ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
-                        {t("Read only")}
+                        {"Read only"}
                       </span>
                     ) : null}
                   </div>
@@ -1500,16 +1469,14 @@ function LinkModeFields({
             <div className="flex items-center justify-between gap-2">
               <span className="flex items-center gap-2 text-[13px] font-medium text-[var(--foreground)]">
                 <KnowledgeEngineIcon engine="obsidian" size={24} />
-                {t("Obsidian")}
+                {"Obsidian"}
               </span>
               {linkIsObsidian && (
                 <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
               )}
             </div>
             <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-              {t(
-                "A live Obsidian vault — browsed and edited in place, no index.",
-              )}
+              {"A live Obsidian vault — browsed and edited in place, no index."}
             </span>
           </button>
 
@@ -1527,16 +1494,14 @@ function LinkModeFields({
             <div className="flex items-center justify-between gap-2">
               <span className="flex items-center gap-2 text-[13px] font-medium text-[var(--foreground)]">
                 <KnowledgeEngineIcon engine="marginnote4" size={24} />
-                {t("MarginNote 4")}
+                {"MarginNote 4"}
               </span>
               {linkIsMarginNote && (
                 <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
               )}
             </div>
             <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-              {t(
-                "Notes, excerpts and cards pushed in by the MarginNote 4 add-on.",
-              )}
+              {"Notes, excerpts and cards pushed in by the MarginNote 4 add-on."}
             </span>
           </button>
         </div>
@@ -1546,15 +1511,13 @@ function LinkModeFields({
         connectionForm
       ) : linkIsMarginNote ? (
         <p className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "The library starts empty. Pair a device from its Devices tab, then enter the token in the MarginNote 4 add-on to start syncing.",
-          )}
+          {"The library starts empty. Pair a device from its Devices tab, then enter the token in the MarginNote 4 add-on to start syncing."}
         </p>
       ) : (
         <>
           <div>
             <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-              {linkIsObsidian ? t("Vault path") : t("Folder path")}
+              {linkIsObsidian ? "Vault path" : "Folder path"}
             </label>
             <div className="flex gap-2">
               <input
@@ -1580,16 +1543,14 @@ function LinkModeFields({
                   ) : (
                     <FolderSearch className="h-3.5 w-3.5" />
                   )}
-                  {t("Check folder")}
+                  {"Check folder"}
                 </button>
               )}
             </div>
             <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
               {linkIsObsidian
-                ? t("The absolute path to the vault folder on this machine.")
-                : t(
-                    "The absolute path to a knowledge base folder on this machine — nothing is copied.",
-                  )}
+                ? "The absolute path to the vault folder on this machine."
+                : "The absolute path to a knowledge base folder on this machine — nothing is copied."}
             </p>
           </div>
 
@@ -1606,7 +1567,7 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          {t("This folder can't be linked")}
+          {"This folder can't be linked"}
         </span>
         {probe.error && <p className="mt-1 leading-relaxed">{probe.error}</p>}
       </div>
@@ -1618,17 +1579,17 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
     <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
       <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
         <Check className="h-3.5 w-3.5 shrink-0" />
-        {t("Ready index found")}
+        {"Ready index found"}
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--muted-foreground)]">
         {probe.version && <span className="font-mono">{probe.version}</span>}
         {probe.doc_count != null && (
-          <span>{t("{{count}} documents", { count: probe.doc_count })}</span>
+          <span>{`${probe.doc_count} documents`}</span>
         )}
         {compatible === true && (
           <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300">
             <Check className="h-3 w-3" />
-            {t("Embedding model matches")}
+            {"Embedding model matches"}
           </span>
         )}
       </div>

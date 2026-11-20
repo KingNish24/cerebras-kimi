@@ -25,7 +25,7 @@ import {
   Table2,
   Upload,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import { listNotes } from '@/lib/notes-api'
 import {
   basicPreviewKinds,
@@ -70,7 +70,7 @@ export default function useNoteSlashItems({
   uploadRetryRef,
   onAI,
 }: UseNoteSlashItemsOptions) {
-  const { t } = useTranslation()
+  
 
   const getItems = useCallback(
     async (query: string): Promise<NoteMenuItem[]> => {
@@ -135,9 +135,9 @@ export default function useNoteSlashItems({
         preview: BlockPreviewKind,
         shortcut?: string
       ): NoteMenuItem => ({
-        title: t(title),
-        group: t(group),
-        subtext: t(subtext),
+        title: (title),
+        group: (group),
+        subtext: (subtext),
         aliases,
         icon: <Icon size={19} strokeWidth={1.6} />,
         onItemClick: action,
@@ -148,7 +148,7 @@ export default function useNoteSlashItems({
       const defaults = getDefaultReactSlashMenuItems(editor).flatMap(i => {
         const key = (i as { key?: string }).key || ''
         return isBasicPreviewKind(key)
-          ? [{ ...i, preview: key, group: t('Basic blocks'), shortcut: SHORTCUTS[key] }]
+          ? [{ ...i, preview: key, group: "Basic blocks", shortcut: SHORTCUTS[key] }]
           : []
       })
       defaults.sort(
@@ -361,7 +361,7 @@ export default function useNoteSlashItems({
         [i.title, ...(i.aliases || [])].some(label => label.toLowerCase().includes(needle))
       )
     },
-    [containerRef, editor, onAI, t, uploadAnchorRef, uploadInputRef, uploadRetryRef]
+    [containerRef, editor, onAI, uploadAnchorRef, uploadInputRef, uploadRetryRef]
   )
 
   const pageItems = useCallback(
@@ -374,7 +374,7 @@ export default function useNoteSlashItems({
           title: d.title,
           preview: 'pageLink' as const,
           previewTitle: d.title,
-          subtext: t('Open linked page'),
+          subtext: "Open linked page",
           icon: <FileText size={19} />,
           onItemClick: () =>
             editor.insertInlineContent([
@@ -383,7 +383,7 @@ export default function useNoteSlashItems({
             ]),
         }))
     },
-    [editor, pageId, t]
+    [editor, pageId]
   )
 
   return { getItems, pageItems }

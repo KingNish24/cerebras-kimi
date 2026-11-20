@@ -29,7 +29,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
 export interface ComposerResourceItem {
@@ -73,7 +73,7 @@ export default function ComposerResources({
   panelRef: RefObject<HTMLDivElement | null>;
   materials: (query: string) => ReactNode;
 }) {
-  const { t } = useTranslation();
+  
   const reduceMotion = useReducedMotion();
   const id = useId();
   const { expanded, triggerProps } = useLingerExpand(open);
@@ -248,7 +248,7 @@ export default function ComposerResources({
       <button
         ref={triggerRef}
         {...triggerProps}
-        aria-label={t("Resources")}
+        aria-label={"Resources"}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -261,12 +261,12 @@ export default function ComposerResources({
           {configured && (
             <span
               className="absolute -right-1 -top-0.5 h-1.5 w-1.5 rounded-full bg-[var(--primary)]"
-              aria-label={t("Configured")}
+              aria-label={"Configured"}
             />
           )}
         </span>
         <ToolbarLabel expanded={expanded}>
-          <span>{t("Resources")}</span>
+          <span>{"Resources"}</span>
           <ChevronRight
             size={13}
             className={`shrink-0 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
@@ -297,7 +297,7 @@ export default function ComposerResources({
                 ref={panelRef}
                 id={id}
                 role="dialog"
-                aria-label={t("Resources")}
+                aria-label={"Resources"}
                 style={{
                   ...position,
                   visibility: position ? "visible" : "hidden",
@@ -347,14 +347,14 @@ export default function ComposerResources({
                     ref={backRef}
                     type="button"
                     onClick={back}
-                    aria-label={t("Back")}
+                    aria-label={"Back"}
                     className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--muted)]"
                   >
                     <ArrowLeft size={16} />
                   </button>
                 )}
                 <span className="flex-1 px-2 text-[14px] font-medium">
-                  {current?.label || t("Resources")}
+                  {current?.label || "Resources"}
                 </span>
                 <button
                   type="button"
@@ -362,7 +362,7 @@ export default function ComposerResources({
                     close();
                     triggerRef.current?.focus();
                   }}
-                  aria-label={t("Close")}
+                  aria-label={"Close"}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
                 >
                   <X size={16} />
@@ -380,13 +380,13 @@ export default function ComposerResources({
                     <div key={current.key}>
                       {current.onClear && (
                         <div className="flex items-center justify-between gap-2 bg-[var(--muted)]/30 px-3 py-2 text-xs text-[var(--muted-foreground)]">
-                          <span>{current.summary || t("Default")}</span>
+                          <span>{current.summary || "Default"}</span>
                           <button
                             type="button"
                             onClick={current.onClear}
                             className="rounded-md px-2 py-1 hover:bg-[var(--muted)]"
                           >
-                            {current.resetLabel || t("Reset")}
+                            {current.resetLabel || "Reset"}
                           </button>
                         </div>
                       )}
@@ -410,8 +410,8 @@ export default function ComposerResources({
                           ref={searchRef}
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
-                          aria-label={t("Search resource types")}
-                          placeholder={t("Search resource types")}
+                          aria-label={"Search resource types"}
+                          placeholder={"Search resource types"}
                           className="min-w-0 flex-1 bg-transparent text-[13px] outline-none"
                         />
                       </div>
@@ -435,7 +435,7 @@ export default function ComposerResources({
                             className="border-t border-[var(--border)]/60 py-1"
                           >
                             <h3 className="px-4 py-1 text-[11px] font-medium text-[var(--muted-foreground)]">
-                              {t(group)}
+                              {(group)}
                             </h3>
                             {group === "Reference materials" &&
                               materials(query)}
@@ -465,7 +465,7 @@ export default function ComposerResources({
                                   {item.summary ||
                                     (item.count
                                       ? `${item.count}`
-                                      : t("Default"))}
+                                      : "Default")}
                                 </span>
                                 <ChevronRight
                                   size={14}

@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { useRouter } from "@/shared/router/navigation";
 import { GraduationCap, RotateCcw, Sparkles } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { ActivityMark } from "@/components/activity";
 import { formatRelative } from "@/components/space/learning/format";
@@ -98,8 +98,8 @@ const MasteryHandoff = memo(function MasteryHandoff({
 }: {
   data: MasteryHandoffPayload;
 }) {
-  const { t, i18n } = useTranslation();
-  const zh = Boolean(i18n.language?.toLowerCase().startsWith("zh"));
+  
+  const zh = Boolean("en"?.toLowerCase().startsWith("zh"));
   const router = useRouter();
   const [draft, setDraft] = useState(data.opening_message);
 
@@ -107,8 +107,8 @@ const MasteryHandoff = memo(function MasteryHandoff({
   const headline =
     data.reason ||
     (resuming
-      ? t("Pick this back up where you left it")
-      : t("Start a fresh session on this path"));
+      ? "Pick this back up where you left it"
+      : "Start a fresh session on this path");
 
   const go = () => {
     const opening = draft.trim();
@@ -120,10 +120,10 @@ const MasteryHandoff = memo(function MasteryHandoff({
 
   const stats = [
     data.objectives > 0
-      ? `${data.mastered}/${data.objectives} ${t("mastered")}`
+      ? `${data.mastered}/${data.objectives} ${"mastered"}`
       : "",
     data.due_reviews > 0
-      ? `${data.due_reviews} ${t("due for review")}`
+      ? `${data.due_reviews} ${"due for review"}`
       : "",
   ].filter(Boolean);
 
@@ -137,7 +137,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
             <span className="truncate">
-              {data.path_name || t("Mastery Path")}
+              {data.path_name || "Mastery Path"}
             </span>
             {data.module_name ? (
               <>
@@ -163,7 +163,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
           {draft || data.opening_message ? (
             <label className="mt-3 block">
               <span className="text-[10.5px] text-[color-mix(in_srgb,var(--muted-foreground)_80%,transparent)]">
-                {t("Opens with")}
+                {"Opens with"}
               </span>
               <textarea
                 value={draft}
@@ -185,7 +185,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
               ) : (
                 <Sparkles size={12} strokeWidth={2} />
               )}
-              {resuming ? t("Continue this session") : t("Begin a session")}
+              {resuming ? "Continue this session" : "Begin a session"}
             </button>
             {resuming ? (
               <span className="flex min-w-0 items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
@@ -202,11 +202,11 @@ const MasteryHandoff = memo(function MasteryHandoff({
                   size={11}
                 />
                 <span className="truncate">
-                  {data.session_title || t("Untitled session")}
+                  {data.session_title || "Untitled session"}
                 </span>
                 {data.session_awaiting ? (
                   <span className="shrink-0 text-[var(--warning)]">
-                    {t("a question is waiting")}
+                    {"a question is waiting"}
                   </span>
                 ) : data.session_updated_at > 0 ? (
                   <span className="shrink-0">
@@ -216,7 +216,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
               </span>
             ) : (
               <span className="text-[11px] text-[var(--muted-foreground)]">
-                {t("The path keeps all of its progress")}
+                {"The path keeps all of its progress"}
               </span>
             )}
           </div>

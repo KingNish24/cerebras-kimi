@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 
 import {
   recoveryPrincipal,
@@ -345,7 +345,7 @@ export function useSettings(): SettingsContextValue {
 // ─── Provider ──────────────────────────────────────────────────────────────
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const {
     codeBlockTheme,
@@ -580,14 +580,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           (current) =>
             current ??
             (err instanceof Error
-              ? t("System status unavailable: {{message}}", {
-                  message: err.message,
-                })
-              : t("System status unavailable.")),
+              ? `System status unavailable: ${err.message}`
+              : "System status unavailable."),
         );
       }
     }
-  }, [captureSettingsOwnership, syncPendingKeys, t]);
+  }, [captureSettingsOwnership, syncPendingKeys]);
   const loadSettingsRef = useRef(loadSettings);
   loadSettingsRef.current = loadSettings;
 

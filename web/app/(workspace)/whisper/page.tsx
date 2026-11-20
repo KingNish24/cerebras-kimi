@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Ear, Loader2 } from "lucide-react";
 import WhisperComposer from "@/components/whisper/WhisperComposer";
 import WhisperMessageList from "@/components/whisper/WhisperMessageList";
@@ -37,7 +37,7 @@ function looksLikeRoomEnded(text: string): boolean {
 }
 
 export default function WhisperPage() {
-  const { t } = useTranslation();
+  
   const [seat, setSeat] = useState<WhisperSeat>("visitor");
   const [roomId, setRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<WhisperMessage[]>([]);
@@ -296,12 +296,10 @@ export default function WhisperPage() {
             aria-hidden
           />
           <h1 className="mt-3 text-sm font-medium text-[var(--foreground)]">
-            {t("Whisper is not installed on this server")}
+            {"Whisper is not installed on this server"}
           </h1>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "The practice room runs on a separate capability plugin that this deployment does not have. Ask your administrator to install it to use this page.",
-            )}
+            {"The practice room runs on a separate capability plugin that this deployment does not have. Ask your administrator to install it to use this page."}
           </p>
         </div>
       </div>
@@ -314,13 +312,13 @@ export default function WhisperPage() {
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
             <Ear className="h-4 w-4 text-[var(--primary)]" aria-hidden />
-            {t("Whisper")}
+            {"Whisper"}
           </div>
           <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
-            {t("Dual-seat supervision · seat switch (not split-screen)")}
+            {"Dual-seat supervision · seat switch (not split-screen)"}
             {dtSessionId ? (
               <span className="ml-2 font-mono opacity-70">
-                {t("Session {{id}}", { id: `${dtSessionId.slice(0, 8)}…` })}
+                {`Session ${`${dtSessionId.slice(0, 8)}…`}`}
               </span>
             ) : null}
           </p>
@@ -334,11 +332,11 @@ export default function WhisperPage() {
             disabled={!canNewRoom}
             className="rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {t("New room")}
+            {"New room"}
           </button>
           <div
             role="tablist"
-            aria-label={t("Seat")}
+            aria-label={"Seat"}
             className="inline-flex rounded-xl border border-[var(--border)] bg-[var(--background)] p-0.5"
           >
             {(["visitor", "trainee"] as const).map((value) => {
@@ -356,7 +354,7 @@ export default function WhisperPage() {
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {value === "visitor" ? t("visitor") : t("trainee")}
+                  {value === "visitor" ? "visitor" : "trainee"}
                 </button>
               );
             })}
@@ -364,7 +362,7 @@ export default function WhisperPage() {
           {!connected && (
             <span className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
               <Loader2 className="h-3 w-3 animate-spin" />
-              {everConnected ? t("Reconnecting…") : t("Connecting…")}
+              {everConnected ? "Reconnecting…" : "Connecting…"}
             </span>
           )}
         </div>
@@ -376,9 +374,9 @@ export default function WhisperPage() {
           className="border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-800 dark:text-amber-200"
         >
           {crisisHit
-            ? t("Crisis redirect detected. Sending is disabled for this room.")
-            : t("This whisper room has ended. Sending is disabled.")}{" "}
-          {t("You can still copy the room id.")}
+            ? "Crisis redirect detected. Sending is disabled for this room."
+            : "This whisper room has ended. Sending is disabled."}{" "}
+          {"You can still copy the room id."}
         </div>
       )}
 
@@ -387,7 +385,7 @@ export default function WhisperPage() {
           role="status"
           className="border-b border-[var(--border)] bg-[var(--background)] px-4 py-2 text-xs text-[var(--muted-foreground)]"
         >
-          {t("Open the room as Visitor first.")}
+          {"Open the room as Visitor first."}
         </div>
       )}
 

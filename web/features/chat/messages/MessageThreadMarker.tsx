@@ -20,7 +20,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { useTranslation } from "react-i18next";
+
 import { MessagesSquare, Trash2, Unlink } from "lucide-react";
 
 import type { SessionSummary } from "@/lib/session-api";
@@ -54,7 +54,7 @@ export default function MessageThreadMarker({
   onDelete,
   onDetach,
 }: MessageThreadMarkerProps) {
-  const { t, i18n } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<PopoverPosition | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -176,18 +176,18 @@ export default function MessageThreadMarker({
         onClick={toggle}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={t("Tutor threads on this message")}
+        aria-label={"Tutor threads on this message"}
         className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/45 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
       >
         <MessagesSquare size={11} strokeWidth={1.8} aria-hidden="true" />
-        {t("Little Tutor ×{{count}}", { count: threads.length })}
+        {`Little Tutor ×${threads.length}`}
       </button>
       {open && position
         ? createPortal(
             <div
               ref={popoverRef}
               role="dialog"
-              aria-label={t("Tutor threads on this message")}
+              aria-label={"Tutor threads on this message"}
               style={{
                 position: "fixed",
                 left: position.left,
@@ -199,7 +199,7 @@ export default function MessageThreadMarker({
               className="z-[70] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-lg"
             >
               <p className="px-2 pb-1 pt-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
-                {t("Tutor threads on this message")}
+                {"Tutor threads on this message"}
               </p>
               <div className="flex flex-col">
                 {threads.map((thread) => (
@@ -208,11 +208,11 @@ export default function MessageThreadMarker({
                     thread={thread}
                     timeLabel={
                       thread.status === "running"
-                        ? t("Running…")
+                        ? "Running…"
                         : thread.status === "failed"
-                          ? t("Failed")
+                          ? "Failed"
                           : thread.updated_at
-                            ? formatRelativeTime(thread.updated_at, i18n.language)
+                            ? formatRelativeTime(thread.updated_at, "en")
                             : ""
                     }
                     confirming={confirming === thread.session_id}
@@ -265,14 +265,14 @@ function ThreadRow({
   onCancelDelete: () => void;
   onConfirmDelete: () => void;
 }) {
-  const { t } = useTranslation();
-  const title = displaySessionTitle(thread.title, t("Side chat"));
+  
+  const title = displaySessionTitle(thread.title, "Side chat");
   return (
     <div className="group/thread flex items-start rounded-lg transition-colors hover:bg-[var(--secondary)]">
       <button
         type="button"
         onClick={onOpen}
-        aria-label={`${t("Open tutor thread")}: ${title}`}
+        aria-label={`${"Open tutor thread"}: ${title}`}
         className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
       >
         <span className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
@@ -300,7 +300,7 @@ function ThreadRow({
             onClick={onConfirmDelete}
             className="rounded-md bg-[var(--destructive)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--destructive-foreground)] disabled:opacity-50"
           >
-            {t("Delete")}
+            {"Delete"}
           </button>
           <button
             type="button"
@@ -308,7 +308,7 @@ function ThreadRow({
             onClick={onCancelDelete}
             className="rounded-md px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/40 disabled:opacity-50"
           >
-            {t("Cancel")}
+            {"Cancel"}
           </button>
         </span>
       ) : (
@@ -318,7 +318,7 @@ function ThreadRow({
               type="button"
               disabled={detaching || deleteDisabled}
               onClick={onDetach}
-              aria-label={t("Detach from this message")}
+              aria-label={"Detach from this message"}
               className="mr-0.5 mt-1.5 flex h-6 w-6 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)] focus-visible:opacity-100 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30 group-hover/thread:opacity-100"
             >
               <Unlink size={12} strokeWidth={1.7} />
@@ -328,7 +328,7 @@ function ThreadRow({
             type="button"
             disabled={deleteDisabled}
             onClick={onAskDelete}
-            aria-label={t("Delete tutor thread")}
+            aria-label={"Delete tutor thread"}
             className="mr-1 mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-[var(--muted)]/50 hover:text-[var(--destructive)] focus-visible:opacity-100 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30 group-hover/thread:opacity-100"
           >
             <Trash2 size={12} strokeWidth={1.7} />

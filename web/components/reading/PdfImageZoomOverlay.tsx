@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { Loader2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react'
 import { loadPdfjs, outputScale, type PdfDocument } from '@/lib/pdfjs-loader'
 import type { NormalisedBox } from '@/lib/pdf-page-geometry'
@@ -117,7 +117,7 @@ export interface PdfImageZoomOverlayProps {
  * pixels than the enlarged view asks for.
  */
 export function PdfImageZoomOverlay({ doc, locator, box, onClose }: PdfImageZoomOverlayProps) {
-  const { t } = useTranslation()
+  
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const dragRef = useRef<{
@@ -240,7 +240,7 @@ export function PdfImageZoomOverlay({ doc, locator, box, onClose }: PdfImageZoom
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={t('Image preview')}
+      aria-label={"Image preview"}
       // Focusable so the overlay can hold focus; `-1` keeps it out of the tab
       // order itself.
       tabIndex={-1}
@@ -252,33 +252,33 @@ export function PdfImageZoomOverlay({ doc, locator, box, onClose }: PdfImageZoom
         onClick={event => event.stopPropagation()}
       >
         <span className="mr-auto text-[12px] tabular-nums text-white/60">
-          {t('Page {{n}}', { n: locator })}
-          <span className="ml-2 text-white/40">{t('Drag to pan, scroll to zoom')}</span>
+          {`Page ${locator}`}
+          <span className="ml-2 text-white/40">{"Drag to pan, scroll to zoom"}</span>
         </span>
-        <Tooltip label={t('Zoom out')}>
+        <Tooltip label={"Zoom out"}>
           <button
             type="button"
-            aria-label={t('Zoom out')}
+            aria-label={"Zoom out"}
             onClick={() => setZoom(current => Math.max(MIN_ZOOM, current / 1.3))}
             className="inline-flex size-7 items-center justify-center rounded-lg transition hover:bg-white/15"
           >
             <ZoomOut size={15} />
           </button>
         </Tooltip>
-        <Tooltip label={t('Zoom in')}>
+        <Tooltip label={"Zoom in"}>
           <button
             type="button"
-            aria-label={t('Zoom in')}
+            aria-label={"Zoom in"}
             onClick={() => setZoom(current => Math.min(MAX_ZOOM, current * 1.3))}
             className="inline-flex size-7 items-center justify-center rounded-lg transition hover:bg-white/15"
           >
             <ZoomIn size={15} />
           </button>
         </Tooltip>
-        <Tooltip label={t('Reset zoom')}>
+        <Tooltip label={"Reset zoom"}>
           <button
             type="button"
-            aria-label={t('Reset zoom')}
+            aria-label={"Reset zoom"}
             onClick={() => {
               setZoom(1)
               setPan({ x: 0, y: 0 })
@@ -288,10 +288,10 @@ export function PdfImageZoomOverlay({ doc, locator, box, onClose }: PdfImageZoom
             <RotateCcw size={15} />
           </button>
         </Tooltip>
-        <Tooltip label={t('Close')}>
+        <Tooltip label={"Close"}>
           <button
             type="button"
-            aria-label={t('Close')}
+            aria-label={"Close"}
             onClick={onClose}
             className="inline-flex size-7 items-center justify-center rounded-lg transition hover:bg-white/15"
           >
@@ -351,12 +351,12 @@ export function PdfImageZoomOverlay({ doc, locator, box, onClose }: PdfImageZoom
         {status === 'loading' && (
           <span className="flex items-center gap-2 text-[12px] text-white/60">
             <Loader2 size={14} className="animate-spin" />
-            {t('Loading image…')}
+            {"Loading image…"}
           </span>
         )}
         {status === 'error' && (
           <span className="text-[12px] text-white/60">
-            {t('This image could not be rendered.')}
+            {"This image could not be rendered."}
           </span>
         )}
         <canvas

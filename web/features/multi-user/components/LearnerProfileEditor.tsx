@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import {
   getLearnerProfile,
   setLearnerProfile,
@@ -28,7 +28,7 @@ const fieldLabels: Record<keyof LearnerProfile, string> = {
 };
 
 export function LearnerProfileEditor({ username }: { username: string }) {
-  const { t } = useTranslation();
+  
   const [profile, setProfile] = useState<LearnerProfile>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,7 +41,7 @@ export function LearnerProfileEditor({ username }: { username: string }) {
         if (active) setProfile(value ?? {});
       })
       .catch(() => {
-        if (active) setMessage(t("Failed to load learner profile"));
+        if (active) setMessage("Failed to load learner profile");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -49,7 +49,7 @@ export function LearnerProfileEditor({ username }: { username: string }) {
     return () => {
       active = false;
     };
-  }, [t, username]);
+  }, [username]);
 
   async function save() {
     setSaving(true);
@@ -57,12 +57,12 @@ export function LearnerProfileEditor({ username }: { username: string }) {
     try {
       const updated = await setLearnerProfile(username, profile);
       setProfile(updated ?? {});
-      setMessage(t("Saved"));
+      setMessage("Saved");
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
-          : t("Failed to save learner profile"),
+          : "Failed to save learner profile",
       );
     } finally {
       setSaving(false);
@@ -74,10 +74,10 @@ export function LearnerProfileEditor({ username }: { username: string }) {
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-medium text-[var(--foreground)]">
-            {t("Learner Profile")}
+            {"Learner Profile"}
           </h3>
           <p className="text-xs text-[var(--muted-foreground)]">
-            {t("Adapt explanations to this learner")}
+            {"Adapt explanations to this learner"}
           </p>
         </div>
         <button
@@ -91,13 +91,13 @@ export function LearnerProfileEditor({ username }: { username: string }) {
           ) : (
             <Check size={13} />
           )}
-          {t("Save")}
+          {"Save"}
         </button>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {fields.map((field) => (
           <label key={field} className="text-xs text-[var(--muted-foreground)]">
-            {t(fieldLabels[field])}
+            {(fieldLabels[field])}
             <input
               value={profile[field] ?? ""}
               onChange={(event) =>

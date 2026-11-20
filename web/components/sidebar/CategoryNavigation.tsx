@@ -13,7 +13,7 @@ import {
   PersonalizationShelfIcon,
   ResourcesShelfIcon,
 } from './ShelfIcons'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { categoryForPath, type NavigationCategory } from '@/lib/navigation'
 import { navVisibleUnderPolicy } from './nav-entries'
@@ -90,7 +90,7 @@ export function CategoryTabs({
   /** The rail keeps search with its tabs; the open sidebar has it in its header. */
   onSearch?: () => void
 }) {
-  const { t } = useTranslation()
+  
   const router = useRouter()
   const id = useId()
   const reduced = useReducedMotion()
@@ -110,8 +110,8 @@ export function CategoryTabs({
     return (
       <Tooltip
         key={item.id}
-        label={t(item.label)}
-        description={item.account ? t('navigation.accountShelf') : undefined}
+        label={(item.label)}
+        description={item.account ? "Shared by every workspace" : undefined}
         side={collapsed ? 'right' : 'bottom'}
         shortcut={SHORTCUTS.category(index)}
         // The active tab already prints its name — unless an account shelf's
@@ -123,7 +123,7 @@ export function CategoryTabs({
           type="button"
           role="tab"
           aria-controls="category-content"
-          aria-label={t(item.label)}
+          aria-label={(item.label)}
           aria-selected={active}
           tabIndex={active ? 0 : -1}
           onKeyDown={event => {
@@ -157,7 +157,7 @@ export function CategoryTabs({
             />
           )}
           <item.icon size={20} strokeWidth={1.6} />
-          <span>{t(item.label)}</span>
+          <span>{(item.label)}</span>
         </button>
       </Tooltip>
     )
@@ -166,7 +166,7 @@ export function CategoryTabs({
     <div className={`dt-category-bar ${collapsed ? 'is-collapsed' : ''}`}>
       <div
         role="tablist"
-        aria-label={t('navigation.categories')}
+        aria-label={"Main sections"}
         aria-orientation={collapsed ? 'vertical' : 'horizontal'}
       >
         {workspace.map(tab)}
@@ -190,8 +190,8 @@ export function CategoryTabs({
         )}
       </div>
       {onSearch && (
-        <Tooltip label={t('navigation.search')} side={collapsed ? 'right' : 'bottom'} shortcut={SHORTCUTS.search}>
-          <button type="button" className="dt-nav-icon" aria-label={t('navigation.search')} aria-haspopup="dialog" onClick={onSearch}>
+        <Tooltip label={"Search"} side={collapsed ? 'right' : 'bottom'} shortcut={SHORTCUTS.search}>
+          <button type="button" className="dt-nav-icon" aria-label={"Search"} aria-haspopup="dialog" onClick={onSearch}>
             <Search size={16} strokeWidth={1.6} />
           </button>
         </Tooltip>
@@ -213,7 +213,7 @@ export function CategoryBody({
   /** Learning conversations, filed by the learning shelf under their records. */
   learningSessions?: LearningSessions
 }) {
-  const { t } = useTranslation()
+  
   if (collapsed) return null
   return (
     <div
@@ -226,9 +226,9 @@ export function CategoryBody({
         <>
           {/* The tutor itself leads the shelf; the tools it works with follow. */}
           {navVisibleUnderPolicy('/chat', nav.allowedSurfaces) && (
-            <OverviewRow href="/chat" label={t('navigation.chat')} icon={MessageCircle} />
+            <OverviewRow href="/chat" label={"Chat"} icon={MessageCircle} />
           )}
-          <Section title={t('navigation.workspace')}>
+          <Section title={"Workspace"}>
             {[
               { href: '/calendar', label: 'Calendar', icon: CalendarDays },
               { href: '/co-writer', label: 'Co-Writer', icon: PenLine },
@@ -238,7 +238,7 @@ export function CategoryBody({
                 <NavigationRow
                   key={item.href}
                   href={item.href}
-                  label={t(item.label)}
+                  label={(item.label)}
                   icon={item.icon}
                 />
               ))}

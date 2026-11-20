@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 import { m, useReducedMotion } from "framer-motion";
 import Tooltip from "@/shared/ui/Tooltip";
 import {
@@ -100,7 +100,7 @@ export default function StarterSuggestions({
   disabled?: boolean;
   workspaceId?: string;
 }) {
-  const { t } = useTranslation();
+  
   const { value: { chat } } = usePageCustomization();
   const [view, setView] = useState<View>({ kind: "loading" });
   const [open, setOpen] = useState<string | null>(null);
@@ -208,7 +208,7 @@ export default function StarterSuggestions({
     advice = (
       <span className="dt-starter-advice-status">
         <Loader2 size={12} strokeWidth={1.8} className="animate-spin" />
-        {t("Finding what to explore next...")}
+        {"Finding what to explore next..."}
       </span>
     );
   } else if (suggestion) {
@@ -224,14 +224,14 @@ export default function StarterSuggestions({
             className="dt-starter-advice-main"
           >
             <ExploreNextMark className="shrink-0" />
-            <span className="dt-starter-advice-label">{t("navigation.ideasForYou")}</span>
+            <span className="dt-starter-advice-label">{"Ideas for you"}</span>
             <span className="dt-starter-advice-text">{suggestion.label}</span>
           </button>
         </Tooltip>
-        <Tooltip label={t("Suggest something else")}>
+        <Tooltip label={"Suggest something else"}>
           <button
             type="button"
-            aria-label={t("Suggest something else")}
+            aria-label={"Suggest something else"}
             disabled={disabled}
             onClick={() => void generate()}
             className="dt-starter-advice-more"
@@ -248,11 +248,7 @@ export default function StarterSuggestions({
       <>
         {view.asked && (
           <span role="status" className="dt-starter-advice-status">
-            {t(
-              view.note === "no-material"
-                ? "Not enough history yet — have a conversation first."
-                : "Suggestions could not be generated. Please try again.",
-            )}
+            {(view.note === "no-material" ? "Not enough history yet — have a conversation first." : "Suggestions could not be generated. Please try again.")}
           </span>
         )}
         {view.note !== "no-material" && (
@@ -263,7 +259,7 @@ export default function StarterSuggestions({
             className="dt-starter-advice-action"
           >
             <ExploreNextMark />
-            {t("Suggest what to explore next")}
+            {"Suggest what to explore next"}
           </button>
         )}
       </>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createReactBlockSpec, createReactInlineContentSpec } from '@blocknote/react'
-import { useTranslation } from 'react-i18next'
+
 import {
   Info,
   Lightbulb,
@@ -24,7 +24,7 @@ export const callout = createReactBlockSpec(
   { type: 'callout', propSchema: { tone: { default: 'tip' } }, content: 'inline' },
   {
     render: function Callout({ block, editor, contentRef }) {
-      const { t } = useTranslation()
+      
       const icons = { tip: Lightbulb, info: Info, warning: AlertTriangle }
       const tone = block.props.tone as keyof typeof icons
       const Icon = icons[tone] || Info
@@ -32,7 +32,7 @@ export const callout = createReactBlockSpec(
         <div className="dt-note-callout" data-tone={tone}>
           <button
             contentEditable={false}
-            aria-label={t('Change callout style')}
+            aria-label={"Change callout style"}
             onClick={() => {
               const tones = Object.keys(icons)
               editor.updateBlock(block, {
@@ -65,12 +65,12 @@ export const toggleHeading = createReactBlockSpec(
       />
     ),
     renderFrame: function Toggle({ block, editor, slotRef }) {
-      const { t } = useTranslation()
+      
       return (
         <div className="dt-note-toggle" data-collapsed={block.props.collapsed}>
           <button
             contentEditable={false}
-            aria-label={t(block.props.collapsed ? 'Expand' : 'Collapse')}
+            aria-label={(block.props.collapsed ? 'Expand' : 'Collapse')}
             aria-expanded={!block.props.collapsed}
             onClick={() =>
               editor.updateBlock(block, { props: { collapsed: !block.props.collapsed } })
@@ -102,7 +102,7 @@ export const tableOfContents = createReactBlockSpec(
   { type: 'tableOfContents', content: 'none', propSchema: {} },
   {
     render: function Contents({ editor }) {
-      const { t } = useTranslation()
+      
       const [headings, setHeadings] = useState<NoteBlock[]>([])
       useEffect(() => {
         const refresh = () => {
@@ -119,10 +119,10 @@ export const tableOfContents = createReactBlockSpec(
         return editor.onChange(refresh)
       }, [editor])
       return (
-        <nav className="dt-note-toc" contentEditable={false} aria-label={t('Table of contents')}>
+        <nav className="dt-note-toc" contentEditable={false} aria-label={"Table of contents"}>
           <div className="dt-note-block-label">
             <ListTree size={15} />
-            {t('Table of contents')}
+            {"Table of contents"}
           </div>
           {headings.length ? (
             headings.map(h => (
@@ -140,12 +140,12 @@ export const tableOfContents = createReactBlockSpec(
                 }}
               >
                 {Array.isArray(h.content)
-                  ? h.content.map(c => c.text || c.props?.title || '').join('') || t('Untitled')
-                  : t('Untitled')}
+                  ? h.content.map(c => c.text || c.props?.title || '').join('') || "Untitled"
+                  : "Untitled"}
               </a>
             ))
           ) : (
-            <p>{t('Headings in this page appear here automatically')}</p>
+            <p>{"Headings in this page appear here automatically"}</p>
           )}
         </nav>
       )
@@ -166,7 +166,7 @@ export const webCard = createReactBlockSpec(
   },
   {
     render: function WebCard({ block, editor }) {
-      const { t } = useTranslation()
+      
       const [edit, setEdit] = useState(!block.props.url)
       const [url, setUrl] = useState(block.props.url)
       const [title, setTitle] = useState(block.props.title)
@@ -182,7 +182,7 @@ export const webCard = createReactBlockSpec(
                 e.preventDefault()
                 const normalized = url.trim()
                 if (!safeNoteUrl(normalized) || !/^https?:/i.test(normalized)) {
-                  setError(t('Enter an HTTP or HTTPS URL'))
+                  setError("Enter an HTTP or HTTPS URL")
                   return
                 }
                 editor.updateBlock(block, {
@@ -193,33 +193,33 @@ export const webCard = createReactBlockSpec(
               }}
             >
               <label>
-                {t('Link URL')}
+                {"Link URL"}
                 <input
                   autoFocus
                   type="url"
                   required
                   value={url}
                   onChange={e => setUrl(e.target.value)}
-                  placeholder={t('https://')}
+                  placeholder={"https://"}
                 />
               </label>
               <label>
-                {t('Title')}
+                {"Title"}
                 <input value={title} onChange={e => setTitle(e.target.value)} />
               </label>
               <label>
-                {t('Description')}
+                {"Description"}
                 <input value={description} onChange={e => setDescription(e.target.value)} />
               </label>
               {error && <p role="alert">{error}</p>}
               <div className="dt-note-form-actions">
                 {block.props.url && (
                   <button className="dt-note-action" type="button" onClick={() => setEdit(false)}>
-                    {t('Cancel')}
+                    {"Cancel"}
                   </button>
                 )}
                 <button className="dt-note-action is-primary" type="submit">
-                  {t('Save')}
+                  {"Save"}
                 </button>
               </div>
             </form>
@@ -234,7 +234,7 @@ export const webCard = createReactBlockSpec(
                     {host} <ExternalLink size={11} />
                   </small>
                 </a>
-                <button aria-label={t('Edit link')} onClick={() => setEdit(true)}>
+                <button aria-label={"Edit link"} onClick={() => setEdit(true)}>
                   <Pencil size={14} />
                 </button>
               </div>
@@ -248,7 +248,7 @@ export const webCard = createReactBlockSpec(
                     loading="lazy"
                   />
                   <p className="dt-note-hint">
-                    {t('If the site blocks embedding, open the link above')}
+                    {"If the site blocks embedding, open the link above"}
                   </p>
                 </>
               )}
@@ -263,34 +263,34 @@ export const htmlEmbed = createReactBlockSpec(
   { type: 'htmlEmbed', content: 'none', propSchema: { source: { default: '' } } },
   {
     render: function HtmlEmbed({ block, editor }) {
-      const { t } = useTranslation()
+      
       const [editing, setEditing] = useState(!block.props.source)
       return (
         <div contentEditable={false} className="dt-note-html">
           <div className="dt-note-block-label">
             <FileCode size={14} aria-hidden />
-            <span>{t('HTML')}</span>
-            <span className="dt-note-segment" role="group" aria-label={t('HTML')}>
+            <span>{"HTML"}</span>
+            <span className="dt-note-segment" role="group" aria-label={"HTML"}>
               <button aria-pressed={editing} onClick={() => setEditing(true)}>
-                {t('Edit')}
+                {"Edit"}
               </button>
               <button aria-pressed={!editing} disabled={!block.props.source.trim()} onClick={() => setEditing(false)}>
-                {t('Preview')}
+                {"Preview"}
               </button>
             </span>
           </div>
           {editing ? (
             <textarea
               autoFocus
-              aria-label={t('HTML source')}
+              aria-label={"HTML source"}
               value={block.props.source}
               onChange={e => editor.updateBlock(block, { props: { source: e.target.value } })}
               spellCheck={false}
-              placeholder={t('<h2>...</h2>')}
+              placeholder={"<h2>...</h2>"}
             />
           ) : (
             <iframe
-              title={t('HTML preview')}
+              title={"HTML preview"}
               sandbox=""
               srcDoc={`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; style-src 'unsafe-inline';"><style>body{font:15px system-ui;line-height:1.6;padding:16px;overflow-wrap:anywhere}</style>${block.props.source}`}
             />
@@ -317,12 +317,12 @@ export const noteDate = createReactInlineContentSpec(
   { type: 'noteDate', content: 'none', propSchema: { date: { default: '' } } },
   {
     render: function DateInline({ inlineContent, updateInlineContent }) {
-      const { t } = useTranslation()
+      
       return (
         <input
           className="dt-note-date"
           contentEditable={false}
-          aria-label={t('Date')}
+          aria-label={"Date"}
           type="date"
           value={inlineContent.props.date}
           onChange={e => updateInlineContent({ type: 'noteDate', props: { date: e.target.value } })}

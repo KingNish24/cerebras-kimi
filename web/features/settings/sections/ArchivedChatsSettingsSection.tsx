@@ -6,7 +6,7 @@ import { sessionWorkspaceId } from "@/lib/session-api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/shared/router/navigation";
 import { Loader2, RefreshCw, Search, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { SettingsPageHeader } from "@/components/settings/shared";
 import ArchivedConversations from "@/components/space/ArchivedConversations";
 import { useAppShell } from "@/context/AppShellContext";
@@ -34,7 +34,7 @@ import { notifySessionsChanged } from "@/lib/session-events";
 import { sessionRoute } from "@/lib/mastery-session";
 
 export default function ArchivedChatsSettingsSection() {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const { activeSessionId, setActiveSessionId } = useAppShell();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -63,11 +63,11 @@ export default function ArchivedChatsSettingsSection() {
     try {
       await load();
     } catch {
-      setError(t("Unable to load archived chats. Please try again."));
+      setError("Unable to load archived chats. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [load, t]);
+  }, [load]);
 
   useEffect(() => {
     void refresh();
@@ -108,7 +108,7 @@ export default function ArchivedChatsSettingsSection() {
       await load();
     } catch {
       setError(
-        t("Some changes could not be completed. Please refresh and try again."),
+        "Some changes could not be completed. Please refresh and try again.",
       );
       await load().catch(() => {});
     } finally {
@@ -125,17 +125,14 @@ export default function ArchivedChatsSettingsSection() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-x-4">
-        <SettingsPageHeader title={t("Archived chats")} />
+        <SettingsPageHeader title={"Archived chats"} />
         <button
           type="button"
           disabled={loading || !!busy || !count}
           onClick={() => {
             if (
               !window.confirm(
-                t(
-                  "Permanently delete all {{count}} archived chats and their tutor threads? This cannot be undone.",
-                  { count },
-                ),
+                `Permanently delete all ${count} archived chats and their tutor threads? This cannot be undone.`,
               )
             )
               return;
@@ -162,7 +159,7 @@ export default function ArchivedChatsSettingsSection() {
           ) : (
             <Trash2 size={15} />
           )}
-          {t("Delete all archived chats")}
+          {"Delete all archived chats"}
         </button>
       </div>
       <div className="mb-6 flex flex-wrap gap-2">
@@ -174,8 +171,8 @@ export default function ArchivedChatsSettingsSection() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            aria-label={t("Search archived chats")}
-            placeholder={t("Search archived chats")}
+            aria-label={"Search archived chats"}
+            placeholder={"Search archived chats"}
             className="min-w-0 w-full bg-transparent text-[13px] outline-none"
           />
         </label>
@@ -184,20 +181,20 @@ export default function ArchivedChatsSettingsSection() {
           onChange={(event) =>
             setKind(event.target.value as ArchiveKind | "all")
           }
-          aria-label={t("Filter by conversation type")}
+          aria-label={"Filter by conversation type"}
           className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px]"
         >
-          <option value="all">{t("All conversation types")}</option>
-          <option value="chat">{t("Conversations")}</option>
-          <option value="mastery">{t("Mastery Path")}</option>
-          <option value="reading">{t("Immersive Reading")}</option>
+          <option value="all">{"All conversation types"}</option>
+          <option value="chat">{"Conversations"}</option>
+          <option value="mastery">{"Mastery Path"}</option>
+          <option value="reading">{"Immersive Reading"}</option>
         </select>
-        <Tooltip label={t("Refresh")} side="top">
+        <Tooltip label={"Refresh"} side="top">
           <button
             type="button"
             onClick={() => void refresh()}
             disabled={loading || !!busy}
-            aria-label={t("Refresh")}
+            aria-label={"Refresh"}
             className="rounded-xl border border-[var(--border)] p-2.5 disabled:opacity-40"
           >
             <RefreshCw size={16} />
@@ -215,11 +212,11 @@ export default function ArchivedChatsSettingsSection() {
           className="flex items-center gap-2 py-8 text-sm text-[var(--muted-foreground)]"
         >
           <Loader2 size={16} className="animate-spin" />
-          {t("Loading...")}
+          {"Loading..."}
         </div>
       ) : count > 0 && archiveCount(visible) === 0 ? (
         <p className="py-8 text-center text-sm text-[var(--muted-foreground)]">
-          {t("No archived chats match your search.")}
+          {"No archived chats match your search."}
         </p>
       ) : !error || count > 0 ? (
         <ArchivedConversations
@@ -242,9 +239,7 @@ export default function ArchivedChatsSettingsSection() {
           onDelete={(id) => {
             if (
               !window.confirm(
-                t(
-                  "Permanently delete this chat and its tutor threads? This cannot be undone.",
-                ),
+                "Permanently delete this chat and its tutor threads? This cannot be undone.",
               )
             )
               return;

@@ -3,7 +3,7 @@
 import Link from "@/shared/router/link";
 import { usePathname } from "@/shared/router/navigation";
 import { ShieldCheck } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 import Tooltip from "@/shared/ui/Tooltip";
 
@@ -13,7 +13,7 @@ interface AdminLinkProps {
 
 export function AdminLink({ collapsed = false }: AdminLinkProps) {
   const pathname = usePathname();
-  const { t } = useTranslation();
+  
   const { enabled, isAdmin } = useAuthStatus();
 
   if (!enabled || !isAdmin) return null;
@@ -22,7 +22,7 @@ export function AdminLink({ collapsed = false }: AdminLinkProps) {
 
   if (collapsed) {
     return (
-      <Tooltip label={t("Admin — User Management")} side="right">
+      <Tooltip label={"Admin — User Management"} side="right">
         <Link
           href="/admin/users"
           className={`rounded-lg p-2 transition-colors
@@ -31,7 +31,7 @@ export function AdminLink({ collapsed = false }: AdminLinkProps) {
                 ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                 : "text-[var(--muted-foreground)] hover:bg-[var(--background)]/50 hover:text-[var(--foreground)]"
             }`}
-          aria-label={t("Admin")}
+          aria-label={"Admin"}
         >
           <ShieldCheck size={16} strokeWidth={1.5} />
         </Link>
@@ -50,7 +50,7 @@ export function AdminLink({ collapsed = false }: AdminLinkProps) {
         }`}
     >
       <ShieldCheck size={16} strokeWidth={1.5} />
-      <span>{t("Admin")}</span>
+      <span>{"Admin"}</span>
     </Link>
   );
 }

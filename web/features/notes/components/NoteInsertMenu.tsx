@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { FileText, Search, CornerDownLeft } from 'lucide-react'
 import {
   useExtension,
@@ -22,7 +22,7 @@ export default function NoteInsertMenu({
   loadingState,
   onItemClick,
 }: SuggestionMenuProps<NoteMenuItem>) {
-  const { t } = useTranslation()
+  
   const extension = useExtension(SuggestionMenu)
   const root = useRef<HTMLDivElement>(null)
   const list = useRef<HTMLDivElement>(null)
@@ -81,24 +81,24 @@ export default function NoteInsertMenu({
     >
       <div className="dt-note-menu-hint">
         <Search size={13} />
-        {t('Type to filter blocks')}
+        {"Type to filter blocks"}
       </div>
       <div
         ref={list}
         id="bn-suggestion-menu"
         className="dt-note-menu-items"
         role="listbox"
-        aria-label={t('Insert block')}
+        aria-label={"Insert block"}
       >
         {!items.length && (
           <p className="dt-note-hint">
-            {t(loadingState === 'loaded' ? 'No matching blocks' : 'Loading…')}
+            {(loadingState === 'loaded' ? 'No matching blocks' : 'Loading…')}
           </p>
         )}
         {items.map((item, i) => (
           <div key={`${item.title}-${i}`}>
             {(i === 0 || item.group !== items[i - 1].group) && (
-              <div className="dt-note-menu-group">{item.group || t('Pages')}</div>
+              <div className="dt-note-menu-group">{item.group || "Pages"}</div>
             )}
             <button
               role="option"
@@ -125,12 +125,12 @@ export default function NoteInsertMenu({
       </div>
       <footer>
         <button onMouseDown={e => e.preventDefault()} onClick={() => extension.closeMenu()}>
-          {t('Close menu')}
-          <kbd>{t('esc')}</kbd>
+          {"Close menu"}
+          <kbd>{"esc"}</kbd>
         </button>
         <span>
           <CornerDownLeft size={12} />
-          {t('Select')}
+          {"Select"}
         </span>
       </footer>
       {selected && (
@@ -139,7 +139,7 @@ export default function NoteInsertMenu({
             <NoteBlockPreview kind={selected.preview} title={selected.previewTitle} />
           </div>
           <strong>{selected.title}</strong>
-          <p>{selected.subtext || t('Insert this block at the cursor.')}</p>
+          <p>{selected.subtext || "Insert this block at the cursor."}</p>
         </aside>
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import dynamic from "@/shared/router/dynamic";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { langForFilename } from "@/lib/code-languages";
 import { useTextSource } from "./useTextSource";
 
@@ -26,7 +26,7 @@ export default function TextPreview({
   url: string;
   filename: string;
 }) {
-  const { t } = useTranslation();
+  
   const state = useTextSource(url);
   const lang = langForFilename(filename) ?? "text";
 
@@ -34,7 +34,7 @@ export default function TextPreview({
     return (
       <div className="flex h-full items-center justify-center gap-2 text-[12px] text-[var(--muted-foreground)]">
         <Loader2 size={14} className="animate-spin" />
-        <span>{t("Loading preview…")}</span>
+        <span>{"Loading preview…"}</span>
       </div>
     );
   }

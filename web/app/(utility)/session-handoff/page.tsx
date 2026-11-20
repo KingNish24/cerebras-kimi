@@ -4,14 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "@/shared/router/link";
 import { useRouter } from "@/shared/router/navigation";
 import { ArrowLeft, ClipboardCopy, KeyRound, Link2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { fetchAuthStatus } from "@/lib/auth";
 import { copyText } from "@/lib/clipboard";
 import { createSessionHandoff, type SessionHandoff } from "@/lib/session-handoff-api";
 
 export default function SessionHandoffPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  
   const [publicOrigin, setPublicOrigin] = useState("https://");
   const [handoff, setHandoff] = useState<SessionHandoff | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,13 +61,13 @@ export default function SessionHandoffPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           <ArrowLeft size={16} />
-          {t("Back")}
+          {"Back"}
         </Link>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
           <div className="flex items-center gap-2.5">
             <KeyRound size={18} className="text-[var(--primary)]" />
             <h1 className="text-lg font-semibold text-[var(--foreground)]">
-              {t("Public device sign-in")}
+              {"Public device sign-in"}
             </h1>
           </div>
           <form
@@ -81,7 +81,7 @@ export default function SessionHandoffPage() {
               htmlFor="public-origin"
               className="block text-sm font-medium text-[var(--foreground)]"
             >
-              {t("Public HTTPS origin")}
+              {"Public HTTPS origin"}
             </label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
@@ -99,7 +99,7 @@ export default function SessionHandoffPage() {
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity disabled:opacity-50"
               >
                 <Link2 size={14} />
-                {loading ? t("Creating…") : t("Create link")}
+                {loading ? "Creating…" : "Create link"}
               </button>
             </div>
           </form>
@@ -120,14 +120,14 @@ export default function SessionHandoffPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--card)]"
                 >
                   <ClipboardCopy size={14} />
-                  {copied ? t("Copied") : t("Copy link")}
+                  {copied ? "Copied" : "Copy link"}
                 </button>
               </div>
               <p className="mt-3 break-all text-sm text-[var(--muted-foreground)]">
                 {handoff.handoff_url}
               </p>
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {t("Expires in {{seconds}} seconds", { seconds: handoff.expires_in })}
+                {`Expires in ${handoff.expires_in} seconds`}
               </p>
             </div>
           )}

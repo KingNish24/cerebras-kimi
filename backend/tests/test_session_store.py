@@ -135,3 +135,101 @@ def test_get_preserves_existing_branch_tree(tmp_path):
         4,
         5,
     ]
+
+
+def test_legacy_json_sessions_are_imported_and_archived(tmp_path):
+    import json
+
+    data = tmp_path / "data"
+    legacy = data / "sessions"
+    legacy.mkdir(parents=True)
+    record = {
+        "id": "sess_legacy",
+        "title": "Legacy notes",
+        "created_at": 10.0,
+        "updated_at": 20.0,
+        "status": "idle",
+        "preferences": {"note_document_id": "page_1"},
+        "messages": [
+            _message(1, "user"),
+            _message(2, "assistant", parent=1),
+        ],
+        "turns": {},
+        "vtx_items": [],
+        "next_message_id": 3,
+    }
+    (legacy / "sess_legacy.json").write_text(json.dumps(record), encoding="utf-8")
+
+    store = SessionStore(Settings(data_dir=data))
+
+    loaded = store.get("sess_legacy")
+    assert loaded is not None
+    assert loaded["title"] == "Legacy notes"
+    assert loaded["updated_at"] == 20.0
+    assert [m["session_id"] for m in loaded["messages"]] == ["sess_legacy", "sess_legacy"]
+    assert not (legacy / "sess_legacy.json").exists()
+    assert (data / "sessions-legacy" / "sess_legacy.json").exists()
+    assert (data / "deeptutor.sqlite3").exists()
+
+
+def test_search_uses_message_index_and_page_filter(tmp_path):
+    store = _store(tmp_path)
+    first = store.create(preferences={"note_document_id": "page_a"})
+    store.append_user_message(first, "Why does the depletion region narrow under bias?")
+    store.append_assistant_message(
+        first, "It widens with reverse bias and narrows with forward bias.",
+        events=[], turn_id="t1",
+    )
+    store.save(first)
+
+    second = store.create(preferences={"note_document_id": "page_b"})
+    store.append_user_message(second, "Explain threshold voltage.")
+    store.append_assistant_message(
+        second, "The gate voltage that inverts the channel.", events=[], turn_id="t2"
+    )
+    store.save(second)
+
+    hits = store.search_hits("depletion OR bias", limit=5)
+    assert [hit["session_id"] for hit in hits] == [first["id"]]
+    assert "depletion" in hits[0]["question"].lower()
+    assert "reverse bias" in hits[0]["answer"].lower()
+
+    scoped = store.search_hits("voltage", limit=5, page_id="page_a")
+    assert scoped == []
+
+    found, total = store.search("threshold", limit=10)
+    assert total == 1
+    assert found[0]["id"] == second["id"]
+    assert "threshold" in found[0]["_match_excerpt"].lower()
+
+
+def test_delete_removes_index_rows(tmp_path):
+    store = _store(tmp_path)
+    session = store.create()
+    store.append_user_message(session, "unique-zebra-term")
+    store.save(session)
+    assert store.search_hits("zebra")
+
+    assert store.delete(session["id"]) is True
+    assert store.get(session["id"]) is None
+    assert store.search_hits("zebra") == []
+    assert store.delete(session["id"]) is False
+
+
+def test_embedding_cache_round_trips_in_sqlite(tmp_path):
+    store = _store(tmp_path)
+    assert store.load_embeddings() == {}
+    store.save_embeddings(
+        {
+            "text-embedding-3-small:sess_one": {"hash": "abc", "vec": [1.0, 0.0]},
+            "text-embedding-3-small:sess_two": {"hash": "def", "vec": [0.0, 2.0]},
+        }
+    )
+    cache = store.load_embeddings()
+    assert cache["text-embedding-3-small:sess_one"]["vec"] == [1.0, 0.0]
+    assert cache["text-embedding-3-small:sess_two"]["hash"] == "def"
+    # A rebuild overwrites the cached vector for the same model/session.
+    store.save_embeddings(
+        {"text-embedding-3-small:sess_one": {"hash": "xyz", "vec": [0.5, 0.5]}}
+    )
+    assert store.load_embeddings()["text-embedding-3-small:sess_one"]["hash"] == "xyz"

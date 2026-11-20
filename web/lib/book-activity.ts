@@ -146,8 +146,8 @@ export function formatElapsed(total: number): string {
 }
 
 /** The reader-facing name of a block type, via the same keys the editor uses. */
-function blockLabel(type: string, t: Translate): string {
-  return type ? t(type) : "";
+function blockLabel(type: string): string {
+  return type ? (type) : "";
 }
 
 function countConcepts(spine: Spine | null | undefined): number {
@@ -167,7 +167,6 @@ function preparationRows(
   spine: Spine | null | undefined,
   pages: Page[],
   progress: BookProgress,
-  t: Translate,
 ): BookActivityRow[] {
   const stage = (id: StageId) => progress.stages[id];
   const rows: BookActivityRow[] = [];
@@ -181,12 +180,12 @@ function preparationRows(
   const ideationDone = Boolean(proposal) || stage("ideation").state === "completed";
   rows.push({
     id: "ideation",
-    title: t("Draft the plan"),
+    title: "Draft the plan",
     detail: plannedChapters
-      ? t("{{count}} chapters", { count: plannedChapters })
+      ? `${plannedChapters} chapters`
       : ideationDone
         ? ""
-        : t("Reading your intent…"),
+        : "Reading your intent…",
     state: ideationDone ? "done" : stage("ideation").state === "error" ? "error" : "running",
   });
 
@@ -209,19 +208,16 @@ function preparationRows(
   if (sweepDone || stage("exploration").state !== "pending" || explorationFailed) {
     rows.push({
       id: "exploration",
-      title: t("Sweep your sources"),
+      title: "Sweep your sources",
       detail: explorationFailed
-        ? t("Retrieval failed — written from the plan alone")
+        ? "Retrieval failed — written from the plan alone"
         : noSources
-          ? t("No sources selected — general knowledge")
+          ? "No sources selected — general knowledge"
           : sweepQueries
-            ? t("{{queries}} queries · {{chunks}} chunks", {
-                queries: sweepQueries,
-                chunks: sweepChunks,
-              })
+            ? `${sweepQueries} queries · ${sweepChunks} chunks`
             : sweepChunks
-              ? t("{{count}} chunks", { count: sweepChunks })
-              : t("Searching your knowledge bases…"),
+              ? `${sweepChunks} chunks`
+              : "Searching your knowledge bases…",
       state: explorationFailed ? "error" : sweepDone ? "done" : "running",
     });
   }
@@ -231,17 +227,14 @@ function preparationRows(
   const concepts = countConcepts(spine) || progress.synthesis.conceptNodes;
   rows.push({
     id: "synthesis",
-    title: t("Synthesise the spine"),
+    title: "Synthesise the spine",
     detail: spineDone
       ? concepts
-        ? t("{{chapters}} chapters · {{concepts}} concepts", {
-            chapters: plannedChapters,
-            concepts,
-          })
-        : t("{{count}} chapters", { count: plannedChapters })
+        ? `${plannedChapters} chapters · ${concepts} concepts`
+        : `${plannedChapters} chapters`
       : progress.synthesis.rounds
-        ? t("Round {{count}}", { count: progress.synthesis.rounds })
-        : t("Drafting the chapter order…"),
+        ? `Round ${progress.synthesis.rounds}`
+        : "Drafting the chapter order…",
     state: spineDone ? "done" : stage("synthesis").state === "running" ? "running" : "done",
   });
 
@@ -249,18 +242,13 @@ function preparationRows(
   if (progress.critique.rounds > 0) {
     rows.push({
       id: "critique",
-      title: t("Self-review the spine"),
+      title: "Self-review the spine",
       // "1 round · 0 issues" reads as a measurement that came up empty. It is
       // the opposite: the review found nothing to change, which is the good
       // outcome and deserves saying so.
       detail: progress.critique.issues
-        ? t("{{rounds}} rounds · {{issues}} issues", {
-            rounds: progress.critique.rounds,
-            issues: progress.critique.issues,
-          })
-        : t("{{count}} rounds · nothing to change", {
-            count: progress.critique.rounds,
-          }),
+        ? `${progress.critique.rounds} rounds · ${progress.critique.issues} issues`
+        : `${progress.critique.rounds} rounds · nothing to change`,
       state: stage("critique").state === "running" ? "running" : "done",
     });
   }
@@ -275,12 +263,12 @@ function preparationRows(
         : "done";
     rows.push({
       id: "overview",
-      title: t("Build the overview"),
+      title: "Build the overview",
       detail:
         overview && overview.status === "ready"
-          ? t("Concept map · chapter index")
+          ? "Concept map · chapter index"
           : state === "running"
-            ? t("Mapping the chapters…")
+            ? "Mapping the chapters…"
             : "",
       state,
       pageId: overview?.id,
@@ -314,20 +302,20 @@ function chapterRows(
       if (state === "error") {
         detail = page.error
           ? page.error.slice(0, 90)
-          : t("Some blocks failed");
+          : "Some blocks failed";
       } else if (live?.planning) {
-        detail = t("Planning the blocks…");
+        detail = "Planning the blocks…";
       } else if (state === "running") {
         const written = live?.done ?? 0;
-        const current = blockLabel(live?.current || "", t);
+        const current = blockLabel(live?.current || "");
         const of = planned
-          ? t("{{done}}/{{total}} blocks", { done: written, total: planned })
-          : t("{{count}} blocks", { count: written });
-        detail = current ? `${t("Writing {{block}}", { block: current })} · ${of}` : of;
+          ? `${written}/${planned} blocks`
+          : `${written} blocks`;
+        detail = current ? `${`Writing ${current}`} · ${of}` : of;
       } else if (page.status === "pending") {
-        detail = t("Queued");
+        detail = "Queued";
       } else if (blockCount) {
-        detail = t("{{count}} blocks", { count: blockCount });
+        detail = `${blockCount} blocks`;
       }
 
       // Second level: the blocks the architect planned, with the ones already
@@ -337,7 +325,7 @@ function chapterRows(
         state === "running" && planned
           ? live!.planned.map((type, position) => ({
               key: `${page.id}:${position}`,
-              label: blockLabel(type, t),
+              label: blockLabel(type),
               state:
                 position < (live!.done ?? 0)
                   ? "done"
@@ -350,7 +338,7 @@ function chapterRows(
       return {
         id: page.id,
         pageId: page.id,
-        title: `${String(index + 1).padStart(2, "0")} · ${page.title || t("Untitled")}`,
+        title: `${String(index + 1).padStart(2, "0")} · ${page.title || "Untitled"}`,
         detail,
         state,
         queued: state !== "running" && page.status === "pending",
@@ -392,7 +380,7 @@ export function buildBookActivity({
   ).length;
   const chaptersTotal = chapters.length;
 
-  const preparation = preparationRows(book || null, spine, pages, progress, t);
+  const preparation = preparationRows(book || null, spine, pages, progress);
   const liveChapter = chapters.find((row) => row.state === "running");
   const runningPrep = preparation.find((row) => row.state === "running");
 
@@ -419,21 +407,21 @@ export function buildBookActivity({
 
   let label: string;
   if (phase === "paused") {
-    label = t("Generation paused");
+    label = "Generation paused";
   } else if (phase === "interrupted") {
-    label = t("Generation stopped unexpectedly");
+    label = "Generation stopped unexpectedly";
   } else if (phase === "done" || (!live && written >= chaptersTotal && chaptersTotal > 0)) {
-    label = t("{{count}} chapters written", { count: written });
+    label = `${written} chapters written`;
   } else if (liveChapter) {
-    label = t("Writing {{title}}", { title: liveChapter.title.replace(/^\d+ · /, "") });
+    label = `Writing ${liveChapter.title.replace(/^\d+ · /, "")}`;
   } else if (runningPrep) {
     label = runningPrep.title;
   } else if (chaptersTotal) {
     // The chapter counter renders beside this line, so saying "Chapter 1 of
     // 2" here printed the same fact twice on one row. Name the work instead.
-    label = t("Writing the remaining chapters");
+    label = "Writing the remaining chapters";
   } else {
-    label = t("Preparing your book");
+    label = "Preparing your book";
   }
 
   const settledPhase = !live;

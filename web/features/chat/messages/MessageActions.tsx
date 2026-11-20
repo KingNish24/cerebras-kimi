@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronLeft, ChevronRight, Copy, Trash2, X, type LucideIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/shared/ui/Tooltip";
 import { notify } from "@/lib/notifications";
 import type { SiblingInfo } from "@/lib/message-branches";
@@ -53,7 +53,7 @@ export function CopyActionButton({
   content: string;
   onCopy: CopyHandler;
 }) {
-  const { t } = useTranslation();
+  
   const [outcome, setOutcome] = useState<"idle" | "copied" | "failed">("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -83,10 +83,10 @@ export function CopyActionButton({
 
   const label =
     outcome === "copied"
-      ? t("Copied")
+      ? "Copied"
       : outcome === "failed"
-        ? t("Could not copy")
-        : t("Copy");
+        ? "Could not copy"
+        : "Copy";
 
   return (
     <Tooltip label={label} side="top">
@@ -123,7 +123,7 @@ export function BranchNavigator({
   info: SiblingInfo;
   onSwitch: (childId: number) => void;
 }) {
-  const { t } = useTranslation();
+  
   const prevIdx = info.index - 2; // 0-based prev index
   const nextIdx = info.index; // 0-based next index
   const prevId = prevIdx >= 0 ? info.siblingIds[prevIdx] : null;
@@ -135,7 +135,7 @@ export function BranchNavigator({
         type="button"
         onClick={() => prevId !== null && onSwitch(prevId)}
         disabled={prevId === null}
-        aria-label={t("Previous branch")}
+        aria-label={"Previous branch"}
         className="rounded p-0.5 transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-30"
       >
         <ChevronLeft size={12} strokeWidth={1.8} />
@@ -147,7 +147,7 @@ export function BranchNavigator({
         type="button"
         onClick={() => nextId !== null && onSwitch(nextId)}
         disabled={nextId === null}
-        aria-label={t("Next branch")}
+        aria-label={"Next branch"}
         className="rounded p-0.5 transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-30"
       >
         <ChevronRight size={12} strokeWidth={1.8} />
@@ -157,13 +157,13 @@ export function BranchNavigator({
 }
 
 export function DeleteTurnButton({ onDelete }: { onDelete: () => void }) {
-  const { t } = useTranslation();
+  
   const [confirm, setConfirm] = useState(false);
   if (!confirm) {
     return (
       <RoughActionButton
         icon={Trash2}
-        label={t("Delete")}
+        label={"Delete"}
         onClick={() => setConfirm(true)}
       />
     );
@@ -171,7 +171,7 @@ export function DeleteTurnButton({ onDelete }: { onDelete: () => void }) {
   return (
     <div className="inline-flex items-center gap-1.5 text-[11px]">
       <span className="text-[var(--muted-foreground)]">
-        {t("Delete this turn?")}
+        {"Delete this turn?"}
       </span>
       <button
         type="button"
@@ -181,14 +181,14 @@ export function DeleteTurnButton({ onDelete }: { onDelete: () => void }) {
         }}
         className="rounded-md px-1.5 py-0.5 font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
       >
-        {t("Delete")}
+        {"Delete"}
       </button>
       <button
         type="button"
         onClick={() => setConfirm(false)}
         className="rounded-md px-1.5 py-0.5 font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)]/40"
       >
-        {t("Cancel")}
+        {"Cancel"}
       </button>
     </div>
   );
@@ -196,13 +196,13 @@ export function DeleteTurnButton({ onDelete }: { onDelete: () => void }) {
 
 
 export function ReadingPassageQuote({ quote, href }: { quote: string; href?: string }) {
-  const { t } = useTranslation();
+  
   const className = `mb-1.5 block ${QUOTE_RULE_CLASS}`;
   const text = <span className="line-clamp-3">{quote}</span>;
   return href ? (
     <a
       href={href}
-      aria-label={`${t("Go to this passage")}: ${quote}`}
+      aria-label={`${"Go to this passage"}: ${quote}`}
       className={`${className} transition-colors hover:text-[var(--foreground)]`}
     >
       {text}
@@ -222,13 +222,13 @@ export function HandedToBadge({
   id: string;
   agentKind?: string;
 }) {
-  const { t } = useTranslation();
+  
   const partner = usePartner(kind === "partner" ? id : null);
   const name = partner?.name ?? id;
   return (
     <div className="flex items-center justify-end gap-1.5 pr-1 text-[11px] text-[var(--muted-foreground)]">
       <AnswererMark answerer={{ kind, id, name, agent: agentKind }} size={14} />
-      <span>{t("trace.answerer.handedTo", { name })}</span>
+      <span>{`Handed to ${name}`}</span>
     </div>
   );
 }

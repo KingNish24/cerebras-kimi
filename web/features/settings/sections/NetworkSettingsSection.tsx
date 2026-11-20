@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -93,7 +93,7 @@ function DetailTile({
 }
 
 export default function NetworkSettingsPage() {
-  const { t } = useTranslation();
+  
   const runtime = useRuntimeStatus();
   const { registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
@@ -118,7 +118,7 @@ export default function NetworkSettingsPage() {
           throw new Error(
             "detail" in data && data.detail
               ? data.detail
-              : t("Failed to load network settings."),
+              : "Failed to load network settings.",
           );
         }
         if (cancelled) return;
@@ -141,7 +141,7 @@ export default function NetworkSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [draftRevision, pendingExtensionPayload, t]);
+  }, [draftRevision, pendingExtensionPayload]);
 
   const dirty = useMemo(() => {
     if (!payload || !draft) return false;
@@ -180,7 +180,7 @@ export default function NetworkSettingsPage() {
         throw new Error(
           "detail" in data && data.detail
             ? data.detail
-            : t("Failed to save network settings."),
+            : "Failed to save network settings.",
         );
       }
       const next = data as NetworkSettingsPayload;
@@ -191,7 +191,7 @@ export default function NetworkSettingsPage() {
       setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     registerExtension("network", {
@@ -207,14 +207,12 @@ export default function NetworkSettingsPage() {
   return (
     <div data-tour="tour-network">
       <SettingsPageHeader
-        title={t("Network")}
-        description={t(
-          "Control the browser-facing API URL and CORS origins used by Docker, LAN, and reverse-proxy deployments.",
-        )}
+        title={"Network"}
+        description={"Control the browser-facing API URL and CORS origins used by Docker, LAN, and reverse-proxy deployments."}
       />
 
       <p className="mb-7 text-[12px] text-[var(--muted-foreground)]">
-        {t("Network changes take effect after restart.")}
+        {"Network changes take effect after restart."}
       </p>
 
       <div className="mb-7">
@@ -240,7 +238,7 @@ export default function NetworkSettingsPage() {
       {loading && (
         <div className="flex items-center gap-2 text-[13px] text-[var(--muted-foreground)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("Loading network settings...")}
+          {"Loading network settings..."}
         </div>
       )}
 
@@ -254,23 +252,23 @@ export default function NetworkSettingsPage() {
         <>
           <div className="mb-7 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <DetailTile
-              label={t("Browser API")}
+              label={"Browser API"}
               value={payload.effective.browser_api_base}
               tone="ok"
             />
             <DetailTile
-              label={t("CORS mode")}
+              label={"CORS mode"}
               value={
                 payload.effective.cors_mode === "permissive"
-                  ? t("Permissive until auth is enabled")
-                  : t("Explicit origins required")
+                  ? "Permissive until auth is enabled"
+                  : "Explicit origins required"
               }
               tone={
                 payload.effective.cors_mode === "permissive" ? "ok" : "warn"
               }
             />
             <DetailTile
-              label={t("Auth cookie")}
+              label={"Auth cookie"}
               value={`${payload.auth.cookie_samesite}${
                 payload.auth.cookie_secure ? " + Secure" : ""
               }`}
@@ -281,21 +279,19 @@ export default function NetworkSettingsPage() {
               }
             />
             <DetailTile
-              label={t("Restart")}
-              value={t("Required after save")}
+              label={"Restart"}
+              value={"Required after save"}
               tone="warn"
             />
           </div>
 
           <SettingSection
-            title={t("Runtime ports")}
-            description={t(
-              "These ports are read during startup. Docker port mappings must match the container-side values.",
-            )}
+            title={"Runtime ports"}
+            description={"These ports are read during startup. Docker port mappings must match the container-side values."}
           >
             <SettingRow
-              title={t("Backend port")}
-              description={t("FastAPI listens on this port.")}
+              title={"Backend port"}
+              description={"FastAPI listens on this port."}
               control={
                 <input
                   className={`${inputClass} w-28`}
@@ -317,8 +313,8 @@ export default function NetworkSettingsPage() {
               }
             />
             <SettingRow
-              title={t("Frontend port")}
-              description={t("Next.js serves the Web UI on this port.")}
+              title={"Frontend port"}
+              description={"Next.js serves the Web UI on this port."}
               control={
                 <input
                   className={`${inputClass} w-28`}
@@ -342,16 +338,12 @@ export default function NetworkSettingsPage() {
           </SettingSection>
 
           <SettingSection
-            title={t("Browser API base")}
-            description={t(
-              "Set this when the browser cannot reach the backend through localhost, such as remote Docker or a reverse proxy.",
-            )}
+            title={"Browser API base"}
+            description={"Set this when the browser cannot reach the backend through localhost, such as remote Docker or a reverse proxy."}
           >
             <SettingRow
-              title={t("Public API base")}
-              description={t(
-                "Leave blank for local Docker. Use the externally reachable backend URL, including any proxy path.",
-              )}
+              title={"Public API base"}
+              description={"Leave blank for local Docker. Use the externally reachable backend URL, including any proxy path."}
               control={
                 <input
                   className={`${inputClass} w-[360px] max-w-[48vw]`}
@@ -370,10 +362,8 @@ export default function NetworkSettingsPage() {
           </SettingSection>
 
           <SettingSection
-            title={t("CORS origins")}
-            description={t(
-              "Only required for authenticated cross-origin deployments. Use frontend origins, not API URLs.",
-            )}
+            title={"CORS origins"}
+            description={"Only required for authenticated cross-origin deployments. Use frontend origins, not API URLs."}
           >
             <div className="py-4">
               <textarea
@@ -383,18 +373,14 @@ export default function NetworkSettingsPage() {
                 onChange={(event) => setCorsText(event.target.value)}
               />
               <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-                {t(
-                  "Comma, semicolon, and newline separators are accepted. Bare host:port values are stored as http://host:port.",
-                )}
+                {"Comma, semicolon, and newline separators are accepted. Bare host:port values are stored as http://host:port."}
               </p>
             </div>
           </SettingSection>
 
           {payload.auth.enabled && !payload.auth.cookie_secure && (
             <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[12.5px] leading-relaxed text-amber-700 dark:text-amber-300">
-              {t(
-                "Auth is enabled but secure cookies are off. Cross-site HTTPS deployments should set auth.cookie_secure=true and restart so SameSite=None cookies work in modern browsers.",
-              )}
+              {"Auth is enabled but secure cookies are off. Cross-site HTTPS deployments should set auth.cookie_secure=true and restart so SameSite=None cookies work in modern browsers."}
             </div>
           )}
         </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+
 
 import MemoryUsageItem from "@/components/settings/MemoryUsageItem";
 import { useSettings } from "@/features/settings/store/SettingsStore";
@@ -20,7 +20,7 @@ import { RuntimeHealthCard, useRuntimeStatus } from "@/features/runtime-status";
  * uppercase eyebrow (CJK reads badly with letter-spacing).
  */
 export default function SettingsStatusPanel() {
-  const { t } = useTranslation();
+  
   const { status } = useSettings();
   const runtime = useRuntimeStatus();
 
@@ -37,10 +37,10 @@ export default function SettingsStatusPanel() {
         />
         <div className="flex items-baseline gap-2">
           <span className="text-[13px] font-medium leading-none tracking-tight text-[var(--foreground)]">
-            {t("Backend")}
+            {"Backend"}
           </span>
           <span className="text-[12px] leading-none text-[var(--muted-foreground)]">
-            {online ? t("Online") : t("Checking")}
+            {online ? "Online" : "Checking"}
           </span>
         </div>
       </div>

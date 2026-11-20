@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   Check,
   ChevronRight,
@@ -23,11 +23,11 @@ import {
 import { knowledgeTypeLabel, topicDisplayName, type Translate } from "./format";
 import { ObjectiveDetail } from "./ObjectiveDetail";
 
-function statusLabel(point: MapKnowledgePoint, t: Translate) {
-  if (point.mastery_source === "learner") return t("Marked as known");
-  if (point.status === "mastered") return t("Mastered");
-  if (point.status === "learning") return t("In progress");
-  return t("Not started");
+function statusLabel(point: MapKnowledgePoint) {
+  if (point.mastery_source === "learner") return "Marked as known";
+  if (point.status === "mastered") return "Mastered";
+  if (point.status === "learning") return "In progress";
+  return "Not started";
 }
 
 function StatusMark({ point }: { point: MapKnowledgePoint }) {
@@ -94,9 +94,9 @@ export function ModuleOutline({
     note: string,
   ) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const nextId = topic.next.knowledge_point_id;
-  const topicName = topicDisplayName(topic, t);
+  const topicName = topicDisplayName(topic);
 
   return (
     // One block per module rather than one list divided into modules. A
@@ -106,14 +106,14 @@ export function ModuleOutline({
     // as ten boxes before they read as an outline.
     <section
       id="mastery-outline-start"
-      aria-label={t("Topic outline")}
+      aria-label={"Topic outline"}
     >
       {topic.map.modules.map((module, moduleIndex) => (
         <div key={module.id} className="dt-outline-module">
           <div>
             <header>
               <div className="dt-outline-module-head">
-                <span>{t("Module {{n}}", { n: moduleIndex + 1 })}</span>
+                <span>{`Module ${moduleIndex + 1}`}</span>
                 {module.name.trim() !== topicName.trim() ? (
                   <h2>{module.name}</h2>
                 ) : (
@@ -157,11 +157,11 @@ export function ModuleOutline({
                       </span>
                       {current && (
                         <span className="shrink-0 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
-                          {t("Next")}
+                          {"Next"}
                         </span>
                       )}
                       <span className="hidden shrink-0 text-[11px] text-[var(--muted-foreground)] sm:inline">
-                        {statusLabel(point, t)}
+                        {statusLabel(point)}
                       </span>
                       <ChevronRight
                         className={`h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)] transition ${
@@ -210,7 +210,7 @@ function ObjectiveDrawer({
     note: string,
   ) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [report, setReport] = useState<ObjectiveReport | null>(null);
   const [noteOpen, setNoteOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -223,10 +223,10 @@ function ObjectiveDrawer({
       .then(setReport)
       .catch(() => {
         if (!controller.signal.aborted)
-          setError(t("Evidence could not be loaded"));
+          setError("Evidence could not be loaded");
       });
     return () => controller.abort();
-  }, [objectiveId, pathId, revision, t]);
+  }, [objectiveId, pathId, revision]);
 
   const applyOverride = async (mastered: boolean) => {
     setBusy(true);
@@ -235,7 +235,7 @@ function ObjectiveDrawer({
       await onOverride(objectiveId, mastered, note);
       setNoteOpen(false);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("Update failed"));
+      setError(reason instanceof Error ? reason.message : "Update failed");
     } finally {
       setBusy(false);
     }
@@ -252,11 +252,11 @@ function ObjectiveDrawer({
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
-                <span>{knowledgeTypeLabel(report.type, t)}</span>
+                <span>{knowledgeTypeLabel(report.type)}</span>
                 {report.mastery_source === "learner" && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted-foreground)]/10 px-2 py-0.5 text-[var(--muted-foreground)]">
                     <Sparkles className="h-3 w-3" />
-                    {t("Confirmed by you")}
+                    {"Confirmed by you"}
                   </span>
                 )}
               </div>
@@ -266,7 +266,7 @@ function ObjectiveDrawer({
               onClick={onClose}
               className="rounded-lg px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
             >
-              {t("Collapse")}
+              {"Collapse"}
             </button>
           </div>
           <ObjectiveDetail report={report} zh={zh} />
@@ -276,9 +276,7 @@ function ObjectiveDrawer({
               {report.mastery_source === "learner" ? (
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-xs leading-5 text-[var(--muted-foreground)]">
-                    {t(
-                      "Marked as known by you; assessed evidence is unchanged.",
-                    )}
+                    {"Marked as known by you; assessed evidence is unchanged."}
                   </div>
                   <button
                     type="button"
@@ -291,13 +289,13 @@ function ObjectiveDrawer({
                     ) : (
                       <Undo2 className="h-3.5 w-3.5" />
                     )}
-                    {t("Return to assessment")}
+                    {"Return to assessment"}
                   </button>
                 </div>
               ) : noteOpen ? (
                 <div>
                   <label className="text-xs font-medium text-[var(--foreground)]">
-                    {t("Optional: why are you skipping this?")}
+                    {"Optional: why are you skipping this?"}
                     <textarea
                       autoFocus
                       value={note}
@@ -313,7 +311,7 @@ function ObjectiveDrawer({
                       onClick={() => setNoteOpen(false)}
                       className="h-9 rounded-xl px-3 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
                     >
-                      {t("Cancel")}
+                      {"Cancel"}
                     </button>
                     <button
                       type="button"
@@ -322,7 +320,7 @@ function ObjectiveDrawer({
                       className="inline-flex h-9 items-center gap-2 rounded-xl bg-[var(--primary)] px-3 text-xs font-medium text-[var(--primary-foreground)] disabled:opacity-50"
                     >
                       {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                      {t("Confirm mastery")}
+                      {"Confirm mastery"}
                     </button>
                   </div>
                 </div>
@@ -333,7 +331,7 @@ function ObjectiveDrawer({
                   className="inline-flex h-9 items-center gap-2 rounded-xl border border-[var(--border)] px-3 text-xs font-medium hover:bg-[var(--accent)]"
                 >
                   <LockKeyhole className="h-3.5 w-3.5" />
-                  {t("I already know this — advance")}
+                  {"I already know this — advance"}
                 </button>
               )}
               {error && <p className="mt-2 text-xs text-red-600">{error}</p>}

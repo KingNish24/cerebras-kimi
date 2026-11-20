@@ -6,7 +6,7 @@ import {
   LoaderCircle,
   TriangleAlert,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type {
   AttachmentProcessingItem,
   AttachmentProcessingPhase,
@@ -14,25 +14,24 @@ import type {
 
 function phaseLabel(
   phase: AttachmentProcessingPhase,
-  t: (key: string) => string,
 ): string {
   switch (phase) {
     case "uploading":
-      return t("Sending to DeepTutor");
+      return "Sending to DeepTutor";
     case "received":
-      return t("Uploaded to DeepTutor");
+      return "Uploaded to DeepTutor";
     case "submitting":
-      return t("Sending to document parser");
+      return "Sending to document parser";
     case "parsing":
-      return t("Document parser is processing");
+      return "Document parser is processing";
     case "retrieving":
-      return t("Retrieving parsed result");
+      return "Retrieving parsed result";
     case "completed":
-      return t("Ready for this answer");
+      return "Ready for this answer";
     case "fallback":
-      return t("Using local PDF text");
+      return "Using local PDF text";
     case "failed":
-      return t("Document parsing failed");
+      return "Document parsing failed";
   }
 }
 
@@ -53,14 +52,14 @@ export default function AttachmentProcessingStatus({
 }: {
   items: AttachmentProcessingItem[];
 }) {
-  const { t } = useTranslation();
+  
   if (!items.length) return null;
 
   return (
     <div
       role="status"
       aria-live="polite"
-      aria-label={t("Attachment processing")}
+      aria-label={"Attachment processing"}
       className="mx-3 mb-2 space-y-1 rounded-xl border border-[var(--border)]/70 bg-[var(--muted)]/30 px-3 py-2"
     >
       {items.map((item) => {
@@ -81,13 +80,13 @@ export default function AttachmentProcessingStatus({
                 {item.filename}
               </span>
               <span className="shrink-0 text-[var(--muted-foreground)]">
-                {phaseLabel(item.phase, t)}
+                {phaseLabel(item.phase)}
               </span>
             </div>
             {hasDetails ? (
               <details className="ml-9 mt-1 text-[var(--muted-foreground)]">
                 <summary className="cursor-pointer select-none">
-                  {t("Failure details")}
+                  {"Failure details"}
                 </summary>
                 <p className="mt-1 break-words">{item.detail}</p>
               </details>

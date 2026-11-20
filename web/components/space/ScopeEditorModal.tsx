@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Loader2, SlidersHorizontal } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import Modal from "@/components/common/Modal";
 import Button from "@/components/ui/Button";
 import ScopePicker from "@/components/space/ScopePicker";
@@ -52,7 +52,7 @@ export default function ScopeEditorModal({
   onClose,
   onSaved,
 }: ScopeEditorModalProps) {
-  const { t, i18n } = useTranslation();
+  
   const [phase, setPhase] = useState<Phase>("loading");
   const [groups, setGroups] = useState<SelectGroup[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -123,10 +123,7 @@ export default function ScopeEditorModal({
       });
       if (orphaned.length > 0) {
         const ok = window.confirm(
-          t(
-            "{{count}} conversations are no longer in scope. Permanently delete their imported copies? This cannot be undone.",
-            { count: orphaned.length },
-          ),
+          `${orphaned.length} conversations are no longer in scope. Permanently delete their imported copies? This cannot be undone.`,
         );
         if (ok) {
           await Promise.allSettled(
@@ -140,13 +137,13 @@ export default function ScopeEditorModal({
     } catch {
       setPhase("error");
     }
-  }, [agent, selected, selectedRefs, unit, ownedSessions, t, onSaved]);
+  }, [agent, selected, selectedRefs, unit, ownedSessions, onSaved]);
 
   return (
     <Modal
       isOpen
       onClose={onClose}
-      title={t("Edit scope")}
+      title={"Edit scope"}
       titleIcon={<SlidersHorizontal className="h-[18px] w-[18px]" />}
       width="xl"
       closeOnBackdrop={phase !== "saving"}
@@ -159,7 +156,7 @@ export default function ScopeEditorModal({
           </span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={onClose}>
-              {t("Cancel")}
+              {"Cancel"}
             </Button>
             <Button
               variant="primary"
@@ -167,7 +164,7 @@ export default function ScopeEditorModal({
               onClick={handleSave}
               disabled={phase !== "ready"}
             >
-              {phase === "saving" ? t("Saving…") : t("Save scope")}
+              {phase === "saving" ? "Saving…" : "Save scope"}
             </Button>
           </div>
         </div>
@@ -177,7 +174,7 @@ export default function ScopeEditorModal({
         {phase === "loading" && (
           <CenteredStatus
             icon={<Loader2 className="h-5 w-5 animate-spin" />}
-            title={t("Reading your folder…")}
+            title={"Reading your folder…"}
           />
         )}
         {phase === "error" && (
@@ -185,8 +182,8 @@ export default function ScopeEditorModal({
             icon={
               <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             }
-            title={t("Couldn't read this folder")}
-            subtitle={t("Refresh failed — try re-adding the agent.")}
+            title={"Couldn't read this folder"}
+            subtitle={"Refresh failed — try re-adding the agent."}
           />
         )}
         {(phase === "ready" || phase === "saving") && (
@@ -197,7 +194,7 @@ export default function ScopeEditorModal({
             onToggle={toggleKey}
             onSelectAll={() => setSelected(new Set(groups.map((g) => g.key)))}
             onClearAll={() => setSelected(new Set())}
-            lang={i18n.language}
+            lang={"en"}
           />
         )}
       </div>

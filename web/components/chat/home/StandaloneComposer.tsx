@@ -23,7 +23,7 @@ import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "@/shared/router/dynamic";
 import { MessageSquare } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";
 
 import ChatComposer from "@/components/chat/home/ChatComposer";
@@ -247,7 +247,7 @@ function StandaloneComposerImpl({
   trayEnd,
   partnerControls = true,
 }: StandaloneComposerProps) {
-  const { t } = useTranslation();
+  
 
   // ── Composer DOM refs ─────────────────────────────────────────
   const composerRef = useRef<HTMLDivElement>(null);
@@ -478,17 +478,17 @@ function StandaloneComposerImpl({
         const first = rejected[0];
         let msg: string;
         if (first.reason === "too_large") {
-          msg = t("File too large: {{name}}", { name: first.name });
+          msg = `File too large: ${first.name}`;
         } else if (first.reason === "quota") {
-          msg = t("Too many files, skipped some");
+          msg = "Too many files, skipped some";
         } else {
-          msg = t("Unsupported file type: {{name}}", { name: first.name });
+          msg = `Unsupported file type: ${first.name}`;
         }
         showAttachmentError(msg);
       }
       return accepted;
     },
-    [attachments, attachmentLimits, showAttachmentError, t],
+    [attachments, attachmentLimits, showAttachmentError],
   );
 
   const handleAddFiles = useCallback(
@@ -689,9 +689,9 @@ function StandaloneComposerImpl({
     return list.map((capability) => ({
       ...capability,
       label: capabilityLabel(capability),
-      description: t(capability.description),
+      description: (capability.description),
     }));
-  }, [capabilities, capabilityLabel, t]);
+  }, [capabilities, capabilityLabel]);
   const activeCap =
     resolvedCapabilities.find(
       (capability) => capability.value === activeCapValue,

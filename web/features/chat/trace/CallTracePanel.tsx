@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import {
@@ -251,12 +251,12 @@ function TraceRowBody({
     <div className="text-[11.5px] leading-[1.6] text-[var(--muted-foreground)]">
       {group === "react_round" ? (
         <div className="space-y-2">
-          <TraceSection title={t("Thought")}>
+          <TraceSection title={"Thought"}>
             {thoughtText ? (
               <MarkdownRenderer content={thoughtText} variant="trace" />
             ) : null}
           </TraceSection>
-          <TraceSection title={t("Tool")}>
+          <TraceSection title={"Tool"}>
             {toolEvents.length > 0 ? (
               <div className="space-y-0.5">
                 {pairToolEvents(toolEvents).map((exchange, idx) => (
@@ -271,7 +271,7 @@ function TraceRowBody({
               </div>
             ) : null}
           </TraceSection>
-          <TraceSection title={t("Observe")}>
+          <TraceSection title={"Observe"}>
             {observationText ? (
               <MarkdownRenderer content={observationText} variant="trace" />
             ) : null}
@@ -293,7 +293,7 @@ function TraceRowBody({
             rawProgressEvents.length > 0 && (
               <div className="space-y-0.5">
                 <div className="not-italic text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
-                  {t("Raw logs")}
+                  {"Raw logs"}
                 </div>
                 <div className="max-h-[200px] overflow-y-auto rounded-md border border-[var(--border)] bg-[#292524] px-3 py-2 font-mono text-[10px] leading-[1.55] text-[#D6D3D1] shadow-inner">
                   {rawProgressEvents.map((event, idx) => (
@@ -338,7 +338,7 @@ function TraceRowBody({
 
       {inlineSources.length > 0 && (
         <div className="mt-1 opacity-50">
-          {t("Sources")}:{" "}
+          {"Sources"}:{" "}
           {inlineSources.map((source, idx) => (
             <span key={`${callId}-source-${idx}`}>
               {idx > 0 && " · "}
@@ -433,7 +433,7 @@ function TraceRowItem({
   active: boolean;
   nested: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const [userOpen, setUserOpen] = useState<boolean | null>(null);
 
   const { callId, events: callEvents } = trace;
@@ -533,8 +533,8 @@ function TraceRowItem({
           "",
       );
       const kind = callEvents.map((event) => getTraceMeta(event).subagent_kind).find(Boolean);
-      const action = kind === "partner_group" ? t("Organize partner discussion")
-        : kind === "partner" ? t("Ask partner") : t("Ask subagent");
+      const action = kind === "partner_group" ? "Organize partner discussion"
+        : kind === "partner" ? "Ask partner" : "Ask subagent";
       headline = agentName ? `${action} ${agentName}` : action;
     }
   } else if (isRetrieve) {
@@ -637,7 +637,7 @@ export function CallTracePanel({
   // rows are inline either way, ``nested`` only affects sub-row layout.
   nested?: boolean;
 }) {
-  const { t } = useTranslation();
+  
 
   const traceGroups = useMemo(() => groupTraceEvents(events), [events]);
 
@@ -680,7 +680,7 @@ export function CallTracePanel({
           return (
             <div key={item.stepId} className={displayIdx > 0 ? "mt-2" : ""}>
               <ActivityDivider
-                label={t("Step {{n}}", { n: item.stepId })}
+                label={`Step ${item.stepId}`}
                 active={isActiveStep}
               />
               <ActivityStack alignUnderOrb={false}>

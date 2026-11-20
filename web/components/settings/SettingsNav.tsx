@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from '@/shared/router/link'
 import { usePathname } from '@/shared/router/navigation'
 import { Search, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+
 import Tooltip from '@/shared/ui/Tooltip'
 import { useSettingsAccess } from '@/features/settings/navigation/SettingsAccessProvider'
 import { settingsAnchorHref } from '@/features/settings/navigation/settings-nav'
@@ -17,7 +17,7 @@ import {
 } from '@/features/settings/navigation/settings-pages'
 
 export default function SettingsNav({ onNavigate }: { onNavigate?: () => void }) {
-  const { t, i18n } = useTranslation()
+  
   // Fixed translators keep search bilingual (English + Chinese) regardless of
   // the active locale; rendering stays on t() with the active locale only.
   const tEn = i18n.getFixedT('en')
@@ -33,15 +33,15 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
     const navLabel = settingsPageLabel(page.key, page.label)
     return [
       page.label,
-      t(page.label),
+      (page.label),
       tEn(page.label),
       tZh(page.label),
       page.blurb,
-      t(page.blurb),
+      (page.blurb),
       tEn(page.blurb),
       tZh(page.blurb),
       navLabel,
-      t(navLabel),
+      (navLabel),
       tEn(navLabel),
       tZh(navLabel),
       page.key,
@@ -65,7 +65,7 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
       }))
 
   return (
-    <nav aria-label={t('Settings sections')} className="flex min-h-0 flex-1 flex-col">
+    <nav aria-label={"Settings sections"} className="flex min-h-0 flex-1 flex-col">
       <div className="relative mx-2.5 mb-2">
         <Search
           size={14}
@@ -73,8 +73,8 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
           className="pointer-events-none absolute left-2.5 top-3 text-[var(--muted-foreground)]"
         />
         <input
-          aria-label={t('Search settings')}
-          placeholder={t('Search settings')}
+          aria-label={"Search settings"}
+          placeholder={"Search settings"}
           value={query}
           onChange={event => setQuery(event.target.value)}
           className="w-full rounded-full bg-[var(--muted)] py-2.5 pl-8 pr-7 text-[13px] ring-1 ring-inset ring-transparent outline-none placeholder:text-muted-foreground/70 focus:ring-[var(--ring)]"
@@ -82,7 +82,7 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
         {query && (
           <button
             type="button"
-            aria-label={t('Clear')}
+            aria-label={"Clear"}
             onClick={() => setQuery('')}
             className="absolute right-1.5 top-2.5 rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
           >
@@ -96,14 +96,14 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
           .map(group => (
             <div key={group.label} className="mb-0.5">
               <p className="px-2.5 pb-1.5 pt-5 text-[12px] font-medium text-muted-foreground">
-                {t(group.label)}
+                {(group.label)}
               </p>
               <div className="space-y-0.5">
                 {group.pages.map(page => {
                   const Icon = needle ? page.icon : settingsPageIcon(page.key, page.icon)
                   const active = needle ? page.key === currentKey : currentFamily.includes(page.key)
                   return (
-                    <Tooltip key={page.key} label={t(page.blurb)} as="div" side="right">
+                    <Tooltip key={page.key} label={(page.blurb)} as="div" side="right">
                       <Link
                         href={settingsAnchorHref(page.key)}
                         scroll={false}
@@ -114,7 +114,7 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
                       >
                         <Icon size={15} strokeWidth={1.8} className="shrink-0" />
                         <span>
-                          {t(needle ? page.label : settingsPageLabel(page.key, page.label))}
+                          {(needle ? page.label : settingsPageLabel(page.key, page.label))}
                         </span>
                       </Link>
                     </Tooltip>
@@ -125,7 +125,7 @@ export default function SettingsNav({ onNavigate }: { onNavigate?: () => void })
           ))}
         {needle && !matches.length && (
           <p className="px-2.5 py-5 text-[13px] text-[var(--muted-foreground)]">
-            {t('No settings match “{{query}}”.', { query: query.trim() })}
+            {`No settings match “${query.trim()}”.`}
           </p>
         )}
       </div>

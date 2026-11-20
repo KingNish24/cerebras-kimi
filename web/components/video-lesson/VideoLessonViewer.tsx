@@ -1,7 +1,7 @@
 "use client";
 
 import { Clapperboard, Code2, ExternalLink, Timer } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { apiUrl } from "@/shared/api/client";
 import type { VideoLessonResult } from "@/lib/video-lesson-types";
 
@@ -10,7 +10,7 @@ export default function VideoLessonViewer({
 }: {
   result: VideoLessonResult;
 }) {
-  const { t } = useTranslation();
+  
   const url = result.page.url;
   const src =
     url.startsWith("http://") || url.startsWith("https://")
@@ -22,7 +22,7 @@ export default function VideoLessonViewer({
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2 text-[12px] font-medium text-[var(--foreground)]">
           <Clapperboard size={14} className="shrink-0" />
-          <span className="truncate">{result.title || t("Video Lesson")}</span>
+          <span className="truncate">{result.title || "Video Lesson"}</span>
         </div>
         <a
           href={src}
@@ -31,14 +31,14 @@ export default function VideoLessonViewer({
           className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
         >
           <ExternalLink size={12} />
-          {t("Open in new tab")}
+          {"Open in new tab"}
         </a>
       </div>
 
       {/* The page runs model-written code: scripts yes, same-origin access no. */}
       <iframe
         src={src}
-        title={result.title || t("Video Lesson")}
+        title={result.title || "Video Lesson"}
         sandbox="allow-scripts"
         allow="fullscreen"
         allowFullScreen
@@ -51,12 +51,12 @@ export default function VideoLessonViewer({
           {result.durationSeconds ? (
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-0.5">
               <Timer size={12} />
-              {t("{{seconds}} s", { seconds: result.durationSeconds })}
+              {`${result.durationSeconds} s`}
             </span>
           ) : null}
           {result.attempts > 1 ? (
             <span className="rounded-full border border-[var(--border)] px-2 py-0.5">
-              {t("Fixed after {{count}} checks", { count: result.attempts })}
+              {`Fixed after ${result.attempts} checks`}
             </span>
           ) : null}
         </div>
@@ -66,7 +66,7 @@ export default function VideoLessonViewer({
         <details className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)]">
           <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12px] font-medium text-[var(--foreground)]">
             <Code2 size={14} />
-            {t("View Remotion Code")}
+            {"View Remotion Code"}
           </summary>
           <pre className="max-h-[360px] overflow-auto border-t border-[var(--border)] px-3 py-3 font-mono text-[11px] leading-[1.6] text-[var(--foreground)]">
             {result.code}

@@ -2,7 +2,7 @@
 
 import { FeaturePage, PageHeader } from '@/components/layout/FeaturePage'
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   listLearningRecords,
@@ -15,7 +15,7 @@ function percent(value: number): number {
 }
 
 export default function LearningProgressPage() {
-  const { t } = useTranslation();
+  
   const [records, setRecords] = useState<LearningRecords | null>(null);
   const [materialTitles, setMaterialTitles] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
@@ -39,29 +39,29 @@ export default function LearningProgressPage() {
 
   return (
     <FeaturePage>
-      <PageHeader title={t("Learning progress")} description={t("Review your own reading and learning activity.")} />
+      <PageHeader title={"Learning progress"} description={"Review your own reading and learning activity."} />
       {error ? (
-        <p className="mt-8 text-sm text-red-600">{t("Unable to load learning progress")}</p>
+        <p className="mt-8 text-sm text-red-600">{"Unable to load learning progress"}</p>
       ) : records === null ? (
-        <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("Loading progress")}</p>
+        <p className="mt-8 text-sm text-[var(--muted-foreground)]">{"Loading progress"}</p>
       ) : !hasRecords ? (
-        <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("No learning activity yet")}</p>
+        <p className="mt-8 text-sm text-[var(--muted-foreground)]">{"No learning activity yet"}</p>
       ) : (
         <>
           <div className="mt-6 grid grid-cols-2 gap-3">
             <div className="rounded-md border border-[var(--border)] p-4">
-              <span className="block text-xs text-[var(--muted-foreground)]">{t("Materials")}</span>
+              <span className="block text-xs text-[var(--muted-foreground)]">{"Materials"}</span>
               <strong className="mt-1 block text-xl">{progress.length}</strong>
             </div>
             <div className="rounded-md border border-[var(--border)] p-4">
-              <span className="block text-xs text-[var(--muted-foreground)]">{t("Recent learning actions")}</span>
+              <span className="block text-xs text-[var(--muted-foreground)]">{"Recent learning actions"}</span>
               <strong className="mt-1 block text-xl">{activities.length}</strong>
             </div>
           </div>
           <section className="mt-6">
-            <h2 className="text-sm font-semibold">{t("Reading progress")}</h2>
+            <h2 className="text-sm font-semibold">{"Reading progress"}</h2>
             {progress.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("No reading progress yet")}</p>
+              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{"No reading progress yet"}</p>
             ) : (
               <ul className="mt-3 grid gap-3">
                 {progress.map((record) => (
@@ -78,7 +78,7 @@ export default function LearningProgressPage() {
                       aria-valuemin={0}
                       aria-valuemax={100}
                       aria-valuenow={percent(record.furthest_percentage)}
-                      aria-label={t("Furthest reading progress")}
+                      aria-label={"Furthest reading progress"}
                     >
                       <div
                         className="h-full rounded-full bg-[var(--primary)]"
@@ -91,16 +91,16 @@ export default function LearningProgressPage() {
             )}
           </section>
           <section className="mt-6">
-            <h2 className="text-sm font-semibold">{t("Recent learning actions")}</h2>
+            <h2 className="text-sm font-semibold">{"Recent learning actions"}</h2>
             {activities.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("No learning actions yet")}</p>
+              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{"No learning actions yet"}</p>
             ) : (
               <ul className="mt-3 grid gap-3">
                 {activities.map((record) => (
                   <li key={record.activity_id} className="rounded-md border border-[var(--border)] p-4">
                     <span className="font-medium">{materialTitles[record.material_id] || record.material_id}</span>
                     <span className="mt-1 block text-xs text-[var(--muted-foreground)]">
-                      {record.action} · {record.extension_id} · {t("Locator")} {record.locator}
+                      {record.action} · {record.extension_id} · {"Locator"} {record.locator}
                     </span>
                   </li>
                 ))}

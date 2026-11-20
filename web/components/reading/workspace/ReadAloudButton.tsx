@@ -1,7 +1,7 @@
 "use client";
 
 import { ListChecks, Loader2, Sparkles, Square, Volume2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import { useReadingActions } from "@/components/reading/reading-actions-context";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -17,15 +17,15 @@ const READ_ALOUD_KEY = "read_aloud:read";
  * one steps aside for them rather than offering the same thing twice.
  */
 export function ReadAloudButton({ disabled }: { disabled?: boolean }) {
-  const { t } = useTranslation();
+  
   const shared = useReadingActions();
   const entry = shared?.actions.find((row) => row.key === READ_ALOUD_KEY);
   if (!shared || !entry || shared.ageMode !== "default") return null;
 
   const busy = shared.busyKey === READ_ALOUD_KEY;
   const label = shared.speaking
-    ? t("Stop reading aloud")
-    : t("Read this page aloud");
+    ? "Stop reading aloud"
+    : "Read this page aloud";
   return (
     <Tooltip label={label}>
       <button
@@ -69,19 +69,19 @@ export function PageToolButtons({
   disabled?: boolean;
   onQuiz: () => void;
 }) {
-  const { t } = useTranslation();
+  
   const shared = useReadingActions();
   if (!shared || shared.ageMode !== "default") return null;
   const buttonClass =
     "flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40";
   return (
     <>
-      <Tooltip label={t("Quiz me on this page")}>
+      <Tooltip label={"Quiz me on this page"}>
         <button
           type="button"
           disabled={disabled}
           onClick={onQuiz}
-          aria-label={t("Quiz me on this page")}
+          aria-label={"Quiz me on this page"}
           className={buttonClass}
         >
           <ListChecks size={14} />

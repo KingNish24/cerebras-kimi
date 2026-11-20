@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import {
   SettingRow,
@@ -26,7 +26,7 @@ import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 
 export function WebFetchBackendCard() {
-  const { t } = useTranslation();
+  
   const { catalogEditable, registerExtension, pendingExtensionPayload, draftRevision } =
     useSettings();
   const [payload, setPayload] = useState<WebFetchSettingsPayload | null>(null);
@@ -49,7 +49,7 @@ export function WebFetchBackendCard() {
           throw new Error(
             "detail" in data && data.detail
               ? String(data.detail)
-              : t("Failed to load web fetch settings."),
+              : "Failed to load web fetch settings.",
           );
         }
         if (cancelled) return;
@@ -69,7 +69,7 @@ export function WebFetchBackendCard() {
     return () => {
       cancelled = true;
     };
-  }, [catalogEditable, draftRevision, pendingExtensionPayload, t]);
+  }, [catalogEditable, draftRevision, pendingExtensionPayload]);
 
   const options = useMemo(
     () => webFetchBackendOptions(payload?.choices, draft ?? payload?.settings.backend),
@@ -101,7 +101,7 @@ export function WebFetchBackendCard() {
         throw new Error(
           "detail" in data && data.detail
             ? String(data.detail)
-            : t("Failed to save web fetch settings."),
+            : "Failed to save web fetch settings.",
         );
       }
       const next = data as WebFetchSettingsPayload;
@@ -111,7 +111,7 @@ export function WebFetchBackendCard() {
       setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     if (catalogEditable !== true) return;
@@ -127,15 +127,13 @@ export function WebFetchBackendCard() {
 
   return (
     <SettingSection
-      title={t("Web fetch backend")}
-      description={t(
-        "Which service fetches and extracts pages for web_fetch calls.",
-      )}
+      title={"Web fetch backend"}
+      description={"Which service fetches and extracts pages for web_fetch calls."}
     >
       {loading && (
         <div className="flex items-center gap-2 py-5 text-[13px] text-[var(--muted-foreground)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("Loading web fetch settings...")}
+          {"Loading web fetch settings..."}
         </div>
       )}
       {!loading && error && (
@@ -145,13 +143,13 @@ export function WebFetchBackendCard() {
       )}
       {!loading && payload && (
         <SettingRow
-          title={t("Backend")}
-          description={t("Applies from the next web_fetch onwards.")}
+          title={"Backend"}
+          description={"Applies from the next web_fetch onwards."}
           control={
             <div className="relative">
               <select
                 className={`${selectClass} w-56`}
-                aria-label={t("Web fetch backend")}
+                aria-label={"Web fetch backend"}
                 value={selected}
                 onChange={(event) => setDraft(event.target.value)}
               >
@@ -168,7 +166,7 @@ export function WebFetchBackendCard() {
       )}
       {!loading && payload && payload.effective.backend !== payload.settings.backend && (
         <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-          {t("DEEPTUTOR_FETCH_BACKEND is overriding the saved choice for this deployment.")}
+          {"DEEPTUTOR_FETCH_BACKEND is overriding the saved choice for this deployment."}
         </p>
       )}
     </SettingSection>

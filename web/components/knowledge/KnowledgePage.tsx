@@ -8,7 +8,7 @@ import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 import dynamic from "@/shared/router/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "@/shared/router/navigation";
-import { useTranslation } from "react-i18next";
+
 import { Loader2 } from "lucide-react";
 import { useKnowledgeBases } from "@/hooks/useKnowledgeBases";
 import { updateRagProviderMode } from "@/features/knowledge/api/engines";
@@ -48,7 +48,7 @@ const CreateKbModal = dynamic(() => import("./CreateKbModal"));
 const ConnectKiwixModal = dynamic(() => import("./ConnectKiwixModal"));
 
 export default function KnowledgePage() {
-  const { t } = useTranslation();
+  
   const router = useRouter();
   const routeParams = useParams<{ kbName?: string }>();
   const searchParams = useSearchParams();
@@ -284,11 +284,11 @@ export default function KnowledgePage() {
         const workspaces = await resourceUsage("knowledge_bases", name);
         const impact = workspaces.length
           ? "\n\n" +
-            t("Used by workspaces: {{names}}", { names: workspaces.join(", ") })
+            `Used by workspaces: ${workspaces.join(", ")}`
           : "";
         if (
           !window.confirm(
-            t('Delete knowledge base "{{name}}"?', { name }) + impact,
+            `Delete knowledge base "${name}"?` + impact,
           )
         )
           return;
@@ -301,7 +301,7 @@ export default function KnowledgePage() {
         setError(err instanceof Error ? err.message : String(err));
       }
     },
-    [deleteKb, explicitSelection, setError, t],
+    [deleteKb, explicitSelection, setError],
   );
 
   const handleUpload = useCallback(
@@ -402,14 +402,14 @@ export default function KnowledgePage() {
               onClick={() => void refresh({ force: true })}
               className="rounded-md border border-red-300 px-2 py-0.5 text-[11.5px] font-medium hover:bg-red-100 dark:border-red-900 dark:hover:bg-red-950/50"
             >
-              {t("Retry")}
+              {"Retry"}
             </button>
             <button
               type="button"
               onClick={() => setError(null)}
               className="rounded-md px-2 py-0.5 text-[11.5px] font-medium hover:bg-red-100 dark:hover:bg-red-950/50"
             >
-              {t("Dismiss")}
+              {"Dismiss"}
             </button>
           </div>
         </div>

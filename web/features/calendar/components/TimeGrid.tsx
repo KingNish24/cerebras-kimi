@@ -12,7 +12,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import Tooltip from '@/shared/ui/Tooltip'
-import { useTranslation } from 'react-i18next'
+
 import {
   addDays,
   atMinutes,
@@ -95,8 +95,8 @@ export function TimeGrid({
   onDropTask: (taskId: string, target: GridDraft) => void
   onOpenDay: (day: Date) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language
+  
+  const locale = "en"
   const scrollRef = useRef<HTMLDivElement>(null)
   const columnsRef = useRef<HTMLDivElement>(null)
   const spanRowRef = useRef<HTMLDivElement>(null)
@@ -527,7 +527,7 @@ export function TimeGrid({
       </div>
 
       <div className="dt-cal-span-row">
-        <div className="dt-cal-gutter dt-cal-span-label">{t('All day')}</div>
+        <div className="dt-cal-gutter dt-cal-span-label">{"All day"}</div>
         <div
           ref={spanRowRef}
           className="dt-cal-span-area"
@@ -703,9 +703,9 @@ function TimedBlock({
   onPointerDown: (event: ReactPointerEvent<HTMLElement>, mode: 'move' | 'resize') => void
   onOpen: (anchor: Anchor) => void
 }) {
-  const { t, i18n } = useTranslation()
+  
   const Icon = itemIcon(item)
-  const time = `${formatTime(item.start, i18n.language)} – ${formatTime(item.end, i18n.language)}`
+  const time = `${formatTime(item.start, "en")} – ${formatTime(item.end, "en")}`
   const done = item.kind === 'task' && item.card.status === 'done'
   return (
     <div
@@ -722,7 +722,7 @@ function TimedBlock({
       <button
         type="button"
         className="dt-cal-block-body"
-        aria-label={`${itemTitle(item, t)}, ${item.kind === 'automation' ? formatTime(item.start, i18n.language) : time}`}
+        aria-label={`${itemTitle(item)}, ${item.kind === 'automation' ? formatTime(item.start, "en") : time}`}
         onClick={event => {
           // Events open from the pointer gesture; this path is for keyboards.
           if (event.detail === 0 || item.kind !== 'event') onOpen(anchorOf(event.currentTarget)!)
@@ -736,9 +736,9 @@ function TimedBlock({
               strokeWidth: 2,
               className: 'dt-cal-chip-icon',
             })}
-          {itemTitle(item, t)}
+          {itemTitle(item)}
           {compact && item.kind !== 'automation' && (
-            <span className="dt-cal-block-time">{formatTime(item.start, i18n.language)}</span>
+            <span className="dt-cal-block-time">{formatTime(item.start, "en")}</span>
           )}
         </span>
         {!compact && item.kind !== 'automation' && (
@@ -771,15 +771,15 @@ export function FootprintButton({
   day: FootprintDay
   onOpen: (day: FootprintDay, anchor: Anchor) => void
 }) {
-  const { t } = useTranslation()
+  
   const total = day.session_count + day.practice_reviews + day.mastery_evidence
   const level = total >= 12 ? 4 : total >= 6 ? 3 : total >= 2 ? 2 : 1
-  const summary = footprintSummary(day, t)
+  const summary = footprintSummary(day)
   return (
-    <Tooltip label={t('Learning footprints')} description={summary}>
+    <Tooltip label={"Learning footprints"} description={summary}>
       <button
         type="button"
-        aria-label={`${t('Learning footprints')}: ${summary}`}
+        aria-label={`${"Learning footprints"}: ${summary}`}
         className="dt-cal-footprint"
         data-level={level}
         onClick={event => onOpen(day, anchorOf(event.currentTarget)!)}

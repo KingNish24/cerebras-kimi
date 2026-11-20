@@ -65,7 +65,12 @@ class Settings:
 
     @property
     def sessions_dir(self) -> Path:
+        # Legacy JSON import source only; sessions live in deeptutor.sqlite3.
         return self.data_dir / "sessions"
+
+    @property
+    def sessions_db(self) -> Path:
+        return self.data_dir / "deeptutor.sqlite3"
 
     @property
     def files_dir(self) -> Path:

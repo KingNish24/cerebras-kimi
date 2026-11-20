@@ -6,7 +6,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "@/shared/router/dynamic";
 import { useRouter } from "@/shared/router/navigation";
 import { BookOpenText, Check, Copy, Download, Loader2, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { docIconFor, formatBytes } from "@/lib/doc-attachments";
 import { apiUrl } from "@/shared/api/client";
 import { apiFetch } from "@/shared/api/client";
@@ -69,7 +69,7 @@ export default function FilePreviewDrawer({
   source,
   onClose,
 }: FilePreviewDrawerProps) {
-  const { t } = useTranslation();
+  
   const router = useRouter();
 
   // Latch the most recently shown source so the body keeps rendering during
@@ -179,7 +179,7 @@ export default function FilePreviewDrawer({
           ? await fetch(previewUrl)
           : await apiFetch(previewUrl, { cache: "no-store" });
       if (!response.ok)
-        throw new Error(t("The attachment could not be downloaded."));
+        throw new Error("The attachment could not be downloaded.");
       const blob = await response.blob();
       const file = new File([blob], renderedSource.filename, {
         type: renderedSource.mimeType || blob.type,
@@ -196,14 +196,14 @@ export default function FilePreviewDrawer({
       setReaderError(
         caught instanceof Error
           ? caught.message
-          : t("The attachment could not be opened in Immersive Reading."),
+          : "The attachment could not be opened in Immersive Reading.",
       );
     } finally {
       setOpeningInReader(false);
     }
-  }, [onClose, openingInReader, previewUrl, renderedSource, router, t]);
+  }, [onClose, openingInReader, previewUrl, renderedSource, router]);
 
-  const filename = renderedSource?.filename || t("Attachment");
+  const filename = renderedSource?.filename || "Attachment";
   const spec = docIconFor(filename);
   const HeaderIcon = spec.Icon;
   const sizeLabel = renderedSource?.size
@@ -214,7 +214,7 @@ export default function FilePreviewDrawer({
     <div
       role="dialog"
       aria-hidden={!visible}
-      aria-label={t("File preview: {{name}}", { name: filename })}
+      aria-label={`File preview: ${filename}`}
       // Full-screen sheet below the drawer breakpoint, matching
       // SessionViewerPanel — a 92vw overlay on a phone is an awkward
       // near-miss rather than a usable second column.
@@ -250,12 +250,12 @@ export default function FilePreviewDrawer({
             </div>
 
             {canOpenInReading && downloadUrl && (
-              <Tooltip label={t("Open in Immersive Reading")} side="bottom">
+              <Tooltip label={"Open in Immersive Reading"} side="bottom">
                 <button
                   type="button"
                   onClick={() => void handleOpenInReading()}
                   disabled={openingInReader}
-                  aria-label={t("Open in Immersive Reading")}
+                  aria-label={"Open in Immersive Reading"}
                   className="mr-1 inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 px-2.5 text-[10px] font-semibold text-[var(--primary)] transition hover:bg-[var(--primary)]/15 disabled:opacity-50"
                 >
                   {openingInReader ? (
@@ -263,17 +263,17 @@ export default function FilePreviewDrawer({
                   ) : (
                     <BookOpenText size={12} />
                   )}
-                  <span className="hidden sm:inline">{t("Open in Reading")}</span>
+                  <span className="hidden sm:inline">{"Open in Reading"}</span>
                 </button>
               </Tooltip>
             )}
 
             {downloadUrl && (
-              <Tooltip label={t("Download")} side="bottom">
+              <Tooltip label={"Download"} side="bottom">
                 <a
                   href={downloadUrl}
                   download={filename}
-                  aria-label={t("Download")}
+                  aria-label={"Download"}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <Download size={14} strokeWidth={1.7} />
@@ -281,11 +281,11 @@ export default function FilePreviewDrawer({
               </Tooltip>
             )}
             {downloadUrl && (
-              <Tooltip label={t("Copy link")} side="bottom">
+              <Tooltip label={"Copy link"} side="bottom">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  aria-label={t("Copy link")}
+                  aria-label={"Copy link"}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   {copied ? (
@@ -300,12 +300,12 @@ export default function FilePreviewDrawer({
                 </button>
               </Tooltip>
             )}
-            <Tooltip label={t("Close")} side="bottom">
+            <Tooltip label={"Close"} side="bottom">
               <button
                 ref={closeBtnRef}
                 type="button"
                 onClick={onClose}
-                aria-label={t("Close")}
+                aria-label={"Close"}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <X size={15} strokeWidth={1.8} />

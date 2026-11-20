@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, RefreshCcw, X, ScrollText } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { bookApi } from "@/lib/book-api";
 import type { GenerationSummary } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
@@ -52,7 +52,7 @@ export default function BookHealthBanner({
   onRecompile,
   explorationFailed = false,
 }: BookHealthBannerProps) {
-  const { t } = useTranslation();
+  
   const [kbDrift, setKbDrift] = useState<KbDrift | null>(null);
   const [logHealth, setLogHealth] = useState<LogHealth | null>(null);
   const [generation, setGeneration] = useState<GenerationSummary | null>(null);
@@ -140,7 +140,7 @@ export default function BookHealthBanner({
     .filter(([category]) => category !== "unknown")
     .map(([category]) => FAILURE_CAUSES[category])
     .filter((key): key is string => Boolean(key))
-    .map((key) => t(key));
+    .map((key) => (key));
 
   if (
     !hasDrift &&
@@ -153,7 +153,7 @@ export default function BookHealthBanner({
 
   // Convert technical signatures into a short human label.
   const humanizeSignature = (sig: string): string => {
-    if (!sig) return t("unknown failure");
+    if (!sig) return "unknown failure";
     const stripped = sig.replace(/^[a-z_]+:/i, "").trim();
     return stripped.length > 80 ? `${stripped.slice(0, 80)}…` : stripped;
   };
@@ -190,25 +190,21 @@ export default function BookHealthBanner({
           {explorationFailed && (
             <div>
               <strong>
-                {t("This book was written without reading your sources.")}
+                {"This book was written without reading your sources."}
               </strong>{" "}
               <span>
-                {t(
-                  "Retrieval failed while planning it, so the chapters come from the proposal alone. Rebuilding will try your knowledge bases again.",
-                )}
+                {"Retrieval failed while planning it, so the chapters come from the proposal alone. Rebuilding will try your knowledge bases again."}
               </span>
             </div>
           )}
           {hasSourceIssues && (
             <div>
               <strong>
-                {t("Some selected sources were not fully covered.")}
+                {"Some selected sources were not fully covered."}
               </strong>{" "}
               <span className="opacity-90">
                 {sourceQuality?.missing_kbs.length
-                  ? t("Missing: {{sources}}.", {
-                      sources: sourceQuality.missing_kbs.join(", "),
-                    })
+                  ? `Missing: ${sourceQuality.missing_kbs.join(", ")}.`
                   : null}{" "}
                 {sourceQuality?.warnings.join(" ")}
               </span>
@@ -218,12 +214,8 @@ export default function BookHealthBanner({
             <div className="text-xs">
               <strong>
                 {failedPages > 0
-                  ? t("{{count}} chapters failed to generate.", {
-                      count: failedPages,
-                    })
-                  : t("{{count}} blocks failed to generate.", {
-                      count: failedBlocksFromPages,
-                    })}
+                  ? `${failedPages} chapters failed to generate.`
+                  : `${failedBlocksFromPages} blocks failed to generate.`}
               </strong>{" "}
               {/* The cause, in the reader's language. This used to print the
                   classifier's own slugs and tallies — "unknown: 4" beside a
@@ -235,14 +227,12 @@ export default function BookHealthBanner({
           {hasDrift && onRecompile && (
             <div>
               <strong>
-                {t(
-                  "Your knowledge bases changed since this book was generated.",
-                )}
+                {"Your knowledge bases changed since this book was generated."}
               </strong>{" "}
               <span className="opacity-90">
                 {kbDrift?.new_kbs?.length ? (
                   <>
-                    {t("Newly added")}:{" "}
+                    {"Newly added"}:{" "}
                     <code className="rounded bg-white/40 px-1 text-[11px] dark:bg-white/10">
                       {kbDrift.new_kbs.join(", ")}
                     </code>
@@ -251,7 +241,7 @@ export default function BookHealthBanner({
                 ) : null}
                 {kbDrift?.changed_kbs?.length ? (
                   <>
-                    {t("Updated")}:{" "}
+                    {"Updated"}:{" "}
                     <code className="rounded bg-white/40 px-1 text-[11px] dark:bg-white/10">
                       {kbDrift.changed_kbs.join(", ")}
                     </code>
@@ -260,7 +250,7 @@ export default function BookHealthBanner({
                 ) : null}
                 {kbDrift?.removed_kbs?.length ? (
                   <>
-                    {t("Removed")}:{" "}
+                    {"Removed"}:{" "}
                     <code className="rounded bg-white/40 px-1 text-[11px] dark:bg-white/10">
                       {kbDrift.removed_kbs.join(", ")}
                     </code>
@@ -271,25 +261,15 @@ export default function BookHealthBanner({
               {kbDrift?.stale_page_ids?.length ? (
                 <div className="mt-1.5 text-xs opacity-90">
                   {kbDrift.stale_page_ids.length === 1
-                    ? t(
-                        "{{count}} previously-compiled page may be out of date.",
-                        {
-                          count: kbDrift.stale_page_ids.length,
-                        },
-                      )
-                    : t(
-                        "{{count}} previously-compiled pages may be out of date.",
-                        {
-                          count: kbDrift.stale_page_ids.length,
-                        },
-                      )}{" "}
+                    ? `${kbDrift.stale_page_ids.length} previously-compiled page may be out of date.`
+                    : `${kbDrift.stale_page_ids.length} previously-compiled pages may be out of date.`}{" "}
                   {onRecompile && kbDrift.stale_page_ids[0] && (
                     <button
                       onClick={() => onRecompile(kbDrift.stale_page_ids![0])}
                       className="ml-1 inline-flex items-center gap-1 rounded border border-current px-1.5 py-0.5 text-xs hover:bg-white/40"
                     >
                       <RefreshCcw className="h-3 w-3" />{" "}
-                      {t("Recompile first stale page")}
+                      {"Recompile first stale page"}
                     </button>
                   )}
                 </div>
@@ -302,19 +282,15 @@ export default function BookHealthBanner({
               {blockFailures > 0 && (
                 <span>
                   {blockFailures === 1
-                    ? t("{{count}} block generation failure recorded.", {
-                        count: blockFailures,
-                      })
-                    : t("{{count}} block generation failures recorded.", {
-                        count: blockFailures,
-                      })}
+                    ? `${blockFailures} block generation failure recorded.`
+                    : `${blockFailures} block generation failures recorded.`}
                 </span>
               )}
               {repeated.length > 0 && (
                 <span>
                   {repeated.length === 1
-                    ? t("Recurring issue")
-                    : t("Recurring issues")}
+                    ? "Recurring issue"
+                    : "Recurring issues"}
                   :{" "}
                   {repeated
                     .map(
@@ -330,29 +306,27 @@ export default function BookHealthBanner({
         <div className="flex items-center gap-1">
           {hasDrift && (
             <Tooltip
-              label={t(
-                "Available only after every stale page has been recompiled.",
-              )}
+              label={"Available only after every stale page has been recompiled."}
             >
               <button
                 onClick={() => acknowledge()}
                 disabled={busy}
                 className="whitespace-nowrap rounded-md border border-current px-2 py-1 text-xs font-medium hover:bg-white/40 disabled:opacity-60"
               >
-                {busy ? "…" : t("Mark as seen")}
+                {busy ? "…" : "Mark as seen"}
               </button>
             </Tooltip>
           )}
           {hasDrift && canForce && onRecompile && (
             <Tooltip
-              label={t("Dismiss the warning without recompiling those pages.")}
+              label={"Dismiss the warning without recompiling those pages."}
             >
               <button
                 onClick={() => acknowledge(true)}
                 disabled={busy}
                 className="whitespace-nowrap rounded-md border border-current px-2 py-1 text-xs font-medium hover:bg-white/40 disabled:opacity-60"
               >
-                {t("Mark as seen anyway")}
+                {"Mark as seen anyway"}
               </button>
             </Tooltip>
           )}

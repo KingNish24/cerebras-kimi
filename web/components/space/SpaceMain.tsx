@@ -3,7 +3,7 @@
 import Link from "@/shared/router/link";
 import { usePathname } from "@/shared/router/navigation";
 import { ArrowLeft } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { FeaturePage } from "@/components/layout/FeaturePage";
 import { useUiLayoutLabel } from "@/features/ui-layout/tokens";
 import { categoryForPath } from "@/lib/navigation";
@@ -12,7 +12,7 @@ import { categoryForPath } from "@/lib/navigation";
 // section we don't re-list every sibling on a rail — a single "back to the hub"
 // link keeps the section focused and sends you to the overview to switch.
 function BackToHub({ pathname }: { pathname: string }) {
-  const { t } = useTranslation();
+  
   const spaceLabel = useUiLayoutLabel("space");
   // Account-level sections hang off their own hub, not the workspace's.
   const personal = categoryForPath(pathname) === "personalization";
@@ -26,7 +26,7 @@ function BackToHub({ pathname }: { pathname: string }) {
         strokeWidth={1.8}
         className="transition-transform group-hover:-translate-x-0.5"
       />
-      {personal ? t("navigation.personalization") : spaceLabel}
+      {personal ? "Personalization" : spaceLabel}
     </Link>
   );
 }

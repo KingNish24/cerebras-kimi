@@ -14,7 +14,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { useState } from "react";
 
 import type {
@@ -120,7 +120,7 @@ export function ReviewTrail({
   onSelect: (objectiveId: string) => void;
   onStartReview: (objectiveId: string, name: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const [expanded, setExpanded] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [form, setForm] = useState<StrategyForm>(() =>
@@ -148,7 +148,7 @@ export function ReviewTrail({
     const input = parseStrategyForm(form);
     if (!input) {
       setFormError(
-        t("Use 1-16 non-decreasing whole-day rounds from 0-365 in every row."),
+        "Use 1-16 non-decreasing whole-day rounds from 0-365 in every row.",
       );
       return;
     }
@@ -160,14 +160,14 @@ export function ReviewTrail({
   return (
     <section className="dt-panel min-h-0 flex-col lg:max-h-[min(34vh,300px)] lg:shrink-0">
       <div className="dt-panel-head flex-wrap justify-between gap-3">
-        <Tooltip label={t("Scheduled by your forgetting curve")} as="div" side="top">
+        <Tooltip label={"Scheduled by your forgetting curve"} as="div" side="top">
           <h2 tabIndex={0} className="text-[13px] font-semibold text-[var(--foreground)]">
-            {t("Review plan")}
+            {"Review plan"}
           </h2>
         </Tooltip>
         <div className="flex min-w-0 flex-wrap items-center gap-2.5">
           <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-            <span>{t("Strategy")}</span>
+            <span>{"Strategy"}</span>
             <select
               value={selectedStrategyId}
               onChange={(event) => {
@@ -177,8 +177,8 @@ export function ReviewTrail({
               disabled={strategyLoading || strategyBusy}
               className="h-7 max-w-36 rounded-md border border-[var(--border)] bg-[var(--card)] px-1.5 text-[11px] font-medium text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40 disabled:opacity-60"
             >
-              <option value="">{t("Default")}</option>
-              {strategyLoading && <option>{t("Loading…")}</option>}
+              <option value="">{"Default"}</option>
+              {strategyLoading && <option>{"Loading…"}</option>}
               {strategies.map((strategy) => (
                 <option key={strategy.template_id} value={strategy.template_id}>
                   {strategy.name}
@@ -187,7 +187,7 @@ export function ReviewTrail({
             </select>
           </label>
           <Tooltip
-            label={editorOpen ? t("Close strategy editor") : t("Edit strategy")}
+            label={editorOpen ? "Close strategy editor" : "Edit strategy"}
           >
             <button
               type="button"
@@ -201,14 +201,14 @@ export function ReviewTrail({
               }}
               disabled={strategyLoading}
               aria-pressed={editorOpen}
-              aria-label={editorOpen ? t("Close strategy editor") : t("Edit strategy")}
+              aria-label={editorOpen ? "Close strategy editor" : "Edit strategy"}
               className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[var(--border)] text-[var(--muted-foreground)] transition hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40 disabled:opacity-60"
             >
               <PencilRuler className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           </Tooltip>
           <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-            <span>{t("Recall target")}</span>
+            <span>{"Recall target"}</span>
             <select
               value={desiredRetention}
               onChange={(event) => onRetentionChange(Number(event.target.value))}
@@ -226,21 +226,21 @@ export function ReviewTrail({
           {(retentionBusy || strategyBusy) && (
             <span className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
-              <span className="sr-only">{t("Saving…")}</span>
+              <span className="sr-only">{"Saving…"}</span>
             </span>
           )}
           <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]">
-            {due.length} {t("due")}
+            {due.length} {"due"}
           </span>
         </div>
       </div>
       {!editorOpen && strategies.every((strategy) => strategy.builtin) && (
         <p className="shrink-0 px-4 pt-2 text-[10px] text-[var(--muted-foreground)]">
-          {t("No custom strategies yet")}
+          {"No custom strategies yet"}
         </p>
       )}
       <p id="review-retention-hint" className="shrink-0 px-4 text-[11px] text-[var(--muted-foreground)]">
-        {t("Higher targets schedule reviews sooner.")}
+        {"Higher targets schedule reviews sooner."}
       </p>
       {strategyError && (
         <div
@@ -255,7 +255,7 @@ export function ReviewTrail({
             className="inline-flex items-center gap-1 font-medium underline"
           >
             <RotateCcw className="h-3 w-3" aria-hidden="true" />
-            {t("Try again")}
+            {"Try again"}
           </button>
         </div>
       )}
@@ -263,7 +263,7 @@ export function ReviewTrail({
         <div className="max-h-36 shrink-0 overflow-y-auto border-b border-[var(--border)] px-4 py-3">
           <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             <label className="text-[10px] font-medium text-[var(--muted-foreground)] sm:col-span-2 xl:col-span-4">
-              {t("Name")}
+              {"Name"}
               <input
                 value={form.name}
                 onChange={(event) =>
@@ -280,7 +280,7 @@ export function ReviewTrail({
                 key={type}
                 className="text-[10px] font-medium capitalize text-[var(--muted-foreground)]"
               >
-                {t(type)} {t("rounds (days)")}
+                {(type)} {"rounds (days)"}
                 <input
                   value={form.intervals[type]}
                   onChange={(event) =>
@@ -313,10 +313,10 @@ export function ReviewTrail({
               className="inline-flex h-7 items-center gap-1.5 rounded-md bg-[var(--primary)] px-2.5 text-[11px] font-medium text-[var(--primary-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40 disabled:opacity-60"
             >
               <Check className="h-3 w-3" aria-hidden="true" />
-              {editingCustom ? t("Save") : t("Save as custom")}
+              {editingCustom ? "Save" : "Save as custom"}
             </button>
             {selectedStrategy && (
-              <Tooltip label={t("Duplicate")}>
+              <Tooltip label={"Duplicate"}>
                 <button
                   type="button"
                   onClick={() =>
@@ -333,7 +333,7 @@ export function ReviewTrail({
               </Tooltip>
             )}
             {editingCustom && (
-              <Tooltip label={t("Delete and use default")}>
+              <Tooltip label={"Delete and use default"}>
                 <button
                   type="button"
                   onClick={() =>
@@ -362,9 +362,7 @@ export function ReviewTrail({
       {reviews.length === 0 ? (
         <div className="flex shrink-0 items-start gap-2 px-4 py-3.5 text-[12px] leading-5 text-[var(--muted-foreground)]">
           <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--primary)]" />
-          {t(
-            "Nothing is due today. Keep going — reviews will resurface at the right time.",
-          )}
+          {"Nothing is due today. Keep going — reviews will resurface at the right time."}
         </div>
       ) : (
         <div className="dt-panel-body min-h-0 overflow-y-auto pt-1">
@@ -386,16 +384,14 @@ export function ReviewTrail({
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">
                   {review.due
-                    ? t("Ready now")
+                    ? "Ready now"
                     : formatRelative(review.due_at, zh)}
                   <span className="ml-2">
-                    {t("risk {{risk}}%", {
-                      risk: Math.round(review.forgetting_risk * 100),
-                    })}
+                    {`risk ${Math.round(review.forgetting_risk * 100)}%`}
                   </span>
                   {review.recent_failure && (
                     <span className="ml-2 text-red-600 dark:text-red-400">
-                      {t("recent failure")}
+                      {"recent failure"}
                     </span>
                   )}
                 </span>
@@ -405,9 +401,7 @@ export function ReviewTrail({
               </button>
               <button
                 type="button"
-                aria-label={t("Start review for {{name}}", {
-                  name: review.knowledge_point_name,
-                })}
+                aria-label={`Start review for ${review.knowledge_point_name}`}
                 onClick={() =>
                   onStartReview(review.knowledge_point_id, review.knowledge_point_name)
                 }
@@ -425,8 +419,8 @@ export function ReviewTrail({
               className="mt-1 w-full rounded-md px-2.5 py-2 text-left text-[11px] font-medium text-[var(--primary)] hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40"
             >
               {expanded
-                ? t("Show fewer")
-                : t("Show all {{count}} reviews", { count: reviews.length })}
+                ? "Show fewer"
+                : `Show all ${reviews.length} reviews`}
             </button>
           )}
         </div>

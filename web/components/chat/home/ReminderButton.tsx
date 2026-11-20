@@ -3,7 +3,7 @@
 import { AlarmClock, Check } from 'lucide-react'
 import { usePathname } from '@/shared/router/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { createCronJob } from '@/lib/cron-api'
 import { notify } from '@/lib/notifications'
 import { activeWorkspaceId } from '@/lib/workspace-scope'
@@ -45,7 +45,7 @@ function isoLocal(date: Date): string {
 }
 
 export default function ReminderButton({ className = '' }: { className?: string }) {
-  const { t } = useTranslation()
+  
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
@@ -85,7 +85,7 @@ export default function ReminderButton({ className = '' }: { className?: string 
   const save = useCallback(async () => {
     const message = text.trim()
     if (!message) {
-      setError(t('Write what to remind you about.'))
+      setError("Write what to remind you about.")
       return
     }
     setSaving(true)
@@ -108,24 +108,16 @@ export default function ReminderButton({ className = '' }: { className?: string 
       setText('')
       notify(
         repeat === 'once'
-          ? t('Reminder set for {{when}}', {
-              when: atFor(preset).toLocaleString(undefined, {
-                weekday: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-            })
-          : t('Reminder set: every {{cadence}} at 09:00', {
-              cadence: repeat === 'daily' ? t('day') : t('week'),
-            }),
+          ? "Reminder set for {{when}}"
+          : "Reminder set: every {{cadence}} at 09:00",
         { tone: 'success' }
       )
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('Could not set the reminder.'))
+      setError(err instanceof Error ? err.message : "Could not set the reminder.")
     } finally {
       setSaving(false)
     }
-  }, [preset, repeat, sessionId, t, text])
+  }, [preset, repeat, sessionId, text])
 
   return (
     <div ref={rootRef} className={`relative ${className}`}>
@@ -134,8 +126,8 @@ export default function ReminderButton({ className = '' }: { className?: string 
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={t('Remind me')}
-        title={t('Remind me')}
+        aria-label={"Remind me"}
+        title={"Remind me"}
         onClick={() => setOpen(value => !value)}
         className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 ${
           open
@@ -144,17 +136,17 @@ export default function ReminderButton({ className = '' }: { className?: string 
         }`}
       >
         <AlarmClock size={16} strokeWidth={1.7} className="shrink-0" />
-        <span className="hidden whitespace-nowrap sm:inline">{t('Remind me')}</span>
+        <span className="hidden whitespace-nowrap sm:inline">{"Remind me"}</span>
       </button>
 
       {open && (
         <div
           role="dialog"
-          aria-label={t('Remind me')}
+          aria-label={"Remind me"}
           className="dt-popup-up absolute bottom-full left-0 z-50 mb-1.5 w-[300px] rounded-xl border border-[var(--border)] bg-[var(--popover)] p-3 text-[13px] shadow-lg backdrop-blur-md"
         >
           <label className="mb-1.5 block text-[12px] font-medium text-[var(--muted-foreground)]">
-            {t('What should I remind you about?')}
+            {"What should I remind you about?"}
           </label>
           <textarea
             ref={textRef}
@@ -162,7 +154,7 @@ export default function ReminderButton({ className = '' }: { className?: string 
             onChange={event => setText(event.target.value)}
             rows={2}
             maxLength={500}
-            placeholder={t('Revise the water cycle for 20 minutes')}
+            placeholder={"Revise the water cycle for 20 minutes"}
             className="mb-2 w-full resize-none rounded-lg border border-[var(--border)] bg-transparent px-2 py-1.5 text-[13px] outline-none focus:border-[var(--primary)]"
             onKeyDown={event => {
               if (event.key === 'Enter' && !event.shiftKey) {
@@ -176,10 +168,10 @@ export default function ReminderButton({ className = '' }: { className?: string 
             <div className="mb-2 flex flex-wrap gap-1.5">
               {(
                 [
-                  ['in30', t('In 30 min')],
-                  ['in60', t('In 1 hour')],
-                  ['tonight', t('Tonight')],
-                  ['tomorrow', t('Tomorrow 9:00')],
+                  ['in30', "In 30 min"],
+                  ['in60', "In 1 hour"],
+                  ['tonight', "Tonight"],
+                  ['tomorrow', "Tomorrow 9:00"],
                 ] as [Preset, string][]
               ).map(([value, label]) => (
                 <button
@@ -200,7 +192,7 @@ export default function ReminderButton({ className = '' }: { className?: string 
           ) : null}
 
           <label className="mb-2 flex items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
-            <span>{t('Repeat')}</span>
+            <span>{"Repeat"}</span>
             <select
               value={repeat}
               onChange={event => setRepeat(event.target.value as Repeat)}
@@ -210,19 +202,19 @@ export default function ReminderButton({ className = '' }: { className?: string 
                   without explicit tokens Chrome paints a white list with light
                   text, making every choice invisible. */}
               <option value="once" className="bg-[var(--popover)] text-[var(--popover-foreground)]">
-                {t('Once')}
+                {"Once"}
               </option>
               <option
                 value="daily"
                 className="bg-[var(--popover)] text-[var(--popover-foreground)]"
               >
-                {t('Daily at 09:00')}
+                {"Daily at 09:00"}
               </option>
               <option
                 value="weekly"
                 className="bg-[var(--popover)] text-[var(--popover-foreground)]"
               >
-                {t('Weekly on Monday 09:00')}
+                {"Weekly on Monday 09:00"}
               </option>
             </select>
           </label>
@@ -231,7 +223,7 @@ export default function ReminderButton({ className = '' }: { className?: string 
 
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11.5px] text-[var(--muted-foreground)]">
-              {sessionId ? t('Replies in this conversation') : t('Shows as a notification')}
+              {sessionId ? "Replies in this conversation" : "Shows as a notification"}
             </span>
             <button
               type="button"
@@ -240,7 +232,7 @@ export default function ReminderButton({ className = '' }: { className?: string 
               className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[12.5px] font-medium text-[var(--primary-foreground)] disabled:opacity-60"
             >
               <Check size={14} strokeWidth={2.2} />
-              {saving ? t('Saving…') : t('Set reminder')}
+              {saving ? "Saving…" : "Set reminder"}
             </button>
           </div>
         </div>

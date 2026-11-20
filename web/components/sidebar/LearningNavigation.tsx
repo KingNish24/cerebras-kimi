@@ -1,5 +1,5 @@
 'use client'
-import { useTranslation } from 'react-i18next'
+
 import { OverviewRow, Status, matches } from './NavigationPrimitives'
 import { RecordGroups, RecordHeader, RecordTime, useRecordView } from './RecordList'
 import { useLayoutEffect, useState, type ReactNode } from 'react'
@@ -49,7 +49,7 @@ export function LearningNavigation({
   sessions?: LearningSessions
   active?: boolean
 }) {
-  const { t } = useTranslation()
+  
   const { sources, loading, failed, retry } = useLearningIndex(active)
   const view = useRecordView('deeptutor.navigation.learning.sort')
   const pathname = usePathname()
@@ -67,7 +67,7 @@ export function LearningNavigation({
   }, [])
   const { sort } = view
   const at = (session: SessionSummary) => (sort === 'createdAt' ? session.created_at : session.updated_at)
-  const placeholder = t('New chat')
+  const placeholder = "New chat"
   const titleOf = (session: SessionSummary) => displaySessionTitle(session.title, placeholder)
   const records = allLearningActivity(sources)
   const filed = fileLearningSessions(records, sessions?.rows ?? [])
@@ -83,7 +83,7 @@ export function LearningNavigation({
     .filter(row =>
       row.kind === 'session'
         ? matches(titleOf(row.session), view.query)
-        : matches(`${row.record.title} ${t(learningSurface(row.record.kind).title)}`, view.query) ||
+        : matches(`${row.record.title} ${(learningSurface(row.record.kind).title)}`, view.query) ||
           row.sessions.some(session => matches(titleOf(session), view.query)) ||
           (row.record.children ?? []).some(child => matches(child.title, view.query))
     )
@@ -96,22 +96,22 @@ export function LearningNavigation({
     })
   return (
     <div className="dt-learning-navigation">
-      <OverviewRow href="/learning/new" label={t('navigation.createLearning')} icon={Plus} />
+      <OverviewRow href="/learning/new" label={"New learning activity"} icon={Plus} />
       <OverviewRow
         href="/learning"
-        label={t('navigation.allLearning')}
+        label={"All learning"}
         icon={LayoutGrid}
       />
       <RecordHeader
-        title={t('navigation.learningRecords')}
+        title={"Your learning"}
         count={rows.length}
         view={view}
-        searchLabel={t('navigation.searchLearning')}
+        searchLabel={"Search your learning"}
       />
       <div
         className="dt-learning-record-list"
         role="region"
-        aria-label={t('navigation.learningRecords')}
+        aria-label={"Your learning"}
         tabIndex={0}
       >
         <Status loading={loading} error={failed.length > 0} retry={retry} />
@@ -145,7 +145,7 @@ export function LearningNavigation({
             !loading &&
             !failed.length && (
               <p className="dt-navigation-empty">
-                {t(view.query ? 'navigation.noResults' : 'navigation.noLearning')}
+                {(view.query ? 'navigation.noResults' : 'navigation.noLearning')}
               </p>
             )
           }
@@ -171,7 +171,7 @@ function RecordNode({
   open: boolean
   onToggle: (open: boolean) => void
 }) {
-  const { t } = useTranslation()
+  
   const drawer = useSidebarDrawer()
   const pathname = usePathname()
   const search = useSearchParams()
@@ -181,12 +181,8 @@ function RecordNode({
   const expandable = questions.length > 0 || (sessions.length > 0 && Boolean(render))
   const expanded = expandable && open
   const toggleLabel = questions.length
-    ? t(expanded ? 'navigation.hidePracticeQuestions' : 'navigation.showPracticeQuestions', {
-        count: questions.length,
-      })
-    : t(expanded ? 'navigation.hideRecordChats' : 'navigation.showRecordChats', {
-        count: sessions.length,
-      })
+    ? (expanded ? 'navigation.hidePracticeQuestions' : 'navigation.showPracticeQuestions')
+    : (expanded ? 'navigation.hideRecordChats' : 'navigation.showRecordChats')
   return (
     <div className="dt-record-node">
       <div className={`dt-record-node-row ${selected ? 'is-active' : ''} ${expanded ? 'is-open' : ''}`}>
@@ -217,13 +213,13 @@ function RecordNode({
         >
           <span className="min-w-0 flex-1 truncate">{record.title}</span>
           {questions.length > 0 && !expanded && (
-            <span className="dt-record-chat-count" title={t('navigation.practiceQuestions', { count: questions.length })}>
+            <span className="dt-record-chat-count" title={`${questions.length} questions`}>
               <ClipboardList size={11} strokeWidth={1.8} aria-hidden />
               {questions.length}
             </span>
           )}
           {expandable && !expanded && questions.length === 0 && (
-            <span className="dt-record-chat-count" title={t('navigation.recordChats', { count: sessions.length })}>
+            <span className="dt-record-chat-count" title={`${sessions.length} conversations`}>
               <MessageCircle size={11} strokeWidth={1.8} aria-hidden />
               {sessions.length}
             </span>

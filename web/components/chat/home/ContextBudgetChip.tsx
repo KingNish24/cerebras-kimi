@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 
 export type ContextBudgetSegment = { key: string; tokens: number };
 
@@ -174,7 +174,7 @@ export default function ContextBudgetChip({
 }: {
   budget: ContextBudget;
 }) {
-  const { t } = useTranslation();
+  
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -234,7 +234,7 @@ export default function ContextBudgetChip({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        aria-label={t("contextBudget.chipAria", { percent: usedPercentLabel })}
+        aria-label={`Context window: ${usedPercentLabel} used`}
         aria-expanded={open}
         aria-haspopup="dialog"
         className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium tabular-nums transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
@@ -252,14 +252,14 @@ export default function ContextBudgetChip({
       {open && (
         <div
           role="dialog"
-          aria-label={t("contextBudget.title")}
+          aria-label={"Context window"}
           style={{ transformOrigin: "bottom right" }}
           className="dt-popup-up absolute bottom-full right-0 z-50 mb-1.5 w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] shadow-lg backdrop-blur-md"
         >
           <div className="px-3 pb-2.5 pt-2.5">
             <div className="flex items-baseline justify-between gap-2">
               <span className="shrink-0 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                {t("contextBudget.title")}
+                {"Context window"}
               </span>
               {budget.model ? (
                 <span className="min-w-0 truncate text-[10.5px] text-[var(--muted-foreground)]/70">
@@ -267,7 +267,7 @@ export default function ContextBudgetChip({
                   {budget.reasoning_effort ? (
                     <span className="text-[var(--muted-foreground)]/50">
                       {" · "}
-                      {t("Reasoning effort")}: {budget.reasoning_effort}
+                      {"Reasoning effort"}: {budget.reasoning_effort}
                     </span>
                   ) : null}
                 </span>
@@ -275,15 +275,11 @@ export default function ContextBudgetChip({
             </div>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-[12.5px] font-semibold tabular-nums text-[var(--foreground)]">
-                {t("contextBudget.usage", {
-                  used: formatTokens(used),
-                  total: formatTokens(total),
-                  percent: usedPercentLabel,
-                })}
+                {`${formatTokens(used)} / ${formatTokens(total)} (${usedPercentLabel})`}
               </span>
               {estimatedWindow ? (
                 <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                  {t("contextBudget.estimated")}
+                  {"est."}
                 </span>
               ) : null}
             </div>
@@ -315,7 +311,7 @@ export default function ContextBudgetChip({
             <SegmentRow
               bordered
               color="var(--muted)"
-              label={t("contextBudget.freeSpace")}
+              label={"Free space"}
               tokens={free}
               share={(free / total) * 100}
             />
@@ -324,16 +320,14 @@ export default function ContextBudgetChip({
           {hasNotes && (
             <div className="space-y-1 border-t border-[var(--border)]/60 px-3 py-2 text-[10.5px] leading-[1.5] text-[var(--muted-foreground)]/80">
               {estimatedWindow && (
-                <p>{t("contextBudget.note.estimatedWindow")}</p>
+                <p>{"Window size is inferred from the model name. You can set it per model in Settings."}</p>
               )}
               {heuristicCounter && (
-                <p>{t("contextBudget.note.heuristicCounter")}</p>
+                <p>{"Token counts are a rough character-based estimate."}</p>
               )}
               {deferredCount > 0 && (
                 <p>
-                  {t("contextBudget.note.deferredTools", {
-                    count: deferredCount,
-                  })}
+                  {(deferredCount === 1 ? "1 extended tool loads on demand — its schema costs nothing until it is used." : `${deferredCount} extended tools load on demand — their schemas cost nothing until they are used.`)}
                 </p>
               )}
             </div>

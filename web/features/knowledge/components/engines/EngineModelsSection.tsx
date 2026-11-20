@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   Boxes,
   Check,
@@ -36,7 +36,7 @@ export function ModelsSection({
   onChanged: () => void;
   onError: (message: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const kinds = useMemo(
     () => ENGINE_MODEL_KINDS[providerId] ?? [],
     [providerId],
@@ -102,19 +102,17 @@ export function ModelsSection({
   if (kinds.length === 0) return null;
 
   return (
-    <Section label={t("Models")} icon={Boxes}>
+    <Section label={"Models"} icon={Boxes}>
       {failed ? (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--border)] p-4">
           <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t(
-              "This engine uses your active chat and embedding models. Manage them in the model catalog.",
-            )}
+            {"This engine uses your active chat and embedding models. Manage them in the model catalog."}
           </p>
           <Link
             href="/settings"
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:border-[var(--ring)]"
           >
-            {t("Open catalog")}
+            {"Open catalog"}
             <ExternalLink className="h-3 w-3" />
           </Link>
         </div>
@@ -142,7 +140,7 @@ export function ModelsSection({
               <div key={kind} className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] font-medium text-[var(--foreground)]">
-                    {t(MODEL_KIND_LABEL[kind] ?? kind)}
+                    {(MODEL_KIND_LABEL[kind] ?? kind)}
                   </span>
                   {busyKind === kind && (
                     <Loader2 className="h-3 w-3 animate-spin text-[var(--muted-foreground)]" />
@@ -182,7 +180,7 @@ export function ModelsSection({
                     href="/settings"
                     className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                   >
-                    {t("No models configured — open catalog")}
+                    {"No models configured — open catalog"}
                     <ExternalLink className="h-3 w-3" />
                   </Link>
                 )}
@@ -200,11 +198,7 @@ export function ModelsSection({
                         ) : (
                           <ShieldCheck className="h-3.5 w-3.5" />
                         )}
-                        {t(
-                          testingKind === kind
-                            ? "Testing compatibility…"
-                            : "Test compatibility",
-                        )}
+                        {(testingKind === kind ? "Testing compatibility…" : "Test compatibility")}
                       </button>
                       {canApply && (
                         <button
@@ -221,14 +215,12 @@ export function ModelsSection({
                           ) : (
                             <Check className="h-3.5 w-3.5" />
                           )}
-                          {t("Use this model")}
+                          {"Use this model"}
                         </button>
                       )}
                     </div>
                     <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-                      {t(
-                        "Runs one small structured-output request and may incur provider charges. The global active chat model changes only after you choose Use this model.",
-                      )}
+                      {"Runs one small structured-output request and may incur provider charges. The global active chat model changes only after you choose Use this model."}
                     </p>
                     {visibleCompatibility && (
                       <div
@@ -249,16 +241,10 @@ export function ModelsSection({
                         )}
                         <div>
                           <p className="font-medium">
-                            {t(
-                              visibleCompatibility.status === "compatible"
-                                ? "Compatible with GraphRAG"
-                                : visibleCompatibility.status === "incompatible"
-                                  ? "Incompatible with GraphRAG"
-                                  : "Compatibility could not be verified",
-                            )}
+                            {(visibleCompatibility.status === "compatible" ? "Compatible with GraphRAG" : visibleCompatibility.status === "incompatible" ? "Incompatible with GraphRAG" : "Compatibility could not be verified")}
                           </p>
                           <p className="mt-0.5 opacity-90">
-                            {t(visibleCompatibility.message)}
+                            {(visibleCompatibility.message)}
                           </p>
                         </div>
                       </div>
@@ -267,9 +253,7 @@ export function ModelsSection({
                 )}
                 {kind === "llm" && providerId === "lightrag" && (
                   <span className="text-[11px] text-[var(--muted-foreground)]">
-                    {t(
-                      "Multimodal documents need a vision-capable chat model.",
-                    )}
+                    {"Multimodal documents need a vision-capable chat model."}
                   </span>
                 )}
               </div>

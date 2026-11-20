@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowUpRight, ChevronRight, Sparkles, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import type { Block } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
 
@@ -24,7 +24,7 @@ export default function DeepDiveBlock({
   onOpenPage,
   pendingTopic,
 }: DeepDiveBlockProps) {
-  const { t } = useTranslation();
+  
   const suggestions =
     (block.payload?.suggestions as Suggestion[] | undefined) || [];
 
@@ -51,7 +51,7 @@ export default function DeepDiveBlock({
       <div className="mb-3 flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-[var(--primary)]" />
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--primary)]">
-          {t("Go Deeper")}
+          {"Go Deeper"}
         </span>
       </div>
       <ul className="space-y-2">
@@ -67,8 +67,8 @@ export default function DeepDiveBlock({
                 <Tooltip
                   label={
                     existingPageId
-                      ? t("Open the chapter this created")
-                      : t("Generate a chapter on this")
+                      ? "Open the chapter this created"
+                      : "Generate a chapter on this"
                   }
                 >
                   <button
@@ -97,7 +97,7 @@ export default function DeepDiveBlock({
                         {topic}
                         {existingPageId && (
                           <span className="rounded-full bg-[var(--primary)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--primary)]">
-                            {t("Created")}
+                            {"Created"}
                           </span>
                         )}
                       </div>

@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import dynamic from "@/shared/router/dynamic";
 import { Paperclip } from "lucide-react";
 import { wsUrl } from "@/shared/api/client";
@@ -335,7 +335,7 @@ export default function PartnerChat({
   sharedAcrossBrowsers?: boolean;
   onSelectionStale?: () => void | Promise<void>;
 }) {
-  const { t } = useTranslation();
+  
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [olderBefore, setOlderBefore] = useState<number | null>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
@@ -503,11 +503,11 @@ export default function PartnerChat({
         container.scrollTop = previousTop + container.scrollHeight - previousHeight;
       });
     } catch (error) {
-      onToast?.(error instanceof Error ? error.message : t("Load failed"));
+      onToast?.(error instanceof Error ? error.message : "Load failed");
     } finally {
       if (sessionKeyRef.current === key) setLoadingOlder(false);
     }
-  }, [olderBefore, loadingOlder, sessionKey, scrollRef, shouldAutoScrollRef, partnerId, onToast, t]);
+  }, [olderBefore, loadingOlder, sessionKey, scrollRef, shouldAutoScrollRef, partnerId, onToast]);
 
   const refreshSharedHistory = useCallback(async () => {
     if (
@@ -713,9 +713,9 @@ export default function PartnerChat({
         setReconciling(false);
         if (data.type === "stale_session") {
           void onSelectionStale?.();
-          onToast?.(t("Conversation changed in another browser. Please retry."));
+          onToast?.("Conversation changed in another browser. Please retry.");
         } else {
-          onToast?.(t("This conversation is already replying. Please wait."));
+          onToast?.("This conversation is already replying. Please wait.");
         }
         return;
       }
@@ -842,7 +842,7 @@ export default function PartnerChat({
             current.filter((item) => item.optimisticId !== rejected.id),
           );
           setRestoreDraft(rejected);
-          onToast?.(data.content ?? t("Action failed"));
+          onToast?.(data.content ?? "Action failed");
         } else {
           setMessages((msgs) => [
             ...msgs,
@@ -905,7 +905,7 @@ export default function PartnerChat({
       connection.stop();
       if (connectionRef.current === connection) connectionRef.current = null;
     };
-  }, [onRuntimeReady, onSelectionStale, onToast, partnerId, t, tryAttach]);
+  }, [onRuntimeReady, onSelectionStale, onToast, partnerId, tryAttach]);
 
   // Report the settled transcript to the parent for header export controls.
   useEffect(() => {
@@ -955,7 +955,7 @@ export default function PartnerChat({
   const runClientCommand = useCallback(
     async (command: string, arg: string): Promise<void> => {
       if (!onSessionKeyChange && command !== "/stop") {
-        onToast?.(t("Manage partner conversations on the partner page."));
+        onToast?.("Manage partner conversations on the partner page.");
         return;
       }
       switch (command) {
@@ -976,7 +976,7 @@ export default function PartnerChat({
               await onSessionKeyChange?.(next);
             }
           } catch (error) {
-            onToast?.(error instanceof Error ? error.message : t("Action failed"));
+            onToast?.(error instanceof Error ? error.message : "Action failed");
           }
           break;
         }
@@ -985,9 +985,7 @@ export default function PartnerChat({
           try {
             const result = await branchPartnerSession(partnerId, sessionKey, next);
             onToast?.(
-              t("Branched — the original is archived as {{id}}", {
-                id: sessionKey,
-              }),
+              `Branched — the original is archived as ${sessionKey}`,
             );
             if (sharedAcrossBrowsers) {
               if (result.active_session_key) await onSessionKeyChange?.(result.active_session_key, true);
@@ -996,13 +994,13 @@ export default function PartnerChat({
               await onSessionKeyChange?.(next); // history reload picks up the copy
             }
           } catch (error) {
-            onToast?.(error instanceof Error ? error.message : t("Nothing to branch yet."));
+            onToast?.(error instanceof Error ? error.message : "Nothing to branch yet.");
           }
           break;
         }
         case "/resume": {
           if (!arg) {
-            onToast?.(t("Usage: /resume <session ID>"));
+            onToast?.("Usage: /resume <session ID>");
             break;
           }
           try {
@@ -1014,18 +1012,18 @@ export default function PartnerChat({
               await onSessionKeyChange?.(arg);
             }
           } catch {
-            onToast?.(t("Session not found"));
+            onToast?.("Session not found");
           }
           break;
         }
         case "/delete": {
           if (!arg) {
-            onToast?.(t("Usage: /delete <session ID>"));
+            onToast?.("Usage: /delete <session ID>");
             break;
           }
           try {
             const result = await deletePartnerSession(partnerId, arg);
-            onToast?.(t("Conversation deleted"));
+            onToast?.("Conversation deleted");
             if (arg === sessionKey) {
               setMessages([]);
               if (sharedAcrossBrowsers) {
@@ -1038,7 +1036,7 @@ export default function PartnerChat({
               await onSessionKeyChange?.(result.active_session_key, true);
             }
           } catch {
-            onToast?.(t("Session not found"));
+            onToast?.("Session not found");
           }
           break;
         }
@@ -1049,9 +1047,9 @@ export default function PartnerChat({
               .slice(0, 30)
               .map(
                 (s) =>
-                  `- \`${s.session_key}\`${s.archived ? ` (${t("Archived")})` : ""} — ${displaySessionTitle(
+                  `- \`${s.session_key}\`${s.archived ? ` (${"Archived"})` : ""} — ${displaySessionTitle(
                     s.title,
-                    t("New conversation"),
+                    "New conversation",
                   )} · ${s.message_count}`,
               )
               .join("\n");
@@ -1059,14 +1057,12 @@ export default function PartnerChat({
               ...msgs,
               {
                 role: "assistant",
-                content: `${t("Conversations:")}\n${lines}\n\n${t(
-                  "Use /resume <session ID> or /delete <session ID>.",
-                )}`,
+                content: `${"Conversations:"}\n${lines}\n\n${"Use /resume <session ID> or /delete <session ID>."}`,
               },
             ]);
             scrollToBottom("instant");
           } catch {
-            onToast?.(t("Load failed"));
+            onToast?.("Load failed");
           }
           break;
         }
@@ -1076,18 +1072,7 @@ export default function PartnerChat({
         }
       }
     },
-    [
-      partnerId,
-      sessionKey,
-      messages.length,
-      sharedAcrossBrowsers,
-      onSessionKeyChange,
-      onSelectionStale,
-      onToast,
-      scrollToBottom,
-      sendStop,
-      t,
-    ],
+    [partnerId, sessionKey, messages.length, sharedAcrossBrowsers, onSessionKeyChange, onSelectionStale, onToast, scrollToBottom, sendStop],
   );
 
   const handleSend = useCallback(
@@ -1115,8 +1100,8 @@ export default function PartnerChat({
       const visibleContent =
         content ||
         (attachments.every((item) => item.type === "image")
-          ? t("Please analyze the attached image(s).")
-          : t("Please use the attached file(s)."));
+          ? "Please analyze the attached image(s)."
+          : "Please use the attached file(s).");
       const sent = connectionRef.current?.send(
         JSON.stringify({
           content: visibleContent,
@@ -1153,18 +1138,7 @@ export default function PartnerChat({
       scrollToBottom("instant");
       return true;
     },
-    [
-      sessionKey,
-      connected,
-      streaming,
-      reconciling,
-      switchingSession,
-      historyLoadedKey,
-      scrollToBottom,
-      runClientCommand,
-      shouldAutoScrollRef,
-      t,
-    ],
+    [sessionKey, connected, streaming, reconciling, switchingSession, historyLoadedKey, scrollToBottom, runClientCommand, shouldAutoScrollRef],
   );
 
   return (
@@ -1177,13 +1151,13 @@ export default function PartnerChat({
       >
         {historyLoadError ? (
           <div className="flex items-center justify-center gap-2 py-2 text-[12px] text-[var(--muted-foreground)]">
-            {t("Load failed")}
+            {"Load failed"}
             <button
               type="button"
               onClick={() => setHistoryRetry((value) => value + 1)}
               className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--foreground)]"
             >
-              {t("Retry")}
+              {"Retry"}
             </button>
           </div>
         ) : null}
@@ -1201,9 +1175,7 @@ export default function PartnerChat({
                 {partnerName}
               </p>
               <p className="mt-1 max-w-sm text-[12.5px] text-[var(--muted-foreground)]">
-                {t(
-                  "Say hello — channels are optional, and any connected channel shares this partner's memory.",
-                )}
+                {"Say hello — channels are optional, and any connected channel shares this partner's memory."}
               </p>
             </div>
           </div>
@@ -1216,7 +1188,7 @@ export default function PartnerChat({
                 disabled={loadingOlder}
                 className="self-center rounded-md border border-[var(--border)] px-3 py-1.5 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-50"
               >
-                {loadingOlder ? t("Loading...") : t("Load older messages")}
+                {loadingOlder ? "Loading..." : "Load older messages"}
               </button>
             ) : null}
             {messages.map((msg, i) =>
@@ -1351,7 +1323,7 @@ export default function PartnerChat({
       <div className="mx-auto w-full max-w-2xl px-1 pb-4">
         {!connected ? (
           <p className="mb-1 text-center text-[11px] text-[var(--muted-foreground)]">
-            {t("Connecting…")}
+            {"Connecting…"}
           </p>
         ) : null}
         <PartnerComposer

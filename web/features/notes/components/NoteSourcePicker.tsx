@@ -1,6 +1,6 @@
 'use client'
 import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import {
   catalogTranslate,
   useTopicSourceLibrary,
@@ -20,9 +20,9 @@ export default function NoteSourcePicker({
   onInsert: (title: string, markdown: string, url: string, id: string) => void
   onKnowledge: (name: string, workspace: string) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const zh = i18n.language.startsWith('zh')
-  const tr = useMemo(() => catalogTranslate(t, zh), [t, zh])
+  
+  const zh = "en".startsWith('zh')
+  const tr = useMemo(() => catalogTranslate(zh), [zh])
   const { library, loading } = useTopicSourceLibrary(tr)
   const [query, setQuery] = useState('')
   const [busy, setBusy] = useState(false)
@@ -58,7 +58,7 @@ export default function NoteSourcePicker({
         text = (session.messages || [])
           .filter(m => ['user', 'assistant'].includes(m.role))
           .map(
-            m => `${m.role === 'user' ? t('Question') : t('Answer')}\n\n${String(m.content || '')}`
+            m => `${m.role === 'user' ? "Question" : "Answer"}\n\n${String(m.content || '')}`
           )
           .join('\n\n')
           .slice(0, 180000)
@@ -73,18 +73,18 @@ export default function NoteSourcePicker({
     }
   }
   return (
-    <PickerShell open onClose={onClose} ariaLabel={t('Reference a source')}>
+    <PickerShell open onClose={onClose} ariaLabel={"Reference a source"}>
       <div className="w-[min(540px,90vw)] rounded-xl bg-[var(--card)] p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium">{t('Reference a source')}</h2>
+          <h2 className="text-sm font-medium">{"Reference a source"}</h2>
           <button className="dt-note-button" onClick={onClose}>
-            {t('Close')}
+            {"Close"}
           </button>
         </div>
         <input
           autoFocus
-          aria-label={t('Search sources')}
-          placeholder={t('Search sources')}
+          aria-label={"Search sources"}
+          placeholder={"Search sources"}
           className="mb-3 w-full rounded bg-[var(--secondary)] p-2 text-sm"
           value={query}
           onChange={e => setQuery(e.target.value)}
@@ -102,13 +102,7 @@ export default function NoteSourcePicker({
               >
                 <span>{row.label}</span>
                 <span className="block text-xs text-[var(--muted-foreground)]">
-                  {t(
-                    row.kind === 'cowriter'
-                      ? 'Learning notebook'
-                      : row.kind === 'chat'
-                        ? 'Conversation'
-                        : 'Knowledge base'
-                  )}{' '}
+                  {(row.kind === 'cowriter' ? 'Learning notebook' : row.kind === 'chat' ? 'Conversation' : 'Knowledge base')}{' '}
                   · {row.content_workspace_name}
                 </span>
               </button>

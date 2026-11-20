@@ -13,7 +13,7 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 
 - **`backend/`** — FastAPI/Uvicorn app (`app/main.py`). REST handlers live in `app/api/handlers.py`; turn commands and feature-channel messages are dispatched directly by the REST+SSE controller in `app/api/realtime.py`, which drives the vtx agent loop in `app/agent/runtime.py`. There is no ACP or JSON-RPC layer.
 - **`web/`** — Vite + React 19 + TanStack Router app (`vite.config.ts`, `src/router.tsx`). `features/chat/transport/` holds the SSE-backed `TurnSocket` and the turn protocol client; `lib/sse-socket.ts` is the shared REST+SSE shim used by the turn protocol, `lib/rpc-ws.ts`, and `lib/reconnecting-websocket.ts` for legacy feature channels. Commands are POSTed; frames arrive as named SSE events and are re-emitted with the same JSON payloads the old transport produced.
-- **DeepTutor owns sessions** — conversations persist as JSON documents under `data/sessions/<id>.json` (messages, turn events, settings, and the agent's vtx session header/entries). The agent uses a real, append-only vtx `Session`, but its persistence layer is that DeepTutor record; nothing is read from or written to `~/.vtx/sessions`.
+- **DeepTutor owns sessions** — conversations live in a WAL-mode SQLite database, `data/deeptutor.sqlite3` (`sessions`, `messages`, `turns`, `vtx_items`, and an FTS5 `session_fts` index). The agent uses a real, append-only vtx `Session`, but its persistence layer is that DeepTutor database; nothing is read from or written to `~/.vtx/sessions`. Legacy `data/sessions/*.json` records are imported on first open and archived under `data/sessions-legacy/`.
 
 ### API surface
 
@@ -116,8 +116,8 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 
 | Data | Location |
 |---|---|
-| Conversations | `data/sessions/<id>.json` (DeepTutor-owned) |
-| DeepTutor session records | `data/sessions/` |
+| Conversations | `data/deeptutor.sqlite3` (WAL-mode SQLite; FTS5 index for session search) |
+| Legacy session records | `data/sessions-legacy/` (imported from `data/sessions/*.json` on first open) |
 | Knowledge bases | `data/kb/` (via `KnowledgeBaseStore`) |
 | Memory/learning/mastery/notes | `data/*.json`, `data/notes/` |
 | Extended feature stores | `data/ext/` |

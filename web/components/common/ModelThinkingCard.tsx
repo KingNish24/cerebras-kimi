@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BrainCircuit, ChevronDown, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 
 import MarkdownRenderer from "./MarkdownRenderer";
 
@@ -34,7 +34,7 @@ export default function ModelThinkingCard({
   content,
   closed,
 }: ModelThinkingCardProps) {
-  const { t } = useTranslation();
+  
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
@@ -60,7 +60,7 @@ export default function ModelThinkingCard({
   };
 
   const hasBody = content.trim().length > 0;
-  const placeholder = `${t("Thinking...")}`;
+  const placeholder = `${"Thinking..."}`;
 
   return (
     <details
@@ -79,7 +79,7 @@ export default function ModelThinkingCard({
           strokeWidth={1.6}
           className="shrink-0 opacity-80"
         />
-        <span className="tracking-wide">{t("Model thinking")}</span>
+        <span className="tracking-wide">{"Model thinking"}</span>
         {!closed && (
           <Loader2
             size={11}

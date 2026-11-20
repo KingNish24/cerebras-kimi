@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import { ActivityFold, ActivityRow, ActivityStack } from "@/components/activity";
 import type { Answerer } from "./answerer";
@@ -131,11 +131,11 @@ function isFinalAnswerPhase(
  * would expand onto nothing and read as broken rather than as loading.
  */
 function TraceLoadingRow() {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex items-center gap-2 py-1 pl-1 text-xs text-[var(--muted-foreground)]">
       <span className="size-1.5 animate-pulse rounded-full bg-[var(--muted-foreground)]" />
-      {t("Loading the full trace…")}
+      {"Loading the full trace…"}
     </div>
   );
 }
@@ -341,15 +341,15 @@ export function ResearchStagePanel({
   events: StreamEvent[];
   isStreaming?: boolean;
 }) {
-  const { t } = useTranslation();
+  
   const cards = useMemo<ResearchStageCard[]>(() => {
     return RESEARCH_STAGE_SPECS.map((spec) => ({
       id: spec.id,
-      title: t(spec.titleKey),
-      hint: t(spec.hintKey),
+      title: (spec.titleKey),
+      hint: (spec.hintKey),
       events: events.filter((event) => getResearchStageId(event) === spec.id),
     })).filter((card) => card.events.length > 0);
-  }, [events, t]);
+  }, [events]);
 
   if (!cards.length) return null;
 

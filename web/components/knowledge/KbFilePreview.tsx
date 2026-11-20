@@ -3,7 +3,7 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import dynamic from "@/shared/router/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import {
   Check,
   Copy,
@@ -115,7 +115,7 @@ export default function KbFilePreview({
   fileListCollapsed,
   onToggleFileList,
 }: KbFilePreviewProps) {
-  const { t } = useTranslation();
+  
   const [copied, setCopied] = useState(false);
   // Master-detail caps the inline pane height; fullscreen lets a tall PDF use
   // the whole window so you're not stuck reading half a page at a time.
@@ -151,13 +151,13 @@ export default function KbFilePreview({
         {onToggleFileList && (
           <div className="flex items-center justify-end border-b border-[var(--border)] bg-[var(--card)]/40 px-3 py-1.5">
             <Tooltip label={
-                fileListCollapsed ? t("Show file list") : t("Hide file list")
+                fileListCollapsed ? "Show file list" : "Hide file list"
               } side="top">
               <button
                 type="button"
                 onClick={onToggleFileList}
                 aria-label={
-                  fileListCollapsed ? t("Show file list") : t("Hide file list")
+                  fileListCollapsed ? "Show file list" : "Hide file list"
                 }
                 className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
@@ -176,12 +176,10 @@ export default function KbFilePreview({
           </div>
           <div>
             <div className="text-[13px] font-medium text-[var(--foreground)]">
-              {t("Select a file to preview")}
+              {"Select a file to preview"}
             </div>
             <p className="mt-1 max-w-xs text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-              {t(
-                "Pick any document from the list on the left to view it here without leaving the knowledge base.",
-              )}
+              {"Pick any document from the list on the left to view it here without leaving the knowledge base."}
             </p>
           </div>
         </div>
@@ -216,13 +214,13 @@ export default function KbFilePreview({
       <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--card)]/80 px-3 py-2">
         {onToggleFileList && !fullscreen && (
           <Tooltip label={
-              fileListCollapsed ? t("Show file list") : t("Hide file list")
+              fileListCollapsed ? "Show file list" : "Hide file list"
             } side="top">
             <button
               type="button"
               onClick={onToggleFileList}
               aria-label={
-                fileListCollapsed ? t("Show file list") : t("Hide file list")
+                fileListCollapsed ? "Show file list" : "Hide file list"
               }
               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
@@ -252,11 +250,11 @@ export default function KbFilePreview({
           </div>
         )}
 
-        <Tooltip label={fullscreen ? t("Exit fullscreen") : t("Fullscreen")} side="top">
+        <Tooltip label={fullscreen ? "Exit fullscreen" : "Fullscreen"} side="top">
           <button
             type="button"
             onClick={() => setFullscreen((value) => !value)}
-            aria-label={fullscreen ? t("Exit fullscreen") : t("Fullscreen")}
+            aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
             className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
             {fullscreen ? (
@@ -269,21 +267,21 @@ export default function KbFilePreview({
 
         {previewUrl && (
           <>
-            <Tooltip label={t("Download")} side="top">
+            <Tooltip label={"Download"} side="top">
               <a
                 href={previewUrl}
                 download={source.filename}
-                aria-label={t("Download")}
+                aria-label={"Download"}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <Download size={13} strokeWidth={1.7} />
               </a>
             </Tooltip>
-            <Tooltip label={t("Copy link")} side="top">
+            <Tooltip label={"Copy link"} side="top">
               <button
                 type="button"
                 onClick={() => void handleCopy()}
-                aria-label={t("Copy link")}
+                aria-label={"Copy link"}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 {copied ? (

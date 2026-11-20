@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+
 import { Check, Copy, Loader2, type LucideIcon } from "lucide-react";
 import type { RagProviderSummary } from "@/features/knowledge/api/engines";
 import { copyText } from "@/lib/clipboard";
@@ -9,32 +9,32 @@ import type { ProviderConnectionStatus } from "@/lib/knowledge-helpers";
 import { MODE_DESCRIPTIONS, RESPONSE_TYPE_PRESETS } from "./engine-constants";
 
 export function StatusBadge({ status }: { status: ProviderConnectionStatus }) {
-  const { t } = useTranslation();
+  
   if (status === "ready") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10.5px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
         <Check className="h-3 w-3" />
-        {t("Ready")}
+        {"Ready"}
       </span>
     );
   }
   if (status === "needs_key") {
     return (
       <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-        {t("Needs key")}
+        {"Needs key"}
       </span>
     );
   }
   if (status === "needs_setup") {
     return (
       <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10.5px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
-        {t("Needs setup")}
+        {"Needs setup"}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
-      {t("Not installed")}
+      {"Not installed"}
     </span>
   );
 }
@@ -61,7 +61,7 @@ export function Section({
 }
 
 export function CopyableCommand({ command }: { command: string }) {
-  const { t } = useTranslation();
+  
   const [outcome, setOutcome] = useState<"idle" | "copied" | "failed">("idle");
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2">
@@ -89,10 +89,10 @@ export function CopyableCommand({ command }: { command: string }) {
           <Copy className="h-3 w-3" />
         )}
         {outcome === "copied"
-          ? t("Copied")
+          ? "Copied"
           : outcome === "failed"
-            ? t("Could not copy")
-            : t("Copy")}
+            ? "Could not copy"
+            : "Copy"}
       </button>
     </div>
   );
@@ -180,7 +180,7 @@ export function ModeSelector({
   provider: RagProviderSummary;
   onSelectMode: (providerId: string, mode: string) => Promise<void> | void;
 }) {
-  const { t } = useTranslation();
+  
   const modes = useMemo(() => provider.modes ?? [], [provider.modes]);
   const [selected, setSelected] = useState(
     provider.default_mode || modes[0] || "",
@@ -230,7 +230,7 @@ export function ModeSelector({
             </div>
             {desc && (
               <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-                {t(desc)}
+                {(desc)}
               </span>
             )}
           </button>
@@ -247,12 +247,12 @@ export function ResponseTypeSelect({
   value: string;
   onChange: (next: string) => void;
 }) {
-  const { t } = useTranslation();
+  
   const known = RESPONSE_TYPE_PRESETS.includes(value);
   return (
     <label className="flex flex-col gap-1">
       <span className="text-[12px] font-medium text-[var(--foreground)]">
-        {t("Response style")}
+        {"Response style"}
       </span>
       <select
         value={value}
@@ -323,7 +323,7 @@ export function SaveButton({
   invalid?: boolean;
   onSave: () => void;
 }) {
-  const { t } = useTranslation();
+  
   return (
     <div className="flex justify-end">
       <button
@@ -333,7 +333,7 @@ export function SaveButton({
         className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-        {t("Save changes")}
+        {"Save changes"}
       </button>
     </div>
   );

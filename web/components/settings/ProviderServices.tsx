@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
+
 import { useSettings, type ServiceName } from '@/features/settings/store/SettingsStore'
 import type { ProviderServiceOverrides } from '@/lib/model-catalog-types'
 import { formatProviderLabel } from '@/lib/provider-branding'
@@ -20,8 +20,8 @@ export function ProviderServices({
   source: ProviderSource
   onChange: (value: ProviderServiceOverrides) => void
 }) {
-  const { t, i18n } = useTranslation()
-  const uiLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? 'en'
+  
+  const uiLanguage = "en" ?? "en" ?? 'en'
   const { providers, connectionTargets } = useSettings()
   const overrides = source.source.service_overrides ?? {}
   function patch(service: ServiceName, value: object) {
@@ -29,23 +29,23 @@ export function ProviderServices({
   }
   return (
     <section
-      aria-label={t('settings.providerServices.title')}
+      aria-label={"Available service types"}
       className="space-y-3 border-t border-[var(--border)] pt-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-sm font-medium">{t('settings.providerServices.title')}</h4>
+        <h4 className="text-sm font-medium">{"Available service types"}</h4>
         {Object.keys(overrides).length > 0 && (
           <button
             type="button"
             className="text-[13px] underline underline-offset-4"
             onClick={() => onChange({})}
           >
-            {t('settings.providerServices.reset')}
+            {"Use detected and built-in types"}
           </button>
         )}
       </div>
       <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-        {t('settings.providerServices.description')}
+        {"Built-in integrations and live model metadata suggest service types. You can add or hide types here. Choose the matching adapter and test a model to verify access; existing models are kept."}
       </p>
       <div className="grid gap-2.5 sm:grid-cols-2">
         {PROVIDER_SERVICES.map(service => {
@@ -78,7 +78,7 @@ export function ProviderServices({
                   }
                 />
                 <span>
-                  <span className="block font-medium">{t(SERVICE_TITLES[service])}</span>
+                  <span className="block font-medium">{(SERVICE_TITLES[service])}</span>
                   <span className="mt-1 block text-[12px] text-[var(--muted-foreground)]">
                     {t(`settings.providerServices.evidence.${support.evidence}`)}
                   </span>
@@ -87,18 +87,18 @@ export function ProviderServices({
               {support.enabled && service !== 'llm' && (
                 <details className="mt-3 border-t border-[color-mix(in_srgb,var(--border)_65%,transparent)] pt-3 text-[13px]">
                   <summary className="cursor-pointer text-[var(--muted-foreground)]">
-                    {t('settings.providerServices.connection')}
+                    {"Service connection options"}
                   </summary>
                   <div className="mt-3 space-y-3">
                     <label className="block space-y-1.5">
-                      <span>{t('settings.providerServices.adapter')}</span>
+                      <span>{"Service API / adapter"}</span>
                       <select
                         className={selectClass}
                         value={binding}
                         onChange={e => patch(service, { enabled: true, binding: e.target.value })}
                       >
                         {!options.some(p => p.value === binding) && (
-                          <option value={binding}>{binding || t('Choose a provider')}</option>
+                          <option value={binding}>{binding || "Choose a provider"}</option>
                         )}
                         {options.map(option => (
                           <option key={option.value} value={option.value}>
@@ -108,11 +108,11 @@ export function ProviderServices({
                       </select>
                     </label>
                     <label className="block space-y-1.5">
-                      <span>{t('settings.providerServices.url')}</span>
+                      <span>{"Service URL (optional)"}</span>
                       <input
                         className={inputClass}
                         value={overrides[service]?.base_url ?? ''}
-                        placeholder={t('settings.providerServices.inheritUrl')}
+                        placeholder={"Use the provider URL or adapter default"}
                         onChange={e =>
                           patch(service, { enabled: true, binding, base_url: e.target.value })
                         }
@@ -120,12 +120,12 @@ export function ProviderServices({
                     </label>
                     {service === 'search' && (
                       <p className="leading-relaxed text-[var(--muted-foreground)]">
-                        {t('settings.providerServices.searchProtocol')}
+                        {"Select the search API implemented by this endpoint. Search does not use the language-model protocol."}
                       </p>
                     )}
                     {service === 'videogen' && (
                       <p className="leading-relaxed text-[var(--muted-foreground)]">
-                        {t('settings.serviceConfig.video')}
+                        {"Video generation requires task submission, status polling and downloading. A custom endpoint must implement DeepTutor’s video task protocol; a chat-compatible API alone is insufficient."}
                       </p>
                     )}
                   </div>
