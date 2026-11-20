@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { normalizeLanguage } from "@/i18n/languages";
+import { englishLabel } from "@/lib/english-labels";
 import { formatDate } from "@/lib/datetime";
 
 import { Toggle } from "@/components/settings/Toggle";

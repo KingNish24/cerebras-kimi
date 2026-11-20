@@ -10,6 +10,7 @@ import {
 } from '@/features/settings/store/SettingsStore'
 import { apiFetch, apiUrl } from '@/shared/api/client'
 import { modelTestFingerprint } from '@/lib/model-settings'
+import { englishLabel } from '@/lib/english-labels'
 import { inputClass, subPanelClass } from './shared'
 import { registryButton, registryPrimary } from './RegistryControls'
 

@@ -6,6 +6,7 @@ import ProviderIcon from '@/components/common/ProviderIcon'
 import { formatProviderLabel } from '@/lib/provider-branding'
 import type { ApiFormat, ServiceName } from '@/lib/model-catalog-types'
 import { SERVICE_TITLES } from '@/lib/provider-registry'
+import { englishLabel } from '@/lib/english-labels'
 import { inputClass, selectClass, subPanelClass } from './shared'
 import { registryButton, registryPrimary } from './RegistryControls'
 
@@ -69,7 +70,7 @@ export function AddProviderPanel({
   onCancel: () => void
 }) {
   
-  const uiLanguage = "en" ?? "en" ?? 'en'
+  const uiLanguage = 'en'
   const radioName = useId()
   const [filter, setFilter] = useState<string>('all')
   const [query, setQuery] = useState('')

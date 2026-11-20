@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { knowledgeBaseFilePath } from "@/features/knowledge/api/files";
+import { englishLabel } from "@/lib/english-labels";
 
 interface Coverage {
   documents: { source_path: string; retained_count: number; page_fallback: boolean; issues: { status: string; reason: string; page?: number; asset?: string }[] }[];

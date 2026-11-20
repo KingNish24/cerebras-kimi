@@ -12,6 +12,7 @@ import {
   type ProviderSource,
 } from '@/lib/provider-registry'
 import { inputClass, selectClass } from './shared'
+import { englishLabel } from '@/lib/english-labels'
 
 export function ProviderServices({
   source,
@@ -21,7 +22,7 @@ export function ProviderServices({
   onChange: (value: ProviderServiceOverrides) => void
 }) {
   
-  const uiLanguage = "en" ?? "en" ?? 'en'
+  const uiLanguage = 'en'
   const { providers, connectionTargets } = useSettings()
   const overrides = source.source.service_overrides ?? {}
   function patch(service: ServiceName, value: object) {

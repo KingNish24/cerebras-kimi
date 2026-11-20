@@ -1,6 +1,7 @@
 'use client'
 
 import Image from '@/shared/router/image'
+import { englishLabel } from '@/lib/english-labels'
 
 import {
   ArrowDown,

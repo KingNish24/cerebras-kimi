@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { englishLabel } from "@/lib/english-labels";
 
 
 export type ContextBudgetSegment = { key: string; tokens: number };
