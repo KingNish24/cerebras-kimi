@@ -39,6 +39,7 @@ from vtx.protocol.types import ToolResult
 
 from .. import provider_config
 from ..config import Settings
+from ..services.inline_thinking import InlineThinkingSplitter
 from ..store.session_store import AUTO_PARENT_MESSAGE, SessionStore
 from .tools import builtin_tools
 from .turn_context import set_note_context, set_turn_context
@@ -616,6 +617,31 @@ class AgentRuntime:
         status = "completed"
         assistant_parts: list[str] = []
         usage: Any = None
+        # Some OpenAI-compatible gateways forget to move a model's scratchpad
+        # into `reasoning`/`reasoning_content` and leave it inline in the text
+        # stream. vtx only knows the ` thinking` spelling, so split the other
+        # common tag families here before they are published as the answer.
+        inline_thinking = InlineThinkingSplitter()
+
+        async def publish_text_piece(kind: str, piece: str) -> None:
+            if not piece:
+                return
+            if kind == "think":
+                await self._emit(handle, self._stream_event(
+                    handle, "thinking", content=piece,
+                    source=capability, stage="responding",
+                    metadata={
+                        "call_id": handle.call_id,
+                        "call_kind": "llm_reasoning",
+                        "trace_kind": "llm_reasoning",
+                        "call_role": "assistant",
+                    }))
+                return
+            assistant_parts.append(piece)
+            await self._emit(handle, self._stream_event(
+                handle, "content", content=piece,
+                source=capability, stage="responding"))
+
         try:
             async for event in agent.run(
                 prompt,
@@ -672,10 +698,8 @@ class AgentRuntime:
                             }))
                 elif isinstance(event, TextDeltaEvent):
                     if event.delta:
-                        assistant_parts.append(event.delta)
-                        await self._emit(handle, self._stream_event(
-                            handle, "content", content=event.delta,
-                            source=capability, stage="responding"))
+                        for kind, piece in inline_thinking.feed(event.delta):
+                            await publish_text_piece(kind, piece)
                 elif isinstance(event, ToolStartEvent):
                     await self._emit(handle, self._stream_event(
                         handle, "progress",
@@ -747,6 +771,8 @@ class AgentRuntime:
                         metadata={"turn_terminal": True}))
                 elif isinstance(event, AgentEndEvent):
                     usage = getattr(event, "total_usage", None)
+            for kind, piece in inline_thinking.flush():
+                await publish_text_piece(kind, piece)
         except asyncio.CancelledError:
             status = "cancelled"
         except Exception as exc:  # noqa: BLE001

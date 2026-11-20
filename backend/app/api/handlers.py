@@ -7,12 +7,15 @@ partners, documents, and the other feature stores.
 
 from __future__ import annotations
 
+import asyncio
+import json
 from typing import Any
 
 from pydantic import BaseModel
 
 
 from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
+from fastapi.responses import StreamingResponse
 
 from pathlib import Path
 
@@ -968,16 +971,6 @@ def kb_list_alias(request: Request, resource_library: bool = False) -> list[dict
     return request.app.state.kb.list()
 
 
-# Catch-all for settings sub-pages/extensions the UI probes (GET/PUT/POST).
-# Specific routes above always win; this only silences 404 noise.
-@router.api_route(
-    "/settings/{path:path}",
-    methods=["GET", "PUT", "POST", "DELETE", "PATCH"],
-)
-def settings_catchall(path: str) -> dict[str, Any]:
-    return {}
-
-
 @router.get("/sessions/{session_id}/organization")
 def session_organization(session_id: str) -> dict[str, Any]:
     return {"session_id": session_id, "folders": [], "tags": []}
@@ -1591,11 +1584,82 @@ def settings_service_preview(request: Request, service: str, body: dict[str, Any
     return {"service": service, "preview": {}}
 
 
-@router.post("/settings/tests/{test_id}/start")
-def settings_test_start(request: Request, test_id: str, body: dict[str, Any]) -> dict[str, Any]:
-    return {"test_id": test_id, "status": "running", "events_url": f"/api/settings/tests/{test_id}/events"}
+@router.post("/settings/tests/{service}/start")
+async def settings_test_start(
+    request: Request, service: str, body: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Start a bounded diagnostic probe of the model being configured.
+
+    The browser sends the whole draft catalog so the test uses unsaved edits.
+    A run id is returned immediately; progress arrives on the SSE events route.
+    """
+    from ..services.config_test import get_config_test_runner
+
+    catalog = (body or {}).get("catalog")
+    if not isinstance(catalog, dict):
+        catalog = provider_config.load_catalog(_settings(request))
+    run = get_config_test_runner().start(service, catalog)
+    return {"run_id": run.id}
 
 
-@router.get("/settings/tests/{test_id}/events")
-def settings_test_events(request: Request, test_id: str) -> dict[str, Any]:
-    return {"events": []}
+@router.get("/settings/tests/{service}/{run_id}/events")
+async def settings_test_events(
+    request: Request, service: str, run_id: str
+) -> StreamingResponse:
+    """Stream probe events until the run finishes, then close the stream."""
+    from ..services.config_test import get_config_test_runner
+
+    run = get_config_test_runner().get(run_id)
+    if run is None or run.service != service:
+        raise HTTPException(status_code=404, detail="Test run not found.")
+
+    async def event_stream():
+        sent = 0
+        try:
+            while True:
+                if await request.is_disconnected():
+                    return
+                events = run.snapshot(sent)
+                if events:
+                    for event in events:
+                        yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                    sent += len(events)
+                    if run.is_terminal():
+                        return
+                else:
+                    yield "event: heartbeat\ndata: {}\n\n"
+                await asyncio.sleep(0.2)
+        finally:
+            if not run.is_terminal():
+                run.cancelled = True
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/settings/tests/{service}/{run_id}/cancel")
+def settings_test_cancel(service: str, run_id: str) -> dict[str, Any]:
+    from ..services.config_test import get_config_test_runner
+
+    cancelled = get_config_test_runner().cancel(run_id)
+    if not cancelled:
+        raise HTTPException(status_code=404, detail="Test run not found.")
+    return {"message": "Cancelled"}
+
+
+# Catch-all for settings sub-pages/extensions the UI probes (GET/PUT/POST).
+# Registered last so specific settings routes (tests, presets, preview, ...)
+# always win — an earlier catch-all silently swallowed them and returned {}.
+@router.api_route(
+    "/settings/{path:path}",
+    methods=["GET", "PUT", "POST", "DELETE", "PATCH"],
+)
+def settings_catchall(path: str) -> dict[str, Any]:
+    return {}

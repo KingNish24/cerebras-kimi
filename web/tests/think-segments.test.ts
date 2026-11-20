@@ -114,9 +114,29 @@ test("trims surrounding whitespace inside the think block", () => {
   assert.equal(segments[0].content, "lots of newlines");
 });
 
+test("supports other inline reasoning tag families", () => {
+  for (const [input, answer] of [
+    ["<thought>foo</thought>bar", "bar"],
+    ["<reasoning reason='x'>foo</reasoning>bar", "bar"],
+    ["<|begin_of_thought|>foo<|end_of_thought|>bar", "bar"],
+    ["<|begin_of_thinking|>foo<|end_of_thinking|>bar", "bar"],
+  ]) {
+    const segments = parseModelThinkingSegments(input);
+    assert.equal(segments.length, 2, input);
+    assert.equal(segments[0].kind, "think", input);
+    if (segments[0].kind === "think") {
+      assert.equal(segments[0].content, "foo", input);
+      assert.equal(segments[0].closed, true, input);
+    }
+    assert.deepEqual(segments[1], { kind: "text", content: answer }, input);
+  }
+});
+
 test("hasModelThinking detects raw and post-normalized tags", () => {
   assert.equal(hasModelThinking("hello"), false);
   assert.equal(hasModelThinking("<think>x</think>"), true);
   assert.equal(hasModelThinking("`<think>`x`</think>`"), true);
   assert.equal(hasModelThinking("<thinking>x</thinking>"), true);
+  assert.equal(hasModelThinking("<thought>x</thought>"), true);
+  assert.equal(hasModelThinking("<|begin_of_thought|>x<|end_of_thought|>"), true);
 });
