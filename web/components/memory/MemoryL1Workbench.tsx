@@ -141,8 +141,8 @@ export default function MemoryL1Workbench({
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 px-6 py-4 md:px-10">
       <div className="flex items-center justify-between gap-3">
-        <Breadcrumb label={nicelabel} t={t} />
-        <LayerSwitcher t={t} />
+        <Breadcrumb label={nicelabel}  />
+        <LayerSwitcher  />
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)] gap-4">
@@ -214,7 +214,7 @@ export default function MemoryL1Workbench({
   );
 }
 
-function LayerSwitcher({ t }: { t: (k: string) => string }) {
+function LayerSwitcher() {
   // L1 is the current page, so it stays as a non-link pill; L2 + L3
   // link to their respective hubs.
   const entries: {
@@ -257,7 +257,7 @@ function LayerSwitcher({ t }: { t: (k: string) => string }) {
   );
 }
 
-function Breadcrumb({ label, t }: { label: string; t: (k: string) => string }) {
+function Breadcrumb({ label }: { label: string; t: (k: string) => string }) {
   return (
     <div className="flex items-center gap-2 text-[12.5px]">
       <Link

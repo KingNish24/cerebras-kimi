@@ -184,7 +184,7 @@ export default function PageCustomizeDialog({
                     onClick={() => setTab(item)}
                     className={`flex-1 rounded-lg px-3 py-2 text-sm transition-colors ${tab === item ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                   >
-                    {t(`customize.${item}`)}
+                    {englishLabel(`customize.${item}`, `customize.${item}`})
                   </button>
                 ))}
               </div>
@@ -197,7 +197,7 @@ export default function PageCustomizeDialog({
                   ).map(key => (
                     <ChoiceRow
                       key={key}
-                      label={t(`customize.control.${key}`)}
+                      label={englishLabel(`customize.control.${key}`, `customize.control.${key}`})
                       checked={draft.chat.controls[key] ?? true}
                       onChange={() =>
                         setDraft(previous => ({
@@ -230,7 +230,7 @@ export default function PageCustomizeDialog({
                         onClick={() => setGroup(key)}
                         className={`rounded-full px-3 py-1.5 text-xs transition-colors ${group === key ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground hover:bg-muted'}`}
                       >
-                        {t(`starters.${key}`)}
+                        {englishLabel(`starters.${key}`, `starters.${key}`})
                       </button>
                     ))}
                   </div>

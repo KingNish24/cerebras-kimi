@@ -357,7 +357,7 @@ export default function MemoryRunPanel({
             error={modelError}
             disabled={isRunning}
             onChange={(next) => setSelection(next)}
-            t={t}
+            
           />
           {isRunning ? (
             <Tooltip label={"Cancel"} side="top">
@@ -388,7 +388,7 @@ export default function MemoryRunPanel({
       {/* Stream */}
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
         {events.length === 0 && status === "idle" ? (
-          <EmptyTrace t={t} />
+          <EmptyTrace  />
         ) : (
           <ol className="space-y-2">
             {turns.map((turn) => (
@@ -491,14 +491,13 @@ function groupByTurn(events: RunEvent[]): Turn[] {
 
 function TurnCard({ turn, t }: { turn: Turn; t: (k: string) => string }) {
   if (turn.kind === "system") {
-    return <SystemEventRow event={turn.payload} t={t} />;
+    return <SystemEventRow event={turn.payload}  />;
   }
-  return <LLMTurnCard turn={turn} t={t} />;
+  return <LLMTurnCard turn={turn}  />;
 }
 
 function SystemEventRow({
   event,
-  t,
 }: {
   event: RunEvent["payload"];
   t: (k: string) => string;
@@ -689,7 +688,6 @@ function systemEventDisplay(
 
 function LLMTurnCard({
   turn,
-  t,
 }: {
   turn: Extract<Turn, { kind: "llm" }>;
   t: (k: string) => string;
@@ -840,7 +838,6 @@ function ModelPill({
   error,
   disabled,
   onChange,
-  t,
 }: ModelPillProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -931,7 +928,7 @@ function ModelPill({
   );
 }
 
-function EmptyTrace({ t }: { t: (k: string) => string }) {
+function EmptyTrace() {
   return (
     <div className="grid h-full place-items-center text-center text-[12.5px] text-[var(--muted-foreground)]">
       <div className="max-w-xs space-y-1.5">

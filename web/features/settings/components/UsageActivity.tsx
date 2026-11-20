@@ -31,7 +31,7 @@ export default function UsageActivity({
   const max = Math.max(1, ...dates.map(day => day.turns))
   const today = new Intl.DateTimeFormat('en-CA').format(new Date())
   const dayLabel = (day: DailyUsage) =>
-    `${day.date} · ${day.turns.toLocaleString(i18n.language)} activities · ${day.tracked_turns ? day.total_tokens.toLocaleString(i18n.language) : '—'} tokens`
+    `${day.date} · ${day.turns.toLocaleString("en")} activities · ${day.tracked_turns ? day.total_tokens.toLocaleString("en") : '—'} tokens`
   const months = dates.flatMap((day, index) =>
     day.date.endsWith('-01')
       ? [
@@ -53,7 +53,7 @@ export default function UsageActivity({
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-sm font-medium">{"Usage activity"}</h2>
         <span className="text-xs text-[var(--muted-foreground)]">
-          {`${activeDays} active days · ${turns.toLocaleString(i18n.language)} activities`}
+          {`${activeDays} active days · ${turns.toLocaleString("en")} activities`}
         </span>
       </div>
       <div className="overflow-x-auto pb-2" ref={grid}>

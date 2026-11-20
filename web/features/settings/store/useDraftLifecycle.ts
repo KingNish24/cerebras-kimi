@@ -358,7 +358,7 @@ export function useDraftLifecycle({
       const incomplete = firstIncompleteModel(draft);
       if (incomplete) {
         setToast(
-          `Add a model ID for ${incomplete.name || t("New model")} on the ${(incomplete.page.labelKey)} page before applying changes.`,
+          `Add a model ID for ${incomplete.name || "New model"} on the ${(incomplete.page.labelKey)} page before applying changes.`,
         );
         setFocusModel(incomplete);
         pushRoute(

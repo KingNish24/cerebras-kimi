@@ -42,7 +42,6 @@ export interface PageSection {
  * personalization are the account's and look the same in every workspace.
  */
 export function pageSections({
-  t,
   zh,
   allowedSurfaces,
   isAvailable,

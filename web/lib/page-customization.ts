@@ -44,8 +44,8 @@ export function starterPrompts(
   return (
     chat.starters[group] ??
     [1, 2, 3, 4].map(n => ({
-      label: t(`starters.${group}.${n}`),
-      prompt: t(`starters.${group}.${n}.prompt`),
+      label: englishLabel(`starters.${group}.${n}`, `starters.${group}.${n}`),
+      prompt: englishLabel(`starters.${group}.${n}.prompt`, `starters.${group}.${n}.prompt`),
     }))
   )
 }

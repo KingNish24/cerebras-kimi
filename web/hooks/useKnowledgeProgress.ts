@@ -33,8 +33,6 @@ export function taskStateAfterProgress(
   current: TaskState,
   expectedTaskId: string | undefined,
   progress: ProgressInfo,
-  /** Defaults to the key itself, i.e. the untranslated English. */
-  t: (key: string, options?: Record<string, unknown>) => string = (key) => key,
 ): TaskState {
   const taskId = expectedTaskId || progress.task_id;
   if (taskId && current.taskId !== taskId) return current;
@@ -211,7 +209,6 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
               current,
               expectedTaskId,
               progress,
-              t,
             );
             if (finalState === current) return prev;
             const startedAt =

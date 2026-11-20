@@ -188,7 +188,7 @@ export function TaskDetails({
       <Head
         color={item.color}
         title={card.title}
-        sub={`${status} · ${`Due ${formatDate(fromDateKey(card.due_date!), i18n.language, { month: 'short', day: 'numeric', weekday: 'short' })}`}`}
+        sub={`${status} · ${`Due ${formatDate(fromDateKey(card.due_date!), "en", { month: 'short', day: 'numeric', weekday: 'short' })}`}`}
         actions={<HeaderActionButton icon={X} label={"Close"} onClick={onClose} />}
       />
       {card.note && (

@@ -100,8 +100,8 @@ export function ClassicLearningDashboard() {
       {failed.length > 0 && (
         <LearningErrorState
           message={`Some learning activity could not be loaded: ${LEARNING_SURFACES.filter(surface => surface.kind !== "practice" && failed.includes(surface.kind))
-              .map(surface => t(surface.title))
-              .join(t('source list separator'))}.`}
+              .map(surface => surface.title)
+              .join("source list separator")}.`}
           onRetry={() => setReload(value => value + 1)}
         />
       )}

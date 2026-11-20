@@ -490,7 +490,7 @@ function MemorySection({
           onChange={setTab}
           l2Count={l2Rows.length}
           l3Count={l3Rows.length}
-          t={t}
+          
         />
       )}
 
@@ -546,7 +546,7 @@ function MemorySection({
                 onSave={saveDoc}
                 onUpdate={runUpdate}
                 onEntityLinkClick={handleEntityLinkClick}
-                t={t}
+                
               />
             )}
 
@@ -554,7 +554,7 @@ function MemorySection({
               <StreamPanel
                 stages={stream}
                 onDismiss={() => setStream([])}
-                t={t}
+                
               />
             )}
           </div>
@@ -574,7 +574,7 @@ interface TabStripProps {
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
-function TabStrip({ tab, onChange, l2Count, l3Count, t }: TabStripProps) {
+function TabStrip({ tab, onChange, l2Count, l3Count }: TabStripProps) {
   const tabs: Array<{ key: Tab; label: string; count?: number; hint: string }> =
     [
       {
@@ -837,7 +837,7 @@ export function L1View({
       )}
 
       <div className="flex items-center justify-between gap-2">
-        <ModeStrip mode={mode} setMode={setMode} surface={surface} t={t} />
+        <ModeStrip mode={mode} setMode={setMode} surface={surface}  />
         {compact && (
           <div className="flex items-center gap-2">
             {pendingCount > 0 && (
@@ -889,12 +889,12 @@ export function L1View({
           loading={loadingChanges}
           changes={changes}
           pending={snapshot?.pending_changes ?? []}
-          t={t}
+          
         />
       )}
 
       {mode === "queries" && surface === "kb" && (
-        <KbQueriesList loading={loadingQueries} queries={kbQueries} t={t} />
+        <KbQueriesList loading={loadingQueries} queries={kbQueries}  />
       )}
     </div>
   );
@@ -934,7 +934,7 @@ interface ModeStripProps {
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
-function ModeStrip({ mode, setMode, surface, t }: ModeStripProps) {
+function ModeStrip({ mode, setMode, surface }: ModeStripProps) {
   const tabs: Array<{ key: L1Mode; label: string; hidden?: boolean }> = [
     { key: "snapshot", label: "Snapshot" },
     { key: "changes", label: "Changes" },
@@ -1068,7 +1068,7 @@ function EntityRow({ surface, ent, focused, pendingKind, t }: EntityRowProps) {
           </span>
           <span className="font-mono opacity-70">{ent.id}</span>
           {ent.ts && <span>{formatTimestamp(ent.ts, "")}</span>}
-          {pendingKind && <PendingBadge kind={pendingKind} t={t} />}
+          {pendingKind && <PendingBadge kind={pendingKind}  />}
         </div>
         {preview && (
           <p className="mt-1 line-clamp-2 text-[12px] text-[var(--muted-foreground)]/90">
@@ -1113,7 +1113,6 @@ function EntityRow({ surface, ent, focused, pendingKind, t }: EntityRowProps) {
 
 function PendingBadge({
   kind,
-  t,
 }: {
   kind: ChangeEntryDTO["kind"];
   t: (key: string, opts?: Record<string, unknown>) => string;
@@ -1155,7 +1154,7 @@ interface ChangesListProps {
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
-function ChangesList({ loading, changes, pending, t }: ChangesListProps) {
+function ChangesList({ loading, changes, pending }: ChangesListProps) {
   if (loading && changes.length === 0 && pending.length === 0) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-[var(--border)] py-12">
@@ -1240,7 +1239,7 @@ interface KbQueriesListProps {
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
-function KbQueriesList({ loading, queries, t }: KbQueriesListProps) {
+function KbQueriesList({ loading, queries }: KbQueriesListProps) {
   if (loading && queries.length === 0) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-[var(--border)] py-12">
@@ -1356,7 +1355,6 @@ function DocPane({
   onSave,
   onUpdate,
   onEntityLinkClick,
-  t,
 }: DocPaneProps) {
   const isPrefs = selected.layer === "L3" && selected.key === "preferences";
   const renderedContent = useMemo(() => linkifyEntityRefs(content), [content]);
@@ -1442,7 +1440,7 @@ interface StreamPanelProps {
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
-function StreamPanel({ stages, onDismiss, t }: StreamPanelProps) {
+function StreamPanel({ stages, onDismiss }: StreamPanelProps) {
   return (
     <div className="rounded-xl border border-[var(--border)]">
       <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-2">

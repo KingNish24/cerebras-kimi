@@ -282,7 +282,6 @@ function preparationRows(
 function chapterRows(
   pages: Page[],
   progress: BookProgress,
-  t: Translate,
 ): BookActivityRow[] {
   return pages
     .filter((page) => page.content_type !== "overview" && !page.parent_page_id)
@@ -374,7 +373,7 @@ export function buildBookActivity({
   t: Translate;
 }): BookActivity {
   const status = book?.status;
-  const chapters = chapterRows(pages, progress, t);
+  const chapters = chapterRows(pages, progress);
   const written = pages.filter(
     (page) => page.content_type !== "overview" && page.status === "ready",
   ).length;

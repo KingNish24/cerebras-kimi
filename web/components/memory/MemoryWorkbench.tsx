@@ -342,8 +342,8 @@ export default function MemoryWorkbench({
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 px-6 py-4 md:px-10">
       <div className="flex items-center justify-between gap-3">
-        <Breadcrumb layer={layer} label={nicelabel} t={t} />
-        <LayerSwitcher current={layer} t={t} />
+        <Breadcrumb layer={layer} label={nicelabel}  />
+        <LayerSwitcher current={layer}  />
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)_360px] gap-4">
@@ -382,7 +382,7 @@ export default function MemoryWorkbench({
         {/* ── Center: preview ── */}
         <section className="flex min-h-0 flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <ViewSwitch view={view} setView={setView} t={t} />
+            <ViewSwitch view={view} setView={setView}  />
             {!editing ? (
               <button
                 type="button"
@@ -449,7 +449,7 @@ export default function MemoryWorkbench({
                 />
               </div>
             ) : (
-              <EmptyState t={t} />
+              <EmptyState  />
             )}
           </div>
           {toast && (
@@ -478,7 +478,6 @@ export default function MemoryWorkbench({
 function Breadcrumb({
   layer,
   label,
-  t,
 }: {
   layer: Layer;
   label: string;
@@ -512,7 +511,6 @@ function Breadcrumb({
 
 function LayerSwitcher({
   current,
-  t,
 }: {
   current: Layer;
   t: (k: string) => string;
@@ -562,7 +560,6 @@ function LayerSwitcher({
 function ViewSwitch({
   view,
   setView,
-  t,
 }: {
   view: ViewMode;
   setView: (v: ViewMode) => void;
@@ -601,7 +598,7 @@ function LineNumberedView({
   lines: LineRowDTO[];
   t: (k: string) => string;
 }) {
-  if (lines.length === 0) return <EmptyState t={t} />;
+  if (lines.length === 0) return <EmptyState  />;
   const width = Math.max(2, String(lines[lines.length - 1].number).length);
   return (
     <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[12.5px] leading-relaxed text-[var(--foreground)]">
@@ -628,7 +625,7 @@ function LineNumberedView({
   );
 }
 
-function EmptyState({ t }: { t: (k: string) => string }) {
+function EmptyState() {
   return (
     <div className="grid h-[300px] place-items-center text-center text-[13px] text-[var(--muted-foreground)]">
       <div className="max-w-sm space-y-2">

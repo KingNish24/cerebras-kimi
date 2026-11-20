@@ -75,14 +75,14 @@ export default function KbIndexingRun({ kbName, readOnly = false }: { kbName: st
     {open && <div className="max-h-56 space-y-2 overflow-auto py-2">
       {error?.key === kbName && (!error.taskId || error.taskId === run?.task_id) && <p role="alert">{"Could not read indexing state. Refresh and retry."}</p>}
       {run ? <>
-        <p>{"Run state"}: {t(`indexingState.${run.state}`, { defaultValue: run.state })} · {"Current phase"}: {t(`indexingPhase.${run.phase}`, { defaultValue: run.phase })}</p>
+        <p>{"Run state"}: {`indexingState.${run.state}`} · {"Current phase"}: {`indexingPhase.${run.phase}`}</p>
         <p>{"Runtime"}: {Math.max(0, Math.floor((run.finished_at || now) - run.started_at))}s · {"Since activity"}: {Math.max(0, Math.floor(now - run.last_activity_at))}s · {"Since measurable progress"}: {Math.max(0, Math.floor(now - run.last_progress_at))}s</p>
         <p>{run.phase_total ? `${run.phase_current || 0}/${run.phase_total}` : "Phase progress is indeterminate."} {"Phase completion does not mean the whole index is ready."}</p>
         {run.current_document && <p className="break-words">{"Document"}: {run.current_document}</p>}
         {run.activity && <p className="break-words">{"Activity"}: {run.activity}</p>}
         {run.usable_version && <p>{"Verified index version"}: {run.usable_version}</p>}
         <p>{"Retry reuses validated parser outputs. Interrupted embedding stages restart."}</p>
-        <ul>{Object.entries(run.documents).map(([name, doc]) => <li className="break-words" key={name}>{name}: {t(`indexingDocument.${doc.status}`, { defaultValue: doc.status })}{doc.parse_reused ? ` · ${"Parse cache reused"}` : ""}{doc.reason ? ` · ${doc.reason}` : ""}{doc.detail ? ` · ${doc.detail}` : ""}</li>)}</ul>
+        <ul>{Object.entries(run.documents).map(([name, doc]) => <li className="break-words" key={name}>{name}: {`indexingDocument.${doc.status}`}{doc.parse_reused ? ` · ${"Parse cache reused"}` : ""}{doc.reason ? ` · ${doc.reason}` : ""}{doc.detail ? ` · ${doc.detail}` : ""}</li>)}</ul>
         {run.error && <p role="alert">{run.error}</p>}
         {!readOnly && run.state === "running" && <button className="underline" disabled={cancelling === runKey || run.cancel_requested} onClick={() => void cancel()}>{run.cancel_requested ? "Cancellation pending at a safe boundary" : "Cancel indexing"}</button>}
       </> : <p>{run === null ? "No durable indexing run recorded yet." : "Loading..."}</p>}

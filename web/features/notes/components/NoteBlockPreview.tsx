@@ -34,7 +34,7 @@ export default function NoteBlockPreview({
     <div className="dt-note-preview-section">
       <div className={`dt-note-preview-heading level-${level}`}>
         {toggle && <ChevronDown size={15} />}
-        {t(`Heading ${level}`)}
+        {englishLabel(`Heading ${level}`, `Heading ${level}`})
       </div>
       <p className={toggle ? 'dt-note-preview-toggle-body' : ''}>
         {"Give this section a clear place in your notes."}

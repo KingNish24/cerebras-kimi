@@ -194,7 +194,6 @@ function TraceRowBody({
   group,
   role,
   kind,
-  t,
 }: {
   callId: string;
   callEvents: StreamEvent[];
@@ -502,7 +501,7 @@ function TraceRowItem({
   const provider = getToolProvider(callEvents);
   const descriptor =
     isToolRow && toolName
-      ? describeToolCall(toolName, toolArgs, t, provider)
+      ? describeToolCall(toolName, toolArgs, provider)
       : null;
   // What the provider last said about its own progress. Only MCP servers and
   // CLI apps publish these, and only while the call is open.
@@ -619,7 +618,7 @@ function TraceRowItem({
           group={group}
           role={role}
           kind={kind}
-          t={t}
+          
         />
       )}
     </ActivityRow>

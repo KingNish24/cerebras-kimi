@@ -46,7 +46,7 @@ export function SystemWorkspaceSnapshot() {
       {snapshot && (
         <div className="mt-4 space-y-3 text-xs">
           <p className="text-[var(--muted-foreground)]">
-            {`Snapshot updated ${new Date(snapshot.generated_at).toLocaleString(i18n.language)}`}
+            {`Snapshot updated ${new Date(snapshot.generated_at).toLocaleString("en")}`}
           </p>
           {Object.entries(snapshot.models).map(([service, settings]) => (
             <div key={service} className="rounded-lg bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] p-3">

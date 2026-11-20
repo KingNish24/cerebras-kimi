@@ -28,7 +28,6 @@ type UseDiagnosticsParams = {
 export function useDiagnostics({
   catalogEditable,
   draft,
-  t,
 }: UseDiagnosticsParams) {
   const [logs, setLogs] = useState<string>("");
   const [modelTests, setModelTests] = useState<Record<string, ModelTestState>>(

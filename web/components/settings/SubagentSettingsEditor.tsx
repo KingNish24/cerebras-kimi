@@ -511,7 +511,7 @@ export function SubagentSettingsEditor({ kind }: { kind: string }) {
                 isGrok
                   ? "No model catalog is assumed. Enter a model supported by your Grok CLI; sync only detects the CLI again."
                   : options.synced_at
-                    ? `Last synced: ${formatTs(options.synced_at, i18n.language)}`
+                    ? `Last synced: ${formatTs(options.synced_at, "en")}`
                     : isRemote
                       ? "The remote gateway does not currently enumerate models here; use its default or enter a model name manually."
                       : "This CLI has no model-list API; below are the common aliases, and any model name is accepted."

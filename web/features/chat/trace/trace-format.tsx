@@ -108,7 +108,6 @@ type ToolDescriptor = {
 export function describeToolCall(
   toolName: string,
   args: Record<string, unknown> | undefined,
-  t: (key: string, opts?: Record<string, unknown>) => string,
   provider?: ToolProvider | null,
 ): ToolDescriptor {
   const a = args ?? {};

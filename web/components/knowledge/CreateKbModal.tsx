@@ -647,7 +647,7 @@ export default function CreateKbModal({
           mode={mode}
           onChange={handleModeChange}
           disabled={submitting}
-          t={t}
+          
         />
 
         <div>
@@ -749,7 +749,7 @@ export default function CreateKbModal({
                 />
               ) : null
             }
-            t={t}
+            
           />
         ) : (
           <LinkModeFields
@@ -795,7 +795,6 @@ function ModeToggle({
   mode,
   onChange,
   disabled,
-  t,
 }: {
   mode: Mode;
   onChange: (mode: Mode) => void;
@@ -874,7 +873,6 @@ function NewModeFields({
   policyForProvider,
   indexingModelField,
   connectionForm,
-  t,
 }: {
   providers: RagProviderSummary[];
   provider: string;
@@ -1199,14 +1197,13 @@ function LightRagServerFields({
         </p>
       )}
 
-      {probe && <ServerProbeVerdict probe={probe} t={t} />}
+      {probe && <ServerProbeVerdict probe={probe}  />}
     </div>
   );
 }
 
 function ServerProbeVerdict({
   probe,
-  t,
 }: {
   probe: LightRagServerProbe;
   t: TFn;
@@ -1336,12 +1333,12 @@ function WeKnoraFields({
         </div>
       </div>
 
-      {probe && <WeKnoraProbeVerdict probe={probe} t={t} />}
+      {probe && <WeKnoraProbeVerdict probe={probe}  />}
     </div>
   );
 }
 
-function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
+function WeKnoraProbeVerdict({ probe }: { probe: WeKnoraProbe; t: TFn }) {
   if (!probe.ok) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
@@ -1554,14 +1551,14 @@ function LinkModeFields({
             </p>
           </div>
 
-          {!linkIsObsidian && probe && <ProbeVerdict probe={probe} t={t} />}
+          {!linkIsObsidian && probe && <ProbeVerdict probe={probe}  />}
         </>
       )}
     </>
   );
 }
 
-function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
+function ProbeVerdict({ probe }: { probe: LinkedFolderProbe; t: TFn }) {
   if (!probe.ok) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">

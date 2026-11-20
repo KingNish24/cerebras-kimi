@@ -96,7 +96,7 @@ export default function NoteReview() {
                 {revealed && <p className="is-back">{card.back}</p>}
               </div>
               <Link href={`/co-writer/${card.page_id}#${card.block_id}`} className="dt-notes-review-source">
-                {`From “${card.page_title || t('Untitled')}”`} ↗
+                {`From “${card.page_title || "Untitled"}”`} ↗
               </Link>
               <div className="dt-notes-review-actions">
                 {revealed ? (

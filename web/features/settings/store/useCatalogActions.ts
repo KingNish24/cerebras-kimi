@@ -45,7 +45,6 @@ export function useCatalogActions({
   mutateCatalog,
   embeddingDefaultDim,
   setToast,
-  t,
 }: UseCatalogActionsParams) {
   const addProfile = useCallback(
     (service: ServiceName) => {

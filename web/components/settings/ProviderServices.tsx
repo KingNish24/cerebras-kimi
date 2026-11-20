@@ -80,7 +80,7 @@ export function ProviderServices({
                 <span>
                   <span className="block font-medium">{(SERVICE_TITLES[service])}</span>
                   <span className="mt-1 block text-[12px] text-[var(--muted-foreground)]">
-                    {t(`settings.providerServices.evidence.${support.evidence}`)}
+                    {englishLabel(`settings.providerServices.evidence.${support.evidence}`, `settings.providerServices.evidence.${support.evidence}`})
                   </span>
                 </span>
               </label>
