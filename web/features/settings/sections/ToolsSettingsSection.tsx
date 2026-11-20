@@ -4,7 +4,7 @@ import Tooltip from "@/shared/ui/Tooltip";
 import { useStagedSettings } from "@/features/settings/store/useStagedSettings";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, Lock, Search, Wrench, X } from "lucide-react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useTranslation } from "react-i18next";
 
 import { useSettings } from "@/features/settings/store/SettingsStore";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
 import ChatResponseTimeoutSection from "@/components/settings/ChatResponseTimeoutSection";
 import { useTranslation } from "react-i18next";

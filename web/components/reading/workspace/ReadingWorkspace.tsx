@@ -3,13 +3,13 @@
 import { scopedUrl } from "@/lib/workspace-scope";
 import { READING_HOME, readingFolderRoute, readingSessionIdFromPath } from "@/lib/learning-routes";
 
-import Link from "next/link";
-import dynamic from "next/dynamic";
+import Link from "@/shared/router/link";
+import dynamic from "@/shared/router/dynamic";
 import {
   useParams,
   usePathname,
   useRouter,
-} from "next/navigation";
+} from "@/shared/router/navigation";
 import {
   CircleAlert,
   GraduationCap,

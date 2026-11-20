@@ -14,8 +14,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Tooltip from "@/shared/ui/Tooltip";

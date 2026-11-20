@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from '@/shared/router/link'
+import { usePathname } from '@/shared/router/navigation'
 import { ArrowLeft, AlertCircle, BookOpen, RefreshCw, type LucideIcon } from 'lucide-react'
 import type { ReactNode, Ref, UIEventHandler } from 'react'
 import { useTranslation } from 'react-i18next'

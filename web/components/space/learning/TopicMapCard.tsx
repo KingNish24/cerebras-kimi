@@ -2,7 +2,7 @@
 
 import { masteryTopicRoute } from '@/lib/learning-routes'
 
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useTranslation } from 'react-i18next'
 import { CircleCheck, Route } from 'lucide-react'
 

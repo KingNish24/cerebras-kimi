@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useCallback, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "@/shared/router/navigation";
+import Link from "@/shared/router/link";
 import { useTranslation } from "react-i18next";
 import { login, fetchAuthStatus, checkIsFirstUser } from "@/lib/auth";
 import {

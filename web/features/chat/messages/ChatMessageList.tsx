@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { UsageFooter } from "./UsageFooter";
 import { cumulativeMessageUsage, messageUsage } from "./usage-summary";
 import {

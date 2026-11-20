@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type CSSProperties, type ReactNode } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import {
   AlarmClock,
   ArrowUpRight,

@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader, pageActionClass, pageGridClass } from '@/components/layout/FeaturePage'
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,

@@ -29,7 +29,7 @@ import {
 import { cleanQuote } from "@/lib/reading-selection";
 import type { JumpRequest, SelectionPayload } from "./PdfDocumentView";
 import { ReaderDisplayControls } from "./ReaderDisplayControls";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 
 import { collectLightboxImages } from "@/lib/reading-images";
 import type { LightboxImage } from "./ReaderImageLightbox";

@@ -11,7 +11,7 @@ import { watchingRoute } from "@/lib/learning-routes";
 import { useChatWorkspaces } from "@/hooks/useChatWorkspaces";
 import { useComposerResources } from "@/hooks/useComposerResources";
 import { useActiveWorkspaceId } from "@/hooks/useActiveWorkspaceId";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import {
   type KeyboardEvent,
   useCallback,

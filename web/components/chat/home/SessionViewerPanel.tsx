@@ -35,7 +35,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import {
   Activity,
   AlertCircle,

@@ -53,7 +53,7 @@ import { collectLightboxImages } from "@/lib/reading-images";
 import { toRecogitoTextAnnotation } from "@/lib/reading-w3c-annotations";
 import type { JumpRequest, SelectionPayload } from "./PdfDocumentView";
 import { PreferenceButton, ReaderDisplayControls } from "./ReaderDisplayControls";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 
 import type { LightboxImage } from "./ReaderImageLightbox";
 

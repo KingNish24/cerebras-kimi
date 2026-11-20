@@ -3,8 +3,8 @@
 import { readingCollectionRoute } from "@/lib/learning-routes";
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import dynamic from "@/shared/router/dynamic";
+import { useRouter } from "@/shared/router/navigation";
 import { BookOpenText, Check, Copy, Download, Loader2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { docIconFor, formatBytes } from "@/lib/doc-attachments";

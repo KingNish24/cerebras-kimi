@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { PageBar } from "@/components/sidebar/PageBar";
 import { SidebarShell } from "@/components/sidebar/SidebarShell";
 import type { UiLayoutSlots } from "../types";

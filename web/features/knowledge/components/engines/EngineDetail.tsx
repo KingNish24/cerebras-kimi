@@ -22,7 +22,7 @@ import {
   XCircle,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import {
   getEngineModelOptions,
   getEnginePreflight,

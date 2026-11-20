@@ -1,8 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,

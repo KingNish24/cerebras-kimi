@@ -3,7 +3,7 @@
 import { PageContainer } from '@/components/layout/FeaturePage'
 import { useEffect, useRef, useState } from 'react'
 import { browserStorage } from '@/shared/storage'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from '@/shared/router/navigation'
 import { ArrowLeft, Menu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import SettingsNav from './SettingsNav'

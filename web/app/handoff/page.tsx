@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { KeyRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { normalizeInternalReturnPath } from "@/shared/auth/return-url";

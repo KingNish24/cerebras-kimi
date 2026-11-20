@@ -6,8 +6,8 @@ import { scopedUrl } from "@/lib/workspace-scope";
 import { MASTERY_HOME, masterySessionRoute as existingMasterySessionRoute, masterySessionsRoute } from "@/lib/learning-routes";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useParams, useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,

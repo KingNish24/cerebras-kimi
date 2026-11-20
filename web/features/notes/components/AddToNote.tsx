@@ -1,5 +1,5 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import type { FavoriteSnapshot } from '@/lib/favorite-content'
 import { useState } from 'react'
 import { FilePlus2 } from 'lucide-react'

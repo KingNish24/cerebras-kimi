@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useTranslation } from 'react-i18next'
 import {
   getWorkspaceResources,

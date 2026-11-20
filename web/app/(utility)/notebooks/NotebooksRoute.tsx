@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "@/shared/router/navigation";
 import { Loader2 } from "lucide-react";
 import NotebookConsole from "@/components/notebook/NotebookConsole";
 import { decodeResourceSegment } from "@/lib/resource-routes";

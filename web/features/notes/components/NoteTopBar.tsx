@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type MouseEvent } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft,

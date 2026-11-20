@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { logout } from "@/lib/auth";
 import { useAuthStatus } from "@/hooks/useAuthStatus";

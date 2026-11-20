@@ -2,8 +2,8 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { useCallback, useEffect, useState } from 'react'
-import Link from 'next/link'
-import dynamic from 'next/dynamic'
+import Link from '@/shared/router/link'
+import dynamic from '@/shared/router/dynamic'
 import { Archive, ArchiveRestore, FileText, Folder, FolderInput, Globe2, Pencil, Plus, Settings2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SettingSection, SettingsPageHeader, inputClass, subPanelClass } from '@/components/settings/shared'

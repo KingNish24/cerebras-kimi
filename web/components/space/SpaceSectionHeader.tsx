@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/shared/router/navigation";
 import type { LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/layout/FeaturePage";
 import { ALL_ITEMS } from "@/components/space/dashboard-groups";

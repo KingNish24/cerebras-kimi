@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ProgressRing } from '@/components/space/learning/ProgressRing'

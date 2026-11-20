@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { m, type MotionStyle } from "framer-motion";
 import { createElement, useId, useMemo, type ReactNode } from "react";
 import { ArrowUpRight, PencilRuler, Plug, Plus, Shapes, UserRound, Wand2 } from "lucide-react";

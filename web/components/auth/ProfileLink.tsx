@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/shared/router/link";
+import { usePathname } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { fetchAuthStatus, type AuthStatus } from "@/lib/auth";
 import { UserAvatar } from "@/components/UserAvatar";

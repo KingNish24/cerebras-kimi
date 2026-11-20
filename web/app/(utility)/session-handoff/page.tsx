@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import { ArrowLeft, ClipboardCopy, KeyRound, Link2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { fetchAuthStatus } from "@/lib/auth";

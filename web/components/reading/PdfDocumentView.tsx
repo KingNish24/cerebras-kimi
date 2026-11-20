@@ -54,7 +54,7 @@ import type { NormalisedBox } from "@/lib/pdf-page-geometry";
 import { isEditableTarget } from "@/lib/shortcuts";
 import { PdfImageZoomOverlay } from "./PdfImageZoomOverlay";
 import { PdfPage } from "./PdfPage";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 
 const PdfZoomControls = dynamic(
   () => import("./PdfZoomControls").then((module) => module.PdfZoomControls),

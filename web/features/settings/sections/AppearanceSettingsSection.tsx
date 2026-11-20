@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import type { CSSProperties } from "react";
 import {
   CONTENT_FONT_SCALES,

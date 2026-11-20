@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { invidiousAccountResultMessage } from "@/lib/invidious-account-result";
 export default function InvidiousAccountFeedback() {

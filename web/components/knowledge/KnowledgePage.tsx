@@ -5,9 +5,9 @@ import { moveKnowledgeBase, resourceUsage } from "@/lib/workspaces-api";
 import { apiFetch, apiUrl } from "@/lib/api";
 import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { useKnowledgeBases } from "@/hooks/useKnowledgeBases";

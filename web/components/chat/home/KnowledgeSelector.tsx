@@ -1,7 +1,7 @@
 "use client";
 
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Database } from "lucide-react";
 import { useTranslation } from "react-i18next";

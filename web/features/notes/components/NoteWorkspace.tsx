@@ -1,9 +1,9 @@
 'use client'
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
+import dynamic from '@/shared/router/dynamic'
+import Link from '@/shared/router/link'
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
 import type { NoteCompanionProps } from './note-companion-props'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/shared/router/navigation'
 import { useTranslation } from 'react-i18next'
 import {
   getNote,

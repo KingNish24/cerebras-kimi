@@ -9,7 +9,7 @@ import { BOOKS_HOME } from "@/lib/learning-routes";
  */
 
 import { useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import {
   AtSign,
   BookOpen,

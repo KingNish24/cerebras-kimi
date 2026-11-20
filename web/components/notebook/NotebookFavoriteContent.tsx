@@ -1,6 +1,6 @@
 'use client'
-import dynamic from 'next/dynamic'
-import Image from 'next/image'
+import dynamic from '@/shared/router/dynamic'
+import Image from '@/shared/router/image'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {

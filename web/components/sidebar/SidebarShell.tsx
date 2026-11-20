@@ -1,10 +1,10 @@
 "use client";
 
 import { navigateTask } from "@/lib/workspace-scope";
-import Image from "next/image";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "@/shared/router/image";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import {
   useCallback,
   useEffect,

@@ -1,5 +1,5 @@
 'use client'
-import dynamic from 'next/dynamic'
+import dynamic from '@/shared/router/dynamic'
 import { apiUrl } from '@/lib/api'
 import { extractMathAnimatorResult } from '@/lib/math-animator-types'
 import type { VisualizeResult } from '@/lib/visualize-types'

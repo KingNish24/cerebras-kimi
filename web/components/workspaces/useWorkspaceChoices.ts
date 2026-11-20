@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/shared/router/navigation'
 import { useTranslation } from 'react-i18next'
 import { useActiveWorkspaceId } from '@/hooks/useActiveWorkspaceId'
 import { useChatWorkspaces } from '@/hooks/useChatWorkspaces'

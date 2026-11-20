@@ -1,6 +1,6 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import dynamic from '@/shared/router/dynamic'
 import type { NoteBlock } from '@/lib/notes-api'
 import { blockPreview } from '../model/blocks'
 const Learning = dynamic(() => import('./NoteLearningContent'), { ssr: false })

@@ -14,8 +14,8 @@
  * it offers that instead of chat's modes, skills and connectors.
  */
 import './note-companion.css'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from '@/shared/router/link'
+import { usePathname } from '@/shared/router/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {

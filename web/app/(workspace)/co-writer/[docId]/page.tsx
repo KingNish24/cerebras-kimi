@@ -1,7 +1,7 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
+import dynamic from "@/shared/router/dynamic";
+import { useParams } from "@/shared/router/navigation";
 
 import NoteWorkspace from "@/features/notes/components/NoteWorkspace";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound, useParams, useSearchParams } from "next/navigation";
+import { notFound, useParams, useSearchParams } from "@/shared/router/navigation";
 import { Suspense } from "react";
 
 import MemoryWorkbench from "@/components/memory/MemoryWorkbench";

@@ -1,9 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { useSettingsAccess } from "@/features/settings/navigation/SettingsAccessProvider";

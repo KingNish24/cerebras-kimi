@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "@/shared/router/navigation";
 
 import { MasteryStudy } from "@/components/space/learning/MasteryStudy";
 import { normalizeMasteryMode } from "@/lib/mastery-mode";

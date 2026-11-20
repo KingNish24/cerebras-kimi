@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { AlertTriangle, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {

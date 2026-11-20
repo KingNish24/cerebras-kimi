@@ -14,7 +14,7 @@ import {
   ListTree,
   FileCode,
 } from 'lucide-react'
-import dynamic from 'next/dynamic'
+import dynamic from '@/shared/router/dynamic'
 import type { NoteBlock } from '@/lib/notes-api'
 import { safeNoteUrl } from '../model/urls'
 

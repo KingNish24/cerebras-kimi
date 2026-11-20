@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/shared/router/navigation";
 import { useMemo } from "react";
 
 export function routeSessionId(value: string | undefined): string | null {

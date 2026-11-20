@@ -8,7 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react'
-import dynamic from 'next/dynamic'
+import dynamic from '@/shared/router/dynamic'
 import type { FavoriteSnapshot } from '@/lib/favorite-content'
 import NoteFavoriteBlock from './NoteFavoriteBlock'
 import {

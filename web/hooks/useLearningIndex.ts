@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { readClientCache, withClientCache } from '@/lib/client-cache'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/shared/router/navigation'
 import { apiFetch, apiUrl } from '@/lib/api'
 import { subscribeSessionChanges } from '@/lib/session-events'
 import type { LearningKind, LearningSources } from '@/lib/learning-dashboard'

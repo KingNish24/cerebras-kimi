@@ -1,7 +1,7 @@
 'use client'
 
 import { pageGridClass } from '@/components/layout/FeaturePage'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 // `m`, not `motion`: the app renders inside a strict `LazyMotion`, which

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type CSSProperties, type FormEvent } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import {
   AlarmClock,
   Bell,

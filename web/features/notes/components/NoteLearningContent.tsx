@@ -1,5 +1,5 @@
 'use client'
-import dynamic from 'next/dynamic'
+import dynamic from '@/shared/router/dynamic'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, ChevronDown, LoaderCircle, Sparkles } from 'lucide-react'

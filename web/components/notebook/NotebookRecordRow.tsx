@@ -3,7 +3,7 @@
 import { favoriteSnapshot, favoriteKind, FAVORITE_LABELS } from "@/lib/favorite-content";
 import { favoriteRecordRoute } from "@/lib/resource-routes";
 import Tooltip from "@/shared/ui/Tooltip";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { useEffect, useState } from "react";
 import {
   BookOpen,

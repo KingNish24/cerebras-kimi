@@ -3,8 +3,8 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { browserStorage } from "@/shared/storage";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Archive,

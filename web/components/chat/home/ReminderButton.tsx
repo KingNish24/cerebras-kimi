@@ -1,7 +1,7 @@
 'use client'
 
 import { AlarmClock, Check } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/shared/router/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createCronJob } from '@/lib/cron-api'
