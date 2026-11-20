@@ -13,6 +13,7 @@ import {
   getSuggestions,
   reviewSuggestion,
   noteRequest,
+  isNoteNotFound,
   exportNoteFlashcards,
   type NoteBlock,
   type NotePage,
@@ -60,6 +61,7 @@ export default function NoteWorkspace({
   const [mutating, setMutating] = useState(false)
   const [page, setPage] = useState<NotePage | null>(null)
   const [pages, setPages] = useState<NoteSummary[]>([])
+  const [missing, setMissing] = useState(false)
   const [error, setError] = useState('')
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<NoteSaveStatus>('Saved')
@@ -99,7 +101,10 @@ export default function NoteWorkspace({
           JSON.stringify(previous) === JSON.stringify(pending) ? previous : pending
         )
       })
-      .catch(e => setError(String(e)))
+      .catch(e => {
+        // A page that no longer exists is reported by the page itself.
+        if (!isNoteNotFound(e)) setError(String(e))
+      })
   }, [docId])
   const refreshPages = useCallback(() => {
     void listNotes()
@@ -202,17 +207,26 @@ export default function NoteWorkspace({
         }
         latest.current = doc
         setPage(doc)
+        setMissing(false)
         setTreeOpen(browserStorage.readRaw('local', `deeptutor.notes.tree:${owner}`) === 'true')
         setOutlineOpenState(
           browserStorage.readRaw('local', `deeptutor.notes.outline:${owner}`) !== 'false'
         )
         refreshPages()
         refreshSuggestions()
-        void noteRequest<{ pages: NoteSummary[] }>(`/${docId}/backlinks`).then(r => {
-          if (!cancelled) setBacklinks(r.pages)
-        })
+        void noteRequest<{ pages: NoteSummary[] }>(`/${docId}/backlinks`)
+          .then(r => {
+            if (!cancelled) setBacklinks(r.pages)
+          })
+          .catch(() => {
+            /* Backlinks are optional; the page stays readable without them. */
+          })
       })
-      .catch(err => setError(String(err)))
+      .catch(err => {
+        if (cancelled) return
+        if (isNoteNotFound(err)) setMissing(true)
+        else setError(String(err))
+      })
     return () => {
       cancelled = true
       if (timer.current) clearTimeout(timer.current)
@@ -539,6 +553,33 @@ export default function NoteWorkspace({
       }
     }
   }
+  if (missing)
+    return (
+      <div className="flex h-full min-h-full flex-col items-center justify-center gap-4 bg-[var(--background)] p-10 text-center">
+        <p className="text-lg font-medium text-[var(--foreground)]">{t('Document not found')}</p>
+        <p className="text-sm text-[var(--muted-foreground)]">
+          {t('This document may have been deleted, or the link is incorrect.')}
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.replace('/co-writer')}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+          >
+            {t('Back to Co-Writer')}
+          </button>
+          <button
+            type="button"
+            disabled={mutating}
+            onClick={() => void createPage()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-opacity hover:opacity-90 disabled:opacity-45"
+          >
+            {mutating ? t('Creating…') : t('New page')}
+          </button>
+        </div>
+      </div>
+    )
+
   return (
     <div
       ref={root}
@@ -599,13 +640,19 @@ export default function NoteWorkspace({
             onClick={() => {
               if (latest.current?.blocks)
                 setRecovery({ title: latest.current.title, blocks: latest.current.blocks })
-              void getNote(docId).then(result => {
-                latest.current = result
-                setPage(result)
-                editor.current?.replace(result.blocks || editor.current.parse(result.content))
-                savedVersion.current = version.current
-                setError('')
-              })
+              void getNote(docId)
+                .then(result => {
+                  latest.current = result
+                  setPage(result)
+                  setMissing(false)
+                  editor.current?.replace(result.blocks || editor.current.parse(result.content))
+                  savedVersion.current = version.current
+                  setError('')
+                })
+                .catch(err => {
+                  if (isNoteNotFound(err)) setMissing(true)
+                  else setError(String(err))
+                })
             }}
           >
             {t('Reload page')}

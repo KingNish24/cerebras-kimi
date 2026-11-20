@@ -35,6 +35,22 @@ export interface NoteSuggestion {
   blocks: NoteBlock[] | null
   status: 'pending' | 'accepted' | 'dismissed'
 }
+/** A document request that kept its HTTP status, so callers can tell a page
+ *  that no longer exists from a transient failure. */
+export class NoteRequestError extends Error {
+  readonly status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'NoteRequestError'
+    this.status = status
+  }
+}
+
+export function isNoteNotFound(error: unknown): boolean {
+  return error instanceof NoteRequestError && error.status === 404
+}
+
 export async function noteRequest<T>(path: string, body?: unknown, method = 'POST'): Promise<T> {
   const response = await apiFetch(
     apiUrl(`/api/documents${path}`),
@@ -48,7 +64,9 @@ export async function noteRequest<T>(path: string, body?: unknown, method = 'POS
   )
   if (!response.ok) {
     const detail = await response.json().catch(() => null)
-    throw new Error(detail?.detail || `Request failed (${response.status})`)
+    const message =
+      typeof detail?.detail === 'string' ? detail.detail : `Request failed (${response.status})`
+    throw new NoteRequestError(message, response.status)
   }
   return response.json()
 }
