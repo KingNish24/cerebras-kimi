@@ -40,6 +40,48 @@ export function sameLLMSelection(
   return llmSelectionKey(a) === llmSelectionKey(b);
 }
 
+/** Resolve a selection to a catalog option.
+ *
+ * Older sessions stored slug-style selections such as
+ * ``{ profile_id: "kilo", model_id: "kilo-auto/free" }`` while the catalog now
+ * gives saved profiles generated UUID ids. Those selections still run fine
+ * (the backend falls back to the provider preset) but match no option, which
+ * makes the selector show "Select model" and hides the chosen model. Fall back
+ * to a provider + wire-model match so the model is displayed and highlighted.
+ */
+export function resolveLLMSelection(
+  selection: LLMSelection | null | undefined,
+  options: LLMOption[],
+): LLMOption | null {
+  if (!selection) return null;
+  const exact = options.find((option) => sameLLMSelection(option, selection));
+  if (exact) return exact;
+  return (
+    options.find(
+      (option) =>
+        option.provider === selection.profile_id &&
+        (option.model === selection.model_id ||
+          option.model_name === selection.model_id ||
+          option.model_id === selection.model_id),
+    ) ?? null
+  );
+}
+
+/** Rewrite a resolved selection to the catalog's canonical ids, keeping any
+ *  reasoning-effort override the user already chose. */
+export function canonicalLLMSelection(
+  option: LLMOption,
+  original: LLMSelection | null | undefined,
+): LLMSelection {
+  return {
+    profile_id: option.profile_id,
+    model_id: option.model_id,
+    ...(original?.reasoning_effort
+      ? { reasoning_effort: original.reasoning_effort }
+      : {}),
+  };
+}
+
 /** The most recent option list any `listLLMOptions` call fetched — no TTL.
  *
  *  Synchronous, so a send path can validate its `llm_selection` against the

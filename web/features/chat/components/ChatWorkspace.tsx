@@ -127,6 +127,11 @@ import { listKnowledgeBases } from "@/features/knowledge/api/catalog";
 import { getSubagentSettings } from "@/lib/subagents-api";
 import { useLLMOptions } from "@/hooks/useLLMOptions";
 import {
+  canonicalLLMSelection,
+  resolveLLMSelection,
+  sameLLMSelection,
+} from "@/lib/llm-options";
+import {
   getEnabledOptionalTools,
   invalidateEnabledOptionalToolsCache,
 } from "@/lib/tools-settings";
@@ -1448,9 +1453,24 @@ export default function ChatWorkspace() {
   }, [refreshUserEnabledTools]);
 
   useEffect(() => {
-    if (state.llmSelection || !activeLLMDefault) return;
-    setLLMSelection(activeLLMDefault);
-  }, [activeLLMDefault, setLLMSelection, state.llmSelection]);
+    if (!activeLLMDefault || llmOptionsLoading || llmOptions.length === 0) return;
+    const current = state.llmSelection;
+    if (!current) {
+      setLLMSelection(activeLLMDefault);
+      return;
+    }
+    // A session can keep a slug-style selection ("kilo/kilo-auto/free") from an
+    // older catalog while saved profiles now use generated ids. Keep the
+    // user's model, but rewrite it to the catalog ids so the composer shows
+    // it; only fall back to the default when it resolves to no option at all.
+    const resolved = resolveLLMSelection(current, llmOptions);
+    if (!resolved) {
+      setLLMSelection(activeLLMDefault);
+      return;
+    }
+    const canonical = canonicalLLMSelection(resolved, current);
+    if (!sameLLMSelection(current, canonical)) setLLMSelection(canonical);
+  }, [activeLLMDefault, llmOptions, llmOptionsLoading, setLLMSelection, state.llmSelection]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

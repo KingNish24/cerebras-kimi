@@ -11,6 +11,7 @@ import ProviderIcon from "@/components/common/ProviderIcon";
 import type { LLMSelection } from "@/features/chat/model/protocol";
 import {
   llmSelectionKey,
+  resolveLLMSelection,
   sameLLMSelection,
   type LLMOption,
 } from "@/lib/llm-options";
@@ -146,13 +147,29 @@ export default function ModelSelector({
   const selectedSelection = allowSystemDefault
     ? value
     : (value ?? activeDefault);
-  const selectedKey = llmSelectionKey(selectedSelection);
   const selectedOption = useMemo(
-    () =>
-      options.find((option) => sameLLMSelection(option, selectedSelection)) ??
-      null,
+    () => resolveLLMSelection(selectedSelection, options),
     [options, selectedSelection],
   );
+  // Use the catalog ids for the checkmark: a legacy slug selection resolves to
+  // an option with generated profile/model ids.
+  const selectedKey = selectedOption
+    ? llmSelectionKey(selectedOption)
+    : llmSelectionKey(selectedSelection);
+  // Recent models are shown as a short list, but the active selection must
+  // stay reachable even when it drops out of recency (e.g. the default was
+  // changed in Settings, or the catalog replaced a profile id).
+  const visibleOptions = useMemo(() => {
+    if (!options.some((option) => option.is_recent)) return options;
+    const recent = options.filter((option) => option.is_recent);
+    if (
+      !selectedOption ||
+      recent.some((option) => sameLLMSelection(option, selectedOption))
+    ) {
+      return recent;
+    }
+    return [selectedOption, ...recent];
+  }, [options, selectedOption]);
 
   useOutsideClick(rootRef, open, () => {
     setOpen(false);
@@ -267,10 +284,7 @@ export default function ModelSelector({
                 )}
               </button>
             )}
-            {(options.some((o) => o.is_recent)
-              ? options.filter((o) => o.is_recent)
-              : options
-            ).map((option) => {
+            {visibleOptions.map((option) => {
               const optionSelection = {
                 profile_id: option.profile_id,
                 model_id: option.model_id,

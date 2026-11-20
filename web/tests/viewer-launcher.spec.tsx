@@ -11,7 +11,6 @@ import { QuizFollowupProvider } from "@/context/QuizFollowupContext";
 import { initI18n } from "@/i18n/init";
 import { buildSessionActivity } from "@/lib/session-activity";
 
-vi.mock("@/components/tasks/TaskPanelSection", () => ({ default: () => null }));
 // Responder names come from the shared rosters; these tests name them directly.
 vi.mock("@/hooks/usePartnerRoster", () => ({
   usePartnerRoster: () => ({

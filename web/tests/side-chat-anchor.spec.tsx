@@ -16,7 +16,6 @@ import { initI18n } from "@/i18n/init";
 import { buildSessionActivity } from "@/lib/session-activity";
 import type { SessionSummary } from "@/lib/session-api";
 
-vi.mock("@/components/tasks/TaskPanelSection", () => ({ default: () => null }));
 vi.mock("@/hooks/usePartnerRoster", () => ({
   usePartnerRoster: () => ({
     partners: [{ partner_id: "ada", name: "Ada" }],

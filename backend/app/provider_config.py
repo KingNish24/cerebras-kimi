@@ -219,6 +219,23 @@ def recent_pairs(settings: Settings) -> set[tuple[str, str]]:
     return out
 
 
+def is_recent_option(
+    recent: set[tuple[str, str]],
+    profile_id: str,
+    model_id: str,
+    provider: str,
+    wire_model: str,
+) -> bool:
+    """A recent entry may predate the catalog's generated ids."""
+    if (profile_id, model_id) in recent:
+        return True
+    return any(
+        entry_provider == provider
+        and entry_model in (model_id, wire_model)
+        for entry_provider, entry_model in recent
+    )
+
+
 # ---------------------------------------------------------------------------
 # Runtime resolution — what actually gets sent to vtx
 # ---------------------------------------------------------------------------
@@ -461,7 +478,7 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
                 reasoning_efforts=efforts,
                 declared_reasoning=bool(caps.get("reasoning")),
                 is_active_default=f"{pid}:{mid}" == active_key,
-                is_recent=(pid, mid) in recent,
+                is_recent=is_recent_option(recent, pid, mid, provider_slug, wire_model),
             ))
 
     # Preset fallback for slugs with no saved profile (env-key usage).
@@ -484,7 +501,7 @@ def model_options(settings: Settings) -> list[dict[str, Any]]:
                 supports_vision=bool(preset.get("supports_vision")),
                 supports_thinking=bool(preset.get("supports_thinking")),
                 is_active_default=f"{slug}:{mid}" == active_key,
-                is_recent=(slug, str(mid)) in recent,
+                is_recent=is_recent_option(recent, slug, str(mid), slug, str(mid)),
             ))
     return options
 

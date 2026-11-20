@@ -5,10 +5,6 @@ import SessionViewerPanel from "@/components/chat/home/SessionViewerPanel";
 import { initI18n } from "@/i18n/init";
 import { buildSessionActivity } from "@/lib/session-activity";
 
-vi.mock("@/components/tasks/TaskPanelSection", () => ({
-  default: () => null,
-}));
-
 initI18n("en");
 
 it("keeps an explicit return to the conversation inside the Activity view", async () => {

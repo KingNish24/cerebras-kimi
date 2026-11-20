@@ -66,8 +66,8 @@ function segmentColor(key: string): string {
 }
 
 /**
- * Mirrors formatCompactTokens in components/settings/ServiceConfigEditor.tsx,
- * but keeps one decimal and a lowercase "k" so the header reads like a budget
+ * Mirrors formatCompactTokens in features/settings/sections/models (the provider
+ * editor), but keeps one decimal and a lowercase "k" so the header reads like a budget
  * ("895.3k / 1M") rather than a spec sheet. Copied rather than shared because
  * that helper is module-private over there.
  */
