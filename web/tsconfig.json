@@ -52,8 +52,6 @@
     "scripts/**/*.ts",
     "scripts/**/*.tsx",
     "scripts/**/*.mts",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
     "types/**/*.d.ts"
   ],
   "exclude": [
@@ -65,6 +63,6 @@
     "coverage",
     "playwright-report",
     "test-results",
-    "tests/**/*.spec.tsx"
+    "tests/**"
   ]
 }

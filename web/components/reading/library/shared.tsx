@@ -3,6 +3,7 @@
 import { FileAudio, FileText, Film, Globe2, Youtube } from "lucide-react";
 
 import { formatMediaTime } from "@/lib/reading-media-time";
+import { formatBytes as formatByteSize } from "@/shared/lib/format";
 import type {
   ReadingLibraryMaterial,
   ReadingSourceKind,
@@ -68,11 +69,7 @@ export function formatTag(material: ReadingLibraryMaterial): string {
 }
 
 export function formatBytes(bytes: number | undefined): string {
-  if (!bytes || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  const mb = bytes / (1024 * 1024);
-  return `${mb >= 100 ? Math.round(mb) : mb.toFixed(1)} MB`;
+  return formatByteSize(bytes, { zeroEmpty: true, compact: true });
 }
 
 export function formatDuration(seconds: number | undefined): string {

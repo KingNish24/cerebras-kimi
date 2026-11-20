@@ -5,17 +5,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const webRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const tscBin = path.join(
-  webRoot,
-  "node_modules",
-  "typescript",
-  "bin",
-  "tsc",
-);
+const rawArgs = process.argv.slice(2);
+const useTsc = rawArgs.includes("--tsc");
+const forwardedArgs = rawArgs.filter((arg) => arg !== "--tsc" && arg !== "--tsrs");
+
+const binPath = useTsc
+  ? path.join(webRoot, "node_modules", "typescript", "bin", "tsc")
+  : path.join(webRoot, "node_modules", "tsrs", "bin", "tsrs");
 
 const result = spawnSync(
   process.execPath,
-  [tscBin, "--noEmit", ...process.argv.slice(2)],
+  [binPath, "--noEmit", ...forwardedArgs],
   { cwd: webRoot, stdio: "inherit" },
 );
 

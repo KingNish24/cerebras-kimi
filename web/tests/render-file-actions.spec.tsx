@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import { RenderFileActions } from '@/components/math-animator/RenderFileActions'
+import { OutputFileActions } from '@/components/files/OutputFileActions'
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn() }))
 vi.mock('@/shared/api/client', () => ({ apiFetch: (...args: unknown[]) => mocks.fetch(...args) }))
@@ -31,7 +31,7 @@ it('shows paths on demand and copies the original path', async () => {
   const copy = vi.fn().mockResolvedValue(undefined)
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: copy } })
   mocks.fetch.mockResolvedValue(ok(preview))
-  render(<RenderFileActions url={url} />)
+  render(<OutputFileActions url={url} kind="render" />)
   expect(mocks.fetch).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Output files' }))
   expect(await screen.findByLabelText('Saved file path')).toHaveValue(preview.file_path)
@@ -46,7 +46,7 @@ it('previews cleanup and requires confirmation, preserving the output URL', asyn
       ? ok({ cache_files: 0, cache_bytes: 0, freed_bytes: 4096, fingerprint: 'new' })
       : ok(preview)
   )
-  render(<RenderFileActions url={url} />)
+  render(<OutputFileActions url={url} kind="render" />)
   fireEvent.click(screen.getByRole('button', { name: 'Output files' }))
   await screen.findByLabelText('Saved file path')
   fireEvent.click(screen.getByRole('button', { name: 'Clean render files' }))
@@ -76,7 +76,7 @@ it('shows cleanup errors without claiming that storage was freed', async () => {
       ? { ok: false, json: async () => ({ detail: 'Render files changed. Review again.' }) }
       : ok(preview)
   )
-  render(<RenderFileActions url={url} />)
+  render(<OutputFileActions url={url} kind="render" />)
   fireEvent.click(screen.getByRole('button', { name: 'Output files' }))
   await screen.findByLabelText('Saved file path')
   fireEvent.click(screen.getByRole('button', { name: 'Clean render files' }))
@@ -87,14 +87,14 @@ it('shows cleanup errors without claiming that storage was freed', async () => {
 })
 
 it('offers no local actions for external or legacy URLs', () => {
-  const { container } = render(<RenderFileActions url="https://example.test/movie.mp4" />)
+  const { container } = render(<OutputFileActions url="https://example.test/movie.mp4" kind="render" />)
   expect(container).toBeEmptyDOMElement()
   expect(mocks.fetch).not.toHaveBeenCalled()
 })
 
 it("retains the artifact's workspace scope in storage requests", async () => {
   mocks.fetch.mockResolvedValue(ok(preview))
-  render(<RenderFileActions url={`${url}?dt_workspace=course-one`} />)
+  render(<OutputFileActions url={`${url}?dt_workspace=course-one`} kind="render" />)
   fireEvent.click(screen.getByRole('button', { name: 'Output files' }))
   await screen.findByLabelText('Saved file path')
   expect(mocks.fetch).toHaveBeenCalledWith(

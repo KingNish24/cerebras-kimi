@@ -5,7 +5,7 @@ import AppShell from "@/components/layout/AppShell";
 import { LayoutPageBar } from "@/features/ui-layout/slots";
 import { CapabilityAccessProvider } from "@/components/access/CapabilityAccessContext";
 import CapabilityGate from "@/components/access/CapabilityGate";
-import { ChatRuntimeProvider } from "@/features/chat";
+import { ChatRuntimeProvider } from "@/features/chat/ChatRuntimeProvider";
 import { ReadingProvider } from "@/context/ReadingContext";
 import { Suspense } from "react";
 import { WorkspaceRuntimeBoundary } from "@/components/workspaces/WorkspaceRuntimeBoundary";

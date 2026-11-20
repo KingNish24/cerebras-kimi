@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { apiFetch, apiUrl } from "@/shared/api/client";
 import { StatusStripDivider } from "@/components/settings/shared";
+import { formatBytes as formatByteSize } from "@/shared/lib/format";
 
 /**
  * Live resident-memory readout — the whole point of the settings status strip
@@ -46,9 +47,7 @@ interface MemoryUsage {
 }
 
 function formatBytes(bytes: number | null | undefined): string {
-  if (bytes == null) return "—";
-  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GB`;
-  return `${Math.round(bytes / 1024 ** 2)} MB`;
+  return formatByteSize(bytes, { empty: "—", allowGb: true, minUnit: "MB" });
 }
 
 /** Green under two thirds, amber past it, red once the OOM killer is plausible. */
