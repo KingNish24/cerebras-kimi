@@ -772,7 +772,24 @@ def settings_display_post() -> dict[str, Any]:
 
 @router.get("/modules")
 def modules_list() -> dict[str, Any]:
-    return {"modules": []}
+    """Feature modules this deployment ships.
+
+    The frontend gates the sidebar entry, the route and the calendar's
+    reminder runtime on this inventory, so anything implemented natively
+    here is reported as installed and enabled.
+    """
+    return {
+        "modules": [
+            {
+                "id": "calendar",
+                "installed": True,
+                "enabled": True,
+                "ready": True,
+                "navigation": ["/calendar"],
+                "issues": [],
+            }
+        ]
+    }
 
 
 @router.get("/settings/page-customization")

@@ -54,9 +54,13 @@ test("entry keys match the anchor the bubble renders", () => {
 });
 
 test("id-less rows fall back to a positional key", () => {
-  assert.equal(turnAnchorKey({ id: 7 }, 3), "m7");
-  assert.equal(turnAnchorKey({ id: -1700000 }, 3), "m-1700000");
+  assert.equal(turnAnchorKey({ id: 7 }, 3), "m7-3");
+  assert.equal(turnAnchorKey({ id: -1700000 }, 3), "m-1700000-3");
   assert.equal(turnAnchorKey({}, 3), "i3");
+});
+
+test("duplicate message ids still produce unique keys", () => {
+  assert.notEqual(turnAnchorKey({ id: 1 }, 0), turnAnchorKey({ id: 1 }, 1));
 });
 
 test("only the selected edit branch earns ticks", () => {

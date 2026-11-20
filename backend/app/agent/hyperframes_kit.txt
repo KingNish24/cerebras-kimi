@@ -1,0 +1,57 @@
+<!-- DeepTutor lesson kit. Paste this <style> and <script> verbatim into the
+     composition's <head>; the helper functions are called from the timeline
+     script at the bottom of the file. `at` arguments are SECONDS on the
+     composition timeline. -->
+<style>
+:root{
+  --paper:#fdfcf9; --paper2:#f5f2ea; --ink:#1c1816; --soft:#3b3430;
+  --muted:#6d645a; --rule:#e6decc; --accent:#b0501e; --blue:#2f5d8a;
+  --green:#3d6b4f;
+  --serif:"Lora","Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Geist","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:"Geist Mono",ui-monospace,monospace;
+}
+html,body{margin:0;padding:0;background:var(--paper);}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);}
+.clip{position:absolute;inset:0;}
+.scene{padding:70px 120px;box-sizing:border-box;}
+.kicker{font:600 26px var(--sans);color:var(--accent);letter-spacing:.06em;}
+.h1{font:500 76px/1.22 var(--serif);color:var(--ink);margin:0;}
+.body{font:400 36px/1.65 var(--sans);color:var(--soft);}
+.card{background:#fff;border:1.5px solid var(--rule);border-left:6px solid var(--accent);
+  border-radius:8px;padding:22px 28px;}
+.muted{color:var(--muted);} .accent{color:var(--accent);}
+.blue{color:var(--blue);} .green{color:var(--green);}
+.mono{font-family:var(--mono);}
+svg text{font-family:var(--sans);}
+.axis{stroke:var(--ink);stroke-width:2;}
+.grid{stroke:var(--rule);stroke-width:1.5;}
+</style>
+<script>
+// ---- kit helpers: every function adds tweens to `tl` at absolute seconds ----
+// Never animate a .clip element itself; animate elements INSIDE each scene.
+function fadeUp(tl, sel, at, dur, dy){ // rise + fade in; dy defaults to 24px
+  tl.fromTo(sel, {opacity:0, y:(dy==null?24:dy)},
+    {opacity:1, y:0, duration:(dur==null?0.6:dur), ease:"power3.out"}, at||0);
+}
+function fadeIn(tl, sel, at, dur){ // plain fade in
+  tl.fromTo(sel, {opacity:0}, {opacity:1, duration:(dur==null?0.5:dur), ease:"power2.out"}, at||0);
+}
+function pop(tl, sel, at, dur, s){ // small scale-in, good for badges/numbers
+  tl.fromTo(sel, {opacity:0, scale:(s==null?0.92:s), transformOrigin:"50% 50%"},
+    {opacity:1, scale:1, duration:(dur==null?0.5:dur), ease:"back.out(1.6)"}, at||0);
+}
+function fadeOut(tl, sel, at, dur){ // fade an element out mid-scene
+  tl.to(sel, {opacity:0, duration:(dur==null?0.4:dur), ease:"power2.in"}, at||0);
+}
+function drawPath(tl, sel, at, dur){ // SVG stroke draw-on; requires pathLength="1"
+  tl.fromTo(sel, {strokeDasharray:1, strokeDashoffset:1},
+    {strokeDashoffset:0, duration:(dur==null?0.8:dur), ease:"power2.inOut"}, at||0);
+}
+function countUp(tl, sel, from, to, at, dur, decimals){ // counts a number in #id text
+  var o = {v:from};
+  tl.to(o, {v:to, duration:(dur==null?1.2:dur), ease:"power2.out",
+    onUpdate:function(){ var el=document.querySelector(sel); if(el) el.textContent=o.v.toFixed(decimals||0); }}, at||0);
+}
+</script>

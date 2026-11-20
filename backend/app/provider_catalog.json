@@ -246,7 +246,10 @@
       "base_url": "https://api.kilo.ai/api/gateway",
       "api_key_env": "KILO_API_KEY",
       "known_models": [],
-      "headers": {"X-KILOCODE-EDITORNAME": "vtx", "User-Agent": "vtx"},
+      "headers": {
+        "X-KILOCODE-EDITORNAME": "DeepTutor",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+      },
       "openmodelendpoint": true,
       "fetch_models": true,
       "models_endpoint": "/models",
@@ -734,6 +737,26 @@
       "base_url": "https://api.x.ai/v1",
       "api_key_env": "XAI_API_KEY",
       "known_models": ["grok-3", "grok-3-mini"],
+      "supports_thinking": true,
+      "fetch_models": true,
+      "models_endpoint": "/models",
+      "model_parser": {"cooldown_minutes": 60}
+    },
+    {
+      "slug": "wusrouter",
+      "display_name": "WuS Router",
+      "description": "WuS Router gateway — free models (verified working).",
+      "family": "openai_compat",
+      "base_url": "https://wusrouter.com/v1",
+      "api_key_env": "WUSROUTER_API_KEY",
+      "known_models": [
+        "codex/gpt-5:free",
+        "mimo-v2.5:free",
+        "wr/deepseek-v4.1-flash:free",
+        "ws/gpt-5.6-terra:free",
+        "jailbreak/auto-models:free",
+        "zai-org/glm-5.3-flash:free"
+      ],
       "supports_thinking": true,
       "fetch_models": true,
       "models_endpoint": "/models",

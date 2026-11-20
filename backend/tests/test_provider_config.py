@@ -147,7 +147,7 @@ class CatalogFileTests(unittest.TestCase):
         for slug in (
             "openai", "anthropic", "zhipu", "opengateway", "experientiallabs",
             "kilo", "aihubmix", "ollama", "aerolink", "fastrouter", "xai",
-            "conduit", "sarvam", "bai",
+            "conduit", "sarvam", "bai", "wusrouter",
         ):
             self.assertIn(slug, presets)
         self.assertEqual(presets["zhipu"]["api_key_env"], "ZAI_API_KEY")

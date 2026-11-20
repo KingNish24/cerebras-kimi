@@ -50,15 +50,17 @@ export interface ChatOutlineEntry {
 }
 
 /**
- * Stable DOM key for a message bubble. Persisted rows key off their
- * server id; an optimistic (negative-id) or id-less row falls back to
- * its position, which is stable for as long as it is on screen.
+ * Stable DOM key for a message bubble. The position is always part of the
+ * key: a restored row and an optimistic row can briefly share the same
+ * server id (e.g. `1`) after a failed turn, and React requires unique keys.
+ * Both the rendered bubble and the outline call this with the same visible
+ * index, so the scroll target still matches.
  */
 export function turnAnchorKey(
   message: Pick<MessageItem, "id">,
   index: number,
 ): string {
-  return message.id != null ? `m${message.id}` : `i${index}`;
+  return message.id != null ? `m${message.id}-${index}` : `i${index}`;
 }
 
 /**

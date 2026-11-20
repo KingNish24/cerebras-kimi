@@ -24,6 +24,9 @@ import {
 const PdfPreview = dynamic(() => import("./previewers/PdfPreview"));
 const ImagePreview = dynamic(() => import("./previewers/ImagePreview"));
 const VideoPreview = dynamic(() => import("./previewers/VideoPreview"));
+const HyperframesPreview = dynamic(
+  () => import("./previewers/HyperframesPreview"),
+);
 const SvgPreview = dynamic(() => import("./previewers/SvgPreview"));
 const MarkdownPreview = dynamic(() => import("./previewers/MarkdownPreview"));
 const TextPreview = dynamic(() => import("./previewers/TextPreview"));
@@ -404,6 +407,8 @@ const PreviewBody = memo(function PreviewBody({
       return <ImagePreview url={previewUrl} filename={filename} />;
     case "video":
       return <VideoPreview url={previewUrl} filename={filename} />;
+    case "hyperframes":
+      return <HyperframesPreview url={previewUrl} filename={filename} />;
     case "svg":
       return <SvgPreview url={previewUrl} filename={filename} />;
     case "markdown":

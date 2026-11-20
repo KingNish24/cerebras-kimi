@@ -64,6 +64,8 @@ import {
 } from "@/components/chat/GeneratedOutputFileActions";
 import { PlayAudioButton } from "@/components/voice/SpeechButton";
 export { PlayAudioButton } from "@/components/voice/SpeechButton";
+import HyperframesPlayer from "@/components/chat/preview/HyperframesPlayer";
+import { HYPERFRAMES_MIME } from "@/components/chat/preview/previewerFor";
 import { activeWorkspaceId } from "@/lib/workspace-scope";
 import { useVoicePlaybackRate, VOICE_PLAYBACK_RATES } from "@/hooks/useVoicePlaybackRate";
 import { extractMathAnimatorResult } from "@/lib/math-animator-types";
@@ -637,6 +639,47 @@ export function GeneratedFileCards({
                   <span className="shrink-0 text-[11px] text-[var(--muted-foreground)] transition group-hover:text-[var(--foreground)]">
                     {t("Open")}
                   </span>
+                </span>
+              </button>
+              {supportsGeneratedOutputActions(a) ? (
+                <GeneratedOutputFileActions url={a.url || ""} />
+              ) : null}
+            </div>
+          );
+        }
+
+        // Agent video lessons are HyperFrames compositions — embed the
+        // interactive player directly in the message, same slot as <video>.
+        const isHyperframes =
+          mime === HYPERFRAMES_MIME ||
+          (/\.html$/i.test(filename) && /\/videos\//.test(a.url || ""));
+        if (isHyperframes && mediaSrc) {
+          return (
+            <div
+              key={key}
+              className="w-full max-w-[min(680px,90%)] overflow-hidden rounded-xl border border-[var(--border)] bg-black shadow-sm"
+            >
+              <HyperframesPlayer
+                src={mediaSrc}
+                className="block aspect-video w-full"
+              />
+              <button
+                type="button"
+                onClick={onOpen ? () => onOpen(a) : undefined}
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition hover:bg-[var(--muted)]/30"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                    {a.title || humanizeFilename(filename)}
+                  </span>
+                  {caption ? (
+                    <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
+                      {caption}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
+                  {t("Open")}
                 </span>
               </button>
               {supportsGeneratedOutputActions(a) ? (

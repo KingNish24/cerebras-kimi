@@ -14,6 +14,7 @@ export type PreviewKind =
   | "pdf"
   | "image"
   | "video"
+  | "hyperframes"
   | "svg"
   | "markdown"
   | "code"
@@ -22,6 +23,9 @@ export type PreviewKind =
   | "xlsx"
   | "office-text"
   | "fallback";
+
+/** MIME the backend stamps on agent-generated HyperFrames compositions. */
+export const HYPERFRAMES_MIME = "application/x-hyperframes";
 
 export interface FilePreviewSource {
   /** Display name; also used to derive the file extension. */
@@ -102,6 +106,12 @@ export function previewKindFor(source: FilePreviewSource): PreviewKind {
   if (ext === ".svg" || mime === "image/svg+xml") return "svg";
   if (isImage(source, ext)) return "image";
   if (VIDEO_EXTS.has(ext) || mime.startsWith("video/")) return "video";
+  // Agent video lessons are HyperFrames HTML compositions under /files/videos.
+  if (
+    mime === HYPERFRAMES_MIME ||
+    (ext === ".html" && /\/videos\//.test(source.url || ""))
+  )
+    return "hyperframes";
   if (MARKDOWN_EXTS.has(ext) || mime === "text/markdown") return "markdown";
   if (
     DOCX_EXTS.has(ext) ||

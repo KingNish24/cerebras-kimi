@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-19",
+  "checked_at": "2026-11-20",
   "note": "Brand marks identify their respective services. Existing SVGs were vendored from LobeHub; additions below were checked against provider websites.",
   "assets": {
     "alibabacloud-color.svg": {
@@ -516,6 +516,12 @@
       "url": null,
       "sha256": "0cd2f9d07ba1776667503335704f96a075bd112afecc45aea44ca1bcb5e1fcb3",
       "source": "Existing vendored brand mark"
+    },
+    "wusrouter.png": {
+      "url": "https://www.google.com/s2/favicons?domain=wusrouter.com&sz=64",
+      "sha256": "904e904bdd251887de33da71c9d497230ce48396744fab3b7cd93102e0f9cc92",
+      "source": "Google favicon service (public)",
+      "domain": "wusrouter.com"
     }
   },
   "chinese_names": {

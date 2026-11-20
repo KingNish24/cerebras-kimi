@@ -122,6 +122,7 @@ export const PROVIDER_ICONS: Readonly<Record<string, ProviderIconSpec>> = {
   xai: { file: "xai.ico" },
   zenmux: { file: "zenmux.png" },
   zyloo: { file: "zyloo.svg" },
+  wusrouter: { file: "wusrouter.png" },
 };
 
 const PROVIDER_ALIASES: Readonly<Record<string, string>> = {

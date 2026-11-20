@@ -46,6 +46,48 @@ log = logging.getLogger("deeptutor.runtime")
 
 PROTOCOL_VERSION = "2.0"
 
+def _tool_result_text(out: Any) -> str:
+    """Readable text from a vtx ``ToolResultMessage``.
+
+    The default ``str(result)`` / ``json.dumps`` path yields a repr like
+    ``role='tool_result' ... content=[TextContent(...)]`` which buries the
+    actual tool output — including failures — from the user-facing trace.
+    """
+    value = getattr(out, "output", None)
+    if value is None:
+        content = getattr(out, "content", None)
+        if isinstance(content, (list, tuple)):
+            parts: list[str] = []
+            for part in content:
+                if isinstance(part, str):
+                    parts.append(part)
+                elif isinstance(part, dict):
+                    parts.append(str(part.get("text") or part.get("content") or ""))
+                else:
+                    txt = getattr(part, "text", None)
+                    if txt is not None:
+                        parts.append(str(txt))
+            value = "\n".join(p for p in parts if p.strip())
+        elif content is not None:
+            value = content
+    if value is None:
+        value = out if isinstance(out, str) else json.dumps(
+            out, ensure_ascii=False, default=str
+        )
+    return str(value)
+
+
+def _tool_result_is_error(out: Any, text: str) -> bool:
+    """Tools return plain strings, so failure text must be detected too."""
+    if getattr(out, "is_error", False):
+        return True
+    head = text.strip().lower()
+    return head.startswith((
+        "render failed", "video sub-agent failed", "error:", "failed:",
+        "traceback", "unavailable:",
+    ))
+
+
 @contextlib.contextmanager
 def _suppress_vtx_selection_writes():
     """vtx's initialize() persists last_selected/recent_models into its own
@@ -85,7 +127,8 @@ You are DeepTutor, a patient and rigorous personal tutor.
   - `paper_search` — arXiv papers for research questions
   - `video` — for videos/animations: call it with a plain-language `query`
     (e.g. "explain photosynthesis in 90 seconds"); a video sub-agent writes
-    and renders the film. Never write Remotion code yourself.
+    the composition and it plays inline in the chat. Never write video code
+    yourself.
   - `codemode` — multi-step work: write Python that calls other tools;
     `%bash <cmd>` runs shell commands inside the script
   - `tool_search` — discover which tool fits when unsure
@@ -603,35 +646,42 @@ class AgentRuntime:
                         event.future.set_result(ApprovalResponse.APPROVE)
                 elif isinstance(event, ToolResultEvent):
                     out = event.result
-                    text = getattr(out, "output", None) or (
-                        out if isinstance(out, str) else
-                        __import__("json").dumps(out, ensure_ascii=False, default=str))
-                    text = str(text)
+                    text = _tool_result_text(out)
                     tool_meta: dict[str, Any] = {}
-                    # The video tool writes an mp4 into the /files tree and markers
-                    # its result with a machine-readable prefix. Turn that into an
-                    # artifact so the chat renders an inline <video> player.
+                    # The video tool publishes a HyperFrames composition (or a
+                    # rendered mp4) into the /files tree and marks its result
+                    # with a machine-readable prefix. Turn that into an
+                    # artifact so the chat embeds it with the right player.
+                    # Marker format: VIDEO_ARTIFACT:<rel>|<title>|<readable>
                     if (
                         event.tool_name == "video"
                         and text.startswith("VIDEO_ARTIFACT:")
                         and not getattr(out, "is_error", False)
                     ):
-                        marker, _, readable = text.partition("|")
+                        marker, _, rest = text.partition("|")
                         rel = marker.split(":", 1)[1].strip()
+                        title, sep, readable = rest.partition("|")
+                        if not sep:
+                            # Legacy marker without a title segment.
+                            title, readable = "", title
                         if rel and ".." not in rel and not rel.startswith("/"):
                             tool_meta["artifacts"] = [{
                                 "filename": rel.rsplit("/", 1)[-1],
                                 "url": f"/files/{rel}",
-                                "mime_type": "video/mp4",
+                                "mime_type": (
+                                    "video/mp4" if rel.endswith(".mp4")
+                                    else "application/x-hyperframes"
+                                ),
+                                "title": title.strip() or None,
                                 "generated": True,
                             }]
-                            text = readable or "Video ready."
+                            text = readable.strip() or "Video ready."
                     await self._emit(handle, self._stream_event(
                         handle, "tool_result", content=text,
                         source=capability, stage="responding",
                         metadata={"tool_call_id": event.tool_call_id,
                                   "tool_name": event.tool_name,
-                                  "is_error": bool(getattr(out, "is_error", False)),
+                                  "is_error": _tool_result_is_error(out, text),
                                   "tool_metadata": tool_meta}))
                 elif isinstance(event, ErrorEvent):
                     status = "error"

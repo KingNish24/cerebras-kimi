@@ -585,48 +585,50 @@ def mastery(action: str, topic: str = "", question: str = "",
 
 
 # ---------------------------------------------------------------------------
-# video — natural-language query -> Remotion sub-agent -> rendered mp4
+# video — natural-language query -> HyperFrames sub-agent -> playable HTML
+# composition served under /files (plays live in the browser via
+# @hyperframes/player; no npm install or headless render needed).
 # ---------------------------------------------------------------------------
 
 _JSON_BLOCK = re.compile(r"```json[ \t]*\n(.*?)\n```", re.S)
-_TSX_BLOCK = re.compile(r"```(?:tsx|typescript|ts|jsx)[ \t]*\n(.*?)\n```", re.S)
+_HTML_BLOCK = re.compile(r"```(?:html?)[ \t]*\n(.*?)\n```", re.S | re.I)
 _VIDEO_ARTIFACT_PREFIX = "VIDEO_ARTIFACT:"
 
 
 def _parse_lesson(reply: str) -> tuple[str, str]:
-    """Pull the longest TSX block and the JSON meta block from a sub-agent reply."""
-    blocks = _TSX_BLOCK.findall(reply)
+    """Pull the HTML composition and the JSON meta block from a sub-agent reply."""
+    blocks = _HTML_BLOCK.findall(reply)
     code = max(blocks, key=len).strip() if blocks else ""
     match = _JSON_BLOCK.search(reply)
     meta = match.group(1).strip() if match else ""
     return code, meta
 
 
-_REMOTION_SPEC_CACHE: str | None = None
+_HYPERFRAMES_SPEC_CACHE: str | None = None
 
 
-def _remotion_spec() -> str:
-    """Load the Remotion contract and splice in the real kit source. This
+def _hyperframes_spec() -> str:
+    """Load the HyperFrames contract and splice in the kit preamble. This
     prompt belongs only to the video sub-agent, never to the main agent."""
-    global _REMOTION_SPEC_CACHE
-    if _REMOTION_SPEC_CACHE is None:
+    global _HYPERFRAMES_SPEC_CACHE
+    if _HYPERFRAMES_SPEC_CACHE is None:
         try:
-            prompt = (Path(__file__).with_name("remotion_prompt.txt")
+            prompt = (Path(__file__).with_name("hyperframes_prompt.txt")
                       .read_text(encoding="utf-8").strip())
-            kit = (Path(__file__).with_name("remotion_kit") / "kit.tsx")
-            _REMOTION_SPEC_CACHE = prompt.replace(
+            kit = (Path(__file__).with_name("hyperframes_kit.txt"))
+            _HYPERFRAMES_SPEC_CACHE = prompt.replace(
                 "{kit_source}", kit.read_text(encoding="utf-8").strip()
             )
         except OSError:
-            _REMOTION_SPEC_CACHE = ""
-    return _REMOTION_SPEC_CACHE
+            _HYPERFRAMES_SPEC_CACHE = ""
+    return _HYPERFRAMES_SPEC_CACHE
 
 
 def _subagent_instructions() -> str:
-    """The video sub-agent's system prompt: the Remotion contract plus the
-    shipped kit source. It contains no tool instructions — the sub-agent has
-    no tools and only returns JSON meta + Lesson.tsx code blocks."""
-    return _remotion_spec()
+    """The video sub-agent's system prompt: the HyperFrames contract plus the
+    kit preamble. It contains no tool instructions — the sub-agent has
+    no tools and only returns JSON meta + index.html code blocks."""
+    return _hyperframes_spec()
 
 
 def _video_workspace() -> Path:
@@ -646,86 +648,49 @@ def _slug_for(title: str) -> str:
     return f"{s}-{uuid.uuid4().hex[:6]}"
 
 
-def _scaffold_video(slug: str, code: str, meta: str) -> Path:
+def _validate_composition(html: str) -> str | None:
+    """Cheap sanity checks on the sub-agent's HTML; returns an error or None."""
+    if 'data-composition-id="lesson"' not in html:
+        return "Composition is missing data-composition-id=\"lesson\" on the root element."
+    if 'window.__timelines' not in html or '"lesson"' not in html:
+        return "Composition does not register window.__timelines[\"lesson\"]."
+    if "data-duration" not in html:
+        return "Composition root is missing data-duration."
+    return None
+
+
+def _scaffold_video(slug: str, html: str, meta: str, title: str) -> Path:
+    """Write the composition where /files can serve it. Returns the served dir."""
+    served_dir = _files_root() / "videos" / slug
+    served_dir.mkdir(parents=True, exist_ok=True)
+    (served_dir / "index.html").write_text(html, encoding="utf-8")
+    if meta:
+        (served_dir / "meta.json").write_text(meta, encoding="utf-8")
+    # Keep a copy in the agent workspace so `workspace`/`apply_patch` can
+    # inspect or edit the composition later.
     proj = _video_workspace() / slug
     (proj / "src").mkdir(parents=True, exist_ok=True)
-    kit_dir = Path(__file__).with_name("remotion_kit")
-    for name in ("kit.tsx", "voice.ts", "china_outline.json"):
-        src = kit_dir / name
-        if src.exists():
-            shutil.copyfile(src, proj / "src" / name)
-    default_lesson = (
-        'import React from "react";\n'
-        'import {Scenes, Stage, Title, lessonLength, type Scene} from "./kit";\n'
-        'const S: React.FC = () => <Stage><Title>Your lesson title</Title></Stage>;\n'
-        'export const SCENES: Scene[] = [{voice: "s1", frames: 300, content: <S />}];\n'
-        'export const LESSON = {durationInFrames: lessonLength(SCENES), fps: 30, '
-        'width: 1920, height: 1080};\n'
-        'export const Lesson: React.FC = () => <Scenes scenes={SCENES} />;\n'
-    )
-    (proj / "src" / "Lesson.tsx").write_text(code or default_lesson)
+    (proj / "src" / "index.html").write_text(html, encoding="utf-8")
     if meta:
-        (proj / "src" / "script.json").write_text(meta)
-    (proj / "src" / "index.tsx").write_text(
-        "import React from 'react';\n"
-        "import {registerRoot, Composition} from 'remotion';\n"
-        "import * as mod from './Lesson';\n"
-        "const Lesson = mod.Lesson || mod.Main;\n"
-        "const L = mod.LESSON || {durationInFrames: 150, fps: 30, width: 1920, height: 1080};\n"
-        "registerRoot(() => <Composition id='Lesson' component={Lesson} "
-        "durationInFrames={L.durationInFrames} fps={L.fps} "
-        "width={L.width} height={L.height} />);\n"
-    )
-    (proj / "package.json").write_text(json.dumps({
-        "name": slug, "private": True,
-        "dependencies": {"react": "^18.2.0", "react-dom": "^18.2.0",
-                         "remotion": "^4.0.0"},
-        "devDependencies": {"@remotion/cli": "^4.0.0", "typescript": "^5.0.0"},
-        "scripts": {"render": "remotion render src/index.tsx Lesson out.mp4"},
-    }, indent=2))
-    return proj
-
-
-def _render_video(proj: Path) -> str | None:
-    """Install dependencies if needed, render, and return an error string or None."""
-    out = proj / "out.mp4"
-    if not (proj / "node_modules").exists():
-        try:
-            install = subprocess.run(
-                ["npm", "install", "--no-audit", "--no-fund"],
-                cwd=proj, capture_output=True, text=True, timeout=600,
-            )
-        except FileNotFoundError:
-            return "npm is not available — cannot install Remotion dependencies."
-        except subprocess.TimeoutExpired:
-            return "npm install timed out after 600s."
-        if install.returncode != 0:
-            return f"npm install failed: {(install.stderr or install.stdout)[-500:]}"
-    try:
-        proc = subprocess.run(
-            ["npx", "remotion", "render", "src/index.tsx", "Lesson", "out.mp4"],
-            cwd=proj, capture_output=True, text=True, timeout=600,
-        )
-    except FileNotFoundError:
-        return "npx is not available — cannot render the video."
-    except subprocess.TimeoutExpired:
-        return "render timed out after 600s."
-    if proc.returncode != 0 or not out.exists():
-        return f"render failed: {(proc.stderr or proc.stdout)[-800:]}"
-    return None
+        (proj / "src" / "meta.json").write_text(meta, encoding="utf-8")
+    if title:
+        (proj / "title.txt").write_text(title, encoding="utf-8")
+    return served_dir
 
 
 @tool(mutating=True, tool_icon="🎬")
 async def video(query: str, title: str = "") -> str:
-    """Turn a natural-language request into a rendered video lesson.
+    """Turn a natural-language request into a playable video lesson.
 
     The main agent only passes what the learner asked for. A dedicated
-    Remotion sub-agent writes the lesson code; this tool scaffolds the
-    project, renders the mp4 and returns a playable artifact for the chat.
+    HyperFrames sub-agent writes a self-contained HTML composition; this
+    tool publishes it under /files and returns an artifact the chat embeds
+    with the HyperFrames player — it plays live in the browser, no render
+    step required.
 
     :param query: The learner's request in plain language, e.g. "explain how
       photosynthesis works in a one-minute animation".
-    :param title: Optional short title (used for the file slug).
+    :param title: Optional short title (used for the file slug and card).
     """
     from vtx.agent.dispatcher import get_context
     from vtx.agent.tools.task import SubagentSpec, resolve_subagent_runner
@@ -736,10 +701,10 @@ async def video(query: str, title: str = "") -> str:
 
     spec = SubagentSpec(
         name="video-lesson-writer",
-        description="Writes a Remotion lesson for the learner's question",
+        description="Writes a HyperFrames lesson for the learner's question",
         instructions=_subagent_instructions(),
         instructions_mode="replace",
-        # No tools: the sub-agent only writes JSON meta + Lesson.tsx. An
+        # No tools: the sub-agent only writes JSON meta + index.html. An
         # allow-list naming no real tool filters out the inherited tool set.
         tools_allow=["__none__"],
         tools_deny=[],
@@ -751,9 +716,9 @@ async def video(query: str, title: str = "") -> str:
             parent_ctx=ctx,
             spec=spec,
             prompt=(
-                "Write a Remotion video lesson for this learner request:\n\n"
+                "Write a HyperFrames video lesson for this learner request:\n\n"
                 + query.strip()
-                + "\n\nReturn only the JSON meta block and the complete Lesson.tsx block."
+                + "\n\nReturn only the JSON meta block and the complete index.html block."
             ),
             cancel_event=None,
             model_override=None,
@@ -768,22 +733,25 @@ async def video(query: str, title: str = "") -> str:
         return f"Video sub-agent failed: {result.error}"
     code, meta = _parse_lesson(result.final_text or "")
     if not code:
-        return "Video sub-agent did not return a Lesson.tsx code block."
+        return "Video sub-agent did not return an index.html code block."
+    error = _validate_composition(code)
+    if error:
+        return f"Video composition invalid: {error}"
 
     slug = _slug_for(title or query)
-    proj = _scaffold_video(slug, code, meta)
-    error = _render_video(proj)
-    if error:
-        return error
-
-    served_dir = _files_root() / "videos" / slug
-    served_dir.mkdir(parents=True, exist_ok=True)
-    served = served_dir / "out.mp4"
-    shutil.copyfile(proj / "out.mp4", served)
-    rel = served.relative_to(_files_root()).as_posix()
-    # The runtime turns this marker into an artifact so the chat renders a
-    # <video> player. Everything after '|' is the plain-text tool result.
-    return f"{_VIDEO_ARTIFACT_PREFIX}{rel}|Video rendered: /files/{rel}"
+    served_dir = _scaffold_video(slug, code, meta, (title or "").strip())
+    rel = (served_dir / "index.html").relative_to(_files_root()).as_posix()
+    lesson_title = ""
+    if meta:
+        try:
+            lesson_title = str(json.loads(meta).get("title") or "")
+        except Exception:  # noqa: BLE001
+            pass
+    # The runtime turns this marker into an artifact so the chat embeds the
+    # composition with the HyperFrames player. Format:
+    # VIDEO_ARTIFACT:<rel>|<title>|<readable text>
+    return (f"{_VIDEO_ARTIFACT_PREFIX}{rel}|{lesson_title}|"
+            f"Video lesson ready: /files/{rel}")
 
 
 # ---------------------------------------------------------------------------

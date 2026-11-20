@@ -72,6 +72,7 @@ export function extractStreamedArtifacts(
           url?: string;
           mime_type?: string;
           size_bytes?: number;
+          title?: string;
         }>;
       };
     };
@@ -110,6 +111,7 @@ export function extractStreamedArtifacts(
         url: a.url,
         mime_type: a.mime_type,
         size_bytes: a.size_bytes,
+        title: a.title,
         generated: true,
       });
     }

@@ -13,6 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .agent.runtime import AgentRuntime
+from .api.calendar import router as calendar_router
 from .api.handlers import router
 from .api.realtime import RealtimeHub, router as realtime_router
 from .config import get_settings
@@ -191,6 +192,7 @@ app.state.runtime = runtime
 app.state.kb = kb
 app.state.realtime = RealtimeHub(store=store, runtime=runtime)
 app.include_router(router)
+app.include_router(calendar_router)
 app.include_router(realtime_router)
 
 

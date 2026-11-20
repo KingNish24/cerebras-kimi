@@ -38,6 +38,7 @@
   "dependencies": {
     "@blocknote/core": "0.56.0",
     "@blocknote/react": "0.56.0",
+    "@hyperframes/player": "0.9.40",
     "@openuidev/intelligent-ui-library": "^0.0.2",
     "@openuidev/lang-core": "^1.1.1",
     "@openuidev/react-lang": "^1.1.1",
