@@ -5,7 +5,7 @@ import { LearningShell } from '@/components/learning/LearningShell'
 
 import { READING_HOME, READING_MATERIALS } from '@/lib/learning-routes'
 
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { Plus } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'

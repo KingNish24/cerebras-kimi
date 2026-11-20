@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, CalendarCheck, Check, ClipboardList, FileUp, Loader2 } from "lucide-react";
 import { QuestionBankSection } from "@/components/space/question-bank";

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { RefreshCw } from 'lucide-react'
 import {
   getSystemWorkspaceSnapshot,

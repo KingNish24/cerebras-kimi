@@ -2,7 +2,7 @@
 
 import { useModules, moduleRouteAvailable } from "@/hooks/useModules";
 import { useTranslation } from "react-i18next";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/shared/router/navigation";
 
 import { capabilityForPath } from "@/lib/capability-routes";
 

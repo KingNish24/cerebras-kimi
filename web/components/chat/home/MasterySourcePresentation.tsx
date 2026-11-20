@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import type { StreamEvent } from "@/features/chat/model/protocol";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import ImagePreview from "@/components/chat/preview/previewers/ImagePreview";
 import { useBinarySource } from "@/components/chat/preview/previewers/useBinarySource";
 import { presentedPagesFromSources, type PresentedPage } from "@/lib/mastery-source-pages";

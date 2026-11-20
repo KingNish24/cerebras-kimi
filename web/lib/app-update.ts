@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 export type InstallMode = "pypi" | "source" | "docker" | "unknown";
 export type UpdateJobStatus =

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { browserStorage } from "@/shared/storage";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/shared/router/navigation";
 
 export const SETTINGS_RETURN_KEY = "deeptutor:settings-return";
 

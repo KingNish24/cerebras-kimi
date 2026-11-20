@@ -13,9 +13,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { Paperclip } from "lucide-react";
-import { wsUrl } from "@/lib/api";
+import { wsUrl } from "@/shared/api/client";
 import {
   archivePartnerSession,
   branchPartnerSession,

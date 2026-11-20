@@ -4,6 +4,7 @@ import {
   readPosedQuestion,
 } from "@/lib/mastery-question";
 import { toolResultPayload } from "@/lib/tool-event";
+import { asRecord } from "@/shared/lib/record";
 
 /**
  * Shown when a reply could not be delivered — the turn that asked the
@@ -34,12 +35,6 @@ export const REPLY_SENT_AS_NEW_MESSAGE =
 type MessageWithEvents = {
   events?: StreamEvent[];
 };
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : null;
-}
 
 function eventBelongsToTurn(
   event: StreamEvent,

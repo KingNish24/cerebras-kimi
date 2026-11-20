@@ -1,5 +1,6 @@
 import type { MathAnimatorResult } from "@/lib/math-animator-types";
 import { extractMathAnimatorResult } from "@/lib/math-animator-types";
+import { asRecordOrEmpty as record } from "@/shared/lib/record";
 
 export type VisualizeTextRenderType =
   | "svg"
@@ -123,12 +124,6 @@ export function isManimResult(
   result: VisualizeResult,
 ): result is VisualizeManimResult {
   return isManimRenderType(result.render_type) && "manim" in result;
-}
-
-function record(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object"
-    ? (value as Record<string, unknown>)
-    : {};
 }
 
 function serializePayload(value: unknown): string {

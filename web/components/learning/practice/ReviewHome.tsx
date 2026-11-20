@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Check, ChevronDown, FileUp, Loader2, Library } from 'lucide-react'
 import {

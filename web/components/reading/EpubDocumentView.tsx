@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 import {
   getReadingPosition,
   renderMaterialUrl,
@@ -29,7 +29,7 @@ import {
 import { cleanQuote } from "@/lib/reading-selection";
 import type { JumpRequest, SelectionPayload } from "./PdfDocumentView";
 import { ReaderDisplayControls } from "./ReaderDisplayControls";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 
 import { collectLightboxImages } from "@/lib/reading-images";
 import type { LightboxImage } from "./ReaderImageLightbox";

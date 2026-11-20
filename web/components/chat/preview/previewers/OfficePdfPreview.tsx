@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import PdfPreview from "./PdfPreview";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { hasMarkdownMath } from "@/lib/latex";
 import { decodeEscapedUnicodeForDisplay } from "@/lib/markdown-display";
 

@@ -3,8 +3,8 @@
 import Tooltip from "@/shared/ui/Tooltip";
 import { browserStorage } from "@/shared/storage";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Archive,
@@ -26,7 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { knowledgeBaseRoute, notebookRoute } from "@/lib/resource-routes";
 import { bookRoute } from "@/lib/learning-routes";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
@@ -261,7 +261,7 @@ interface MemorySectionProps {
   hideHeader?: boolean; // when true, skips the SpaceSectionHeader (parent page renders its own)
 }
 
-export default function MemorySection({
+function MemorySection({
   forcedTab,
   hideHeader = false,
 }: MemorySectionProps = {}) {

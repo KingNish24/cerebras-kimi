@@ -2,7 +2,7 @@
 
 import { PageHeader, PAGE_SECTION_TITLE_CLASS, pageGridClass } from '@/components/layout/FeaturePage'
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useTranslation } from "react-i18next";
 import { useUiLayoutLabel } from "@/features/ui-layout/tokens";
 import { useCapabilityFilter } from "@/features/capabilities/useCapabilityCatalog";

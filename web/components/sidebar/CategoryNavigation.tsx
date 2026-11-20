@@ -3,8 +3,8 @@
 import { CalendarDays } from 'lucide-react'
 
 import { useId, useState, startTransition, type ReactNode } from 'react'
-import dynamic from 'next/dynamic'
-import { usePathname, useRouter } from 'next/navigation'
+import dynamic from '@/shared/router/dynamic'
+import { usePathname, useRouter } from '@/shared/router/navigation'
 import { m, useReducedMotion } from 'framer-motion'
 import { MessageCircle, Search, Columns3, PenLine } from 'lucide-react'
 import {

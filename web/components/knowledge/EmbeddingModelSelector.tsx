@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import type { useEmbeddingModels } from "@/hooks/useEmbeddingModels";
 
 export default function EmbeddingModelSelector({

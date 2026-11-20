@@ -2,8 +2,8 @@
 
 import { FeaturePage, PageHeader } from '@/components/layout/FeaturePage'
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import { createElement } from "react";
 import { ArrowLeft, ImageUp, KeyRound, Lock, LogOut, ShieldCheck, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";

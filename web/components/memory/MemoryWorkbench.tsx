@@ -1,8 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl, asJsonOrThrow } from "@/lib/api";
+import { apiFetch, apiUrl, asJsonOrThrow } from "@/shared/api/client";
 import MemoryRunPanel from "@/components/memory/MemoryRunPanel";
 
 const MarkdownRenderer = dynamic(

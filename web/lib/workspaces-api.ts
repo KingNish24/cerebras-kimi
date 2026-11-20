@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { invalidateClientCache, withClientCache } from '@/lib/client-cache'
 import { notifySessionsChanged } from '@/lib/session-events'
 

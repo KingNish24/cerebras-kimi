@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { stripAudioMimeParameters } from "@/lib/voice-mime";
 
 export type RecorderState = "idle" | "recording" | "transcribing";

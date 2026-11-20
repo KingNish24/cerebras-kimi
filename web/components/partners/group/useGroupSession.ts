@@ -15,7 +15,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { wsUrl } from "@/lib/api";
+import { wsUrl } from "@/shared/api/client";
 import {
   getPartnerGroupHistory,
   type PartnerGroup,

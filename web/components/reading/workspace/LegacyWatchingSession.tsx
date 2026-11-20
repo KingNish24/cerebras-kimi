@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { migrateWatchingSession } from "@/lib/session-api";
 import { sessionRoute } from "@/lib/mastery-session";

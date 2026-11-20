@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type MouseEvent } from 'react'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { ChevronRight, FileText, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Tooltip from '@/shared/ui/Tooltip'

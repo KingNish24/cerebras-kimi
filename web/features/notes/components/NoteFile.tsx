@@ -3,7 +3,7 @@
 import { defaultBlockSpecs } from '@blocknote/core'
 import { createReactBlockSpec } from '@blocknote/react'
 import { FileText, ArrowUpRight } from 'lucide-react'
-import { apiUrl } from '@/lib/api'
+import { apiUrl } from '@/shared/api/client'
 import { safeNoteUrl } from '../model/urls'
 
 export const noteFile = createReactBlockSpec(defaultBlockSpecs.file.config, {

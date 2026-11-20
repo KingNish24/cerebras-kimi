@@ -29,7 +29,7 @@ vi.mock('next/dynamic', () => ({
     () =>
     ({ content }: { content: string }) => <div>{content}</div>,
 }))
-vi.mock('@/lib/api', () => ({ wsUrl: (path: string) => path }))
+vi.mock('@/shared/api/client', () => ({ wsUrl: (path: string) => path }))
 vi.mock('@/hooks/useChatAutoScroll', () => ({
   useChatAutoScroll: () => autoScroll,
 }))

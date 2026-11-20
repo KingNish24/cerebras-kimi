@@ -21,7 +21,7 @@ import { ResourceReuseContext, useResourceReusePolicy } from "./ResourceReuse";
 import { retainedKnowledgeBases } from "@/lib/resource-reuse";
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { MessageSquare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";

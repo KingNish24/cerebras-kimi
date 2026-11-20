@@ -16,7 +16,7 @@ const mock = vi.hoisted(() => ({
 vi.mock('@/lib/book-api', () => ({ bookApi: { list: mock.books } }))
 vi.mock('@/lib/learning-api', () => ({ fetchMasteryTopics: mock.topics }))
 vi.mock('@/lib/reading-workspace-api', () => ({ listReadingWorkspaces: mock.reading }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (url: string) => url,
   apiFetch: vi.fn(async () => {
     const failed: string[] = []

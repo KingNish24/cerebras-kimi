@@ -20,7 +20,7 @@
  * grown to a third of it.
  */
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import {
   BookmarkPlus,
   Download,

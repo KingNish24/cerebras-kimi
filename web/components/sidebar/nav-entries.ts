@@ -38,7 +38,7 @@ export interface NavEntry {
  * including people who have already arranged their sidebar: it arrives next to
  * the neighbour it follows below rather than at the bottom of their list.
  */
-export const PRIMARY_NAV: NavEntry[] = [
+const PRIMARY_NAV: NavEntry[] = [
   {
     href: '/chat',
     label: 'Home',

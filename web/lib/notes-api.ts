@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import type { CoWriterDocument, CoWriterDocumentSummary } from '@/lib/co-writer-api'
 
 export interface NoteBlock {

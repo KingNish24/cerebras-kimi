@@ -11,7 +11,7 @@ import { watchingRoute } from "@/lib/learning-routes";
 import { useChatWorkspaces } from "@/hooks/useChatWorkspaces";
 import { useComposerResources } from "@/hooks/useComposerResources";
 import { useActiveWorkspaceId } from "@/hooks/useActiveWorkspaceId";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import {
   type KeyboardEvent,
   useCallback,
@@ -168,52 +168,15 @@ import SelectionActions, {
   type SelectionAnchor,
 } from "@/features/chat/components/SelectionActions";
 import { shouldReturnToChatAfterResearch } from "@/lib/deep-research-report";
+import {
+  ChatPickersModal,
+  GeogebraTabBridge,
+  QuizFollowupBridge,
+  SubagentTabWatcher,
+} from "./ChatPickersModal";
+import { useChatWorkspaceReferences } from "./useChatWorkspaceReferences";
+import { useChatSessionTitle } from "./useChatSessionTitle";
 
-const NotebookRecordPicker = dynamic(
-  () => import("@/components/notebook/NotebookRecordPicker"),
-  {
-    ssr: false,
-  },
-);
-const HistorySessionPicker = dynamic(
-  () => import("@/components/chat/HistorySessionPicker"),
-  {
-    ssr: false,
-  },
-);
-const MyAgentsPicker = dynamic(
-  () => import("@/components/chat/MyAgentsPicker"),
-  {
-    ssr: false,
-  },
-);
-const QuestionBankPicker = dynamic(
-  () => import("@/components/chat/QuestionBankPicker"),
-  {
-    ssr: false,
-  },
-);
-const MemoryPicker = dynamic(() => import("@/components/chat/MemoryPicker"), {
-  ssr: false,
-});
-const BookReferencePicker = dynamic(
-  () => import("@/components/chat/BookReferencePicker"),
-  {
-    ssr: false,
-  },
-);
-const ReadingReferencePicker = dynamic(
-  () => import("@/components/chat/ReadingReferencePicker"),
-  {
-    ssr: false,
-  },
-);
-const SaveToNotebookModal = dynamic(
-  () => import("@/components/notebook/SaveToNotebookModal"),
-  {
-    ssr: false,
-  },
-);
 // Activity-panel config card hosts the capability-specific form (Quiz /
 // Animator / Visualize / Research). Lazy-loaded so capabilities that
 // don't need a form (Chat / Solve) don't ship the form JS.
@@ -528,44 +491,73 @@ export default function ChatWorkspace() {
     researchConfig,
     capabilityConfigConfirmed,
   ]);
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [showNotebookPicker, setShowNotebookPicker] = useState(false);
-  const [showBookPicker, setShowBookPicker] = useState(false);
-  const [showReadingPicker, setShowReadingPicker] = useState(false);
-  const [showHistoryPicker, setShowHistoryPicker] = useState(false);
-  const [showAgentsPicker, setShowAgentsPicker] = useState(false);
-  const [showQuestionBankPicker, setShowQuestionBankPicker] = useState(false);
-  // Session persona selector (toolbar chip / `/persona` / @space entry all
-  // open the same dropdown). The selection itself lives in the unified chat
-  // context (state.personaSelection) so it follows the session.
-  const [personaSelectorOpen, setPersonaSelectorOpen] = useState(false);
-  const [showMemoryPicker, setShowMemoryPicker] = useState(false);
-  const [spaceMenuOpen, setSpaceMenuOpen] = useState(false);
-  const [selectedNotebookRecords, setSelectedNotebookRecords] = useState<
-    SelectedRecord[]
-  >([]);
-  const [selectedBookReferences, setSelectedBookReferences] = useState<
-    SelectedBookReference[]
-  >([]);
-  const [selectedReadingReferences, setSelectedReadingReferences] = useState<
-    SelectedReadingReference[]
-  >([]);
-  const [selectedHistorySessions, setSelectedHistorySessions] = useState<
-    SelectedHistorySession[]
-  >([]);
-  // Imported-agent conversation references. Same shape as history sessions —
-  // they fold into the same history_references payload (see below), so the
-  // backend treats them identically; the separate state only keeps the
-  // composer's "My Agents" group distinct from "Chat History".
-  const [selectedAgentSessions, setSelectedAgentSessions] = useState<
-    SelectedHistorySession[]
-  >([]);
-  const [selectedQuestionEntries, setSelectedQuestionEntries] = useState<
-    SelectedQuestionEntry[]
-  >([]);
-  const [selectedMemoryFiles, setSelectedMemoryFiles] = useState<
-    SpaceMemoryFile[]
-  >([]);
+  const {
+    showSaveModal,
+    setShowSaveModal,
+    showNotebookPicker,
+    showBookPicker,
+    showReadingPicker,
+    showHistoryPicker,
+    showAgentsPicker,
+    showQuestionBankPicker,
+    personaSelectorOpen,
+    setPersonaSelectorOpen,
+    showMemoryPicker,
+    spaceMenuOpen,
+    setSpaceMenuOpen,
+    selectedNotebookRecords,
+    setSelectedNotebookRecords,
+    selectedBookReferences,
+    setSelectedBookReferences,
+    selectedReadingReferences,
+    setSelectedReadingReferences,
+    selectedHistorySessions,
+    setSelectedHistorySessions,
+    selectedAgentSessions,
+    setSelectedAgentSessions,
+    selectedQuestionEntries,
+    setSelectedQuestionEntries,
+    selectedMemoryFiles,
+    setSelectedMemoryFiles,
+    notebookReferenceGroups,
+    notebookReferencesPayload,
+    bookReferencesPayload,
+    readingReferencesPayload,
+    historyReferencesPayload,
+    questionNotebookReferencesPayload,
+    memoryReferencesPayload,
+    handleSelectNotebookPicker,
+    handleSelectBookPicker,
+    handleSelectReadingPicker,
+    handleSelectHistoryPicker,
+    handleSelectAgentsPicker,
+    handleSelectQuestionBankPicker,
+    handleSelectPersonaPicker,
+    handleSelectMemoryPicker,
+    handleRemoveHistory,
+    handleRemoveAgent,
+    handleRemoveNotebook,
+    handleRemoveBookReference,
+    handleRemoveReadingReference,
+    handleRemoveQuestion,
+    handleClearPersona,
+    handleToggleMemoryFile,
+    handleCloseNotebookPicker,
+    handleCloseBookPicker,
+    handleCloseReadingPicker,
+    handleApplyBookReferences,
+    handleApplyReadingReferences,
+    handleApplyNotebookRecords,
+    handleCloseHistoryPicker,
+    handleApplyHistorySessions,
+    handleCloseAgentsPicker,
+    handleApplyAgentSessions,
+    handleCloseQuestionBankPicker,
+    handleApplyQuestionEntries,
+    handleCloseMemoryPicker,
+    handleApplyMemoryFiles,
+    handleCloseSaveModal,
+  } = useChatWorkspaceReferences(setPersonaSelection);
   const dragCounter = useRef(0);
   const capMenuRef = useRef<HTMLDivElement>(null);
   const capBtnRef = useRef<HTMLButtonElement>(null);
@@ -811,50 +803,26 @@ export default function ChatWorkspace() {
     }
     setWelcomeGreeting(bucket[Math.floor(Math.random() * bucket.length)]);
   }, []);
-  const firstUserTitle = useMemo(
-    () =>
-      state.messages
-        .find((msg) => msg.role === "user")
-        ?.content.trim()
-        .replace(/\s+/g, " ")
-        .slice(0, 80) || "",
-    [state.messages],
-  );
-  const persistedSessionTitle = state.sessionTitle.trim();
-  const displaySessionTitle = isPlaceholderSessionTitle(persistedSessionTitle)
-    ? firstUserTitle || t("New chat")
-    : persistedSessionTitle;
-  const canRenameSession = Boolean(state.sessionId);
-  const titleInputRef = useRef<HTMLInputElement | null>(null);
-  const skipTitleCommitRef = useRef(false);
-  const [sessionTitleDraft, setSessionTitleDraft] =
-    useState(displaySessionTitle);
-  const [sessionTitleEditing, setSessionTitleEditing] = useState(false);
-  // In the page bar the title is the conversation crumb (it switches); in
-  // place it is the old click-to-rename heading.
-  const titleInBar = usePageBarOffers("instance");
-  const [sessionTitleSaving, setSessionTitleSaving] = useState(false);
-  const [sessionTitleError, setSessionTitleError] = useState<string | null>(
-    null,
-  );
-  useEffect(() => {
-    if (sessionTitleEditing) return;
-    setSessionTitleDraft(displaySessionTitle);
-  }, [displaySessionTitle, sessionTitleEditing]);
-  useEffect(() => {
-    if (!sessionTitleEditing) return;
-    window.requestAnimationFrame(() => {
-      titleInputRef.current?.focus();
-      titleInputRef.current?.select();
-    });
-  }, [sessionTitleEditing]);
-  const startSessionTitleEdit = useCallback(() => {
-    if (!canRenameSession) return;
-    skipTitleCommitRef.current = false;
-    setSessionTitleError(null);
-    setSessionTitleDraft(displaySessionTitle);
-    setSessionTitleEditing(true);
-  }, [canRenameSession, displaySessionTitle]);
+  const {
+    displaySessionTitle,
+    canRenameSession,
+    titleInputRef,
+    sessionTitleDraft,
+    setSessionTitleDraft,
+    sessionTitleEditing,
+    titleInBar,
+    sessionTitleSaving,
+    sessionTitleError,
+    startSessionTitleEdit,
+    cancelSessionTitleEdit,
+    commitSessionTitleEdit,
+    handleSessionTitleKeyDown,
+  } = useChatSessionTitle({
+    messages: state.messages,
+    sessionId: state.sessionId,
+    sessionTitle: state.sessionTitle,
+    renameSessionTitle,
+  });
 
   // The header's "⋯" acts on the open conversation the way its sidebar row
   // does; both read and write the same organization and hear each other
@@ -1000,123 +968,11 @@ export default function ChatWorkspace() {
     [deleteTurn],
   );
 
-  const cancelSessionTitleEdit = useCallback(() => {
-    skipTitleCommitRef.current = true;
-    setSessionTitleDraft(displaySessionTitle);
-    setSessionTitleError(null);
-    setSessionTitleEditing(false);
-  }, [displaySessionTitle]);
-  const commitSessionTitleEdit = useCallback(async () => {
-    if (skipTitleCommitRef.current) {
-      skipTitleCommitRef.current = false;
-      return;
-    }
-    const next = sessionTitleDraft.trim();
-    if (!next) {
-      setSessionTitleDraft(displaySessionTitle);
-      setSessionTitleEditing(false);
-      return;
-    }
-    if (!canRenameSession || next === persistedSessionTitle) {
-      setSessionTitleDraft(next || displaySessionTitle);
-      setSessionTitleEditing(false);
-      return;
-    }
-    setSessionTitleSaving(true);
-    setSessionTitleError(null);
-    try {
-      await renameSessionTitle(next);
-      setSessionTitleEditing(false);
-    } catch (error) {
-      console.error("Failed to rename session:", error);
-      setSessionTitleError(t("Rename failed"));
-      titleInputRef.current?.focus();
-    } finally {
-      setSessionTitleSaving(false);
-    }
-  }, [
-    canRenameSession,
-    displaySessionTitle,
-    persistedSessionTitle,
-    renameSessionTitle,
-    sessionTitleDraft,
-    t,
-  ]);
-  const handleSessionTitleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        void commitSessionTitleEdit();
-      } else if (event.key === "Escape") {
-        event.preventDefault();
-        cancelSessionTitleEdit();
-      }
-    },
-    [cancelSessionTitleEdit, commitSessionTitleEdit],
-  );
   const { ref: composerRef, height: composerHeight } =
     useMeasuredHeight<HTMLDivElement>();
   const researchValidation = useMemo(
     () => validateResearchConfig(researchConfig),
     [researchConfig],
-  );
-  const notebookReferenceGroups = useMemo(() => {
-    const groups = new Map<string, { notebookName: string; count: number }>();
-    selectedNotebookRecords.forEach((record) => {
-      const existing = groups.get(record.notebookId);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        groups.set(record.notebookId, {
-          notebookName: record.notebookName,
-          count: 1,
-        });
-      }
-    });
-    return Array.from(groups.entries()).map(([notebookId, value]) => ({
-      notebookId,
-      ...value,
-    }));
-  }, [selectedNotebookRecords]);
-  const notebookReferencesPayload = useMemo(() => {
-    const grouped = new Map<string, string[]>();
-    selectedNotebookRecords.forEach((record) => {
-      const current = grouped.get(record.notebookId) || [];
-      current.push(record.id);
-      grouped.set(record.notebookId, current);
-    });
-    return Array.from(grouped.entries()).map(([notebook_id, record_ids]) => ({
-      notebook_id,
-      record_ids,
-    }));
-  }, [selectedNotebookRecords]);
-  const bookReferencesPayload = useMemo(
-    () => selectedBooksToPayload(selectedBookReferences),
-    [selectedBookReferences],
-  );
-  const readingReferencesPayload = useMemo(
-    () => selectedReadingsToPayload(selectedReadingReferences),
-    [selectedReadingReferences],
-  );
-  // Chat-history and imported-agent references are both just session ids and
-  // share one backend field. Merge + de-dupe them here.
-  const historyReferencesPayload = useMemo(
-    () =>
-      Array.from(
-        new Set([
-          ...selectedHistorySessions.map((session) => session.sessionId),
-          ...selectedAgentSessions.map((session) => session.sessionId),
-        ]),
-      ),
-    [selectedHistorySessions, selectedAgentSessions],
-  );
-  const questionNotebookReferencesPayload = useMemo(
-    () => selectedQuestionEntries.map((entry) => entry.id),
-    [selectedQuestionEntries],
-  );
-  const memoryReferencesPayload = useMemo(
-    () => [...selectedMemoryFiles],
-    [selectedMemoryFiles],
   );
   const { modalMessages: chatSaveMessages, payload: chatSavePayload } =
     useMemo(
@@ -2376,144 +2232,6 @@ export default function ChatWorkspace() {
     agentPreselectDoneRef.current = true;
     handleSelectAgent(name);
   }, [agentNameSet, handleSelectAgent]);
-  const handleSelectNotebookPicker = useCallback(() => {
-    setShowNotebookPicker(true);
-  }, []);
-  const handleSelectBookPicker = useCallback(() => {
-    setShowBookPicker(true);
-  }, []);
-  const handleSelectReadingPicker = useCallback(() => {
-    setShowReadingPicker(true);
-  }, []);
-  const handleSelectHistoryPicker = useCallback(() => {
-    setShowHistoryPicker(true);
-  }, []);
-  const handleSelectAgentsPicker = useCallback(() => {
-    setShowAgentsPicker(true);
-  }, []);
-  const handleSelectQuestionBankPicker = useCallback(() => {
-    setShowQuestionBankPicker(true);
-  }, []);
-  const handleSelectPersonaPicker = useCallback(() => {
-    // The @space "Persona" entry now opens the session persona selector.
-    setPersonaSelectorOpen(true);
-  }, []);
-  const handleSelectMemoryPicker = useCallback(() => {
-    setShowMemoryPicker(true);
-  }, []);
-  const handleRemoveHistory = useCallback((sessionId: string) => {
-    setSelectedHistorySessions((prev) =>
-      prev.filter((item) => item.sessionId !== sessionId),
-    );
-  }, []);
-  const handleRemoveAgent = useCallback((sessionId: string) => {
-    setSelectedAgentSessions((prev) =>
-      prev.filter((item) => item.sessionId !== sessionId),
-    );
-  }, []);
-  const handleRemoveNotebook = useCallback((notebookId: string) => {
-    setSelectedNotebookRecords((prev) =>
-      prev.filter((record) => record.notebookId !== notebookId),
-    );
-  }, []);
-  const handleRemoveBookReference = useCallback((bookId: string) => {
-    setSelectedBookReferences((prev) =>
-      prev.filter((record) => record.bookId !== bookId),
-    );
-  }, []);
-  const handleRemoveReadingReference = useCallback((materialId: string) => {
-    setSelectedReadingReferences((previous) =>
-      previous.filter((record) => record.materialId !== materialId),
-    );
-  }, []);
-  const handleRemoveQuestion = useCallback((entryId: number) => {
-    setSelectedQuestionEntries((prev) =>
-      prev.filter((entry) => entry.id !== entryId),
-    );
-  }, []);
-  const handleClearPersona = useCallback(() => {
-    setPersonaSelection("");
-  }, [setPersonaSelection]);
-
-  const handleToggleMemoryFile = useCallback((file: SpaceMemoryFile) => {
-    setSelectedMemoryFiles((prev) =>
-      prev.includes(file)
-        ? prev.filter((item) => item !== file)
-        : [...prev, file],
-    );
-  }, []);
-
-  const handleCloseNotebookPicker = useCallback(() => {
-    setShowNotebookPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleCloseBookPicker = useCallback(() => {
-    setShowBookPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleCloseReadingPicker = useCallback(() => {
-    setShowReadingPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleApplyBookReferences = useCallback(
-    (references: SelectedBookReference[]) => {
-      setSelectedBookReferences(references);
-    },
-    [],
-  );
-  const handleApplyReadingReferences = useCallback(
-    (references: SelectedReadingReference[]) => {
-      setSelectedReadingReferences(references);
-    },
-    [],
-  );
-  const handleApplyNotebookRecords = useCallback(
-    (records: SelectedRecord[]) => {
-      setSelectedNotebookRecords(records);
-    },
-    [],
-  );
-  const handleCloseHistoryPicker = useCallback(() => {
-    setShowHistoryPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleApplyHistorySessions = useCallback(
-    (sessions: SelectedHistorySession[]) => {
-      setSelectedHistorySessions(sessions);
-    },
-    [],
-  );
-  const handleCloseAgentsPicker = useCallback(() => {
-    setShowAgentsPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleApplyAgentSessions = useCallback(
-    (sessions: SelectedHistorySession[]) => {
-      setSelectedAgentSessions(sessions);
-    },
-    [],
-  );
-  const handleCloseQuestionBankPicker = useCallback(() => {
-    setShowQuestionBankPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleApplyQuestionEntries = useCallback(
-    (entries: SelectedQuestionEntry[]) => {
-      setSelectedQuestionEntries(entries);
-    },
-    [],
-  );
-  const handleCloseMemoryPicker = useCallback(() => {
-    setShowMemoryPicker(false);
-    setSpaceMenuOpen(true);
-  }, []);
-  const handleApplyMemoryFiles = useCallback((files: SpaceMemoryFile[]) => {
-    setSelectedMemoryFiles(files);
-  }, []);
-  const handleCloseSaveModal = useCallback(() => {
-    setShowSaveModal(false);
-  }, []);
-
   const handleDownloadMarkdown = useCallback(() => {
     if (!state.messages.length) return;
     const title =
@@ -3034,50 +2752,36 @@ export default function ChatWorkspace() {
                 }}
               />
             </div>
-            <NotebookRecordPicker
-              open={showNotebookPicker}
-              onClose={handleCloseNotebookPicker}
-              onApply={handleApplyNotebookRecords}
-            />
-            <BookReferencePicker
-              open={showBookPicker}
-              initialReferences={selectedBookReferences}
-              onClose={handleCloseBookPicker}
-              onApply={handleApplyBookReferences}
-            />
-            <ReadingReferencePicker
-              open={showReadingPicker}
-              initialReferences={selectedReadingReferences}
-              onClose={handleCloseReadingPicker}
-              onApply={handleApplyReadingReferences}
-            />
-            <HistorySessionPicker
-              open={showHistoryPicker}
-              onClose={handleCloseHistoryPicker}
-              onApply={handleApplyHistorySessions}
-            />
-            <MyAgentsPicker
-              open={showAgentsPicker}
-              onClose={handleCloseAgentsPicker}
-              onApply={handleApplyAgentSessions}
-            />
-            <QuestionBankPicker
-              open={showQuestionBankPicker}
-              initialSelected={selectedQuestionEntries}
-              onClose={handleCloseQuestionBankPicker}
-              onApply={handleApplyQuestionEntries}
-            />
-            <MemoryPicker
-              open={showMemoryPicker}
-              initialFiles={selectedMemoryFiles}
-              onClose={handleCloseMemoryPicker}
-              onApply={handleApplyMemoryFiles}
-            />
-            <SaveToNotebookModal
-              open={showSaveModal}
-              payload={chatSavePayload}
-              messages={chatSaveMessages}
-              onClose={handleCloseSaveModal}
+            <ChatPickersModal
+              showNotebookPicker={showNotebookPicker}
+              onCloseNotebookPicker={handleCloseNotebookPicker}
+              onApplyNotebookRecords={handleApplyNotebookRecords}
+              showBookPicker={showBookPicker}
+              selectedBookReferences={selectedBookReferences}
+              onCloseBookPicker={handleCloseBookPicker}
+              onApplyBookReferences={handleApplyBookReferences}
+              showReadingPicker={showReadingPicker}
+              selectedReadingReferences={selectedReadingReferences}
+              onCloseReadingPicker={handleCloseReadingPicker}
+              onApplyReadingReferences={handleApplyReadingReferences}
+              showHistoryPicker={showHistoryPicker}
+              onCloseHistoryPicker={handleCloseHistoryPicker}
+              onApplyHistorySessions={handleApplyHistorySessions}
+              showAgentsPicker={showAgentsPicker}
+              onCloseAgentsPicker={handleCloseAgentsPicker}
+              onApplyAgentSessions={handleApplyAgentSessions}
+              showQuestionBankPicker={showQuestionBankPicker}
+              selectedQuestionEntries={selectedQuestionEntries}
+              onCloseQuestionBankPicker={handleCloseQuestionBankPicker}
+              onApplyQuestionEntries={handleApplyQuestionEntries}
+              showMemoryPicker={showMemoryPicker}
+              selectedMemoryFiles={selectedMemoryFiles}
+              onCloseMemoryPicker={handleCloseMemoryPicker}
+              onApplyMemoryFiles={handleApplyMemoryFiles}
+              showSaveModal={showSaveModal}
+              chatSavePayload={chatSavePayload}
+              chatSaveMessages={chatSaveMessages}
+              onCloseSaveModal={handleCloseSaveModal}
             />
             <FilePreviewDrawer
               open={previewSource !== null}
@@ -3108,90 +2812,4 @@ export default function ChatWorkspace() {
     </QuizFollowupProvider>
     </ResourceReuseContext.Provider>
   );
-}
-
-/**
- * Bridges the SessionViewerPanel's imperative ``openQuizFollowupTab`` into
- * the QuizFollowupController so descendants (QuizViewer) can call
- * ``controller.openFollowupTab(...)`` without prop-drilling the panel ref
- * through several layers of components.
- */
-function QuizFollowupBridge({
-  viewerPanelRef,
-}: {
-  viewerPanelRef: React.MutableRefObject<SessionViewerPanelHandle | null>;
-}) {
-  const controller = useQuizFollowupController();
-  useEffect(() => {
-    controller.setOpenTabHandler((ctx) => {
-      viewerPanelRef.current?.openQuizFollowupTab(ctx);
-    });
-    return () => controller.setOpenTabHandler(null);
-  }, [controller, viewerPanelRef]);
-  return null;
-}
-
-/**
- * Same shape as QuizFollowupBridge, for the GeoGebra-tab opener exposed
- * to in-message CTAs (the ``ggbscript`` markdown fence becomes a card
- * that calls ``controller.openTab(...)`` here).
- */
-function GeogebraTabBridge({
-  viewerPanelRef,
-}: {
-  viewerPanelRef: React.MutableRefObject<SessionViewerPanelHandle | null>;
-}) {
-  const controller = useGeogebraTabOpener();
-  useEffect(() => {
-    if (!controller) return;
-    controller.setOpenHandler((payload) => {
-      viewerPanelRef.current?.openGeogebraTab(payload);
-    });
-    return () => controller.setOpenHandler(null);
-  }, [controller, viewerPanelRef]);
-  return null;
-}
-
-/**
- * Watches the turn's messages for connected-subagent runs and mirrors each
- * (grouped by the consult's call id) into its own side-viewer tab — opening +
- * focusing the panel when a consult starts, then live-refreshing as the
- * agent's native events stream in. Keeps the chat trace compact while the full
- * run shows in the sidebar.
- */
-function SubagentTabWatcher({
-  messages,
-  viewerPanelRef,
-}: {
-  messages: { events?: StreamEvent[] }[];
-  viewerPanelRef: React.MutableRefObject<SessionViewerPanelHandle | null>;
-}) {
-  useEffect(() => {
-    // Group by turn so all of one turn's consults (DeepTutor may ask the agent
-    // several questions in a row, each its own tool call) land in one tab as a
-    // single running dialogue; fall back to the call id when no turn is set.
-    const groups = new Map<string, { label: string; events: StreamEvent[] }>();
-    for (const msg of messages) {
-      for (const ev of msg.events ?? []) {
-        const meta = (ev.metadata ?? {}) as Record<string, unknown>;
-        if (meta.trace_kind !== "subagent_event") continue;
-        const key = String(meta.turn_id || meta.call_id || meta.trace_id || "");
-        if (!key) continue;
-        const existing = groups.get(key);
-        const label = String(
-          meta.subagent_name || existing?.label || "Subagent",
-        );
-        if (existing) {
-          existing.label = label;
-          existing.events.push(ev);
-        } else {
-          groups.set(key, { label, events: [ev] });
-        }
-      }
-    }
-    for (const [key, group] of groups) {
-      viewerPanelRef.current?.openSubagentTab(key, group.label, group.events);
-    }
-  }, [messages, viewerPanelRef]);
-  return null;
 }

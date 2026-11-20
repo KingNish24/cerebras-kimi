@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from '@/shared/router/navigation'
 
 /** Opens creation when a link arrives with `?create=1`, then drops the flag from the URL. */
 export function useCreateRequest(open: () => void) {

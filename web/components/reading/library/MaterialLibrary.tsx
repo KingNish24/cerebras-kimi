@@ -10,8 +10,8 @@ import { learningLibrary, libraryItemKey } from "@/lib/learning-library";
 import { useCreateRequest, requestedLearningCreation } from "@/components/learning/create-request";
 import { readingCollectionRoute, readingFolderRoute } from "@/lib/learning-routes";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useRouter } from "@/shared/router/navigation";
 import {
   FolderPlus,
   Loader2,

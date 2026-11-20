@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
 
 const SUBAGENT_SETTINGS_CACHE_KEY = "subagents:settings";

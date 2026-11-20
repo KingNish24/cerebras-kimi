@@ -30,7 +30,7 @@ import {
   type LLMOption,
 } from "@/lib/llm-options";
 import type { LLMSelection } from "@/features/chat/model/protocol";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import {
   useMemoryRun,
   type RunEvent,

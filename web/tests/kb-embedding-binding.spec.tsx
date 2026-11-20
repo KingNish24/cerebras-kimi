@@ -34,7 +34,7 @@ vi.mock("@/features/knowledge/api/engines", () => ({
 vi.mock("@/hooks/useLLMOptions", () => ({
   useLLMOptions: fixtures.llmOptions,
 }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiFetch: (...args: unknown[]) => fixtures.fetch(...args),
   apiUrl: (url: string) => url,
 }));

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/shared/router/link";
+import { usePathname } from "@/shared/router/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FeaturePage } from "@/components/layout/FeaturePage";

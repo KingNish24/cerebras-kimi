@@ -12,7 +12,7 @@ import type { Catalog, VoiceOptions } from '@/lib/model-catalog-types'
 const mock = vi.hoisted(() => ({ settings: {} as SettingsContextValue, fetch: vi.fn(), notify: vi.fn() }))
 vi.mock('@/lib/notifications', () => ({ notify: mock.notify }))
 vi.mock('@/features/settings/store/SettingsStore', () => ({ useSettings: () => mock.settings }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (url: string) => url,
   apiFetch: (...args: unknown[]) => mock.fetch(...args),
 }))

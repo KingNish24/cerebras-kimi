@@ -6,8 +6,8 @@ import { MASTERY_HOME, masterySessionsRoute, masteryTopicRoute } from "@/lib/lea
 import { browserStorage } from "@/shared/storage";
 import Tooltip from "@/shared/ui/Tooltip";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import dynamic from "@/shared/router/dynamic";
+import Link from "@/shared/router/link";
 import {
   ArrowLeft,
   ArrowRight,

@@ -1,4 +1,4 @@
-import { RpcSocket } from "@/lib/rpc-ws";
+import { sseSocketFactory } from "@/lib/sse-socket";
 import {
   ReconnectingWebSocket,
   type ReconnectingWebSocketOptions,
@@ -120,7 +120,8 @@ export class MasteryTopicSocket {
       },
       {
         ...options,
-        createSocket: (url: string) => new RpcSocket(url) as unknown as WebSocket,
+        createSocket: (url: string) =>
+          sseSocketFactory(url) as unknown as WebSocket,
       },
     );
   }

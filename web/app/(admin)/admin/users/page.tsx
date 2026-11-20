@@ -2,7 +2,7 @@
 
 import Tooltip from "@/shared/ui/Tooltip";
 import { Fragment, useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { fetchAuthStatus } from "@/lib/auth";
 import {
@@ -38,7 +38,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { formatDate as formatLocaleDate, type Language } from "@/lib/datetime";
 
 // Delegates to the shared locale mapping so a new UI language only has to be

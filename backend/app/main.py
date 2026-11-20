@@ -16,7 +16,9 @@ from .agent.runtime import AgentRuntime
 from .api.calendar import router as calendar_router
 from .api.documents import router as documents_router
 from .api.cron import router as cron_router
+from .api.files import router as files_router
 from .api.handlers import router
+from .api.openui import router as openui_router
 from .api.realtime import RealtimeHub, router as realtime_router
 from .config import get_settings
 from .store.kb_store import KnowledgeBaseStore
@@ -210,6 +212,8 @@ app.include_router(router)
 app.include_router(calendar_router)
 app.include_router(documents_router)
 app.include_router(cron_router)
+app.include_router(files_router)
+app.include_router(openui_router)
 app.include_router(realtime_router)
 
 

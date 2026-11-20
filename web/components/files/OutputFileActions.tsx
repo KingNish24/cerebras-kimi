@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Copy, FolderOpen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { apiFetch } from '@/lib/api'
+import { apiFetch } from '@/shared/api/client'
 import { formatBytes } from '@/lib/doc-attachments'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 

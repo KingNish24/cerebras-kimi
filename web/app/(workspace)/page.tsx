@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/shared/router/navigation";
 
 /**
  * The workspace root has one destination; sessions live under `/chat`.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/shared/router/navigation'
 import { ArrowUpRight, Plus, Settings2 } from 'lucide-react'
 import { m, useReducedMotion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'

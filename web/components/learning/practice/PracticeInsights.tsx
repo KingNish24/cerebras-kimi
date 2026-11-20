@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { BarChart3, ChartNoAxesCombined, RefreshCw } from "lucide-react";
 import { practiceRoute } from "@/lib/learning-routes";

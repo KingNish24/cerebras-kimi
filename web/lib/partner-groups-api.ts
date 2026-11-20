@@ -1,6 +1,6 @@
 /** Typed client for first-class Partner Groups. */
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { browserStorage } from "@/shared/storage";
 import type { PartnerInfo } from "@/lib/partners-api";
 import type { StreamEvent } from "@/features/chat/model/protocol";

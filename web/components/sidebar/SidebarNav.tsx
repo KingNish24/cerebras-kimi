@@ -14,8 +14,8 @@ import { browserStorage } from "@/shared/storage";
  * rail keeps its own way to reach the folded ones.
  */
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/shared/router/link";
+import { usePathname } from "@/shared/router/navigation";
 import {
   Fragment,
   useCallback,

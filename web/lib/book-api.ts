@@ -1,6 +1,6 @@
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
-import { apiFetch, apiUrl } from "@/lib/api";
-import { RpcSocket } from "@/lib/rpc-ws";
+import { apiFetch, apiUrl } from "@/shared/api/client";
+import { sseSocketFactory } from "@/lib/sse-socket";
 import {
   BookSocketOperationError,
   runBookSocketOperation,
@@ -40,7 +40,7 @@ function requestOverSocket<T extends BookWsEvent>(
   resultType: string,
   onEvent?: (event: BookWsEvent) => void,
 ): Promise<T> {
-  return runBookSocketOperation<T>(() => new RpcSocket(BOOK_WS_PATH), {
+  return runBookSocketOperation<T>(() => sseSocketFactory(BOOK_WS_PATH), {
     message,
     resultType,
     onEvent,

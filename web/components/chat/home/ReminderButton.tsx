@@ -1,12 +1,13 @@
 'use client'
 
 import { AlarmClock, Check } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/shared/router/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createCronJob } from '@/lib/cron-api'
 import { notify } from '@/lib/notifications'
 import { activeWorkspaceId } from '@/lib/workspace-scope'
+import { browserTimeZone } from '@/shared/lib/date'
 
 /**
  * "Remind me" for the composer toolbar.
@@ -41,14 +42,6 @@ function isoLocal(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
     date.getHours()
   )}:${pad(date.getMinutes())}`
-}
-
-function browserTimeZone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
-  } catch {
-    return 'UTC'
-  }
 }
 
 export default function ReminderButton({ className = '' }: { className?: string }) {

@@ -8,7 +8,7 @@ import {
   LearningSkeleton,
 } from '@/components/learning/LearningShell'
 
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Compass, Plus, Sparkles } from 'lucide-react'
 

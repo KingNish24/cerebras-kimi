@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
@@ -14,7 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import {
   createNotebook,
   listNotebooks,

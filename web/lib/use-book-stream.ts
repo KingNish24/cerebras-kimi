@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { RpcSocket } from "@/lib/rpc-ws";
+import { sseSocketFactory } from "@/lib/sse-socket";
 import type { BookWsEvent } from "@/lib/book-ws-operation";
 
 const BOOK_WS_PATH = "/ws/books";
@@ -46,7 +46,7 @@ export function useBookStream(
 
       let next: WebSocket;
       try {
-        next = new RpcSocket(BOOK_WS_PATH) as unknown as WebSocket;
+        next = sseSocketFactory(BOOK_WS_PATH) as unknown as WebSocket;
       } catch {
         scheduleReconnect();
         return;

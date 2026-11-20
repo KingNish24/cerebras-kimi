@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { hasMarkdownMath } from "@/lib/latex";
 import SimpleMarkdownRenderer from "./SimpleMarkdownRenderer";
 import type { MarkdownRendererProps } from "./markdown-renderer-types";

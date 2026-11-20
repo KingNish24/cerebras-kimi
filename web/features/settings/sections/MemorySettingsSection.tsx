@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 import {
   SettingRow,
   SettingSection,
   SettingsPageHeader,
+  ToggleRow,
 } from "@/components/settings/shared";
 import { useSettings } from "@/features/settings/store/SettingsStore";
 
@@ -332,41 +333,6 @@ function NumberRow({
           }}
           className="w-24 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-right text-[12px] outline-none focus:border-[var(--primary)]"
         />
-      }
-    />
-  );
-}
-
-interface ToggleRowProps {
-  label: string;
-  help?: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}
-
-function ToggleRow({ label, help, value, onChange }: ToggleRowProps) {
-  return (
-    <SettingRow
-      title={label}
-      description={help}
-      control={
-        <button
-          type="button"
-          role="switch"
-          aria-checked={value}
-          onClick={() => onChange(!value)}
-          className={
-            "relative inline-flex h-5 w-9 items-center rounded-full transition " +
-            (value ? "bg-[var(--primary)]" : "bg-[var(--muted)]")
-          }
-        >
-          <span
-            className={
-              "inline-block h-4 w-4 transform rounded-full bg-white shadow transition " +
-              (value ? "translate-x-4" : "translate-x-0.5")
-            }
-          />
-        </button>
       }
     />
   );

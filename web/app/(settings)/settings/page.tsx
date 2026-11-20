@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { legacySettingsDestination } from "@/features/settings/navigation/settings-pages";
 import { SETTINGS_ANCHOR_EVENT } from "@/features/settings/navigation/settings-scroll";
 

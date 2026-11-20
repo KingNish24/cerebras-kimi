@@ -4,7 +4,7 @@ import { CalendarDays } from 'lucide-react'
 
 import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/shared/router/navigation'
 import { Columns3, CornerDownLeft, MessageCircle, MessagesSquare, PenLine, Search, Settings, Users, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import PartnerAvatar from '@/components/partners/PartnerAvatar'

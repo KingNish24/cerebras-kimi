@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { formatDay } from "@/shared/lib/date";
 import type { SelectGroup, SelectionUnit } from "@/lib/chat-import";
 
 /**
@@ -24,17 +25,6 @@ export interface ScopePickerProps {
   onSelectAll: () => void;
   onClearAll: () => void;
   lang: string;
-}
-
-function formatDay(key: string, lang: string): string {
-  const d = new Date(`${key}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return key;
-  return d.toLocaleDateString(lang, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    weekday: "short",
-  });
 }
 
 export default function ScopePicker({

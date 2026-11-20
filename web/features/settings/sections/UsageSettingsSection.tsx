@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from '@/shared/router/navigation'
 import { useTranslation } from 'react-i18next'
 import { SettingsPageHeader } from '@/components/settings/shared'
 import { fetchUsageStatistics, usageYear, type UsageStatistics } from '@/lib/usage-statistics'

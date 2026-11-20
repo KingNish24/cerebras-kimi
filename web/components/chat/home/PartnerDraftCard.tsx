@@ -9,7 +9,7 @@ import {
   Pencil,
   Users,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 
 import type { PartnerDraftData } from "@/lib/partner-draft";

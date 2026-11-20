@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
 import type { ImportSource, NormalizedSession } from "@/lib/chat-import/types";
 import type { SessionSummary } from "@/lib/session-api";

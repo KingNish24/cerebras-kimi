@@ -8,9 +8,9 @@ import {
   useState,
   Suspense,
 } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "@/shared/router/image";
+import Link from "@/shared/router/link";
+import { usePathname } from "@/shared/router/navigation";
 import { Menu } from "lucide-react";
 import { PageChromeProvider } from "./PageChrome";
 import { useTranslation } from "react-i18next";

@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 /**
- * `npm start` — build, then serve production + warm the ACP backend agent.
- *
- * Always runs a fresh `next build` first (no dev mode), then `next start`,
- * then sends `initialize` to /api/rpc so the stdio backend child is spawned
- * and ready before the first page load.
+ * `bun start` — build, then serve Vite preview + FastAPI backend.
  */
 
 import { spawn } from "node:child_process";
@@ -13,10 +9,13 @@ import { fileURLToPath } from "node:url";
 
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = process.env.PORT ?? "3000";
-const BASE = `http://localhost:${PORT}`;
-const NEXT_BIN = path.join(WEB_DIR, "node_modules", "next", "dist", "bin", "next");
+const HOST = "127.0.0.1";
+const BASE = `http://${HOST}:${PORT}`;
+const VITE_BIN = path.join(WEB_DIR, "node_modules", "vite", "bin", "vite.js");
 const BACKEND_DIR = path.join(WEB_DIR, "..", "backend");
-const PYTHON = path.join(BACKEND_DIR, ".venv", "bin", "python");
+const PYTHON = process.platform === "win32"
+  ? path.join(BACKEND_DIR, ".venv", "Scripts", "python.exe")
+  : path.join(BACKEND_DIR, ".venv", "bin", "python");
 
 function run(cmd, args) {
   return new Promise((resolve) => {
@@ -58,7 +57,7 @@ backend.on("exit", (code) => {
   if (code && !shuttingDown) console.error(`[start-all] backend exited ${code}`);
 });
 
-const server = spawn(process.execPath, [NEXT_BIN, "start"], {
+const server = spawn(process.execPath, [VITE_BIN, "preview", "--port", PORT, "--host", HOST], {
   cwd: WEB_DIR,
   stdio: "inherit",
   env: process.env,

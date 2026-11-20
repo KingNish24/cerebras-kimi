@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { BookOpen, Loader2, Search } from "lucide-react";
 import { importKiwixArticle, searchKiwixArticles, type KiwixArticle } from "@/features/knowledge/api/client";

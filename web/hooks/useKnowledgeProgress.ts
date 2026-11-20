@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiUrl } from "@/lib/api";
-import { RpcSocket } from "@/lib/rpc-ws";
+import { apiUrl } from "@/shared/api/client";
+import { sseSocketFactory } from "@/lib/sse-socket";
 import {
   progressMessage,
   taskFailureMessage,
@@ -171,7 +171,7 @@ export function useKnowledgeProgress(options?: UseKnowledgeProgressOptions) {
       if (expectedTaskId) queryParams.set("task_id", expectedTaskId);
       if (/^\/knowledge-bases(?:\/|$)/.test(window.location.pathname)) queryParams.set("resource_library", "true");
       const query = queryParams.size ? `?${queryParams}` : "";
-      const socket = new RpcSocket(
+      const socket = sseSocketFactory(
         `/ws/knowledge-bases/${encodeURIComponent(kbName)}/progress${query}`,
       ) as unknown as WebSocket;
       socketsRef.current[kbName] = socket;

@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import Image from '@/shared/router/image'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowDown,

@@ -4,7 +4,7 @@ import { pageGridClass } from '@/components/layout/FeaturePage'
 import { navigateTask } from "@/lib/workspace-scope";
 import { sessionWorkspaceId } from "@/lib/session-api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import {
   History,
   Loader2,

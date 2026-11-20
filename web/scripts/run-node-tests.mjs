@@ -2,6 +2,7 @@ import { readdirSync, rmSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,18 +21,20 @@ function run(cmd, args) {
   }
 }
 
-function collectTests(dir) {
+function collectFiles(dir, suffix, skipDirs = new Set()) {
   const entries = readdirSync(dir)
     .map((name) => path.join(dir, name))
     .sort((a, b) => a.localeCompare(b));
   const files = [];
   for (const entry of entries) {
+    const base = path.basename(entry);
+    if (skipDirs.has(base)) continue;
     const stats = statSync(entry);
     if (stats.isDirectory()) {
-      files.push(...collectTests(entry));
+      files.push(...collectFiles(entry, suffix, skipDirs));
       continue;
     }
-    if (entry.endsWith(".test.js")) {
+    if (entry.endsWith(suffix) && !entry.endsWith(".d.ts")) {
       files.push(entry);
     }
   }
@@ -40,13 +43,40 @@ function collectTests(dir) {
 
 rmSync(distRoot, { recursive: true, force: true });
 
-run(process.execPath, [
-  path.join(webRoot, "node_modules", "typescript", "bin", "tsc"),
-  "-p",
-  "tsconfig.node-tests.json",
-]);
+const sourceDirs = [
+  "tests",
+  "app",
+  "components",
+  "context",
+  "contracts",
+  "features",
+  "hooks",
+  "i18n",
+  "lib",
+  "shared",
+  "src",
+];
+const tsFiles = sourceDirs.flatMap((dir) => {
+  const full = path.join(webRoot, dir);
+  try {
+    return statSync(full).isDirectory() ? collectFiles(full, ".ts") : [];
+  } catch {
+    return [];
+  }
+});
 
-const testFiles = collectTests(testRoot);
+await build({
+  entryPoints: tsFiles,
+  outdir: distRoot,
+  outbase: webRoot,
+  format: "cjs",
+  platform: "node",
+  target: "node20",
+  bundle: false,
+  logLevel: "silent",
+});
+
+const testFiles = collectFiles(testRoot, ".test.js");
 if (testFiles.length === 0) {
   console.error("No compiled node tests found.");
   process.exit(1);

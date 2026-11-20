@@ -4,7 +4,7 @@ import { ReadingProvider, useReading } from "@/context/ReadingContext";
 import type { AnnotationDraft, AnnotationItem, MaterialDetail } from "@/lib/reading-api";
 
 const api = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
 
 function mark(id: string, note = ""): AnnotationItem {
   return {

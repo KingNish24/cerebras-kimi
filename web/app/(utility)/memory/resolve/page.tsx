@@ -5,13 +5,13 @@
 // L2 surface owns it. The backend resolver does the lookup; this page
 // is just the redirect shim.
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "@/shared/router/link";
+import { useRouter, useSearchParams } from "@/shared/router/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 interface ResolveResponse {
   layer: string;

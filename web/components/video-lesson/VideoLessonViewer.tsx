@@ -2,7 +2,7 @@
 
 import { Clapperboard, Code2, ExternalLink, Timer } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import type { VideoLessonResult } from "@/lib/video-lesson-types";
 
 export default function VideoLessonViewer({

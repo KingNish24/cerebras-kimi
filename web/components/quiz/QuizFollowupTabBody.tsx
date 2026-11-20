@@ -30,7 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import { ACTIVITY_TILE } from "@/components/chat/home/SessionActivityPanel";
 import FollowupChatComposer from "@/components/quiz/FollowupChatComposer";
@@ -47,7 +47,7 @@ import {
   useFollowupThread,
   useQuizFollowupController,
 } from "@/context/QuizFollowupContext";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import { hasOpenUILang } from "@/lib/openui/lang";
 import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";
 import { getSession } from "@/lib/session-api";

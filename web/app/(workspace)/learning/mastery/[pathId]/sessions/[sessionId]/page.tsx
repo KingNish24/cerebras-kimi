@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams } from "@/shared/router/navigation";
 
 import { MasteryStudy } from "@/components/space/learning/MasteryStudy";
 

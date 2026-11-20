@@ -4,7 +4,7 @@ import { browserStorage } from "@/shared/storage";
 
 import { useCallback, useEffect, useState } from "react";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 // Three-state autoplay model:
 //   • global default — persisted per-user (Settings › Voice → ui.voice_autoplay)

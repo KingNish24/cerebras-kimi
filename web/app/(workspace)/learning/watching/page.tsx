@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/shared/router/navigation";
 import { READING_HOME } from "@/lib/learning-routes";
 export default async function WatchingPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const incoming = await searchParams;

@@ -1,3 +1,5 @@
+import { isRecord } from "@/shared/lib/record";
+
 export interface CapabilityManifest {
   name?: string;
   description?: string;
@@ -28,10 +30,6 @@ export interface CapabilityDescriptor {
   available: boolean;
   manifest: CapabilityManifest | null;
   configSchema: CapabilityConfigSchema | null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 function descriptorFrom(value: unknown): CapabilityDescriptor | null {

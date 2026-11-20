@@ -2,7 +2,7 @@
 
 import { masterySessionRoute, masterySessionsRoute } from "@/lib/learning-routes";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Loader2, MessageCircle, Plus, Radio } from "lucide-react";
 

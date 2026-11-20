@@ -1,6 +1,6 @@
-import { apiFetch, apiUrl as baseApiUrl } from "@/lib/api";
+import { apiFetch, apiUrl as baseApiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
-import { asJsonOrThrow as asJson } from "@/lib/api";
+import { asJsonOrThrow as asJson } from "@/shared/api/client";
 
 function skillWorkspace(): string {
   return typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("skill_workspace") ?? "";

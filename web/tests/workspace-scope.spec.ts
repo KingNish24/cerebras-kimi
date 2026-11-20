@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { activeWorkspaceId, navigateTask, rememberWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
-import { apiUrl, wsUrl } from "@/lib/api";
+import { apiUrl, wsUrl } from "@/shared/api/client";
 
 beforeEach(() => {
   sessionStorage.clear();

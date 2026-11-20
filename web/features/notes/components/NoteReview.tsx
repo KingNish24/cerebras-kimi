@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
+import Link from '@/shared/router/link'
 import './note-library.css'
 import { FileDown, Layers, X } from 'lucide-react'
 import { exportNoteFlashcards, noteRequest } from '@/lib/notes-api'

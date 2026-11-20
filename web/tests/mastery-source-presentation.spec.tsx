@@ -4,7 +4,7 @@ import type { StreamEvent } from "@/features/chat/model/protocol";
 import { MasterySourcePresentation } from "@/components/chat/home/MasterySourcePresentation";
 
 const apiFetch = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/api", () => ({ apiFetch, apiUrl: (url: string) => url }));
+vi.mock("@/shared/api/client", () => ({ apiFetch, apiUrl: (url: string) => url }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 
 const preview = "/api/knowledge-bases/course/source-page?document=lecture.pdf&page=7&digest=abc";

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { GraduationCap, RotateCcw, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

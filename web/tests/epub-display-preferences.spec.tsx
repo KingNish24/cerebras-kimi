@@ -49,7 +49,7 @@ vi.mock("epubjs", () => ({
     destroy: vi.fn(),
   }),
 }));
-vi.mock("@/lib/api", () => ({ apiFetch: fixture.apiFetch }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: fixture.apiFetch }));
 vi.mock("@/lib/reading-api", () => ({
   rawMaterialUrl: () => "/api/reading/materials/book/raw",
   renderMaterialUrl: () => "/api/reading/materials/book/render",

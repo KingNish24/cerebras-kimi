@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useCallback, type SetStateAction } from "react";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";

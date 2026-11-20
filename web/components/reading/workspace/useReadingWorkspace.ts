@@ -2,7 +2,7 @@
 
 import { readingCollectionRoute, readingSessionRoute } from "@/lib/learning-routes";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Download, FolderInput, RefreshCw } from 'lucide-react'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { useChatWorkspaces } from '@/hooks/useChatWorkspaces'
 import { activeWorkspaceId } from '@/lib/workspace-scope'
 

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { stageRegistryAction, type RegistryEdit } from "@/lib/provider-registry";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "@/features/settings/store/SettingsStore";
@@ -281,5 +281,3 @@ export function TaskModelsWorkspace() {
     </div>
   );
 }
-
-export default TaskModelsWorkspace;

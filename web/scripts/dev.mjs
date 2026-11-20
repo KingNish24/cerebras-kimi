@@ -1,24 +1,6 @@
 #!/usr/bin/env node
 /**
- * Dev-server entrypoint that pins the V8 heap ceiling of the process that
- * actually holds the memory.
- *
- * `next dev` does not render in the process you launch — it spawns a separate
- * render worker, and V8 flags in argv are not inherited by child processes. So
- * the long-standing `node --max-old-space-size=4096 .../next dev` never reached
- * the worker: Next reads the ceiling from NODE_OPTIONS
- * (`getMaxOldSpaceSize()`), finds nothing, and substitutes 50% of total RAM
- * with no upper bound (`next dev` CLI, guarded by NEXT_DISABLE_MEM_OVERRIDE).
- * On a 24GB machine that is a 12GB heap, which V8 will genuinely try to fill:
- * an hour-long session died in `Ineffective mark-compacts near heap limit`
- * after spending 63 seconds inside a single mark-compact, with the machine
- * swapping long before that.
- *
- * Setting the ceiling here fixes both halves — the worker inherits NODE_OPTIONS,
- * and Next stops overriding it. Keep Next's 50% rule so small machines are not
- * handed a heap larger than their RAM, but cap it: past a few GB the extra
- * headroom buys a slower death, not a working dev server. An explicit
- * NODE_OPTIONS ceiling from the developer always wins.
+ * Dev-server entrypoint that pins the V8 heap ceiling of the Vite dev process.
  */
 
 import { spawn } from "node:child_process";
@@ -29,10 +11,9 @@ import { fileURLToPath } from "node:url";
 
 const HEAP_CEILING_MB = 4096;
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const NEXT_BIN = path.join(WEB_DIR, "node_modules", "next", "dist", "bin", "next");
+const VITE_BIN = path.join(WEB_DIR, "node_modules", "vite", "bin", "vite.js");
 
-/** Memory this process may actually use, in MB — cgroup limit included so the
- *  container dev stage sizes to its own budget rather than the host's RAM. */
+/** Memory this process may actually use, in MB — cgroup limit included. */
 function memoryBudgetMB() {
   let bytes = os.totalmem();
   try {
@@ -52,14 +33,12 @@ const nodeOptions = /--max[-_]old[-_]space[-_]size/.test(inherited)
       Math.floor(memoryBudgetMB() * 0.5),
     )}`.trim();
 
-const child = spawn(process.execPath, [NEXT_BIN, "dev", ...process.argv.slice(2)], {
+const child = spawn(process.execPath, [VITE_BIN, ...process.argv.slice(2)], {
   cwd: WEB_DIR,
   stdio: "inherit",
   env: { ...process.env, NODE_OPTIONS: nodeOptions },
 });
 
-// Let Next own the terminal: forward the signals it already handles (lock file
-// cleanup, worker teardown) instead of dying first and orphaning the worker.
 for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
   process.on(signal, () => child.kill(signal));
 }

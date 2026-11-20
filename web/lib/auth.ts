@@ -1,6 +1,6 @@
 import { invalidateClientCache } from "./client-cache";
 import { browserStorage } from "@/shared/storage";
-import { apiFetch, apiUrl, setRuntimeAuthEnabled } from "@/lib/api";
+import { apiFetch, apiUrl, setRuntimeAuthEnabled } from "@/shared/api/client";
 import { updateRecoveryPrincipal } from "@/lib/recovery-principal";
 
 // Auth state is resolved at runtime from the backend (`/api/auth/status`),

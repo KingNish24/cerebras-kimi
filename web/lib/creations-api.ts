@@ -1,6 +1,6 @@
 /** Typed client for the /api/creations backend (create-mode drafts). */
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { CreationDraftData } from "@/lib/creation-draft";
 
 /** What approving this draft would do, per the backend's name-collision check. */

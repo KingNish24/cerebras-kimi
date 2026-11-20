@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import {
   ChevronDown,
   ChevronUp,
@@ -9,10 +9,11 @@ import {
   Loader2,
   Pencil,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useTranslation } from "react-i18next";
 
 import Tooltip from "@/shared/ui/Tooltip";
+import { formatBytes } from "@/shared/lib/format";
 import type { CreationDraftData } from "@/lib/creation-draft";
 import {
   approveCreationDraft,
@@ -32,12 +33,6 @@ const DraftMarkdown = dynamic(
 );
 
 const CLAMP_CLASS = "max-h-40 overflow-hidden";
-
-function formatBytes(size: number): string {
-  if (size < 1024) return `${size} B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 export const CreationDraftCard = memo(function CreationDraftCard({
   data,

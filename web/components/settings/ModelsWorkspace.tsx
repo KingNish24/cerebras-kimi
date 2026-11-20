@@ -4,7 +4,7 @@ import { scrollToSettingsElement } from "@/features/settings/navigation/settings
 import Tooltip from "@/shared/ui/Tooltip";
 import { stageRegistryAction, type RegistryEdit } from "@/lib/provider-registry";
 import { useEffect, useId, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { Check, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { formatConfiguredProviderName } from "@/lib/provider-branding";

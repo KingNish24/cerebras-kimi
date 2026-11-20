@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useTranslation } from "react-i18next";
 import {
   Bookmark,

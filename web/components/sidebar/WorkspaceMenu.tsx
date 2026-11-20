@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from '@/shared/router/image'
+import Link from '@/shared/router/link'
 import { useId, useState, type ReactNode } from 'react'
 import { Check, ChevronDown, Settings, Settings2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

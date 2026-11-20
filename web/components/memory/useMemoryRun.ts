@@ -5,7 +5,7 @@ import { browserStorage } from "@/shared/storage";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import i18n from "i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { LLMSelection } from "@/features/chat/model/protocol";
 
 export type RunMode = "update" | "audit" | "dedup";

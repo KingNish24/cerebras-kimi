@@ -3,7 +3,7 @@
 import { bookRoute } from "@/lib/learning-routes";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/shared/router/navigation";
 import {
   Bookmark,
   BookmarkCheck,

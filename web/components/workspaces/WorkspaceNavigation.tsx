@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from '@/shared/router/navigation'
 import { listWorkspaces } from '@/lib/workspaces-api'
 import {
   activeWorkspaceId,

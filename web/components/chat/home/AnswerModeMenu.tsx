@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowUpRight, Bot, MessageCircle, Minus, Plus, UserRound, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";

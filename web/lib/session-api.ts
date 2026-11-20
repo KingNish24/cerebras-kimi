@@ -1,7 +1,7 @@
 import { clearFailedSubmission } from "@/lib/failed-submissions";
 import { scopedUrl } from "@/lib/workspace-scope";
 import { notifySessionsChanged } from "@/lib/session-events";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
 import type { LLMSelection, StreamEvent } from "@/features/chat/model/protocol";
 import { browserReturnPath, loginHref } from "@/shared/auth/return-url";

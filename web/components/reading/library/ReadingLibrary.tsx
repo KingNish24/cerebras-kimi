@@ -11,9 +11,9 @@ import {
 
 import { readingCollectionRoute, readingFolderRoute } from "@/lib/learning-routes";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import InvidiousAccountFeedback from "./InvidiousAccountFeedback";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import {
   BookOpen,
   Loader2,

@@ -1,6 +1,6 @@
 'use client'
-import dynamic from 'next/dynamic'
-import { apiUrl } from '@/lib/api'
+import dynamic from '@/shared/router/dynamic'
+import { apiUrl } from '@/shared/api/client'
 import { extractMathAnimatorResult } from '@/lib/math-animator-types'
 import type { VisualizeResult } from '@/lib/visualize-types'
 const Visual = dynamic(() => import('@/components/visualize/VisualizationViewer'), { ssr: false })

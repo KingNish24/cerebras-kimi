@@ -3,15 +3,15 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import { PlayAudioButton } from "@/features/chat/messages/ChatMessageList";
 import { useVoicePlaybackRate } from "@/hooks/useVoicePlaybackRate";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 import { notify } from "@/lib/notifications";
 import { initI18n } from "@/i18n/init";
 import { browserStorage } from "@/shared/storage";
 
 const autoplay = vi.hoisted(() => ({ enabled: false }));
 
-vi.mock("@/lib/api", async (original) => ({
-  ...(await original<typeof import("@/lib/api")>()),
+vi.mock("@/shared/api/client", async (original) => ({
+  ...(await original<typeof import("@/shared/api/client")>()),
   apiFetch: vi.fn(),
 }));
 vi.mock("@/hooks/useVoiceAutoplay", () => ({

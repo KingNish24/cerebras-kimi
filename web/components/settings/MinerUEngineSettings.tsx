@@ -14,7 +14,7 @@ import {
   selectOptionClass,
 } from "@/components/settings/shared";
 import { Toggle } from "@/components/settings/Toggle";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 type MinerUMode = "local" | "cloud";
 type MinerUModelVersion = "pipeline" | "vlm";

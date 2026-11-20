@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
 import ChatResponseTimeoutSection from "@/components/settings/ChatResponseTimeoutSection";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import {
 } from "@/components/settings/shared";
 import { Toggle } from "@/components/settings/Toggle";
 import { useSettings } from "@/features/settings/store/SettingsStore";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 
 type StarterSettings = { trace_count: number; ask_hint_enabled: boolean };

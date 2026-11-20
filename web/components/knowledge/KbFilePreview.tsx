@@ -1,7 +1,7 @@
 "use client";
 
 import Tooltip from "@/shared/ui/Tooltip";
-import dynamic from "next/dynamic";
+import dynamic from "@/shared/router/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,7 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import { docIconFor, formatBytes } from "@/lib/doc-attachments";
 import {
   previewKindFor,

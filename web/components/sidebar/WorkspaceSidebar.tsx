@@ -4,7 +4,7 @@ import { activeWorkspaceId, navigateTask } from "@/lib/workspace-scope";
 import { sessionWorkspaceId } from "@/lib/session-api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/shared/router/navigation";
 import { useTranslation } from "react-i18next";
 import { LayoutSidebarShell } from "@/features/ui-layout/slots";
 import { reconcileUnread } from "@/lib/session-unread";

@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader, pageActionClass, pageGridClass } from '@/components/layout/FeaturePage'
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import MemoryArchivedBanner from "@/components/memory/MemoryArchivedBanner";
 
 interface DocOverview {

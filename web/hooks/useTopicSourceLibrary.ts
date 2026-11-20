@@ -1,7 +1,7 @@
 'use client'
 
 import type { LearningOrigin } from '@/lib/learning-library'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { scopedUrl } from '@/lib/workspace-scope'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 

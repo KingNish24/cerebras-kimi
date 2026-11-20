@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/shared/router/link";
 import { Compass } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

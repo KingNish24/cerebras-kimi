@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from '@/shared/router/navigation'
 import { ArrowLeft, Loader2, MessageSquare } from 'lucide-react'
 import { notify } from '@/lib/notifications'
 import { randomUuid } from '@/lib/random-uuid'

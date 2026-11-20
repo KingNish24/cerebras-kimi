@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { DEFAULT_PAGE_CUSTOMIZATION, type PageCustomization } from '@/lib/page-customization'
 
 interface PageCustomizationState {
