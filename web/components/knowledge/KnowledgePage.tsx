@@ -2,7 +2,7 @@
 
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { moveKnowledgeBase, resourceUsage } from "@/lib/workspaces-api";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { EmbeddingModelSelection } from "@/features/knowledge/model/types";
 
 import dynamic from "@/shared/router/dynamic";

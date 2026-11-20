@@ -52,7 +52,7 @@ import type {
   MessageAttachment,
   MessageRequestSnapshot,
 } from "@/features/chat/ChatStateAdapter";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { notify } from "@/lib/notifications";
 import { docIconFor } from "@/lib/doc-attachments";
 import { isQuoteAttachment, quoteText } from "@/lib/quote-attachments";

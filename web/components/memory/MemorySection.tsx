@@ -26,7 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { knowledgeBaseRoute, notebookRoute } from "@/lib/resource-routes";
 import { bookRoute } from "@/lib/learning-routes";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";

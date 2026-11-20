@@ -4,9 +4,9 @@ import { useTopicSourceLibrary } from '@/hooks/useTopicSourceLibrary'
 import type { SourceCandidate, SourceLibrary } from '@/hooks/useTopicSourceLibrary'
 import { SourcesStep } from '@/components/space/learning/TopicWizardSteps'
 import { initI18n } from '@/i18n/init'
-import { apiFetch } from '@/lib/api'
+import { apiFetch } from '@/shared/api/client'
 
-vi.mock('@/lib/api', () => ({ apiUrl: (path: string) => path, apiFetch: vi.fn() }))
+vi.mock('@/shared/api/client', () => ({ apiUrl: (path: string) => path, apiFetch: vi.fn() }))
 vi.mock('@/lib/partners-api', () => ({ listPartners: async () => [], getPartnerSessions: vi.fn() }))
 vi.mock('@/lib/partner-groups-api', () => ({
   listPartnerGroups: async () => [],

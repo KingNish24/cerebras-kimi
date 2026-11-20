@@ -8,10 +8,10 @@ import assert from "node:assert/strict";
 // at request time, reading DEEPTUTOR_API_BASE_URL set by the launcher / Docker
 // entrypoint from data/user/settings.
 
-let apiModulePromise: Promise<typeof import("../lib/api")> | null = null;
+let apiModulePromise: Promise<typeof import("@/shared/api/client")> | null = null;
 
-async function loadApiModule(): Promise<typeof import("../lib/api")> {
-  apiModulePromise ??= import("../lib/api");
+async function loadApiModule(): Promise<typeof import("@/shared/api/client")> {
+  apiModulePromise ??= import("@/shared/api/client");
   return apiModulePromise;
 }
 

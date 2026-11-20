@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 // ── Immersive reading (materials under data/user/workspace/reading) ──
 //

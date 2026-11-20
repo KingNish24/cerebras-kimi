@@ -8,7 +8,7 @@ import {
   type CatalogModel,
   type CatalogProfile,
 } from '@/features/settings/store/SettingsStore'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { modelTestFingerprint } from '@/lib/model-settings'
 import { inputClass, subPanelClass } from './shared'
 import { registryButton, registryPrimary } from './RegistryControls'

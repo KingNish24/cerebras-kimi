@@ -2,7 +2,7 @@
 // parse markdown citations, build nodes + edges, compute a concentric
 // layout. Pure TypeScript so the React component stays thin.
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 export type Surface =
   | "chat"

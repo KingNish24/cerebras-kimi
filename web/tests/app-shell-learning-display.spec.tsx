@@ -5,7 +5,7 @@ import { AppShellProvider } from "@/context/AppShellContext";
 import { updateRecoveryPrincipal } from "@/lib/recovery-principal";
 import { publishLearningDisplay } from "@/lib/learning-display";
 const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiUrl: (s: string) => s,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }));

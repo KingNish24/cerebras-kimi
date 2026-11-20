@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 import {
   getReadingPosition,
   renderMaterialUrl,

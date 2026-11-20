@@ -1,5 +1,5 @@
 import { scopedUrl } from '@/lib/workspace-scope'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import type { NotebookEntry } from '@/lib/notebook-api'
 
 const ROOT = '/api/question-notebook/practice'

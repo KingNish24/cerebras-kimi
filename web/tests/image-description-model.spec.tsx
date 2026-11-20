@@ -6,7 +6,7 @@ import { applyExtensionPayload } from '@/lib/settings-extensions'
 
 const mocks = vi.hoisted(() => ({ options: vi.fn(), fetch: vi.fn() }))
 vi.mock('@/lib/llm-options', () => ({ listLLMOptions: () => mocks.options() }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (value: string) => value,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }))

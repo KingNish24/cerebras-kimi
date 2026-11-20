@@ -23,7 +23,7 @@ vi.mock('@/context/PageCustomizationContext', () => ({
     error: false,
   }),
 }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (url: string) => url,
   apiFetch: vi.fn(async () => ({
     ok: true,

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { isAppLanguage } from "@/i18n/languages";
 import {
   resolveResponseLanguage,

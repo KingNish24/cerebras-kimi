@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { AccountRole } from "@/lib/account-role";
 
 export type AccountPreset = "standard" | "learner" | "custom";

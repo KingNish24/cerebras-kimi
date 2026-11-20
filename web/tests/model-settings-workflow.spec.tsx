@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({ settings: {} as any, fetch: vi.fn() }));
 vi.mock("@/features/settings/store/SettingsStore", () => ({
   useSettings: () => mocks.settings,
 }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
   apiUrl: (url: string) => url,
 }));

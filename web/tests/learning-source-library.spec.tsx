@@ -2,9 +2,9 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { catalogTranslate, hydrateTopicSource, useTopicSourceLibrary } from '@/hooks/useTopicSourceLibrary'
 import { ensureLanguage, initI18n } from '@/i18n/init'
-import { apiFetch } from '@/lib/api'
+import { apiFetch } from '@/shared/api/client'
 
-vi.mock('@/lib/api', () => ({ apiUrl: (path: string) => path, apiFetch: vi.fn() }))
+vi.mock('@/shared/api/client', () => ({ apiUrl: (path: string) => path, apiFetch: vi.fn() }))
 vi.mock('@/lib/partners-api', () => ({ listPartners: async () => [], getPartnerSessions: vi.fn() }))
 vi.mock('@/lib/partner-groups-api', () => ({
   listPartnerGroups: async () => [],

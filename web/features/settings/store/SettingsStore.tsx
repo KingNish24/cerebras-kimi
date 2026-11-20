@@ -35,7 +35,7 @@ import {
   type ResponseLanguage,
 } from "@/context/app-shell-storage";
 import { useAppShell } from "@/context/AppShellContext";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { asJsonOrThrow } from "@/shared/api/client";
 import { invalidateLLMOptionsCache } from "@/lib/llm-options";
 import { setModelReasoningEffort } from "@/lib/reasoning-effort";

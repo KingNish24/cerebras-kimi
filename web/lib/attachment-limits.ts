@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import {
   DEFAULT_MAX_ATTACHMENT_BYTES,
   DEFAULT_MAX_TOTAL_ATTACHMENT_BYTES,

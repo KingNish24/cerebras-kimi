@@ -3,11 +3,11 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { AppShellProvider, useAppShell } from '@/context/AppShellContext'
 import { LANGUAGE_STORAGE_KEY, RESPONSE_LANGUAGE_STORAGE_KEY } from '@/context/app-shell-storage'
-import { apiFetch } from '@/lib/api'
+import { apiFetch } from '@/shared/api/client'
 
 // This fixture exercises language adoption, independently of auth bootstrap.
 vi.mock('@/lib/auth', () => ({ fetchAuthStatus: vi.fn(async () => null) }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiFetch: vi.fn(),
   apiUrl: (path: string) => path,
 }))

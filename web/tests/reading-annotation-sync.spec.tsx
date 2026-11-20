@@ -8,7 +8,7 @@ import {
 import type { AnnotationItem, MaterialDetail } from "@/lib/reading-api";
 
 const api = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
 
 function mark(id: string): AnnotationItem {
   return {

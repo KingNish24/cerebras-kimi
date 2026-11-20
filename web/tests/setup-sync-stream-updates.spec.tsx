@@ -4,7 +4,7 @@ import { useSetupSync } from "@/hooks/useSetupSync";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 
 const api = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
 
 function messages(id = "call-1") {
   return [{ events: [{ type: "tool_result", source: "setup", stage: "loop",

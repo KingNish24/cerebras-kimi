@@ -15,7 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import { docIconFor, formatBytes } from "@/lib/doc-attachments";
 import {
   previewKindFor,

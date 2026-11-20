@@ -32,7 +32,7 @@ vi.mock("@/lib/reading-api", () => ({
   saveReadingPosition: readingApi.saveReadingPosition,
 }));
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiFetch: vi.fn(async () => ({
     ok: true,
     arrayBuffer: async () => new ArrayBuffer(8),

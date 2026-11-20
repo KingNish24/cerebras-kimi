@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
   fetch: vi.fn(),
   router: { push: vi.fn() },
 }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiUrl: (url: string) => url,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }));

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 import {
   SettingRow,

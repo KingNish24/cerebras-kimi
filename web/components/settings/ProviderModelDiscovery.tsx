@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { CheckCircle2, Loader2, PlugZap } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { inputClass, selectClass } from "./shared";
 
 export type ProviderProbeInput = {

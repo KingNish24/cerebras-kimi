@@ -4,7 +4,7 @@ import OfficePdfPreview from "@/components/chat/preview/previewers/OfficePdfPrev
 
 const fixture = vi.hoisted(() => ({ apiFetch: vi.fn() }));
 
-vi.mock("@/lib/api", () => ({ apiFetch: fixture.apiFetch }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: fixture.apiFetch }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));

@@ -16,7 +16,7 @@ import {
 } from "@/components/settings/shared";
 import { MinerUEngineSettings } from "@/components/settings/MinerUEngineSettings";
 import { Toggle } from "@/components/settings/Toggle";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { ImageDescriptionModelSetting } from "./ImageDescriptionModelSetting";
 
 type EngineMeta = {

@@ -1,6 +1,6 @@
 /** Typed client for the /api/partners backend. */
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { LLMSelection } from "@/features/chat/model/protocol";
 import type { ChatWorkspaceRegistration } from "@/lib/workspaces-api";
 

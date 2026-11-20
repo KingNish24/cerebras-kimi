@@ -7,7 +7,7 @@ import Appearance from '@/features/settings/sections/AppearanceSettingsSection'
 import { LEARNING_DISPLAY_APPLIED } from '@/lib/learning-display'
 import { recoveryPrincipal, updateRecoveryPrincipal } from '@/lib/recovery-principal'
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), t: (key: string) => key }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (s: string) => s,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }))

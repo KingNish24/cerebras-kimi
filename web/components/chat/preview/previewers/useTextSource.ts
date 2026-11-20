@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 
 const MAX_TEXT_BYTES = 8 * 1024 * 1024; // 8 MB — preview, not a download
 

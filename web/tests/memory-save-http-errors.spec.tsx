@@ -1,15 +1,15 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import MemoryWorkbench from "@/components/memory/MemoryWorkbench";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("next/link", () => ({ default: ({ children }: { children: React.ReactNode }) => <span>{children}</span> }));
 vi.mock("next/dynamic", () => ({ default: () => ({ content }: { content: string }) => <div>{content}</div> }));
 vi.mock("@/components/memory/MemoryRunPanel", () => ({ default: () => null }));
-vi.mock("@/lib/api", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");
+vi.mock("@/shared/api/client", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/api/client")>("@/shared/api/client");
   return { ...actual, apiUrl: (url: string) => url, apiFetch: vi.fn() };
 });
 afterEach(() => { cleanup(); vi.clearAllMocks(); });

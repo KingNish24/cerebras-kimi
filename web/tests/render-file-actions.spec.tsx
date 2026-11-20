@@ -4,7 +4,7 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { RenderFileActions } from '@/components/math-animator/RenderFileActions'
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn() }))
-vi.mock('@/lib/api', () => ({ apiFetch: (...args: unknown[]) => mocks.fetch(...args) }))
+vi.mock('@/shared/api/client', () => ({ apiFetch: (...args: unknown[]) => mocks.fetch(...args) }))
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (s: string, values?: Record<string, unknown>) =>

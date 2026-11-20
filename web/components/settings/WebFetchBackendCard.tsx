@@ -22,7 +22,7 @@ import {
   webFetchBackendValue,
 } from "./web-fetch-backend";
 import { useSettings } from "@/features/settings/store/SettingsStore";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 
 export function WebFetchBackendCard() {

@@ -18,7 +18,7 @@ import { CornerDownLeft, Loader2, RefreshCw } from "lucide-react";
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import { usePageCustomization } from "@/context/PageCustomizationContext";
 import { starterPrompts, type StarterGroup } from "@/lib/page-customization";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 interface Suggestion {
   /** The line the learner reads — names the specific thing worth doing next. */

@@ -11,7 +11,7 @@ import { SubagentSettingsEditor } from "@/components/settings/SubagentSettingsEd
 import { UiSettingsProvider } from "@/features/settings/store/UiSettingsProvider";
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), theme: vi.fn() }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiUrl: (s: string) => s,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }));

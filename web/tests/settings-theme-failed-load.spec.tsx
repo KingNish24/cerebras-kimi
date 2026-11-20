@@ -10,7 +10,7 @@ import { THEME_STORAGE_KEY } from "@/lib/theme";
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiUrl: (s: string) => s,
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }));

@@ -1,6 +1,6 @@
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
-import { asJsonOrThrow as asJson } from "@/lib/api";
+import { asJsonOrThrow as asJson } from "@/shared/api/client";
 
 const PERSONAS_CACHE_PREFIX = "personas:";
 

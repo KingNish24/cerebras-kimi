@@ -9,7 +9,7 @@ vi.mock("@/features/settings/store/SettingsStore", () => ({ useSettings: () => (
 vi.mock("@/features/settings/store/useStagedSettings", () => ({ useStagedSettings: (_key: string, value: unknown) => [value, vi.fn()] }));
 vi.mock("@/components/settings/shared", () => ({ SettingsPageHeader: () => null }));
 vi.mock("@/shared/ui/Tooltip", () => ({ default: ({ children }: {children: React.ReactNode}) => children }));
-vi.mock("@/lib/api", () => ({ apiUrl: (s: string) => s, apiFetch: async () => ({ ok: true, json: async () => ({ tools: [{ name: "web_search", description: "search", parameters: [], aliases: [], enabled: false, toggleable: true, hints: { en: { short_description: "Search the web", when_to_use: "Use for current facts", input_format: "A plain query", guideline: "", note: "", phase: "", aliases: [] } } }], enabled_optional_tools: [] }) }) }));
+vi.mock("@/shared/api/client", () => ({ apiUrl: (s: string) => s, apiFetch: async () => ({ ok: true, json: async () => ({ tools: [{ name: "web_search", description: "search", parameters: [], aliases: [], enabled: false, toggleable: true, hints: { en: { short_description: "Search the web", when_to_use: "Use for current facts", input_format: "A plain query", guideline: "", note: "", phase: "", aliases: [] } } }], enabled_optional_tools: [] }) }) }));
 
 it("translates API hints through the selected catalog, searches them, and keeps missing English fallbacks", async () => {
   render(<ToolsSettingsPage />);

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Code2, Expand, Image as ImageIcon, Timer, Video } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import type { MathAnimatorResult } from "@/lib/math-animator-types";
 import { RenderFileActions } from "./RenderFileActions";
 

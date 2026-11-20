@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl as baseApiUrl } from "@/lib/api";
+import { apiFetch, apiUrl as baseApiUrl } from "@/shared/api/client";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
 import type { ImaKnowledgeBaseOption } from "@/lib/ima-connection";
 

@@ -4,7 +4,7 @@ import { RECOVERY_PRINCIPAL_CHANGED, recoveryPrincipal, updateRecoveryPrincipal 
 import { clearFailedSubmission, moveFailedSubmissions, readFailedSubmissions, storeFailedSubmission } from "@/lib/failed-submissions";
 
 const fixture = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({ apiFetch: fixture.fetch, apiUrl: (path: string) => path, setRuntimeAuthEnabled: vi.fn() }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: fixture.fetch, apiUrl: (path: string) => path, setRuntimeAuthEnabled: vi.fn() }));
 
 beforeEach(() => {
   localStorage.clear();

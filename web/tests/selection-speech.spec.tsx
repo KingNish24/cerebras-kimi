@@ -6,7 +6,7 @@ import SelectionActions from '@/features/chat/components/SelectionActions'
 import { SelectionSpeechToolbar } from '@/components/voice/SelectionSpeechToolbar'
 
 const mock = vi.hoisted(() => ({ fetch: vi.fn(), notify: vi.fn(), audio: [] as MockAudio[] }))
-vi.mock('@/lib/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   apiUrl: (url: string) => url,
   apiFetch: (...args: unknown[]) => mock.fetch(...args),
 }))

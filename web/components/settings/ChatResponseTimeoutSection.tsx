@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SettingRow, SettingSection, inputClass } from "./shared";
 import { useSettings } from "@/features/settings/store/SettingsStore";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import {
   DEFAULT_CHAT_RESPONSE_TIMEOUT_SECONDS,
   MAX_CHAT_RESPONSE_TIMEOUT_SECONDS,

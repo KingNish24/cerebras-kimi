@@ -5,7 +5,7 @@ import { notifyCreationSaved } from "@/lib/creations";
 import type { ChatWorkspaceRegistration } from "@/lib/workspaces-api";
 
 const api = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
+vi.mock("@/shared/api/client", () => ({ apiFetch: api.fetch, apiUrl: (url: string) => url }));
 
 function workspace(mcp: string[] | null): ChatWorkspaceRegistration {
   return {

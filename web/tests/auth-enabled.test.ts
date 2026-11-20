@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { parseAuthEnabled } from "../lib/api";
+import { parseAuthEnabled } from "@/shared/api/client";
 
 test("parseAuthEnabled is true for accepted truthy flags", () => {
   for (const value of ["true", "1", "yes", "on", "TRUE", " true "]) {

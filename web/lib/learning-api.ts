@@ -1,5 +1,5 @@
 import type { LearningOrigin } from "@/lib/learning-library";
-import { apiUrl, apiFetch } from "./api";
+import { apiUrl, apiFetch } from "@/shared/api/client";
 
 export interface ModuleInit {
   id: string;

@@ -4,7 +4,7 @@ import Tooltip from "@/shared/ui/Tooltip";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { StatusStripDivider } from "@/components/settings/shared";
 
 /**

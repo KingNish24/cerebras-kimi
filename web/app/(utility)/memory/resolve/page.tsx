@@ -11,7 +11,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 interface ResolveResponse {
   layer: string;

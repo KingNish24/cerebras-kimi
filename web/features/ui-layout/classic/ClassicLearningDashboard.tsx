@@ -8,7 +8,7 @@ import { pageGridClass } from '@/components/layout/FeaturePage'
 import { useEffect, useState } from 'react'
 import { BookOpen, Route } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { scopedUrl } from '@/lib/workspace-scope'
 import { bookRoute } from '@/lib/learning-routes'
 import {

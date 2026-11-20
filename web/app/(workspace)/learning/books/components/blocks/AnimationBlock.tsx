@@ -4,7 +4,7 @@ import { Download, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import type { Block } from "@/lib/book-types";
 import Tooltip from "@/shared/ui/Tooltip";
 

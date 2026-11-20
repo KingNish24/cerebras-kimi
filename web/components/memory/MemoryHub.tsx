@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import MemoryArchivedBanner from "@/components/memory/MemoryArchivedBanner";
 
 interface DocOverview {

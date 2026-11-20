@@ -79,7 +79,7 @@ import {
   useOptionalQuizFollowupController,
 } from "@/context/QuizFollowupContext";
 import type { GeogebraTabPayload } from "@/context/GeogebraTabContext";
-import { apiUrl } from "@/lib/api";
+import { apiUrl } from "@/shared/api/client";
 import type { MessageAttachment } from "@/features/chat/ChatStateAdapter";
 import type { StreamEvent } from "@/features/chat/model/protocol";
 import Tooltip from "@/shared/ui/Tooltip";

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { readClientCache, withClientCache } from '@/lib/client-cache'
 import { usePathname } from '@/shared/router/navigation'
-import { apiFetch, apiUrl } from '@/lib/api'
+import { apiFetch, apiUrl } from '@/shared/api/client'
 import { subscribeSessionChanges } from '@/lib/session-events'
 import type { PartnerInfo } from '@/lib/partners-api'
 import type { PartnerGroup } from '@/lib/partner-groups-api'

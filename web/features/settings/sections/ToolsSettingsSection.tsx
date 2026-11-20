@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import { useSettings } from "@/features/settings/store/SettingsStore";
 import { SettingsPageHeader } from "@/components/settings/shared";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import {
   toolAvailabilityCopy,
   toolEffectiveEnabled,

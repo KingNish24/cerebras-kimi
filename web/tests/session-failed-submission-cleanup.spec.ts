@@ -4,7 +4,7 @@ import { updateRecoveryPrincipal } from "@/lib/recovery-principal";
 import { moveFailedSubmissions, readFailedSubmissions, storeFailedSubmission } from "@/lib/failed-submissions";
 
 const fixture = vi.hoisted(() => ({ fetch: vi.fn() }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/shared/api/client", () => ({
   apiUrl: (path: string) => path,
   apiFetch: (...args: unknown[]) => fixture.fetch(...args),
 }));

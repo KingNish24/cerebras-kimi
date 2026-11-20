@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { setRuntimeAuthEnabled } from "../lib/api";
+import { setRuntimeAuthEnabled } from "@/shared/api/client";
 import {
   connectImaKnowledgeBase,
   listImaKnowledgeBases,

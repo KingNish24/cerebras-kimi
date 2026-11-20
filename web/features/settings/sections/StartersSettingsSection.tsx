@@ -14,7 +14,7 @@ import {
 } from "@/components/settings/shared";
 import { Toggle } from "@/components/settings/Toggle";
 import { useSettings } from "@/features/settings/store/SettingsStore";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import { EXTENSION_ENDPOINTS } from "@/lib/settings-extensions";
 
 type StarterSettings = { trace_count: number; ask_hint_enabled: boolean };

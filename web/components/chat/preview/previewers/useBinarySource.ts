@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/api/client";
 
 // Ceiling for an in-browser office render. docx-preview / exceljs both hold
 // the whole document in memory and lay it out synchronously, so a huge file

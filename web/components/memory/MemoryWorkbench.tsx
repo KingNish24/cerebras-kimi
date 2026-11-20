@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { apiFetch, apiUrl, asJsonOrThrow } from "@/lib/api";
+import { apiFetch, apiUrl, asJsonOrThrow } from "@/shared/api/client";
 import MemoryRunPanel from "@/components/memory/MemoryRunPanel";
 
 const MarkdownRenderer = dynamic(

@@ -4,7 +4,7 @@ import Tooltip from "@/shared/ui/Tooltip";
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Pencil, PlugZap, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 import type { Discovery } from "@/lib/provider-registry";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import type { ProviderProbeInput } from "./ProviderModelDiscovery";

@@ -1,6 +1,6 @@
 import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import type { LearningOrigin } from "@/lib/learning-library";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/shared/api/client";
 
 const BASE = "/api/reading";
 
