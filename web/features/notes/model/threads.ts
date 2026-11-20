@@ -33,7 +33,7 @@ export function threadViews(
   }
 ): NoteThreadView[] {
   return [...threads]
-    .sort((a, b) => a.created_at - b.created_at)
+    .sort((a, b) => (a.created_at ?? 0) - (b.created_at ?? 0))
     .map(thread => {
       const live = running.has(thread.session_id)
       const state: NoteThreadState =
@@ -48,13 +48,15 @@ export function threadViews(
       // The server's placeholder until a title is generated is not a title.
       // A title made from a first message that opened with the quoted passage
       // starts with the quote mark; it names the conversation without it.
-      const raw = thread.title.trim().replace(/^(>\s*:?\s*)+/, '')
+      const raw = String(thread.title ?? '')
+        .trim()
+        .replace(/^(>\s*:?\s*)+/, '')
       const title = raw === 'New conversation' ? '' : raw
       return {
         ...thread,
         title,
         state,
-        label: title || thread.quote.trim() || untitled,
+        label: title || String(thread.quote ?? '').trim() || untitled,
       }
     })
 }

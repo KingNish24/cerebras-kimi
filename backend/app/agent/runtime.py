@@ -736,6 +736,8 @@ class AgentRuntime:
             self._store.save(session)
         except Exception:  # noqa: BLE001
             pass
+        if status == "completed":
+            await self._maybe_update_title(handle, session, user_message, assistant_text)
         handle.status = status
 
         await self._emit(handle, self._stream_event(
@@ -758,6 +760,41 @@ class AgentRuntime:
         # the in-memory handle — replay must find these frames in the store.
         self._finalize_turn(handle, session, status)
         return True
+
+    async def _maybe_update_title(
+        self,
+        handle: TurnHandle,
+        session: dict[str, Any],
+        user_message: dict[str, Any],
+        assistant_text: str,
+    ) -> None:
+        """Replace the auto-derived placeholder title once the first turn
+        completes, then push it to the client as a ``session_meta`` frame.
+
+        Runs before ``done`` is emitted: the SSE pump unsubscribes on done,
+        so anything after it would never reach the open client. The attempt
+        is one-shot per session — a dead title endpoint must not add latency
+        to every later turn.
+        """
+        if not session.get("title_auto"):
+            return
+        from ..services.title_gen import generate_title
+
+        title = await generate_title(
+            str(user_message.get("content") or ""),
+            assistant_text,
+            settings=self._settings,
+        )
+        session["title_auto"] = False
+        if not title:
+            return
+        session["title"] = title
+        try:
+            self._store.save(session)
+        except Exception:  # noqa: BLE001
+            pass
+        await self._emit(handle, self._stream_event(
+            handle, "session_meta", metadata={"title": title}))
 
     def _finalize_turn(
         self, handle: TurnHandle, session: dict[str, Any], status: str

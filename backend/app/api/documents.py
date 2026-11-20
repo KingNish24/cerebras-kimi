@@ -726,13 +726,52 @@ async def import_docx(file: UploadFile = File(...)) -> dict[str, Any]:
 # ── Conversations anchored to a line ─────────────────────────────────────
 
 
+def _thread_fields(
+    thread: dict[str, Any], session: dict[str, Any] | None
+) -> dict[str, Any] | None:
+    """A page anchor joined with its conversation's session state.
+
+    The anchor only stores where the conversation lives. Title, status and
+    the last message come from the chat session, so a thread whose session was
+    deleted has nothing to show and is left out.
+    """
+    if session is None:
+        return None
+    messages = session.get("messages") or []
+    last = messages[-1] if messages else {}
+    turns = session.get("turns") or {}
+    running = any(
+        isinstance(turn, dict) and turn.get("status") == "running" for turn in turns.values()
+    )
+    return {
+        **thread,
+        "title": str(session.get("title") or ""),
+        "status": "running" if running else str(session.get("status") or "idle"),
+        "updated_at": (
+            session.get("updated_at")
+            or thread.get("updated_at")
+            or thread.get("created_at")
+            or 0.0
+        ),
+        "message_count": len(messages),
+        "last_message": str(last.get("content") or "")[:400],
+    }
+
+
 @router.get("/api/documents/{doc_id}/threads")
-def list_note_threads(doc_id: str) -> dict[str, list[dict[str, Any]]]:
+def list_note_threads(doc_id: str, request: Request) -> dict[str, list[dict[str, Any]]]:
     storage = get_co_writer_storage()
     page_id = _doc_id(doc_id)
     if not storage.doc_exists(page_id):
         raise HTTPException(status_code=404, detail="Page not found")
-    return {"threads": thread_store.list_threads(storage, page_id)}
+    store = getattr(request.app.state, "store", None)
+    rows = []
+    for thread in thread_store.list_threads(storage, page_id):
+        session = store.get(thread.get("session_id", "")) if store is not None else None
+        row = _thread_fields(thread, session)
+        if row is not None:
+            rows.append(row)
+    return {"threads": rows}
 
 
 class AnchorThreadRequest(BaseModel):

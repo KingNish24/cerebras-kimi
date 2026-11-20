@@ -2,7 +2,6 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CalendarPage from '@/features/calendar/components/CalendarPage'
 import CalendarRuntime from '@/features/calendar/components/CalendarRuntime'
-import TaskBoardRuntime from '@/components/tasks/TaskBoardRuntime'
 import { DEFAULT_TASK_COLORS } from '@/lib/task-board-api'
 import { dateKey, addDays, addMonths, monthWeeks } from '@/features/calendar/model/dates'
 import { buildRule, parseRule } from '@/features/calendar/model/recurrence'
@@ -96,9 +95,7 @@ afterEach(() => vi.unstubAllGlobals())
 const mount = () =>
   render(
     <CalendarRuntime>
-      <TaskBoardRuntime>
-        <CalendarPage />
-      </TaskBoardRuntime>
+      <CalendarPage />
     </CalendarRuntime>
   )
 

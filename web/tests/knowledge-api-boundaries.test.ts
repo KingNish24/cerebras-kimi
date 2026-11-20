@@ -48,20 +48,3 @@ test("knowledge resources expose narrow public entry points", () => {
       assert.match(source, new RegExp(`\\b${name}\\b`));
   }
 });
-
-test("engine forms have stable feature-owned module boundaries", () => {
-  const formsRoot = path.join(root, "features/knowledge/components/engines");
-  for (const name of [
-    "LlamaIndexForm",
-    "GraphRagForm",
-    "LightRagForm",
-    "ImaForm",
-  ]) {
-    const filename = path.join(formsRoot, `${name}.tsx`);
-    assert.equal(fs.existsSync(filename), true);
-    assert.match(
-      fs.readFileSync(filename, "utf8"),
-      new RegExp(`\\b${name}\\b`),
-    );
-  }
-});

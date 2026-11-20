@@ -1,6 +1,5 @@
 "use client";
 
-import "@/lib/openui/devtools";
 import "@openuidev/react-ui/styles/index.css";
 
 import { Renderer, type ActionEvent } from "@openuidev/react-lang";

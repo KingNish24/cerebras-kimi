@@ -11,12 +11,6 @@ import ts from 'typescript'
 const root = process.cwd()
 const SOURCE_ROOTS = ['app', 'components', 'context', 'features', 'hooks', 'lib', 'shared']
 const LOCALES = ['en', 'zh', 'de', 'fr', 'ja', 'pl', 'pt', 'tr', 'uk', 'vi']
-// Legacy settings editors with no importers, pending removal.
-const UNUSED_FILES = new Set([
-  'components/settings/ConnectionsEditor.tsx',
-  'components/settings/ModelCards.tsx',
-  'components/settings/ServiceConfigEditor.tsx',
-])
 // Chinese/English literals that are deliberately not catalog copy.
 const LITERAL_EXCEPTIONS = new Set([
   // Sample sentence spoken by the selected voice, not interface text.
@@ -88,7 +82,6 @@ function where(source: ts.SourceFile, relative: string, node: ts.Node): string {
 test('a zh branch never picks the English text without t()', () => {
   const violations: string[] = []
   for (const { relative, source } of sources) {
-    if (UNUSED_FILES.has(relative)) continue
     walk(source, node => {
       if (!ts.isConditionalExpression(node)) return
       const whenTrue = node.whenTrue
@@ -112,7 +105,7 @@ function isLiteral(node: ts.Node): boolean {
 test('a zh branch never pairs Chinese text with a raw English literal', () => {
   const violations: string[] = []
   for (const { relative, source } of sources) {
-    if (UNUSED_FILES.has(relative) || LITERAL_EXCEPTIONS.has(relative)) continue
+    if (LITERAL_EXCEPTIONS.has(relative)) continue
     walk(source, node => {
       if (!ts.isConditionalExpression(node)) return
       const { whenTrue, whenFalse } = node
@@ -149,7 +142,6 @@ test('inline English copy next to Chinese copy exists in every catalog', () => {
     }
   }
   for (const { relative, source } of sources) {
-    if (UNUSED_FILES.has(relative)) continue
     walk(source, node => {
       if (ts.isObjectLiteralExpression(node)) {
         const props = new Map(

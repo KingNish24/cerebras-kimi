@@ -280,6 +280,9 @@ class SessionStore:
         session["messages"].append(message)
         if not session.get("title"):
             session["title"] = _derive_title(content)
+            # Marks the placeholder so the runtime can replace it with a
+            # generated title once the first turn completes.
+            session["title_auto"] = True
         return message
 
     def append_assistant_message(

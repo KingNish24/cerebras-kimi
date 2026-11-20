@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { BuiltinActionType, type ActionEvent } from "@openuidev/react-lang";
+import {
+  ACTION_STEPS,
+  BuiltinActionType,
+  type ActionEvent,
+} from "@openuidev/react-lang";
 import { handleOpenUIAction } from "@/lib/openui/actions";
+import { normalizeAction } from "@/lib/openui/safe-action";
 
 function event(
   type: string,
@@ -55,5 +60,30 @@ describe("handleOpenUIAction", () => {
     const send = vi.fn();
     handleOpenUIAction(event("SomeLibraryAction"), send);
     expect(send).not.toHaveBeenCalled();
+  });
+});
+
+describe("normalizeAction", () => {
+  it("turns a bare string action into a to-assistant step", () => {
+    expect(normalizeAction("Save a note on doping")).toEqual({
+      steps: [
+        {
+          type: ACTION_STEPS.ToAssistant,
+          message: "Save a note on doping",
+        },
+      ],
+    });
+  });
+
+  it("leaves object actions and absent actions untouched", () => {
+    const action = { type: BuiltinActionType.OpenUrl, params: { url: "https://example.com" } };
+    expect(normalizeAction(action)).toBe(action);
+    expect(normalizeAction(undefined)).toBeUndefined();
+  });
+
+  it("drops other primitives instead of passing them to the runner", () => {
+    expect(normalizeAction(42)).toBeUndefined();
+    expect(normalizeAction(true)).toBeUndefined();
+    expect(normalizeAction("")).toBeUndefined();
   });
 });

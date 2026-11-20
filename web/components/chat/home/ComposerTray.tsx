@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { m, type MotionStyle } from "framer-motion";
-import { createElement, useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { createElement, useId, useMemo, type ReactNode } from "react";
 import { ArrowUpRight, PencilRuler, Plug, Plus, Shapes, UserRound, Wand2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/shared/ui/Tooltip";
-import { SPACE_MCP_SURFACE, loadMcpSurface } from "@/components/mcp/surface";
-import { mcpRowStatus, type McpServerStatus, type McpStoreState } from "@/lib/mcp-api";
 import type { ComposerResourceCatalog } from "@/hooks/useComposerResources";
 import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
 import type { WorkspaceResourceOption } from "@/lib/workspaces-api";
@@ -27,6 +25,10 @@ import { ConnectorHubIcon, modeIcon } from "./ComposerIcons";
 import type { ComposerControls } from "@/lib/page-customization";
 import { useTrayFold } from "./ComposerTrayFold";
 import { CREATE_KINDS, CREATION_KIND_ORDER, type CreationKind } from "@/lib/creations";
+
+/** Local status shape — the MCP store surface was removed; the tray still
+ * lists catalog connectors with a simple availability-based status. */
+type McpServerStatus = "connected" | "connecting" | "error" | "needs_auth" | "disabled";
 
 const STATUS_DOT: Record<McpServerStatus, string> = {
   connected: "bg-emerald-500",
@@ -54,38 +56,18 @@ interface Connector {
   error: string;
 }
 
-/** Each catalog server's live state, read from the account's MCP store. */
+/** Catalog connectors. Without the MCP store, availability is the only
+ * signal we have; the tray still lists them so saved choices stay editable. */
 function useConnectors(options: WorkspaceResourceOption[]): Connector[] {
-  const [state, setState] = useState<McpStoreState | null>(null);
-  useEffect(() => {
-    let alive = true;
-    void loadMcpSurface(SPACE_MCP_SURFACE)
-      .then((next) => {
-        if (alive) setState(next);
-      })
-      // Without the store the tray still lists the servers, just without state.
-      .catch(() => undefined);
-    return () => {
-      alive = false;
-    };
-  }, []);
   return useMemo(
     () =>
-      options.map((option) => {
-        const [origin, ...rest] = option.id.split(":");
-        const name = rest.join(":") || option.name;
-        const rows = origin === "deployment" ? state?.user?.deployment.status : state?.status;
-        const row = rows?.find((entry) => entry.name === name);
-        const config = origin === "account" ? state?.servers[name] : undefined;
-        const status: McpServerStatus =
-          option.available === false
-            ? "disabled"
-            : config
-              ? mcpRowStatus(config, row)
-              : (row?.status ?? "connecting");
-        return { option, status, tools: row?.tools.length ?? 0, error: row?.error ?? "" };
-      }),
-    [options, state],
+      options.map((option) => ({
+        option,
+        status: (option.available === false ? "disabled" : "connected") as McpServerStatus,
+        tools: 0,
+        error: "",
+      })),
+    [options],
   );
 }
 

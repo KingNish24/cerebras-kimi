@@ -6,6 +6,7 @@ import "./components/map/map.css";
 import { MapMarker, MapView } from "./components/map/map";
 import { MATH_TEXT_COMPONENTS, withInlineMath } from "./components/math";
 import { SearchImage } from "./components/search-image";
+import { safeActionOverrides } from "./safe-action";
 
 /**
  * The library's prose components, wrapped so `$...$` in a text prop renders as
@@ -24,7 +25,10 @@ const mathTextOverrides = MATH_TEXT_COMPONENTS.flatMap((name) => {
  * street map, copying to the clipboard, and inline LaTeX in prose.
  */
 export const library = intelligentUiLibrary.extend({
-  components: { add: [SearchImage, MapView, MapMarker], override: mathTextOverrides },
+  components: {
+    add: [SearchImage, MapView, MapMarker],
+    override: [...mathTextOverrides, ...safeActionOverrides],
+  },
   actions: { add: actions },
 });
 

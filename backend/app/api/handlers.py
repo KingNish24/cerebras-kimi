@@ -237,6 +237,7 @@ def update_session(
         raise HTTPException(status_code=404, detail="session not found")
     if body.title is not None:
         session["title"] = body.title.strip() or session.get("title") or "Untitled"
+        session["title_auto"] = False
     if body.preferences is not None:
         session["preferences"] = {**(session.get("preferences") or {}), **body.preferences}
     store.save(session)

@@ -42,6 +42,13 @@ class Settings:
             _env("DT_WORKSPACE_DIR") or "./data/workspace"
         ).resolve()
     )
+    # Chat-title generation endpoint (chatjimmy.ai-compatible /api/chat).
+    # Set DT_TITLE_API_URL=off to keep the truncated-first-message titles.
+    title_api_url: str = field(
+        default_factory=lambda: _env(
+            "DT_TITLE_API_URL", "https://chatjimmy.ai/api/chat"
+        )
+    )
     # When true, /api/auth/status reports auth enabled and unauthenticated
     # requests are rejected. Login itself is not implemented yet — keep false
     # for local single-user deployments.
