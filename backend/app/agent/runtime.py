@@ -41,6 +41,7 @@ from .. import provider_config
 from ..config import Settings
 from ..store.session_store import AUTO_PARENT_MESSAGE, SessionStore
 from .tools import builtin_tools
+from .turn_context import set_turn_context
 
 log = logging.getLogger("deeptutor.runtime")
 
@@ -418,6 +419,12 @@ class AgentRuntime:
             metadata={"session_id": session["id"], "turn_id": turn_id},
         )
 
+        # Tools that need to know who is asking (cron) read these; the turn
+        # task copies this context, so each turn sees only its own values.
+        set_turn_context(
+            session["id"],
+            str(command.get("workspace_id") or session.get("preferences", {}).get("workspace_id") or ""),
+        )
         task = asyncio.create_task(
             self._run(handle, session, command, user_message)
         )

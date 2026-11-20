@@ -465,7 +465,7 @@ class CalendarStore:
         masters = {row.id: row for row in rows if not row.series_id}
         excluded = {id: set(row.exdates) for id, row in masters.items()}
         for row in rows:
-            if row.series_id in excluded:
+            if row.series_id in excluded and row.recurrence_id is not None:
                 excluded[row.series_id].add(row.recurrence_id)
         result = []
         for row in rows:
@@ -476,30 +476,32 @@ class CalendarStore:
                 timing(row), start, end, zone(tzid), exclude=excluded.get(row.id, set())
             ):
                 result.append(
-                    Occurrence(
-                        **{
+                    Occurrence.model_validate(
+                        {
                             **self._fields(row),
                             "rrule": master.rrule,
                             "start": item.start,
                             "end": item.end,
-                        },
-                        id=f"{row.id}:{row.recurrence_id or item.key}",
-                        event_id=row.id,
-                        series_id=master.id if master.rrule else None,
-                        occurrence=row.recurrence_id or item.key,
-                        recurring=bool(master.rrule),
-                        source=row.source,
-                        reminder_times=[
-                            format_instant(
-                                (
-                                    datetime.combine(parse_date(item.start), time(), zone(row.tzid))
-                                    if row.all_day
-                                    else parse_instant(item.start)
+                            "id": f"{row.id}:{row.recurrence_id or item.key}",
+                            "event_id": row.id,
+                            "series_id": master.id if master.rrule else None,
+                            "occurrence": row.recurrence_id or item.key,
+                            "recurring": bool(master.rrule),
+                            "source": row.source,
+                            "reminder_times": [
+                                format_instant(
+                                    (
+                                        datetime.combine(
+                                            parse_date(item.start), time(), zone(row.tzid)
+                                        )
+                                        if row.all_day
+                                        else parse_instant(item.start)
+                                    )
+                                    - timedelta(minutes=minutes)
                                 )
-                                - timedelta(minutes=minutes)
-                            )
-                            for minutes in row.reminders
-                        ],
+                                for minutes in row.reminders
+                            ],
+                        }
                     )
                 )
         result.sort(key=lambda r: (r.start, r.id))
@@ -522,7 +524,7 @@ class CalendarStore:
             ]
         excluded = {row.id: set(row.exdates) for row in rows if not row.series_id}
         for row in rows:
-            if row.series_id in excluded:
+            if row.series_id in excluded and row.recurrence_id is not None:
                 excluded[row.series_id].add(row.recurrence_id)
         hits = []
         moment = datetime.now(timezone.utc)

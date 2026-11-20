@@ -1,26 +1,74 @@
 """Read-only projections of the selected workspace onto calendar days.
 
-DeepTutor's upstream calendar merges scheduled spaced-repetition reviews and
-cron automations into the day grid. This backend has neither store yet, so
-those lists are returned empty and only *footprints* — the days the learner
-actually studied, derived from session transcripts — are projected.
+Spaced-repetition reviews are not implemented in this backend, so that list
+is empty. Scheduled reminders/automations come from the cron service, and
+*footprints* — the days the learner actually studied — are derived from
+session transcripts.
 """
 
 from __future__ import annotations
 
-from datetime import datetime
+import math
+from datetime import datetime, timezone
+from typing import Literal, cast
 
 from ...config import get_settings
 from ...store.session_store import SessionStore
-from .models import CalendarLayers, FootprintDay, FootprintSession
-from .recurrence import zone
+from .models import AutomationRun, CalendarLayers, FootprintDay, FootprintSession
+from .recurrence import format_instant, zone
 
 MAX_SESSIONS_PER_DAY = 20
+MAX_AUTOMATIONS = 1000
 
 
 def owner_key() -> str:
-    """DeepTutor is single-user locally; one stable owner for cron-style jobs."""
-    return "local"
+    """One stable owner for locally scheduled jobs (single-user deployment)."""
+    return "chat:local-admin"
+
+
+def _automations(workspace_id: str, lo: float, hi: float) -> list[AutomationRun]:
+    """Expand this workspace's enabled jobs into the days they will run on."""
+    try:
+        from ..cron import compute_next_run, get_cron_service
+
+        service = get_cron_service()
+    except Exception:  # a broken cron store must not break the calendar
+        return []
+
+    runs: list[AutomationRun] = []
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    lower = max(int(lo * 1000), now_ms)
+    for job in service.list_jobs(owner_key()):
+        if job.owner.workspace_id != workspace_id or not job.enabled:
+            continue
+        at = job.state.next_run_at_ms
+        if at is None:
+            continue
+        if at < lower:
+            if job.schedule.kind == "every" and job.schedule.every_seconds:
+                step = job.schedule.every_seconds * 1000
+                at += max(0, math.ceil((lower - at) / step)) * step
+            else:
+                at = compute_next_run(job.schedule, lower - 1)
+        for _ in range(MAX_AUTOMATIONS):
+            if at is None or at >= hi * 1000:
+                break
+            runs.append(
+                AutomationRun(
+                    id=f"{job.id}:{at}",
+                    job_id=job.id,
+                    name=job.name,
+                    message=job.message,
+                    at=format_instant(datetime.fromtimestamp(at / 1000, timezone.utc)),
+                    kind=cast(Literal["at", "every", "cron"], job.schedule.kind),
+                    expr=job.schedule.expr,
+                    every_seconds=job.schedule.every_seconds,
+                    session_id=job.owner.session_id or None,
+                    enabled=job.enabled,
+                )
+            )
+            at = compute_next_run(job.schedule, at)
+    return runs
 
 
 def _session_store() -> SessionStore:
@@ -71,6 +119,6 @@ def read_layers(workspace_id: str, start: datetime, end: datetime, tzid: str) ->
     return CalendarLayers(
         workspace_id=workspace_id,
         reviews=[],
-        automations=[],
+        automations=_automations(workspace_id, lo, hi),
         footprints=sorted(footprints.values(), key=lambda item: item.date),
     )

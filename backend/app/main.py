@@ -173,9 +173,17 @@ kb = KnowledgeBaseStore(settings)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.realtime.start()
+    # Scheduled reminders run through the app's agent runtime; the cron
+    # scheduler owns its own loop and stops with the server.
+    from .services.cron.executor import set_runtime
+    from .services.cron.module_service import start_cron, stop_cron
+
+    set_runtime(runtime)
+    await start_cron()
     try:
         yield
     finally:
+        await stop_cron()
         await app.state.realtime.stop()
 
 

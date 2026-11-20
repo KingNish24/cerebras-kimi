@@ -1799,3 +1799,146 @@ def apply_patch(ops_json: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+
+# ---------------------------------------------------------------------------
+# cron — scheduled reminders and automations ("remind me every Monday at 9")
+# ---------------------------------------------------------------------------
+
+
+def _cron_describe(schedule) -> str:  # noqa: ANN001 - CronSchedule
+    from datetime import datetime
+
+    def stamp(ms: int | None) -> str:
+        if not ms:
+            return "—"
+        return datetime.fromtimestamp(ms / 1000).astimezone().strftime("%Y-%m-%d %H:%M %Z")
+
+    if schedule.kind == "at":
+        return f"once at {stamp(schedule.at_ms)}"
+    if schedule.kind == "every":
+        return f"every {schedule.every_seconds}s"
+    tz_part = f" ({schedule.tz})" if schedule.tz else ""
+    return f"cron `{schedule.expr}`{tz_part}"
+
+
+def _cron_parse_at(value: str) -> int:
+    from datetime import datetime
+
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        raise ValueError(
+            f"could not parse time {value!r} — use ISO 8601, e.g. 2026-06-12T09:00"
+        ) from None
+    if parsed.tzinfo is None:
+        parsed = parsed.astimezone()  # naive times are server-local
+    return int(parsed.timestamp() * 1000)
+
+
+@tool(mutating=True, tool_icon="⏰")
+def cron(
+    action: str,
+    message: str = "",
+    name: str = "",
+    at: str = "",
+    every_seconds: int = 0,
+    cron_expr: str = "",
+    tz: str = "",
+    job_id: str = "",
+) -> str:
+    """Schedule reminders or automations that run later, and manage them.
+
+    Use this when the learner asks to be reminded, nudged or given something on
+    a schedule ("remind me every Monday at 9", "quiz me tomorrow evening").
+    The scheduled run lands as a new message in this conversation.
+
+    :param action: "list", "schedule" (aka add) or "cancel".
+    :param message: For "schedule": the instruction or reminder to deliver when due.
+    :param name: Optional short label for the task.
+    :param at: For "schedule": one-off time, ISO 8601, e.g. "2026-06-12T09:00".
+    :param every_seconds: For "schedule": repeat interval in seconds (min 30).
+    :param cron_expr: For "schedule": cron expression, e.g. "0 9 * * 1" (Mondays 09:00).
+    :param tz: For "schedule": IANA timezone for cron_expr, e.g. "Europe/Berlin".
+    :param job_id: For "cancel": the id shown by action="list".
+    """
+    from ..services.cron import CronOwner, get_cron_service
+    from .turn_context import turn_context
+
+    session_id, workspace_id = turn_context()
+    if not session_id:
+        return "Scheduling is not available in this context."
+    owner = CronOwner(kind="chat", session_id=session_id, workspace_id=workspace_id)
+    service = get_cron_service()
+    verb = (action or "").strip().lower()
+    verb = {"add": "schedule", "remove": "cancel"}.get(verb, verb)
+
+    def describe(job) -> str:  # noqa: ANN001 - CronJob
+        from datetime import datetime
+
+        nxt = job.state.next_run_at_ms
+        when = (
+            datetime.fromtimestamp(nxt / 1000).astimezone().strftime("%Y-%m-%d %H:%M %Z")
+            if nxt
+            else "—"
+        )
+        status = job.state.last_status or "pending"
+        return (
+            f"- `{job.id}` **{job.name}** — {_cron_describe(job.schedule)}; "
+            f"next run {when}; last: {status}"
+        )
+
+    if verb == "list":
+        jobs = service.list_jobs(owner_key=owner.key)
+        if not jobs:
+            return "No scheduled reminders for this conversation."
+        return "\n".join([f"{len(jobs)} scheduled reminder(s):", *map(describe, jobs)])
+
+    if verb == "cancel":
+        key = (job_id or "").strip()
+        if not key:
+            return "cancel needs a job_id (see action='list')."
+        if service.cancel_job(key, owner_key=owner.key):
+            return f"Reminder `{key}` cancelled."
+        return f"No reminder `{key}` found for this conversation."
+
+    if verb == "schedule":
+        text = (message or "").strip()
+        if not text:
+            return "schedule needs a message — what to deliver when it is due."
+        chosen = [bool((at or "").strip()), bool(every_seconds), bool((cron_expr or "").strip())]
+        if sum(chosen) != 1:
+            return (
+                "Provide exactly one of: at (one-off), every_seconds (interval), "
+                "or cron_expr (cron expression)."
+            )
+        try:
+            from ..services.cron import CronSchedule
+
+            if at.strip():
+                schedule = CronSchedule(kind="at", at_ms=_cron_parse_at(at.strip()))
+            elif every_seconds:
+                schedule = CronSchedule(kind="every", every_seconds=int(every_seconds))
+            else:
+                schedule = CronSchedule(
+                    kind="cron", expr=cron_expr.strip(), tz=(tz or "").strip() or None
+                )
+            job = service.add_job(
+                name=name, message=text, schedule=schedule, owner=owner
+            )
+        except (ValueError, TypeError) as exc:
+            return f"Could not schedule: {exc}"
+        from datetime import datetime
+
+        first = (
+            datetime.fromtimestamp(job.state.next_run_at_ms / 1000)
+            .astimezone()
+            .strftime("%Y-%m-%d %H:%M %Z")
+            if job.state.next_run_at_ms
+            else "—"
+        )
+        return (
+            f"Scheduled **{job.name}** (`{job.id}`) — {_cron_describe(job.schedule)}; "
+            f"first run {first}. The result arrives in this conversation and on the calendar."
+        )
+
+    return f"Unknown action {action!r} — use list, schedule or cancel."

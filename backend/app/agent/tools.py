@@ -266,6 +266,9 @@ def builtin_tools(settings: Settings, enabled: list[str] | None = None) -> list[
         # `ask_user` is intentionally not registered for now.
         "mastery": dt_tools.mastery,
         "video": dt_tools.video,
+        # Scheduled reminders: the run lands in the turn's own session and
+        # shows up on the calendar's Automations layer.
+        "cron": dt_tools.cron,
     }
     # DeepTutor semantics: only the user-toggleable tools are gated by the
     # frontend's `tools` list; every other built-in (workspace files, exec,

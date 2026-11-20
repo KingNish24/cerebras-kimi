@@ -171,9 +171,21 @@ def layers(request: Request, start: str, end: str, tz: str = "UTC"):
 
 
 @router.delete("/automations/{job_id}", response_model=m.CalendarOk)
-def cancel_automation(job_id: str):
-    # No cron service is wired into this backend, so no automation can exist.
-    raise HTTPException(404, "Automation not found.")
+def cancel_automation(job_id: str, request: Request):
+    """Cancel a scheduled reminder created from this workspace's chat."""
+    from ..services.calendar.layers import owner_key
+    from ..services.cron import get_cron_service
+
+    service = get_cron_service()
+    job = service.get_job(job_id)
+    if (
+        not job
+        or job.owner.key != owner_key()
+        or job.owner.kind != "chat"
+        or job.owner.workspace_id != board_workspace(request)
+    ):
+        raise HTTPException(404, "Automation not found.")
+    return {"ok": service.cancel_job(job_id, owner_key=owner_key())}
 
 
 @router.get("/stream")

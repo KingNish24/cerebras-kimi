@@ -23,6 +23,13 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 - **Event stream** — `GET /api/realtime/events?client_id=<id>` (`text/event-stream`). Named events: `turn_event` (with `id: <turn_id>:<seq>` for replay), `session_update`, `legacy_event`, and `ready`/`heartbeat`. Each browser client has its own event queue, so events are scoped to the client that sent the command.
 - **Client lifecycle** — `DELETE /api/realtime/clients/{client_id}` releases a client explicitly; idle clients are reclaimed by a periodic sweep.
 - **Health** — `GET /health` → `{"status":"ok"}`.
+- **Calendar** — `GET/POST /api/calendar/calendars`, `PATCH/DELETE /api/calendar/calendars/{id}`,
+  `GET/POST /api/calendar/events`, `PATCH/DELETE /api/calendar/events/{id}` (with
+  `scope=this|following|all` + `occurrence`), `POST /api/calendar/undo/{token}`,
+  `GET /api/calendar/search`, `GET /api/calendar/layers`, `GET /api/calendar/task-blocks`,
+  `GET /api/calendar/export.ics`, and `GET /api/calendar/stream` (SSE revision feed).
+  `GET /api/modules` reports `calendar` as installed so the sidebar entry, route gate and
+  reminder runtime switch on.
 
 ## Backend layout (`backend/app/`)
 
@@ -31,6 +38,7 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | `main.py` | FastAPI app: middleware, state, REST router, SSE realtime router, `/health`, Uvicorn entry point |
 | `api/realtime.py` | REST + SSE controller: per-client command dispatch (turns and feature channels), named-event stream, idle cleanup |
 | `api/handlers.py` | REST handler registry mounted at `/api/*` |
+| `api/calendar.py` | Calendar router at `/api/calendar` (calendars, events, RRULE expansion, search, ICS export, SSE revision stream, workspace layers) |
 | `agent/runtime.py` | `AgentRuntime` — builds vtx `ConversationRuntime`, owns turns/subscribers and event replay |
 | `agent/tools.py` | Tool registry — `builtin_tools()` with toggleable/locked-on gating |
 | `agent/dt_tools.py` | Consolidated tutor tools (see below) |
@@ -38,6 +46,8 @@ Browser ──GET/POST /api/*──────────────▶ FastA
 | `store/session_store.py` | DeepTutor session records — the sole conversation store |
 | `agent/dt_session.py` | vtx `Session` subclass that persists entries into the DeepTutor record |
 | `store/kb_store.py` | Knowledge-base store (chunked docs, BM25 search) |
+| `services/cron/` | Scheduled reminders/automations: `at`/`every`/`cron` jobs in a WAL SQLite store, scheduler loop, chat executor that runs a turn in the owning session |
+| `services/calendar/` | Calendar domain: pydantic wire models, RFC 5545 recurrence engine (dateutil), SQLite store with undo, iCalendar writer, workspace layer projections |
 | `config.py` | `Settings` — `data_dir`, `workspace_dir` via `DT_DATA_DIR`/`DT_WORKSPACE_DIR` |
 
 ## Agent tools
@@ -57,6 +67,7 @@ mode, AGENTS.md/skills and git context are replaced by the tutor prompt in
 - **`video`** — Remotion pipeline `scaffold|render|list` → `workspace/videos/*.mp4`
 - **`workspace`** — jailed ops for artifacts DeepTutor itself creates
 - **`question_bank`** — stored question entries
+- **`cron`** — `list|schedule|cancel` for scheduled reminders/automations (`at`, `every_seconds`, `cron_expr`); a due job runs a turn in the session it was scheduled from and appears on the calendar's Automations layer
 
 Coding-agent tools (`apply_patch`, `read_file`, `list_files`, `codemode`,
 `tool_search`, `ask_user`) are intentionally not registered.
@@ -91,6 +102,8 @@ DeepTutor owns its provider and model catalogue. Nothing is loaded from or featu
 | Memory/learning/mastery/notes | `data/*.json`, `data/notes/` |
 | Extended feature stores | `data/ext/` |
 | Settings catalog/draft | `data/settings-catalog.json`, `data/settings-draft.json` |
+| Scheduled reminders | `data/cron/jobs.sqlite3` (job payloads, run history, next-run times) |
+| Calendars and events | `data/calendar/calendar.sqlite` (per-account calendars, recurring events, undo tokens) |
 | Workspace files | `data/workspace/` (`DT_WORKSPACE_DIR`) |
 | Model/provider config | `data/settings-catalog.json` (+ `data/settings.json` mirror); preset keys from env vars |
 

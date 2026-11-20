@@ -1256,6 +1256,7 @@ export const AssistantMessage = memo(function AssistantMessage({
         <OpenUIMessage
           content={msg.content}
           isStreaming={isStreaming}
+          language={turnLanguage}
           onSendFollowUp={onSendFollowUp}
         />
       ) : useSegmentLayout ? (
@@ -1289,25 +1290,24 @@ export const AssistantMessage = memo(function AssistantMessage({
               <SentMidTurn key={block.key} messages={block.segment.messages} />
             ) : null
           ) : block.segment.kind === "text" ? (
-            <AssistantResponse
+            // Every answer — a program, a reply with prose around one, or plain
+            // prose — renders through OpenUI, so there is one renderer for the
+            // chat body and inline maths is handled uniformly.
+            <OpenUIMessage
               key={block.key}
               content={block.segment.text}
-              language={turnLanguage}
               isStreaming={isStreaming}
-              readingMaterialId={readingMaterialId}
-              readingMaterialRevision={readingMaterialRevision}
-              events={events}
+              language={turnLanguage}
+              onSendFollowUp={onSendFollowUp}
             />
           ) : null,
         )
       ) : (
-        <AssistantResponse
+        <OpenUIMessage
           content={body}
-          language={turnLanguage}
           isStreaming={isStreaming}
-          readingMaterialId={readingMaterialId}
-          readingMaterialRevision={readingMaterialRevision}
-          events={events}
+          language={turnLanguage}
+          onSendFollowUp={onSendFollowUp}
         />
       )}
       {events.some(event => event.type === "sources" &&
